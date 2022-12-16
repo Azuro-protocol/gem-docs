@@ -1,0 +1,20 @@
+{
+  "name": "azuro-v2-docs",
+  "version": "0.1.0",
+  "engines": {
+    "node": "=16.15.1",
+    "npm": "=8.11.0"
+  },
+  "scripts": {
+    "dev": "next dev -p 5009",
+    "start": "next start",
+    "build": "next build"
+  },
+  "dependencies": {
+    "next": "^13.0.7",
+    "nextra": "^2.0.1",
+    "nextra-theme-docs": "^2.0.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
