@@ -1,0 +1,32 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Build Own Front
+
+<Callout type="warning" emoji="⚠️">
+  This guide assumes that you have experience working with `React` and `GraphQL`.
+</Callout>
+
+Azuro protocol logic is laid down in smart contracts. [Read more about Azuro contracts](/dive-deeper/contracts).
+
+To simplify client side development Azuro uses [Subgraphs](https://thegraph.com/docs/en/about/). The result of this is
+GraphQL that can be used to fetch data from blockchain. [Read more about Azuro GraphQL](/dive-deeper/graphql).
+
+
+## GraphQL Query Examples
+
+- [List games](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api/graphql?query=query+MyQuery+%7B%0A++games+%7B%0A++++sport+%7B%0A++++++name%0A++++%7D%0A++++league+%7B%0A++++++name%0A++++++country+%7B%0A++++++++name%0A++++++%7D%0A++++%7D%0A++++participants+%7B%0A++++++name%0A++++++image%0A++++%7D%0A++++startsAt%0A++++status%0A++%7D%0A%7D)
+- [List football games](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api/graphql?query=query+MyQuery+%7B%0A++games%28where%3A+%7B+sport_%3A+%7B+name%3A+%22Football%22+%7D+%7D%29+%7B%0A++++sport+%7B%0A++++++name%0A++++%7D%0A++++league+%7B%0A++++++name%0A++++++country+%7B%0A++++++++name%0A++++++%7D%0A++++%7D%0A++++participants+%7B%0A++++++name%0A++++++image%0A++++%7D%0A++++startsAt%0A++++status%0A++%7D%0A%7D)
+- [List user bets](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api/graphql?query=query+MyQuery+%7B%0A++bets%28%0A++++where%3A+%7Bactor_starts_with_nocase%3A+%220x05ac3d28434804ec02ed9472490fc42d7e9e646d%22%7D%0A++%29+%7B%0A++++createdTxHash%0A++++betId%0A++++amount%0A++++odds%0A++++potentialPayout%0A++++outcome+%7B%0A++++++outcomeId%0A++++%7D%0A++++isRedeemed%0A++++createdBlockTimestamp%0A++%7D%0A%7D&operationName=MyQuery)
+
+
+## DApp Examples
+
+We prepared a set of examples that can help you to build simple Bookmaker DApp:
+
+- [List games](#)
+- [List specific games using filters](#)
+- [One game with "Full Time Result" market outcomes](#)
+- [One game with all the markets](#)
+- [Place a bet](#)
+- [List user bets](#)
+- [Redeem won bet](#)

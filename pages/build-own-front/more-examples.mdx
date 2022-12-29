@@ -1,0 +1,224 @@
+import { Callout } from 'nextra-theme-docs'
+
+
+### Fetch outcomes odds for each game `condition`
+
+```ts copy
+const { data } = await axios.post(GRAPHQL_ENDPOINT, {
+  query: `
+    query Odds($conditionFilter: Condition_filter) {
+      conditions(where: $conditionFilter) {
+        id
+        outcomes {
+          outcomeId
+          odds
+        }
+      }
+    }
+  `,
+  variables: {
+    conditionFilter: {
+      id_in: [ condition.id ],
+    },
+  },
+})
+```
+
+<Callout type="warning" emoji="⚠️️">
+  Note that there is `condition.id` passed to variables. Don't use `condition.conditionId` because there can be multiple
+  conditions with same `conditionId`.
+</Callout>
+
+
+### Fetch actual odds
+
+To get actual odds values use `calcOdds` method on Core contract.
+
+```ts
+async function fetchActualOdds(outcome) {
+  const coreAddress = outcome.condition.coreAddress
+  const conditionId = outcome.condition.conditionId
+  const outcomeId = outcome.outcomeId
+  const betAmount = 0 // do not take into account the bet amount when calculating odds for outcome buttons
+
+  const coreContract = new Contract(coreAddress, CORE_ABI, GNOSIS_PROVIDER)
+
+  const actualOdds = await coreContract.calcOdds(conditionId, betAmount, outcomeId)
+
+  return actualOdds
+}
+```
+
+
+### Subscribe for odds update
+
+Bet placing creates `NewBet` event on LP contract where the bet was made. Each bet changes odds values. We can subscribe
+for this event and fetch new odds.
+
+For each outcome button in the UI we need to subscribe for `NewBet` event.
+
+```ts copy
+// some outcome button data
+const outcome = {
+  outcomeId: 1,
+  condition: {
+    conditionId: 2,
+    coreAddress: '0x',
+  },
+}
+
+const coreContract = new Contract(outcome.condition.coreAddress, CORE_ABI, GNOSIS_PROVIDER)
+
+coreContract.on('NewBet', async (...args) => {
+  const [ bettor, affiliate, conditionId, tokenId, outcomeId, amount, odds, funds ] = args
+
+  // check that this event relates to the outcome button
+  if (
+    outcome.outcomeId === outcomeId
+    && outcome.condition.conditionId === conditionId
+  ) {
+    // use this result to update outcome odds in UI
+    const actualOdds = await fetchActualOdds(outcome)
+  }
+})
+```
+
+
+### Place a bet
+
+```ts copy
+import { parseUnits } from '@ethersproject/units'
+
+// some outcome button data
+const outcome = {
+  outcomeId: 1,
+  condition: {
+    conditionId: 2,
+    core: {
+      address: '0x',
+      liquidityPool: {
+        address: '0x',
+      },
+    },
+  },
+}
+
+const lpAddress = outcome.condition.core.liquidityPool.address
+const coreAddress = outcome.condition.core.address
+
+const lpContract = new Contract(lpAddress, LIQUIDITY_POOL_ABI, GNOSIS_PROVIDER)
+
+const deadline = Math.floor(Date.now() / 1000) + 2000 // the time (in seconds) for which the transaction should be submitted
+const affiliate = AFFILIATE_ADDRESS // your affiliate wallet address
+const conditionId = outcome.condition.conditionId
+const outcomeId = outcome.outcomeId
+
+const slippage = 5 // 5%
+const odds = 1.5 // the odds value taken from contracts in moment of bet placing
+const minOdds = 1 + (odds - 1) * (100 - slippage) / 100 // the minimum value at which a bet should be made
+const oddsDecimals = 12 // current protocol version odds has 12 decimals
+const rawMinOdds = parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
+
+const betAmount = 100 // 100 xDAI
+const tokenDecimals = 18 // xDAI has 18 decimals
+const rawAmount = parseUnits(betAmount, tokenDecimals)
+
+const tx = await lpContract.betNative(coreAddress, deadline, {
+  affiliate,
+  conditionId,
+  outcomeId,
+  minOdds: rawMinOdds,
+}, { value: rawAmount })
+
+const receipt = await tx.wait()
+```
+
+<Callout type="info" emoji="ℹ️️">
+  `AFFILIATE_ADDRESS` is the address of crypto wallet controlled by you. You will be able to claim affiliate rewards in future.
+  [Read more about how affiliate program](/dive-deeper/rewards).
+</Callout>
+
+
+## Get placed bet data
+
+One option to do this is to subscribe to `NewBet` event. Other option is to parse logs of received transaction receipt.
+
+<Callout type="info" emoji="ℹ️️">
+  This method is useful to not wait for `NewBet` event and do something synchronously after bet placed.
+</Callout>
+
+```ts copy
+const tx = await lpContract.betNative(...)
+const receipt = await tx.wait()
+
+const eventName = 'NewBet'
+const abi = [ 'event NewBet(address indexed bettor, address indexed affiliate, uint256 indexed conditionId, uint256 tokenId, uint64 outcomeId, uint128 amount, uint64 odds, uint128[2] funds)' ]
+
+const { tokenId, odds } = getEventArgsFromTxReceipt({ eventName, abi, receipt })
+
+const betId = tokenId.toString()
+const betEntityId = `${coreAddress}_${betId}` // TheGraph @entity id
+const betOdds = odds.toNumber() // the odds the bet was made with
+```
+
+```ts filename="getEventArgsFromTxReceipt.ts" copy
+import { utils } from 'ethers'
+import type { ContractReceipt } from '@ethersproject/contracts'
+
+type Props = {
+  eventName: string
+  abi?: string[]
+  receipt: ContractReceipt
+  checkArgs?: (args) => boolean
+}
+
+const getEventArgsFromTxReceipt = <T = Record<string, any>>({ eventName, abi, receipt, checkArgs }: Props): T => {
+  if (receipt.events) {
+    const event = receipt.events.find((event) => event.event?.toLowerCase() === eventName.toLowerCase())
+
+    if (event) {
+      return event.args as unknown as T
+    }
+  }
+
+  try {
+    const iface = new utils.Interface(abi)
+    let result
+
+    receipt.logs.some((log) => {
+      try {
+        const data = iface.parseLog(log)
+        let isMatch = false
+
+        if (data.name.toLowerCase() === eventName.toLowerCase()) {
+          isMatch = true
+
+          if (typeof checkArgs === 'function') {
+            isMatch = checkArgs(data?.args)
+          }
+        }
+
+        if (isMatch) {
+          result = data
+        }
+
+        return isMatch
+      }
+      catch {}
+    })
+
+    return result?.args
+  }
+  catch (err) {
+    console.error(err)
+  }
+}
+
+export default getEventArgsFromTxReceipt
+```
+
+<Callout type="warning" emoji="⚠️">
+  More examples will be added in nearest future.<br /><br />
+  If you have any suggestions please [leave a feedback](https://github.com/Azuro-protocol/sdk-docs/issues/new?title=Feedback).
+  We would really appreciate it if it helps us write the perfect documentation for you.
+</Callout>

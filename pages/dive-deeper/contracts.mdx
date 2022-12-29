@@ -1,0 +1,72 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Contracts
+
+In current version Azuro Protocol has 6 contracts. The contracts that will be most used in front building are `LP`
+and `Core`.
+
+`LP` contract is the heart of Azuro Protocol. Liquidity Pool works with liquidity providers and users bets.
+
+`Core` contract
+consists the whole betting logic and relates to `LP` contract. There can be several `Core` contracts related to one `LP` contract.
+
+<Callout type="info" emoji="ℹ️️">
+  To obtain set of LP and Core contract addresses you can use GraphQL. [Try it here](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api/graphql?query=query+MyQuery+%7B%0A++liquidityPoolContracts+%7B%0A++++address%0A++++cores+%7B%0A++++++address%0A++++%7D%0A++%7D%0A%7D).
+  <br />There are no other addresses you should know/use during development.
+</Callout>
+
+
+## ABI
+
+In Azuro we support version control when working with contract updates.
+[Find latest ABI version here](https://github.com/Azuro-protocol/public-config/tree/main/abis/eth).
+
+<Callout type="info" emoji="❤️">
+  Azuro has a plan to add release notes in nearest future.
+</Callout>
+
+
+## More Info
+
+### LP
+
+- Liquidity Pool is [ERC721](https://eips.ethereum.org/EIPS/eip-721) non-fungible token which broadens the standardizes specification by including bets
+and provides liquidity features, based on the Core contract.
+- Every liquidity LPNFT token represents liquidity part added by each user.
+- LPNFT can be withdrawn by user at any moment with getting its part of shared liquidity including profit/loss.
+- User’s liquidity used in protocol only from moment it was added.
+
+### Core
+
+- Consists whole betting logic of Azuro Protocol.
+- Response for correct odds calculation and it's slippage.
+- Resolving bettor's prizes and loses.
+
+### LiveCore
+
+- Consists whole live betting logic of Azuro Protocol.
+- Collecting live bets into groups - batches and calculate odds for all bets in batch. Rejects bets with
+"minimal odds" higher to batch odds.
+- Resolving bettor's prizes and loses.
+
+### Factory
+
+- Fabric contract creates set of LP, Core contracts, configures them and links to AzuroBet contract.
+
+### AzuroBet
+
+- AzuroBet is the [ERC1155](https://eips.ethereum.org/EIPS/eip-1155) Non fungible token,
+that represents bets maid at Azuro Protocol.
+- Bettor owns "amount" of token id and in case of win can withdraw "payout" of owned token.
+- Token Id represents condition and outcome index, so every condition have only two token ids (for conditions
+with two outcomes).
+- It could be transferred by user and sell on the secondary market. This feature allow users to create p2p
+live betting and also this NFT's could be collected by users as memorable bets.
+- Minting and Burning of this tokens controlled by Core contract.
+- Store bets register - lastTokenId.
+
+### Freebet
+
+<Callout type="warning" emoji="⚠️">
+  The info will be added soon.
+</Callout>

@@ -1,0 +1,29 @@
+import { Callout } from 'nextra-theme-docs'
+
+# GraphQL
+
+## Endpoints
+
+Dev: https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-dev/graphql<br />
+Prod: https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api/graphql
+
+
+## Specificity
+
+- Azuro builds GraphQL using TheGraph Subgraphs. If you're not familiar with it we recommend to read [Official Documentation](https://thegraph.com/docs/en/about/).
+- TheGraph can return maximum 1000 elements per request. By default it returns 100 elements. Keep this in mind.
+- TheGraph uses a unique `id: ID!` (TheGraph Ids) for `@entity` directives in schemas. These ids are technical and
+don't relate to Azuro entities. Azuro entities use "prefixes" in their ids (Azuro Ids), e.g. `sport` has `sportId`,
+`game` has `gameId`. Avoid using `id` if it's not necessary.
+- Some entities may have same Azuro Ids. For example there can be 2 games with same `gameId`. You can read why this is
+happening [here](/dive-deeper/conditions). If you need to fetch data for specific game you can use additional properties
+as query filters, e.g. `sportId`, `leagueId`, etc but the best way here to use `id` (TheGraph Id) because it's unique for each game.
+- All addresses in TheGraph database stored in lower case. Be sure that you use `.toLowerCase()` on passed variables
+or `_nocase` postfix used on variable key.
+
+
+## Queries
+
+<Callout type="warning" emoji="⚠️">
+  This block is in the process of writing.
+</Callout>
