@@ -1,0 +1,55 @@
+import { Callout } from 'nextra-theme-docs'
+import { Link } from '@components/link'
+
+# Fork Bookmaker.XYZ
+
+<Callout type="warning" emoji="⚠️">
+  Bookmaker.xyz template supports Azuro Protocol V1 only. Don't use it if you're not sure.
+</Callout>
+
+<Callout type="info" emoji="✅">
+  This guide doesn't require specific knowledge in development.
+</Callout>
+
+<Link href="mailto:team@azuro.org">Write us</Link> to request access to https://github.com/Azuro-protocol/bookmaker-xyz-template.
+
+### Setup environments
+
+Copy `.env.example` to `.env.local` for development, and to `.env` for production usage. You don't need to change something.
+
+### Configure texts (SEO)
+
+Copy `dapp.config.js.example` to `dapp.config.js` and replace the texts.
+
+### Run locally
+
+Recommended engines are `Node 16.15.1`, `NPM 8.11.0`.
+
+```
+npm i
+npm run dev
+```
+
+The application will be launched on `localhost:5001`.
+
+### Production
+
+```
+npm run build
+npm run start
+```
+
+<Callout type="info" emoji="ℹ️️">
+  We recommend to use [Vercel](https://vercel.com/guides/deploying-react-with-vercel) to deploy your project. It's very easy.
+</Callout>
+
+<Callout type="info" emoji="❤️">
+  Azuro has a plan to create "Build, Execute and Deploy in One Click" instrument for your convenience.
+</Callout>
+
+### Caveat
+
+<Callout type="error" emoji="⚠️">
+  Don't change project code if you'd like to receive updates from Azuro team. With each update you will need to copy
+  `dapp.config.js` and env files to new project. As a feature we will provide an API to make updating very easy :)
+</Callout>

@@ -1,7 +1,7 @@
 {
   "contracts": "Contracts",
-  "conditions": "Conditions",
-  "registry": "Registry",
   "graphql": "GraphQL",
+  "registry": "Registry",
+  "conditions": "Conditions",
   "rewards": "Affiliate"
 }
