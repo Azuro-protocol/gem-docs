@@ -1,0 +1,52 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Dictionaries
+
+Here you can find information about titles for outcomes, markets, etc.
+
+## What is it?
+
+Each game may have many markets and outcomes related to these markets, e.g. football event can have set of:
+
+- Both Team To Score: Yes | No
+- Full Time Result: 1 | 2
+- etc
+
+Blockchain doesn't store text information about outcomes. Each Outcome has `outcomeId`, Use it to get the information from
+protocol dictionaries. "dictionaries" is set of files with text descriptions of specific outcome. Check [v2.0.1 dictionaries](https://github.com/Azuro-protocol/public-config/tree/main/dictionaries/v2.0.1/json/maps)
+for a better understanding.
+
+<Callout type="info" emoji="ℹ️️">
+  The latest version of dictionaries can be found [here](https://github.com/Azuro-protocol/public-config/tree/main/dictionaries/).
+</Callout>
+
+The work with dictionaries starts with `outcomes.json` file. This is the heart of dictionaries, this file contains the
+decryption of the outcome ID in the form of other IDs: `selectionId`, `marketId`, `gamePeriodId`, `gameTypeId`, `gameVarietyId`,
+`pointsId`, `teamPlayerId`. All text data about specific Outcome can be received using these IDs and the files related
+to them it the repository.
+
+
+```ts
+const {
+  selectionId,
+  marketId,
+  gamePeriodId,
+  gameTypeId,
+  gameVarietyId,
+  pointsId,
+  teamPlayerId
+} = outcomes[outcomeId]
+
+const selection = selections[selectionId]
+const market = markets[marketId]
+const gamePeriod = gamePeriods[gamePeriodId]
+const gameType = gameTypes[gameTypeId]
+const gameVariety = gameVarietys[gameVarietyId]
+const points = points[pointsId]
+const teamPlayer = teamPlayers[teamPlayerId]
+```
+
+## Helpers
+
+We recommend to use [@azuro-protocol/dictionaries](https://www.npmjs.com/package/@azuro-protocol/dictionaries) package
+to work with dictionaries. Read the description to see how easy and simple it's to use.
