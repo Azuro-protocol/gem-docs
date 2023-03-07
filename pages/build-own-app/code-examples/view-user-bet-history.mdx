@@ -1,0 +1,4 @@
+# View user bet history
+
+[CodeSandbox](https://codesandbox.io/s/azuro-example-user-bets-7lrom6?file=/src/App.tsx)
+[Subgraph](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+MyQuery+%7B%0A++bets%28where%3A+%7Bactor%3A+%220x05ac3d28434804ec02ed9472490fc42d7e9e646d%22%7D%29+%7B%0A++++createdTxHash%0A++++betId%0A++++amount%0A++++odds%0A++++potentialPayout%0A++++status%0A++++isRedeemed%0A++++createdBlockTimestamp%0A++++outcome+%7B%0A++++++outcomeId%0A++++++condition+%7B%0A++++++++wonOutcome+%7B%0A++++++++++outcomeId%0A++++++++%7D%0A++++++%7D%0A++++%7D%0A++++game+%7B%0A++++++...Game%0A++++%7D%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A++status%0A%7D&operationName=MyQuery)

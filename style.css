@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+ul {
+  margin-top: 0 !important;
+}
+
 p + p {
-  margin-top: 0.6em;
+  margin-top: 0.8em !important;
 }

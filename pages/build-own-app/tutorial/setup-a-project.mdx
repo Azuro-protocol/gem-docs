@@ -1,0 +1,113 @@
+# Setup a Project
+
+## Setup Next.js Project
+
+In this guide we use React framework - Next.js. Don't worry if you are not familiar with Next.js. We will use it
+as a boilerplate, there will be nothing in the installed project that can cause you difficulties in further coding.
+
+Create a project with the following command:
+
+```bash copy
+npx create-next-app@latest ./azuro-bookmaker-website
+```
+
+**Note!** During installation a terminal will prompt you with options to select. You need a very simple configuration
+for this tutorial
+
+- Would you like to use TypeScript with this project? … **No** / Yes
+- Would you like to use ESLint with this project? … **No** / Yes
+- Would you like to use `src/` directory with this project? … **No** / Yes
+- Would you like to use experimental `app/` directory with this project? … **No** / Yes
+- What import alias would you like configured? … @/* **(press Enter to skip)**
+
+Now you can run the app in development mode
+
+```bash
+cd azuro-bookmaker-website
+npm run dev
+```
+
+Open [localhost:3000](http://localhost:3000) in your browser to see Next.js initial page.
+
+
+## Styling
+
+In this tutorial we will use [TailwindCSS](https://beta.nextjs.org/docs/styling/tailwind-css) to apply CSS styles to UI.
+
+Execute the following commands in the app root directory
+
+```
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+Update **tailwind.config.js**. Add paths to the files that will use Tailwind CSS, add `.container` styles and breakpoints
+
+```bash {4,7-17} copy
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./pages/*.js",
+  ],
+  theme: {
+    container: {
+      center: true,
+      padding: '1rem',
+      screens: {
+        'sm': '600px',
+        'md': '740px',
+        'lg': '960px',
+        'xl': '1024px',
+        '2xl': '1280px',
+      },
+    },
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+Add the Tailwind CSS directives that Tailwind will use to inject its generated styles to a Global Stylesheet.
+
+Replace the CSS code in `styles/globals.css` with
+
+```css copy
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+To save time in the future, let's add additional styles in the same file
+
+```css copy {4-14}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .button {
+    @apply py-1.5;
+    @apply px-4;
+    @apply text-blue-700;
+    @apply border;
+    @apply border-blue-700;
+    @apply rounded-md;
+  }
+}
+```
+
+
+## Clean Up
+
+Let's clean up the application to prepare for the next steps.
+
+1. Remove `styles/Home.module.css`
+2. Remove `pages/api` folder
+3. Replace code in `pages/index.js` with
+```tsx copy
+export default function Home() {
+  return (
+    <main />
+  )
+}
+```

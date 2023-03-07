@@ -1,0 +1,12 @@
+{
+  "index": {
+    "title": "Getting Started",
+    "theme": {
+      "breadcrumb": false,
+      "pagination": false
+    }
+  },
+  "tutorial": "Tutorial",
+  "code-examples": "Code Examples",
+  "dive-deeper": "Dive Deeper"
+}

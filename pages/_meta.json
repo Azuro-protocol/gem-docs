@@ -1,5 +1,11 @@
 {
-  "index": "Introduction",
-  "fork-bookmaker-xyz": "Fork bookmaker.xyz",
-  "build-own-front": "Build Own Front"
+  "index": {
+    "title": "Introduction",
+    "theme": {
+      "breadcrumb": false,
+      "pagination": false
+    }
+  },
+  "copy-bookmaker-xyz": "Copy Bookmaker.XYZ",
+  "build-own-app": "Build Your Own App"
 }

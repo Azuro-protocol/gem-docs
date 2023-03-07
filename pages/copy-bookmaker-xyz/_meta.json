@@ -1,0 +1,12 @@
+{
+  "index": {
+    "title": "Getting Started",
+    "theme": {
+      "breadcrumb": false,
+      "pagination": false
+    }
+  },
+  "index_DEPRECETAD": {
+    "display": "hidden"
+  }
+}

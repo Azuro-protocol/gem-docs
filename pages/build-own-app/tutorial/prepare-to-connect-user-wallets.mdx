@@ -1,0 +1,84 @@
+# Prepare to Connect User Wallets
+
+## Install useDApp
+
+In the world of blockchain users rely on Web3 wallets to login to applications and interact with the blockchain,
+sign and execute transactions securely.
+
+To streamline the development process, we will be using a powerful tool
+called [useDApp](https://usedapp.io/) - Framework for Rapid Dapp Development.
+
+To get started, add the following npm package `@usedapp/core` and its peer dependency in your project:
+
+```bash copy
+npm install @usedapp/core ethers
+```
+
+## Setup
+
+The first thing you need to do is set up **DAppProvider** with a config and wrap your whole App in it.
+
+```tsx {2-12,16-18} copy filename="pages/_app.js"
+import '@/styles/globals.css'
+import * as ethers from 'ethers'
+import { DAppProvider, Polygon } from '@usedapp/core'
+
+const config = {
+  readOnlyChainId: Polygon.chainId,
+  readOnlyUrls: {
+    // in this tutorial we use Ankr public RPC. It's free and has it's own limits
+    // in the production version with a large number of users, we do not recommend using it
+    [Polygon.chainId]: new ethers.providers.StaticJsonRpcProvider('https://rpc.ankr.com/polygon'),
+  },
+}
+
+export default function App({ Component, pageProps }) {
+  return (
+    <DAppProvider config={config}>
+      <Component {...pageProps} /> {/* Wrap your app with the Provider */}
+    </DAppProvider>
+  )
+}
+```
+
+## Connect Button
+
+```tsx {3,14-22,27-30} copy filename="pages/_app.js"
+import '@/styles/globals.css'
+import * as ethers from 'ethers'
+import { DAppProvider, Polygon, useEthers } from '@usedapp/core'
+
+const config = {
+  readOnlyChainId: Polygon.chainId,
+  readOnlyUrls: {
+    // in this tutorial we use Ankr public RPC. It's free and has it's own limits
+    // in the production version with a large number of users, we do not recommend using it
+    [Polygon.chainId]: new ethers.providers.StaticJsonRpcProvider('https://rpc.ankr.com/polygon'),
+  },
+}
+
+const ConnectButton = () => {
+  const { account, deactivate, activateBrowserWallet } = useEthers()
+  // 'account' being undefined means that user is not connected
+  const title = account ? 'Disconnect' : 'Connect'
+  const action = account ? deactivate : activateBrowserWallet
+  return (
+    <button className="button" onClick={() => action()}>{title}</button>
+  )
+}
+
+export default function App({ Component, pageProps }) {
+  return (
+    <DAppProvider config={config}>
+      <div className="container py-3">
+        <div className="mb-4">
+          <ConnectButton />
+        </div>
+        <Component {...pageProps} />
+      </div>
+    </DAppProvider>
+  )
+}
+```
+
+Visit [localhost:3000](http://localhost:3000) and ensure that the Connect Button is present and functioning properly.
