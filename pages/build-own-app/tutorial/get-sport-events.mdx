@@ -8,7 +8,7 @@ In this tutorial, we'll fetch data from the blockchain using SubGraphs (GraphQL)
 and in this simple tutorial we will use `@apollo/client` package. It's very simple to use it.
 
 ```bash copy
-npm i @apollo/client
+npm install @apollo/client
 ```
 
 Add TanStack provider to `pages/_app.js`
@@ -47,7 +47,7 @@ export default function App({ Component, pageProps }) {
   return (
     <DAppProvider config={config}>
       <ApolloProvider client={apolloClient}>
-        <div className="container py-3">
+        <div className="container pt-3 pb-16">
           <ConnectButton />
           <Component {...pageProps} />
         </div>
@@ -57,7 +57,7 @@ export default function App({ Component, pageProps }) {
 }
 ```
 
-## Fetch Events
+## Fetch Sport Events
 
 Update the `page/index.js` file with the code provided below. This will modify the Index page (Home) to display all
 available sports events for users to see.
@@ -66,7 +66,7 @@ available sports events for users to see.
 import { gql, useQuery } from '@apollo/client'
 
 // this query retrieves data for 10 upcoming events that have not yet started
-const SPORT_EVENTS_QUERY = `
+const GAMES_QUERY = `
   query Games($startsAt: String!) {
     games(first: 10, where: { startsAt_gt: $startsAt }) {
       sport {
@@ -88,7 +88,7 @@ const SPORT_EVENTS_QUERY = `
 `
 
 export default function Home() {
-  const { loading, data } = useQuery(gql`${SPORT_EVENTS_QUERY}`, {
+  const { loading, data } = useQuery(gql`${GAMES_QUERY}`, {
     variables: {
       // note that the value of this string is in seconds
       startsAt: String(Math.floor(Date.now() / 1000)),
@@ -101,13 +101,13 @@ export default function Home() {
 
   return (
     <main>
-      GAME COUNT: {data?.games?.length}
+      GAME COUNT: {data.games.length}
     </main>
   )
 }
 ```
 
-## Show Sport Events in UI
+## Render Sport Events UI
 
 ```jsx {2-3,8-33,48-56}
 import { gql, useQuery } from '@apollo/client'
@@ -124,7 +124,7 @@ const GameCard = ({ id, sport, league, participants, startsAt }) => (
   >
     <div className="flex justify-between text-sm">
       <span>{sport.name}</span>
-      <span>{dayjs(startsAt * 1000).format('DD MMM')}</span>
+      <span>{dayjs(startsAt * 1000).format('DD MMM HH:mm')}</span>
     </div>
     <div className="mt-2 text-sm text-gray-400">
       {league.country.name} &middot; {league.name}
@@ -160,7 +160,7 @@ export default function Home() {
     <main>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
         {
-          data?.games.map((game) => (
+          data.games.map((game) => (
             <GameCard key={game.id} {...game} />
           ))
         }
@@ -170,7 +170,16 @@ export default function Home() {
 }
 ```
 
-The result should look similar to
+Run the following command
+
+```bash
+npm run dev
+```
+
+This starts your Next.js app’s "development server" on port 3000. Let’s check to see if it’s working.
+Open [localhost:3000](http://localhost:3000) from your browser.
+
+The resulting output should be
 
 <div className="mt-4 border border-gray-300 rounded-lg overflow-hidden">
   <Image className="w-full" src="/images/sport-events.png" width={2544} height={1248} alt="" />
