@@ -67,8 +67,8 @@ import { gql, useQuery } from '@apollo/client'
 
 // this query retrieves data for 10 upcoming events that have not yet started
 const GAMES_QUERY = `
-  query Games($startsAt: String!) {
-    games(first: 10, where: { startsAt_gt: $startsAt }) {
+  query Games($gameFilter: Game_filter!) {
+    games(first: 10, where: $gameFilter) {
       sport {
         name
       }
@@ -90,8 +90,11 @@ const GAMES_QUERY = `
 export default function Home() {
   const { loading, data } = useQuery(gql`${GAMES_QUERY}`, {
     variables: {
-      // note that the value of this string is in seconds
-      startsAt: String(Math.floor(Date.now() / 1000)),
+      gameFilter: {
+        // note that the value of "startAt" is in seconds
+        startsAt_gt: String(Math.floor(Date.now() / 1000)),
+        sport_: { name: 'Football' },
+      },
     },
   })
 
