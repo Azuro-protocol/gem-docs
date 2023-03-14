@@ -1,28 +1,15 @@
 import Image from 'next/image'
 
-# Get Sport Event Details
-
-Create `pages/games/[id].js` file with the following content
-
-```jsx
-export default function Game() {
-  return (
-    <main />
-  )
-}
-```
-
-
 ## Fetch Game Data
 
-Update the `page/index.js` file with the code provided below. This will modify the Index page (Home) to display all
-available sports events for users to see.
+Create a new file called `useSportEvent.js` in the `hooks` folder of your project. Copy and paste the following
+code into the file
 
-```jsx copy filename="pages/index.js"
-import { gql, useQuery } from '@apollo/client'
+```js copy filename="hooks/useSportEvent.js"
 import { useRouter } from 'next/router'
+import { gql, useQuery } from '@apollo/client'
 
-const GAME_QUERY = `
+const QUERY = `
   query Game($id: String!) {
     game(id: $id) {
       sport {
@@ -43,94 +30,32 @@ const GAME_QUERY = `
   }
 `
 
-export default function Game() {
+export default function useSportEvent() {
   const { query } = useRouter()
 
-  const { loading, data } = useQuery(gql`${GAME_QUERY}`, {
+  return useQuery(gql`${QUERY}`, {
     variables: {
       id: query.id,
     },
   })
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  const { sport, league, participants, startsAt } = data.game
-
-  return (
-    <main />
-  )
 }
 ```
-
-
-## Render Game Info UI
-
-```jsx {3, 7-32, 50-52}
-import { gql, useQuery } from '@apollo/client'
-import { useRouter } from 'next/router'
-import dayjs from 'dayjs'
-
-const GAME_QUERY = `...`
-
-const ParticipantLogo = ({ image, name }) => (
-  <div className="flex flex-col items-center">
-    <div className="flex items-center justify-center w-20 h-20 border border-gray-300 rounded-full">
-      <img className="w-12 h-12" src={image} alt={name} />
-    </div>
-    <span className="max-w-[210px] mt-3 text-lg text-center">{name}</span>
-  </div>
-)
-
-const GameInfo = ({ sport, league, participants, startsAt }) => (
-  <div className="flex flex-col items-center pt-6 pb-8 border border-gray-300 rounded-lg">
-    <div className="flex flex-col items-center text-md">
-      <div>{sport.name}</div>
-      <div className="mt-2 text-gray-500">
-        {league.country.name} &middot; {league.name}
-      </div>
-    </div>
-    <div className="mt-5 grid grid-cols-[1fr_auto_1fr]">
-      <ParticipantLogo {...participants[0]} />
-      <div className="mx-5 pt-7 text-md text-gray-500">
-        {dayjs(startsAt * 1000).format('DD MMM HH:mm')}
-      </div>
-      <ParticipantLogo {...participants[1]} />
-    </div>
-  </div>
-)
-
-export default function Game() {
-  const { query } = useRouter()
-
-  const { loading, data } = useQuery(gql`${GAME_QUERY}`, {
-    variables: {
-      id: query.id,
-    },
-  })
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  const { sport, league, participants, startsAt } = data.game
-
-  return (
-    <main>
-      <GameInfo {...{ sport, league, participants, startsAt }} />
-    </main>
-  )
-}
-```
-
 
 ## Get Markets and Outcomes
 
-Adjust `GAME_QUERY` with additional fields
+Because of technical limitations, it's not possible to directly access data on markets and outcomes (selections) from
+the protocol. Instead, the protocol uses entities called "conditions". To learn more about how conditions work, please
+refer to the documentation provided [here](#).
 
-```js {18-32}
-const GAME_QUERY = `
+Adjust the query with additional fields and use helpers to get markets
+
+```js {3-4, 23-37, 45-70} copy
+import { useRouter } from 'next/router'
+import { gql, useQuery } from '@apollo/client'
+import { aggregateOutcomesByMarkets } from '@azuro-org/toolkit'
+import dictionaries from '@/dictionaries'
+
+const QUERY = `
   query Game($id: String!) {
     game(id: $id) {
       sport {
@@ -165,58 +90,99 @@ const GAME_QUERY = `
     }
   }
 `
-```
 
-Now it's time for the challenging part, but don't worry, we're here to guide you through it. It might seem confusing
-at first, but it's not.
-
-You need to use the "dictionaries" package that was introduced in the "Setup a Project" section.
-
-```jsx copy {1-2, 19-25}
-import dictionaries from '@/dictionaries'
-import { aggregateOutcomesByMarkets } from '@azuro-org/toolkit'
-
-`...`
-
-export default function Game() {
+export default function useSportEvent() {
   const { query } = useRouter()
 
-  const { loading, data } = useQuery(gql`${GAME_QUERY}`, {
+  const { loading, data } = useQuery(gql`${QUERY}`, {
     variables: {
       id: query.id,
     },
   })
 
+  let game
+  let markets
+
+  if (data?.game) {
+    const { sport, league, participants, startsAt, liquidityPool, conditions } = data.game
+
+    game = { sport, league, participants, startsAt }
+
+    markets = !data ? null : aggregateOutcomesByMarkets({
+      lpAddress: liquidityPool.address,
+      conditions,
+      dictionaries,
+    })
+  }
+
+  return {
+    loading,
+    game,
+    markets,
+  }
+}
+```
+
+"Conditions" represents the data from the smart contracts with the same name. Each contract contains a set of outcomes,
+and there is no direct relationship between outcomes and markets in conditions. The `aggregateOutcomesByMarkets` helper
+uses a complex logic to map outcomes to their respective markets. If you are interested, you can check out
+[the code](https://github.com/Azuro-protocol/toolkit/blob/main/src/aggregateOutcomesByMarkets.ts).
+
+
+## Render Game Info UI
+
+Create `pages/games/[id].js` file with the following content
+
+```jsx copy
+import dayjs from 'dayjs'
+import useSportEvent from '@/hooks/useSportEvent'
+
+const ParticipantLogo = ({ image, name }) => (
+  <div className="flex flex-col items-center">
+    <div className="flex items-center justify-center w-20 h-20 border border-gray-300 rounded-full">
+      <img className="w-12 h-12" src={image} alt={name} />
+    </div>
+    <span className="max-w-[210px] mt-3 text-lg text-center">{name}</span>
+  </div>
+)
+
+const GameInfo = ({ sport, league, participants, startsAt }) => (
+  <div className="flex flex-col items-center pt-6 pb-8 border border-gray-300 rounded-lg">
+    <div className="flex flex-col items-center text-md">
+      <div>{sport.name}</div>
+      <div className="mt-2 text-gray-500">
+        {league.country.name} &middot; {league.name}
+      </div>
+    </div>
+    <div className="mt-5 grid grid-cols-[1fr_auto_1fr]">
+      <ParticipantLogo {...participants[0]} />
+      <div className="mx-5 pt-7 text-md text-gray-500">
+        {dayjs(startsAt * 1000).format('DD MMM HH:mm')}
+      </div>
+      <ParticipantLogo {...participants[1]} />
+    </div>
+  </div>
+)
+
+export default function Game() {
+  const { loading, game } = useSportEvent()
+
   if (loading) {
     return <div>Loading...</div>
   }
 
-  const { sport, league, participants, startsAt, liquidityPool, conditions } = data.game
-
-  const markets = !data ? null : aggregateOutcomesByMarkets({
-    lpAddress: liquidityPool.address,
-    conditions,
-    dictionaries,
-  })
-
   return (
     <main>
-      <GameInfo {...{ sport, league, participants, startsAt }} />
+      <GameInfo {...game} />
     </main>
   )
 }
 ```
 
-"Conditions" represents the data from the smart contracts with the same name. Each contract contains a set of outcomes,
-and there is no direct relationship between outcomes and markets in conditions. The "aggregateOutcomesByMarkets" helper
-uses a complex logic to map outcomes to their respective markets. If you are interested, you can check out
-[the code](https://github.com/Azuro-protocol/toolkit/blob/main/src/aggregateOutcomesByMarkets.ts).
-
-
 ## Render Markets in UI
 
-```jsx copy {3-35, 61}
-`...`
+```jsx copy {3-35, 38, 47}
+...
 
 const Markets = ({ markets }) => (
   <div className="max-w-[600px] mx-auto mt-12 space-y-6">
@@ -253,29 +219,15 @@ const Markets = ({ markets }) => (
 )
 
 export default function Game() {
-  const { query } = useRouter()
-
-  const { loading, data } = useQuery(gql`${GAME_QUERY}`, {
-    variables: {
-      id: query.id,
-    },
-  })
+  const { loading, game, markets } = useSportEvent()
 
   if (loading) {
     return <div>Loading...</div>
   }
 
-  const { sport, league, participants, startsAt, liquidityPool, conditions } = data.game
-
-  const markets = !data ? null : aggregateOutcomesByMarkets({
-    lpAddress: liquidityPool.address,
-    conditions,
-    dictionaries,
-  })
-
   return (
     <main>
-      <GameInfo {...{ sport, league, participants, startsAt }} />
+      <GameInfo {...game} />
       <Markets markets={markets} />
     </main>
   )

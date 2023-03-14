@@ -11,7 +11,7 @@ and in this simple tutorial we will use `@apollo/client` package. It's very simp
 npm install @apollo/client
 ```
 
-Add TanStack provider to `pages/_app.js`
+Add ApolloProvider provider to `pages/_app.js`
 
 ```jsx {4-9,33-38} copy
 import '@/styles/globals.css'
@@ -59,16 +59,17 @@ export default function App({ Component, pageProps }) {
 
 ## Fetch Sport Events
 
-Update the `page/index.js` file with the code provided below. This will modify the Index page (Home) to display all
-available sports events for users to see.
+Create a new file called `useSportEvents.js` in the `hooks` folder of your project. Copy and paste the following
+code into the file
 
-```jsx copy filename="pages/index.js"
+```jsx copy filename="hooks/useSportEvents.js"
 import { gql, useQuery } from '@apollo/client'
 
 // this query retrieves data for 10 upcoming events that have not yet started
-const GAMES_QUERY = `
+const QUERY = `
   query Games($gameFilter: Game_filter!) {
     games(first: 10, where: $gameFilter) {
+      id
       sport {
         name
       }
@@ -87,38 +88,27 @@ const GAMES_QUERY = `
   }
 `
 
-export default function Home() {
-  const { loading, data } = useQuery(gql`${GAMES_QUERY}`, {
+export default function useSportEvents() {
+  return useQuery(gql`${QUERY}`, {
     variables: {
       gameFilter: {
         // note that the value of "startAt" is in seconds
-        startsAt_gt: String(Math.floor(Date.now() / 1000)),
+        startsAt_gt: Math.floor(Date.now() / 1000),
         sport_: { name: 'Football' },
       },
     },
   })
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  return (
-    <main>
-      GAME COUNT: {data.games.length}
-    </main>
-  )
 }
 ```
 
 ## Render Sport Events UI
 
-```jsx {2-3,8-33,48-56}
-import { gql, useQuery } from '@apollo/client'
+Update `pages/index.js` with the following code
+
+```jsx copy
 import Link from 'next/link'
 import dayjs from 'dayjs'
-
-// this query retrieves data for 10 upcoming events that have not yet started
-const SPORT_EVENTS_QUERY = `...`
+import useSportEvents from '@/hooks/useSportEvents'
 
 const GameCard = ({ id, sport, league, participants, startsAt }) => (
   <Link
@@ -135,7 +125,7 @@ const GameCard = ({ id, sport, league, participants, startsAt }) => (
     <div className="mt-3 space-y-1">
       {
         participants.map(({ image, name }) => (
-          <div className="flex items-center">
+          <div key={name} className="flex items-center">
             <div className="flex items-center justify-center w-8 h-8 mr-2 border border-gray-300 rounded-full">
               <img className="w-4 h-4" src={image} alt={name} />
             </div>
@@ -148,12 +138,7 @@ const GameCard = ({ id, sport, league, participants, startsAt }) => (
 )
 
 export default function Home() {
-  const { loading, data } = useQuery(gql`${SPORT_EVENTS_QUERY}`, {
-    variables: {
-      // note that the value of this string is in seconds
-      startsAt: String(Math.floor(Date.now() / 1000)),
-    },
-  })
+  const { loading, data } = useSportEvents()
 
   if (loading) {
     return <div>Loading...</div>

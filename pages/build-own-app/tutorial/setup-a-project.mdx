@@ -44,6 +44,7 @@ Update **tailwind.config.js**. Add paths to the files that will use Tailwind CSS
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
+    "./components/**/*.js",
     "./pages/**/*.js",
   ],
   theme: {
@@ -74,21 +75,33 @@ Replace the CSS code in `styles/globals.css` with
 @tailwind utilities;
 ```
 
-To save time in the future, let's add additional styles in the same file
+To save time in the future, let's add some styles for the feature usage
 
-```css copy {4-14}
+```css copy {5-29}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
 
 @layer components {
   .button {
     @apply py-1.5;
     @apply px-4;
-    @apply text-blue-700;
-    @apply border;
-    @apply border-blue-700;
+    @apply text-white;
+    @apply bg-blue-700;
     @apply rounded-md;
+  }
+
+  .button[disabled] {
+    @apply opacity-50;
+    @apply cursor-not-allowed;
   }
 }
 ```
@@ -112,7 +125,7 @@ Add new script to your `package.json`
   "build": "npm run get-dicts && next build",
   "start": "next start",
   "lint": "next lint",
-  "get-dicts": "dictionaries -o ./dictionaries -v 2.0.3 -t js"
+  "get-dicts": "dictionaries -o ./dictionaries -v latest -t js"
 }
 ```
 
@@ -132,6 +145,16 @@ installing the necessary packages
 
 ```bash copy
 npm install dayjs @azuro-org/toolkit
+```
+
+
+## Components and Business Logic
+
+Let's create two folders for organizing our project files: "components" for storing the components that will be created
+during this tutorial and "hooks" for storing all the business logic
+
+```bash copy
+mkdir components hooks
 ```
 
 
