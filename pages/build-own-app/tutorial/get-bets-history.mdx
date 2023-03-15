@@ -1,1 +1,479 @@
+import Image from 'next/image'
+
 # Get Bets History
+
+## Fetch Bets Data
+
+Create a new file called `useBetsHistory.js` in the `hooks` folder of your project. Copy and paste the following
+code into the file
+
+```js copy filename="hooks/useBetsHistory.js"
+import { gql, useQuery } from '@apollo/client'
+import { useEthers } from '@usedapp/core'
+
+const QUERY = `
+  query BetsHistory($first: Int, $where: Bet_filter!) {
+    bets(
+      first: $first,
+      orderBy: createdBlockTimestamp,
+      orderDirection: desc,
+      where: $where,
+      subgraphError: allow
+    ) {
+      id
+      betId
+      amount
+      potentialPayout
+      status
+      isRedeemed
+      odds
+      createdAt: createdBlockTimestamp
+      txHash: createdTxHash
+      outcome {
+        id
+        outcomeId
+        condition {
+          id
+          conditionId
+          wonOutcome {
+            outcomeId
+          }
+          core {
+            address
+            liquidityPool {
+              address
+            }
+          }
+        }
+      }
+      game {
+        id
+        sport {
+          name
+        }
+        league {
+          name
+          country {
+            name
+          }
+        }
+        participants {
+          name
+          image
+        }
+        startsAt
+      }
+    }
+  }
+`
+
+export default function useBetsHistory() {
+  const { account } = useEthers()
+
+  return useQuery(gql`${QUERY}`, {
+    variables: {
+      first: 10, // in this tutorial, only 10 bets are loaded. In production, pagination loading should be implemented to avoid heavy requests which can lead to GraphQL errors
+      where: {
+        actor: account?.toLowerCase(),
+      },
+    },
+    skip: !account,
+  })
+}
+```
+
+## Render Bets History UI
+
+Create `pages/bets-history.js` file with the following content
+
+```jsx copy
+import { useEthers } from '@usedapp/core'
+
+export default function BetsHistory() {
+  const { account } = useEthers()
+
+  if (!account) {
+    return (
+      <div className="mt-6 py-4 text-md text-center bg-red-200 rounded-md">
+        Please, connect wallet to see your bets history
+      </div>
+    )
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <div className="space-y-2">
+      {
+        data?.bets.map((bet) => (
+          <div
+            key={bet.id}
+            className="grid grid-cols-[auto_minmax(400px,520px)] justify-items-start bg-gray-50 border border-gray-200 overflow-hidden rounded-xl"
+          >
+            <BetInfo data={data} />
+            <GameInfo game={data.game} />
+          </div>
+        ))
+      }
+    </div>
+  )
+}
+```
+
+Each bet item will contain information about the event as well as the bet information itself. For displaying the game
+information, we will use a similar UI as we used in the modal.
+
+```jsx copy
+const GameInfo = ({ game }) => (
+  <div className="w-full py-4 px-6 bg-white rounded-xl shadow-xl">
+    <div className="flex justify-between text-md">
+      <span>{game.sport.name}</span>
+      <span>{dayjs(game.startsAt * 1000).format('DD MMM HH:mm')}</span>
+    </div>
+    <div className="mt-1 text-md text-gray-400">
+      {game.league.country.name} &middot; {game.league.name}
+    </div>
+    <div className="mt-3 space-y-2">
+      {
+        game.participants.map(({ image, name }) => (
+          <div key={name} className="flex items-center">
+            <div className="flex items-center justify-center w-8 h-8 mr-2 border border-gray-300 rounded-full">
+              <img className="w-4 h-4" src={image} alt={name} />
+            </div>
+            <span className="text-md">{name}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+)
+```
+
+The bet information block will contain the following details: bet placement date, market name, selection name, bet amount,
+odds, potential win amount, and the bet status
+
+```jsx copy
+const BetInfo = ({ data }) => {
+  const { id, betId, amount, potentialPayout, status, isRedeemed, odds, createdAt, txHash, outcome } = data
+
+  const isWin = outcome.outcomeId === outcome.condition.wonOutcome?.outcomeId
+  const isResolved = status === 'Resolved'
+  const isCanceled = status === 'Canceled'
+
+  const marketName = getMarketName(outcome.outcomeId, dictionaries)
+  const selectionName = assembleSelectionName(outcome.outcomeId, dictionaries)
+
+  return (
+    <div className="w-full py-4 px-6">
+      <div className="text-md text-gray-600">
+        {dayjs(+createdAt * 1000).format('DD MMMM YYYY HH:mm')}
+      </div>
+      <div className="grid grid-cols-4 mt-4 text-md">
+        <div>
+          <div className="text-gray-400">Market</div>
+          <div className="mt-1 font-semibold">{marketName}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Selection</div>
+          <div className="mt-1 font-semibold">{selectionName}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Odds</div>
+          <div className="mt-1 font-semibold">{parseFloat(odds).toFixed(4)}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Bet Amount</div>
+          <div className="mt-1 font-semibold">{+parseFloat(amount).toFixed(2)} USDC</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-4 mt-4 mt-3 pt-3 text-md border-t border-gray-200">
+        <div>
+          <div className="text-gray-400">Possible Win</div>
+          <div className="mt-1 font-semibold">
+            {+parseFloat(potentialPayout).toFixed(2)} USDC
+          </div>
+        </div>
+        <div>
+          <div className="text-gray-400">Status</div>
+          <div className="mt-1 font-semibold">
+            {
+              isResolved ? (
+                isWin ? (
+                  <span className="text-green-600">Win</span>
+                ) : (
+                  <span className="text-gray-400">Lose</span>
+                )
+              ) : (
+                isCanceled ? (
+                  <span className="text-red-700">Canceled</span>
+                ) : (
+                  <span className="text-yellow-500">Pending</span>
+                )
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+<div className="mt-4 border border-gray-300 rounded-lg overflow-hidden">
+  <Image className="w-full" src="/images/bets-history.png" width={2546} height={1644} alt="" />
+</div>
+
+## Redeem Bet
+
+It's time to add the redeem prize logic.
+
+Create a new file called `useRedeemBet.js` in the `hooks` folder of your project. Copy and paste the following
+code into the file
+
+```js copy filename="hooks/useRedeemBet.js"
+import * as ethers from 'ethers'
+import { useContractFunction } from '@usedapp/core'
+
+const LP_ADDRESS = '0x2a838AB9b037db117576db8D0DcC3B686748EF7c'
+const CORE_ADDRESS = '0x7182E00567b580733BD32C69eC5069ef00280721'
+
+const LP_ABI = [{"inputs":[],"name":"BetExpired","type":"error"},{"inputs":[{"internalType":"uint64","name":"waitTime","type":"uint64"}],"name":"ClaimTimeout","type":"error"},{"inputs":[],"name":"CoreNotActive","type":"error"},{"inputs":[],"name":"GameAlreadyCanceled","type":"error"},{"inputs":[],"name":"GameAlreadyCreated","type":"error"},{"inputs":[],"name":"GameCanceled_","type":"error"},{"inputs":[],"name":"GameNotExists","type":"error"},{"inputs":[],"name":"IncorrectCoreState","type":"error"},{"inputs":[],"name":"IncorrectFee","type":"error"},{"inputs":[],"name":"IncorrectGameId","type":"error"},{"inputs":[],"name":"IncorrectMinBet","type":"error"},{"inputs":[],"name":"IncorrectMinDepo","type":"error"},{"inputs":[],"name":"IncorrectPercent","type":"error"},{"inputs":[],"name":"IncorrectReinforcementAbility","type":"error"},{"inputs":[],"name":"IncorrectTimestamp","type":"error"},{"inputs":[],"name":"LeafNotExist","type":"error"},{"inputs":[],"name":"LiquidityIsLocked","type":"error"},{"inputs":[],"name":"LiquidityNotOwned","type":"error"},{"inputs":[],"name":"NoLiquidity","type":"error"},{"inputs":[],"name":"NotEnoughLiquidity","type":"error"},{"inputs":[],"name":"OnlyFactory","type":"error"},{"inputs":[{"internalType":"enum SafeCast.Type","name":"to","type":"uint8"}],"name":"SafeCastError","type":"error"},{"inputs":[],"name":"SmallBet","type":"error"},{"inputs":[],"name":"SmallDepo","type":"error"},{"inputs":[],"name":"UnknownCore","type":"error"},{"inputs":[{"internalType":"uint64","name":"waitTime","type":"uint64"}],"name":"WithdrawalTimeout","type":"error"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"affiliate","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"AffiliateRewarded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"core","type":"address"},{"indexed":true,"internalType":"address","name":"bettor","type":"address"},{"indexed":false,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BettorWin","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint64","name":"newClaimTimeout","type":"uint64"}],"name":"ClaimTimeoutChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"core","type":"address"},{"indexed":false,"internalType":"enum ILP.CoreState","name":"state","type":"uint8"},{"indexed":false,"internalType":"uint64","name":"reinforcementAbility","type":"uint64"},{"indexed":false,"internalType":"uint128","name":"minBet","type":"uint128"}],"name":"CoreSettingsUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"newDataProvider","type":"address"}],"name":"DataProviderChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"enum ILP.FeeType","name":"feeType","type":"uint8"},{"indexed":false,"internalType":"uint64","name":"fee","type":"uint64"}],"name":"FeeChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"GameCanceled","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"uint64","name":"newStart","type":"uint64"}],"name":"GameShifted","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint8","name":"version","type":"uint8"}],"name":"Initialized","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"uint48","name":"leaf","type":"uint48"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"LiquidityAdded","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"account","type":"address"},{"indexed":true,"internalType":"uint48","name":"leaf","type":"uint48"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"LiquidityRemoved","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"core","type":"address"},{"indexed":false,"internalType":"uint128","name":"newMinBet","type":"uint128"}],"name":"MinBetChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint128","name":"newMinDepo","type":"uint128"}],"name":"MinDepoChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"gameId","type":"uint256"},{"indexed":false,"internalType":"bytes32","name":"ipfsHash","type":"bytes32"},{"indexed":false,"internalType":"uint64","name":"startsAt","type":"uint64"}],"name":"NewGame","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint128","name":"newReinforcementAbility","type":"uint128"}],"name":"ReinforcementAbilityChanged","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint64","name":"newWithdrawTimeout","type":"uint64"}],"name":"WithdrawTimeoutChanged","type":"event"},{"inputs":[],"name":"access","outputs":[{"internalType":"contract IAccess","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"addCondition","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"}],"name":"addCore","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint128","name":"amount","type":"uint128"}],"name":"addLiquidity","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"addLiquidityNative","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint128","name":"lockedReserve","type":"uint128"},{"internalType":"uint128","name":"finalReserve","type":"uint128"},{"internalType":"uint48","name":"leaf","type":"uint48"}],"name":"addReserve","outputs":[{"internalType":"uint128","name":"affiliatesReward","type":"uint128"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"},{"internalType":"uint128","name":"amount","type":"uint128"},{"internalType":"uint64","name":"expiresAt","type":"uint64"},{"components":[{"internalType":"address","name":"affiliate","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct IBet.BetData","name":"betData","type":"tuple"}],"name":"bet","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"bettor","type":"address"},{"internalType":"address","name":"core","type":"address"},{"internalType":"uint128","name":"amount","type":"uint128"},{"internalType":"uint64","name":"expiresAt","type":"uint64"},{"components":[{"internalType":"address","name":"affiliate","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct IBet.BetData","name":"betData","type":"tuple"}],"name":"betFor","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"},{"internalType":"uint64","name":"expiresAt","type":"uint64"},{"components":[{"internalType":"address","name":"affiliate","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct IBet.BetData","name":"betData","type":"tuple"}],"name":"betNative","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"cancelGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint64","name":"newClaimTimeout","type":"uint64"}],"name":"changeClaimTimeout","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newDataProvider","type":"address"}],"name":"changeDataProvider","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"enum ILP.FeeType","name":"feeType","type":"uint8"},{"internalType":"uint64","name":"newFee","type":"uint64"}],"name":"changeFee","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"int128","name":"deltaReserve","type":"int128"}],"name":"changeLockedLiquidity","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint128","name":"newMinDepo","type":"uint128"}],"name":"changeMinDepo","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint64","name":"newWithdrawTimeout","type":"uint64"}],"name":"changeWithdrawTimeout","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes4","name":"selector","type":"bytes4"}],"name":"checkAccess","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"}],"name":"checkCore","outputs":[],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"checkOwner","outputs":[],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"claimAffiliateReward","outputs":[{"internalType":"uint256","name":"claimedAmount","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"claimReward","outputs":[{"internalType":"uint256","name":"claimedAmount","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"claimTimeout","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"coreAffRewards","outputs":[{"internalType":"uint128","name":"","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"cores","outputs":[{"internalType":"enum ILP.CoreState","name":"state","type":"uint8"},{"internalType":"uint64","name":"reinforcementAbility","type":"uint64"},{"internalType":"uint128","name":"minBet","type":"uint128"},{"internalType":"uint128","name":"lockedLiquidity","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"bytes32","name":"ipfsHash","type":"bytes32"},{"internalType":"uint64","name":"startsAt","type":"uint64"}],"name":"createGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"dataProvider","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"factory","outputs":[{"internalType":"contract IOwnable","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"fees","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"games","outputs":[{"internalType":"bytes32","name":"ipfsHash","type":"bytes32"},{"internalType":"uint128","name":"lockedLiquidity","type":"uint128"},{"internalType":"uint64","name":"startsAt","type":"uint64"},{"internalType":"bool","name":"canceled","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"getGameInfo","outputs":[{"internalType":"uint64","name":"","type":"uint64"},{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getLeaf","outputs":[{"internalType":"uint48","name":"leaf","type":"uint48"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"}],"name":"getLockedLiquidityLimit","outputs":[{"internalType":"uint128","name":"","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getReserve","outputs":[{"internalType":"uint128","name":"reserve","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"access_","type":"address"},{"internalType":"address","name":"dataProvider_","type":"address"},{"internalType":"address","name":"token_","type":"address"},{"internalType":"uint128","name":"minDepo_","type":"uint128"},{"internalType":"uint64","name":"daoFee","type":"uint64"},{"internalType":"uint64","name":"dataProviderFee","type":"uint64"},{"internalType":"uint64","name":"affiliateFee","type":"uint64"}],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"}],"name":"isGameCanceled","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"lockedLiquidity","outputs":[{"internalType":"uint128","name":"","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"minDepo","outputs":[{"internalType":"uint128","name":"","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"nextNode","outputs":[{"internalType":"uint48","name":"","type":"uint48"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint48","name":"leaf","type":"uint48"}],"name":"nodeWithdrawView","outputs":[{"internalType":"uint128","name":"withdrawAmount","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"rewards","outputs":[{"internalType":"int128","name":"amount","type":"int128"},{"internalType":"uint64","name":"claimedAt","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"gameId","type":"uint256"},{"internalType":"uint64","name":"startsAt","type":"uint64"}],"name":"shiftGame","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"token","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"index","type":"uint256"}],"name":"tokenByIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"uint256","name":"index","type":"uint256"}],"name":"tokenOfOwnerByIndex","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint48","name":"","type":"uint48"}],"name":"treeNode","outputs":[{"internalType":"uint64","name":"updateId","type":"uint64"},{"internalType":"uint128","name":"amount","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"},{"internalType":"enum ILP.CoreState","name":"state","type":"uint8"},{"internalType":"uint64","name":"reinforcementAbility","type":"uint64"},{"internalType":"uint128","name":"minBet","type":"uint128"}],"name":"updateCoreSettings","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"updateId","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"viewPayout","outputs":[{"internalType":"uint128","name":"","type":"uint128"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint48","name":"","type":"uint48"}],"name":"withdrawAfter","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint48","name":"depNum","type":"uint48"},{"internalType":"uint40","name":"percent","type":"uint40"},{"internalType":"bool","name":"isNative","type":"bool"}],"name":"withdrawLiquidity","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"core","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bool","name":"isNative","type":"bool"}],"name":"withdrawPayout","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdrawTimeout","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"stateMutability":"payable","type":"receive"}]
+
+const lpContract = new ethers.Contract(LP_ADDRESS, LP_ABI)
+
+export default function useRedeemBet({ betId }) {
+  const { state, send } = useContractFunction(lpContract, 'withdrawPayout', { transactionName: 'Approve' })
+
+  const redeem = () => {
+    send(CORE_ADDRESS, betId)
+  }
+
+  return {
+    redeem,
+    isRedeeming: state.status === 'PendingSignature' || state.status === 'Mining',
+  }
+}
+```
+
+Use the hook in the `BetInfo`
+
+```jsx copy {4, 58-66} filename="pages/bets-history.js"
+const BetInfo = ({ data }) => {
+  const { id, betId, amount, potentialPayout, status, isRedeemed, odds, createdAt, txHash, outcome } = data
+
+  const { redeem, isRedeeming } = useRedeemBet({ betId })
+
+  ...
+
+  return (
+    <div className="w-full py-4 px-6">
+      <div className="text-md text-gray-600">
+        {dayjs(+createdAt * 1000).format('DD MMMM YYYY HH:mm')}
+      </div>
+      <div className="grid grid-cols-4 mt-4 text-md">
+        <div>
+          <div className="text-gray-400">Market</div>
+          <div className="mt-1 font-semibold">{marketName}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Selection</div>
+          <div className="mt-1 font-semibold">{selectionName}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Odds</div>
+          <div className="mt-1 font-semibold">{parseFloat(odds).toFixed(4)}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Bet Amount</div>
+          <div className="mt-1 font-semibold">{+parseFloat(amount).toFixed(2)} USDC</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-[1fr_1fr_2fr] mt-4 mt-3 pt-3 text-md border-t border-gray-200">
+        <div>
+          <div className="text-gray-400">Possible Win</div>
+          <div className="mt-1 font-semibold">
+            {+parseFloat(potentialPayout).toFixed(2)} USDC
+          </div>
+        </div>
+        <div>
+          <div className="text-gray-400">Status</div>
+          <div className="mt-1 font-semibold">
+            {
+              isResolved ? (
+                isWin ? (
+                  <span className="text-green-600">Win</span>
+                ) : (
+                  <span className="text-gray-400">Lose</span>
+                )
+              ) : (
+                isCanceled ? (
+                  <span className="text-red-700">Canceled</span>
+                ) : (
+                  <span className="text-yellow-500">Pending</span>
+                )
+              )
+            }
+          </div>
+        </div>
+        {
+          (isWin || isCanceled) && !isRedeemed && (
+             <div className="self-center">
+              <button className="button" disabled={isRedeeming} onClick={redeem}>
+                {isRedeeming ? 'Redeeming...' : 'Redeem'}
+              </button>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  )
+}
+```
+
+Here's what the final code for the file should look like
+
+```jsx copy
+import { useEthers } from '@usedapp/core'
+import { getMarketName, assembleSelectionName } from '@azuro-org/dictionaries'
+import dayjs from 'dayjs'
+import useBetsHistory from '@/hooks/useBetsHistory'
+import useRedeemBet from '@/hooks/useRedeemBet'
+import dictionaries from '@/dictionaries'
+
+const GameInfo = ({ game }) => (
+  <div className="w-full py-4 px-6 bg-white rounded-xl shadow-xl">
+    <div className="flex justify-between text-md">
+      <span>{game.sport.name}</span>
+      <span>{dayjs(game.startsAt * 1000).format('DD MMM HH:mm')}</span>
+    </div>
+    <div className="mt-1 text-md text-gray-400">
+      {game.league.country.name} &middot; {game.league.name}
+    </div>
+    <div className="mt-3 space-y-2">
+      {
+        game.participants.map(({ image, name }) => (
+          <div key={name} className="flex items-center">
+            <div className="flex items-center justify-center w-8 h-8 mr-2 border border-gray-300 rounded-full">
+              <img className="w-4 h-4" src={image} alt={name} />
+            </div>
+            <span className="text-md">{name}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+)
+
+const BetInfo = ({ data }) => {
+  const { id, betId, amount, potentialPayout, status, isRedeemed, odds, createdAt, txHash, outcome } = data
+
+  const { redeem, isRedeeming } = useRedeemBet({ betId })
+
+  const isWin = outcome.outcomeId === outcome.condition.wonOutcome?.outcomeId
+  const isResolved = status === 'Resolved'
+  const isCanceled = status === 'Canceled'
+
+  const marketName = getMarketName(outcome.outcomeId, dictionaries)
+  const selectionName = assembleSelectionName(outcome.outcomeId, dictionaries)
+
+  return (
+    <div className="w-full py-4 px-6">
+      <div className="text-md text-gray-600">
+        {dayjs(+createdAt * 1000).format('DD MMMM YYYY HH:mm')}
+      </div>
+      <div className="grid grid-cols-4 mt-4 text-md">
+        <div>
+          <div className="text-gray-400">Market</div>
+          <div className="mt-1 font-semibold">{marketName}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Selection</div>
+          <div className="mt-1 font-semibold">{selectionName}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Odds</div>
+          <div className="mt-1 font-semibold">{parseFloat(odds).toFixed(4)}</div>
+        </div>
+        <div>
+          <div className="text-gray-400">Bet Amount</div>
+          <div className="mt-1 font-semibold">{+parseFloat(amount).toFixed(2)} USDC</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-[1fr_1fr_2fr] mt-4 mt-3 pt-3 text-md border-t border-gray-200">
+        <div>
+          <div className="text-gray-400">Possible Win</div>
+          <div className="mt-1 font-semibold">
+            {+parseFloat(potentialPayout).toFixed(2)} USDC
+          </div>
+        </div>
+        <div>
+          <div className="text-gray-400">Status</div>
+          <div className="mt-1 font-semibold">
+            {
+              isResolved ? (
+                isWin ? (
+                  <span className="text-green-600">Win</span>
+                ) : (
+                  <span className="text-gray-400">Lose</span>
+                )
+              ) : (
+                isCanceled ? (
+                  <span className="text-red-700">Canceled</span>
+                ) : (
+                  <span className="text-yellow-500">Pending</span>
+                )
+              )
+            }
+          </div>
+        </div>
+        {
+          (isWin || isCanceled) && !isRedeemed && (
+            <div className="self-center">
+              <button className="button" disabled={isRedeeming} onClick={redeem}>
+                {isRedeeming ? 'Redeeming...' : 'Redeem'}
+              </button>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  )
+}
+
+export default function BetsHistory() {
+  const { account } = useEthers()
+  const { loading, data } = useBetsHistory()
+
+  if (!account) {
+    return (
+      <div className="mt-6 py-4 text-md text-center bg-red-200 rounded-md">
+        Please, connect wallet to see your bets history
+      </div>
+    )
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <main>
+      <div className="space-y-2">
+        {
+          data?.bets.map((bet) => (
+            <div
+              key={bet.id}
+              className="lg:grid lg:grid-cols-[auto_minmax(400px,520px)] justify-items-start bg-gray-50 border border-gray-200 overflow-hidden rounded-xl"
+            >
+              <BetInfo data={bet} />
+              <GameInfo game={bet.game} />
+            </div>
+          ))
+        }
+      </div>
+    </main>
+  )
+}
+```

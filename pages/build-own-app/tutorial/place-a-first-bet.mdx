@@ -218,7 +218,7 @@ export default function usePlaceBet() {
 
 If you're not familiar with what a "allowance" is, we recommend reading [this article](https://support.metamask.io/hc/en-us/articles/6174898326683-What-is-a-token-approval-).
 
-```js {3-10, 15-28, 32-35}
+```js {3, 8-10, 15-28, 32-35}
 import { useState } from 'react'
 import { formatUnits } from '@ethersproject/units'
 import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
@@ -260,7 +260,7 @@ export default function usePlaceBet() {
 
 ### Place bet
 
-```js copy {2, 9-10, 13, 18-41, 45-46}
+```js copy {2, 9-10, 13, 18-41, 46}
 import { useState } from 'react'
 import { formatUnits, parseUnits } from '@ethersproject/units'
 import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
@@ -398,7 +398,7 @@ export default function usePlaceBet({ outcome, onBetPlace }) {
 
 Use the hook inside the `PlaceBetModal.js`
 
-```js {2, 7-18, 33-34, 40-58}
+```js {2, 7-17, 32-33, 39-57}
 ...
 import usePlaceBet from '@/hooks/usePlaceBet'
 
