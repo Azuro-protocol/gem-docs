@@ -1,1 +1,108 @@
-# Place a bet
+import { Callout } from 'nextra-theme-docs'
+
+# Place a Bet
+
+```ts copy
+import { type BigNumberish, utils, Contract } from 'ethers'
+import { parseUnits } from '@ethersproject/units'
+
+const betDataTypes = {
+  // pre-match (Core) and live (LiveCore) 'data' type: CoreBetData
+  core: [ 'uint256', 'uint64', 'uint64' ],
+  // express (BetExpress) 'data' type: SubBet[]
+  express: [ 'tuple(uint256, uint64)[]' ],
+}
+
+type GetBetDataBytesParams = {
+  type?: 'core'
+  input: {
+    conditionId: BigNumberish
+    outcomeId: BigNumberish
+    minOdds: BigNumberish
+  }
+} | {
+  type: 'express'
+  input: {
+    conditionId: BigNumberish
+    outcomeId: BigNumberish
+  }[]
+}
+
+export const getBetDataBytes = ({ type, input }: GetBetDataBytesParams) => {
+  if (type === 'express') {
+    const value = input.map(({ conditionId, outcomeId }) => [ conditionId, outcomeId ])
+
+    return utils.defaultAbiCoder.encode(betDataTypes.express, value)
+  }
+
+  const { conditionId, outcomeId, minOdds } = input
+
+  return utils.defaultAbiCoder.encode(betDataTypes.core, [ conditionId, outcomeId, minOdds ])
+}
+
+// some outcome button data
+const outcome = {
+  outcomeId: 1,
+  condition: {
+    conditionId: 2,
+    core: {
+      address: '0x',
+      liquidityPool: {
+        address: '0x',
+      },
+    },
+  },
+}
+
+const lpAddress = outcome.condition.core.liquidityPool.address
+const coreAddress = outcome.condition.core.address
+
+const lpContract = new Contract(lpAddress, LP_ABI, RPC_PROVIDER)
+
+const deadline = Math.floor(Date.now() / 1000) + 2000 // the time (in seconds) for which the transaction should be submitted
+const affiliate = AFFILIATE_ADDRESS // your affiliate wallet address
+const conditionId = outcome.condition.conditionId
+const outcomeId = outcome.outcomeId
+
+const slippage = 5 // 5%
+const odds = 1.5 // the odds value taken from contracts in moment of bet placing
+const minOdds = 1 + (odds - 1) * (100 - slippage) / 100 // the minimum value at which a bet should be made
+const oddsDecimals = 12 // current protocol version odds has 12 decimals
+const rawMinOdds = parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
+
+const betAmount = 100 // 100 xDAI
+const tokenDecimals = 18 // xDAI has 18 decimals
+const rawAmount = parseUnits(betAmount, tokenDecimals)
+
+const data = getBetDataBytes({
+  input: {
+    conditionId,
+    outcomeId,
+    minOdds: rawMinOdds,
+  },
+})
+
+let tx
+
+// in Gnosis bet token is xDAI (native token)
+// in Polygon bet token is USDC (non native token)
+if (IS_BET_TOKEN_NATIVE) {
+  tx = await lpContract.betNative(coreAddress, deadline, {
+    affiliate,
+    data,
+  }, { value: rawAmount })
+}
+else {
+  tx = await lpContract.bet(coreAddress, rawAmount, deadline, {
+    affiliate,
+    data,
+  })
+}
+
+const receipt = await tx.wait()
+```
+
+<Callout type="info" emoji="ℹ️️">
+  `AFFILIATE_ADDRESS` is the address of crypto wallet controlled by you. You will be able to claim affiliate rewards in future.
+  [Read more about how affiliate program](/dive-deeper/rewards).
+</Callout>

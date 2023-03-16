@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { Image } from '@components/image'
 
 # Prepare to Connect User Wallets
 
@@ -116,6 +116,4 @@ const PageLayout = ({ children }) => (
 
 Visit [localhost:3000](http://localhost:3000) and ensure that the Connect Button is present and functioning properly.
 
-<div className="mt-4 border border-gray-300 rounded-lg overflow-hidden">
-  <Image className="w-full" src="/images/header.png" width={2548} height={522} alt="" />
-</div>
+<Image src="/images/sections/header.png" width={2548} height={522} />

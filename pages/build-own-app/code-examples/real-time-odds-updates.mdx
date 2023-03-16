@@ -1,0 +1,88 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Real-time Odds Updates
+
+## Subscribe for odds update
+
+Whenever a bet is placed on an LP (Liquidity Provider) contract, a `NewBet` event is created, causing odds values to change.
+By subscribing to this event, the updated odds can be obtained.
+
+In order to display updated odds for each outcome button in the user interface, there is a way to subscribe to
+the `NewBet` event for each button.
+
+```ts copy filename="subscriber.ts"
+const coreContract = new Contract(CORE_ADDRESS, CORE_ABI, RPC_PROVIDER)
+
+coreContract.on('NewBet', async (...args) => {
+  const [ bettor, affiliate, conditionId, tokenId, outcomeId, amount, odds, funds ] = args
+
+  eventEmitter.dispatch('NewBetPlaced', {
+    coreAddress: CORE_ADDRESS,
+    conditionId,
+    outcomeId,
+  })
+})
+```
+
+```ts copy filename="OutcomeButton.ts"
+type Outcome = {
+  outcomeId: string
+  condition: {
+    conditionId: string
+    coreAddress: string
+  }
+}
+
+const outcome: Outcome = ...
+
+eventEmitter.subscribe('NewBetPlaced', (event) => {
+  if (
+    event.coreAddress === outcome.condition.coreAddress
+    && event.conditionId === outcome.condition.conditionId
+    && event.outcomeId === outcome.outcomeId
+  ) {
+    // Fetch new odds value
+  }
+})
+```
+
+The information on how to fetch odds values can be found [here](/build-own-app/code-examples/fetch-odds-values).
+
+<Callout type="warning" emoji="⚠️">
+  It's important to note that the `conditionId` and `outcomeId` values on different Core contracts may match.
+  Therefore, it's important to do a check at the Core contract address.
+</Callout>
+
+
+## Core Contracts
+
+It is highly probable that you will interact with multiple core contracts simultaneously. In such cases, multiple
+subscribers will be required. GraphQL can be utilized to obtain a list of core contract addresses.
+
+```graphql copy
+query CoreContracts {
+  coreContracts {
+    address
+  }
+}
+```
+
+or for specific LP
+
+```graphql copy
+query CoreContracts($where: CoreContract_filter) {
+  coreContracts(where: $where) {
+    address
+  }
+}
+```
+
+
+## Best Practices
+
+To minimize the cost of sending requests via RPC (Remote Procedure Call) or GraphQL, there is an option to combine
+multiple requests into batches.
+
+<Callout type="info" emoji="️">
+  // TODO
+</Callout>

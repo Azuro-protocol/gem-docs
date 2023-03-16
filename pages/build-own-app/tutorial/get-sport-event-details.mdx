@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { Image } from '@components/image'
 
 ## Fetch Game Data
 
@@ -81,6 +81,7 @@ const QUERY = `
         outcomes {
           id
           outcomeId
+          odds
         }
         core {
           address
@@ -196,14 +197,14 @@ const Markets = ({ markets }) => (
                 <div key={index} className="flex justify-between">
                   <div className="flex gap-1 w-full">
                     {
-                      outcomes.map(({ selectionName, odds }) => (
+                      outcomes.map((outcome) => (
                         <div
-                          key={selectionName}
+                          key={outcome.selectionName}
                           className="flex justify-between py-2 px-3 bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 transition"
                           style={{ width: `calc(100% / ${outcomes.length})` }}
                         >
-                          <span className="text-gray-500">{selectionName}</span>
-                          <span className="font-medium">{parseFloat(odds).toFixed(2)}</span>
+                          <span className="text-gray-500">{outcome.selectionName}</span>
+                          <span className="font-medium">{parseFloat(outcome.odds).toFixed(2)}</span>
                         </div>
                       ))
                     }
@@ -236,6 +237,4 @@ export default function Game() {
 
 The result should look similar to
 
-<div className="mt-4 border border-gray-300 rounded-lg overflow-hidden">
-  <Image className="w-full" src="/images/markets-and-outcomes.png" width={2544} height={1248} alt="" />
-</div>
+<Image src="/images/sections/markets-and-outcomes.png" width={2544} height={1248} />

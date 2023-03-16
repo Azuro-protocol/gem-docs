@@ -1,5 +1,4 @@
-import { Callout } from 'nextra-theme-docs'
-import Image from 'next/image'
+import { Image } from '@components/image'
 
 # Place a First Bet
 
@@ -107,8 +106,9 @@ export default PlaceBetModal
 
 Update `pages/games/[id].js`
 
-```js copy {7-15, 38, 55-63}
+```js copy {2-3, 7-16, 36, 52-60, 75}
 ...
+import { useState } from 'react'
 import PlaceBetModal from '@/components/PlaceBetModal'
 
 ...
@@ -137,21 +137,17 @@ const Markets = ({ game, markets }) => {
                     <div key={index} className="flex justify-between">
                       <div className="flex gap-1 w-full">
                         {
-                          outcomes.map((outcome) => {
-                            const { selectionName, odds } = outcome
-
-                            return (
-                              <div
-                                key={selectionName}
-                                className="flex justify-between py-2 px-3 bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 transition"
-                                style={{ width: `calc(100% / ${outcomes.length})` }}
-                                onClick={() => handleOutcomeClick(outcome)}
-                              >
-                                <span className="text-gray-500">{selectionName}</span>
-                                <span className="font-medium">{parseFloat(odds).toFixed(2)}</span>
-                              </div>
-                            )
-                          })
+                          outcomes.map((outcome) => (
+                            <div
+                              key={outcome.selectionName}
+                              className="flex justify-between py-2 px-3 bg-gray-200 rounded-md cursor-pointer hover:bg-gray-300 transition"
+                              style={{ width: `calc(100% / ${outcomes.length})` }}
+                              onClick={() => handleOutcomeClick(outcome)}
+                            >
+                              <span className="text-gray-500">{outcome.selectionName}</span>
+                              <span className="font-medium">{parseFloat(outcome.odds).toFixed(2)}</span>
+                            </div>
+                          ))
                         }
                       </div>
                     </div>
@@ -174,13 +170,26 @@ const Markets = ({ game, markets }) => {
     </>
   )
 }
+
+export default function Game() {
+  const { loading, game, markets } = useSportEvent()
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  return (
+    <main>
+      <GameInfo {...game} />
+      <Markets game={game} markets={markets} />
+    </main>
+  )
+}
 ```
 
 Now click on a outcome button should open the modal
 
-<div className="mt-4 border border-gray-300 rounded-lg overflow-hidden">
-  <Image className="w-full" src="/images/place-bet-modal.png" width={2536} height={1604} alt="" />
-</div>
+<Image src="/images/sections/place-bet-modal.png" width={2536} height={1604} />
 
 
 ## Adjust the Modal with Business Logic

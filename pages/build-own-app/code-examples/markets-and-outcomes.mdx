@@ -1,0 +1,174 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Markets and Outcomes
+
+In the Azuro protocol, data on markets and outcomes cannot be accessed directly. Instead, the protocol employs
+"conditions," which are objects that encompass multiple outcomes and the corresponding odds for each outcome. The odds
+within a specific market will change when a user places a bet.
+
+For instance, when a user bets on outcome "1" in the "Match Winner" market, the odds for both outcomes "1" and "2" will
+be affected. Each condition is responsible for recalculating the odds accordingly.
+
+To retrieve a list of markets and their associated outcomes, you must first obtain a list of conditions. Each condition
+represents a distinct market and contains information about its corresponding outcomes.
+
+You can acquire a list of conditions by sending GraphQL or RPC requests to the Core contract. After obtaining the
+conditions list, iterate through it to extract the pertinent market and outcome information.
+
+<Callout type="info" emoji="ℹ️️">
+  It's important to clarify the meaning of certain terms used in the documentation to avoid any confusion.
+
+  In this context, an "outcome" refers to an entity that contains information about a particular bet, including the market
+  to which it belongs, game period, etc. To be clear each outcome contains a list of IDs:
+
+  ```
+  marketId
+  gamePeriodId
+  gameTypeId
+  gameVarietyId
+  pointsId
+  selectionId
+  teamPlayerId
+  ```
+
+  For further information on how to utilize these IDs, please refer to the relevant section in the documentation.
+  [Read about outcome IDs and dictionaries](/build-own-app/dive-deeper/dictionaries).
+</Callout>
+
+
+## Aggregate outcomes by markets
+
+If try to explain in simple words the process of combining outcomes by markets, then this is a search for such outcomes
+whose `marketId`s match. But there is a nuance - `marketId` doesn't represent the pointer to the market 🤔. The world
+of betting is not so simple, yes.
+
+To obtain the correct pointer to a market, it is necessary to combine multiple IDs to create a unique marketKey.
+In Azuro, we use a specific format for creating a `marketKey`, which is `marketId-gamePeriodId-gameTypeId[-teamPlayerId]`.
+It is important to note that the `teamPlayerId` is optional, as not all outcomes have it.
+
+```graphql
+query Game($id: String!) {
+  game(id: $id) {
+    liquidityPool {
+      address
+    }
+    conditions {
+      conditionId
+      outcomes {
+        outcomeId
+      }
+      core {
+        address
+      }
+    }
+  }
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string
+  outcomeId: string
+  selectionName: string
+  lpAddress: string
+  coreAddress: string
+}
+
+type Markets = {
+  name: string
+  selections: Selection[][]
+}[]
+
+const lpAddress = game.liquidityPool.address
+
+const outcomesByMarketKey: Record<string, Selection[]> = {}
+const result: Record<string, Markets<T>[number]> = {}
+
+conditions.forEach(({ conditionId, outcomes, core }) => {
+  outcomes.forEach((outcome) => {
+    const marketKey = getMarketKey(outcomeId, dictionaries)
+    const marketName = getMarketName(outcomeId, dictionaries)
+    const selectionName = assembleSelectionName(outcomeId, dictionaries)
+
+    const outcome: Outcome<T> = {
+      conditionId,
+      outcomeId,
+      selectionName,
+      lpAddress,
+      coreAddress: core.address,
+      ...rest as any,
+    }
+
+    // it's important to use "marketKey" because it's unique
+    // on other hand "marketId" can be same for different groups of conditions
+    // "marketKey" is a string template "marketId-gamePeriodId-gameTypeId[-teamPlayerId]"
+    if (!outcomesByMarketKey[marketKey]) {
+      outcomesByMarketKey[marketKey] = []
+
+      result[marketKey] = {
+        marketName,
+        outcomes: [],
+      }
+    }
+
+    outcomesByMarketKey[marketKey].push(outcome)
+  })
+})
+
+// sort by outcomeId and group by conditionId
+Object.keys(outcomesByMarketKey).forEach((marketKey) => {
+  const marketId = +marketKey.split('-')[0]
+
+  // get outcomes related to the market
+  const outcomes = outcomesByMarketKey[marketKey] as Outcome<T>[]
+
+  // sort the conditions by selectionId (outcome)
+  outcomes.sort((a, b) => {
+    const left = dictionaries.outcomes[a.outcomeId].selectionId
+    const right = dictionaries.outcomes[b.outcomeId].selectionId
+
+    return left - right
+  })
+
+  // markets with different conditionIds and not require additional grouping or sorting
+  const marketsWithDifferentConditionIds = [ 1, 2 ]
+
+  if (marketsWithDifferentConditionIds.includes(marketId)) {
+    result[marketKey].outcomes = [outcomes]
+  }
+  // group by conditionId to allow draw outcomes by rows in UI, e.g.
+  //
+  // Team 1 - Total Goals:
+  // Over (1.5)   Under (1.5)
+  // Over (0.5)   Under (0.5)
+  else {
+    const outcomesByConditionId: Record<string, Outcome<T>[]> = {}
+
+    outcomes.forEach((outcome) => {
+      const key = outcome.conditionId
+
+      if (!outcomesByConditionId[key]) {
+        outcomesByConditionId[key] = []
+      }
+
+      outcomesByConditionId[key].push(outcome)
+    })
+
+    const outcomesArr: Outcome<T>[][] = Object.values(outcomesByConditionId)
+
+    result[marketKey].outcomes = outcomesArr.sort((a, b) => {
+      const aSum = a.reduce((acc, { outcomeId }) => acc + +outcomeId, 0)
+      const bSum = b.reduce((acc, { outcomeId }) => acc + +outcomeId, 0)
+
+      return aSum - bSum
+    })
+  }
+})
+
+return Object.values(result)
+```
+
+
+
+
+[Playground](https://stackblitz.com/edit/react-ts-3ggqdj?file=useData.ts)

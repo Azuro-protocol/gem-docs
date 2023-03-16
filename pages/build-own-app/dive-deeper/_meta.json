@@ -2,7 +2,13 @@
   "contracts": "Contracts",
   "graphql": "GraphQL",
   "dictionaries": "Dictionaries",
-  "conditions": "Conditions",
-  "rewards": "Affiliate",
-  "errors": "Errors Handling"
+  "conditions": {
+    "display": "hidden"
+  },
+  "rewards": {
+    "display":  "hidden"
+  },
+  "errors": {
+    "display":  "hidden"
+  }
 }
