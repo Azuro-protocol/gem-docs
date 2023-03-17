@@ -42,9 +42,20 @@ If try to explain in simple words the process of combining outcomes by markets, 
 whose `marketId`s match. But there is a nuance - `marketId` doesn't represent the pointer to the market 🤔. The world
 of betting is not so simple, yes.
 
-To obtain the correct pointer to a market, it is necessary to combine multiple IDs to create a unique marketKey.
-In Azuro, we use a specific format for creating a `marketKey`, which is `marketId-gamePeriodId-gameTypeId[-teamPlayerId]`.
+To obtain the correct pointer to a market, it is necessary to combine multiple IDs to create a unique `marketKey`.
+In Azuro, we use a specific format for creating a `marketKey`, which is
+
+```js
+marketId-gamePeriodId-gameTypeId[-teamPlayerId]
+```
+
 It is important to note that the `teamPlayerId` is optional, as not all outcomes have it.
+
+To generate the unique `marketKey` identifier, you can use the `getMarketKey` helper function from
+the [`@azuro-org/dictionaries`](https://www.npmjs.com/package/@azuro-org/dictionaries) package.
+
+In the following example, we will iterate through a list of game conditions and results with an array of markets.
+Each market will have its own name and a list of outcomes associated with it.
 
 ```graphql
 query Game($id: String!) {
@@ -54,11 +65,9 @@ query Game($id: String!) {
     }
     conditions {
       conditionId
+      coreAddress
       outcomes {
         outcomeId
-      }
-      core {
-        address
       }
     }
   }
@@ -66,63 +75,86 @@ query Game($id: String!) {
 ```
 
 ```ts
-type Selection = {
+import { getMarketKey, getMarketName, assembleSelectionName } from '@azuro-org/dictionaries'
+import dictionaries from '@/dictionaries'
+
+// the final outcome object can contain any field that is relevant to your application. Extend the query with additional
+// fields if required. However, there are certain fields that are required as parameters for placing bets
+type Outcome = {
   conditionId: string
   outcomeId: string
-  selectionName: string
   lpAddress: string
   coreAddress: string
+  selectionName: string
 }
 
-type Markets = {
-  name: string
-  selections: Selection[][]
-}[]
+// the result we are aiming to obtain is a list of markets, which will be of type Market[]
+type Market = {
+  marketName: string
+  outcomes: Outcome[]
+}
 
 const lpAddress = game.liquidityPool.address
+const marketsMap: Record<string, Market> = {}
 
-const outcomesByMarketKey: Record<string, Selection[]> = {}
-const result: Record<string, Markets<T>[number]> = {}
-
-conditions.forEach(({ conditionId, outcomes, core }) => {
-  outcomes.forEach((outcome) => {
+conditions.forEach(({ conditionId, outcomes, coreAddress }) => {
+  outcomes.forEach(({ outcomeId }) => {
+    // we are using the same key format that was discussed earlier
     const marketKey = getMarketKey(outcomeId, dictionaries)
+
+    // we are obtaining the human-readable names of each market and the corresponding outcome selections
     const marketName = getMarketName(outcomeId, dictionaries)
     const selectionName = assembleSelectionName(outcomeId, dictionaries)
 
-    const outcome: Outcome<T> = {
+    const outcome: Outcome = {
       conditionId,
       outcomeId,
-      selectionName,
       lpAddress,
-      coreAddress: core.address,
-      ...rest as any,
+      coreAddress,
+      selectionName,
     }
 
-    // it's important to use "marketKey" because it's unique
-    // on other hand "marketId" can be same for different groups of conditions
-    // "marketKey" is a string template "marketId-gamePeriodId-gameTypeId[-teamPlayerId]"
-    if (!outcomesByMarketKey[marketKey]) {
-      outcomesByMarketKey[marketKey] = []
-
-      result[marketKey] = {
+    if (!marketsMap[marketKey]) {
+      marketsMap[marketKey] = {
         marketName,
         outcomes: [],
       }
     }
 
-    outcomesByMarketKey[marketKey].push(outcome)
+    marketsMap[marketKey].outcomes.push(outcome)
   })
 })
+```
+
+At this point, we have successfully combined outcomes into groups that share the same market key.
+
+To improve the UX, it's recommended to group the available outcomes within each market and sort them in a meaningful way.
+To better illustrate the concept of grouping and sorting outcomes within a market, let's use Handicap as an example.
+
+<Callout type="info" emoji="ℹ️️">
+  Handicap - this is a bet where an artificial advantage is given to one of the teams. E.g. if 'Team 1' has Handicap +1, it means
+  that the final result of the game is determined after adding 1 goal to the number of goals scored by 'Team 1'.
+</Callout>
+
+
+```ts
+type FinalMarket = {
+  name: string
+  outcomes: Outcome[][]
+}
+
+const finalMarketsMap: Record<string, FinalMarket> = {}
 
 // sort by outcomeId and group by conditionId
-Object.keys(outcomesByMarketKey).forEach((marketKey) => {
-  const marketId = +marketKey.split('-')[0]
+Object.keys(marketsMap).forEach((marketKey) => {
+  const { marketName, outcomes } = marketsMap[marketKey]
 
-  // get outcomes related to the market
-  const outcomes = outcomesByMarketKey[marketKey] as Outcome<T>[]
+  finalMarketsMap[marketKey] = {
+    marketName,
+    outcomes: null,
+  }
 
-  // sort the conditions by selectionId (outcome)
+  // sort the outcomes by `selectionId` (outcome's selection reference)
   outcomes.sort((a, b) => {
     const left = dictionaries.outcomes[a.outcomeId].selectionId
     const right = dictionaries.outcomes[b.outcomeId].selectionId
@@ -130,19 +162,21 @@ Object.keys(outcomesByMarketKey).forEach((marketKey) => {
     return left - right
   })
 
-  // markets with different conditionIds and not require additional grouping or sorting
-  const marketsWithDifferentConditionIds = [ 1, 2 ]
+  // "Full Time Result" and "Double Chance" are the markets whose outcomes don't require sorting
+  const MARKETS_THAT_DONT_NEED_GROUPING = [ 1, 2 ]
+  const marketId = marketKey.split('-')[0]
 
-  if (marketsWithDifferentConditionIds.includes(marketId)) {
-    result[marketKey].outcomes = [outcomes]
+  if (MARKETS_THAT_DONT_NEED_GROUPING.includes(+marketId)) {
+    // it's worth noting that the outcomes are wrapped within an array here due to the "rows" that are presented below
+    finalMarketsMap[marketKey].outcomes = [ outcomes ]
   }
-  // group by conditionId to allow draw outcomes by rows in UI, e.g.
-  //
-  // Team 1 - Total Goals:
-  // Over (1.5)   Under (1.5)
-  // Over (0.5)   Under (0.5)
   else {
-    const outcomesByConditionId: Record<string, Outcome<T>[]> = {}
+    // group the outcomes by condition ID, which will allow us to display the draw outcomes in separate rows
+    //
+    // Handicap:
+    // H1 (-0.5)  H2 (0.5)
+    // H1 (0.5)   H2 (-0.5)
+    const outcomesByConditionId: Record<string, Outcome[]> = {}
 
     outcomes.forEach((outcome) => {
       const key = outcome.conditionId
@@ -154,9 +188,9 @@ Object.keys(outcomesByMarketKey).forEach((marketKey) => {
       outcomesByConditionId[key].push(outcome)
     })
 
-    const outcomesArr: Outcome<T>[][] = Object.values(outcomesByConditionId)
+    const rows: Outcome[][] = Object.values(outcomesByConditionId)
 
-    result[marketKey].outcomes = outcomesArr.sort((a, b) => {
+    finalMarketsMap[marketKey].outcomes = rows.sort((a, b) => {
       const aSum = a.reduce((acc, { outcomeId }) => acc + +outcomeId, 0)
       const bSum = b.reduce((acc, { outcomeId }) => acc + +outcomeId, 0)
 
@@ -165,10 +199,16 @@ Object.keys(outcomesByMarketKey).forEach((marketKey) => {
   }
 })
 
-return Object.values(result)
+const finalMarkets = Object.values(finalMarketsMap)
 ```
 
+The example provided demonstrates how you can group and sort outcomes. However, it is important to note that the sorting
+method may differ depending on the specific requirements of your application.
 
+If the grouping and sorting method described above is suitable for your needs, you can utilize the
+`aggregateOutcomesByMarkets` helper function from the [`@azuro-org/toolkit`](https://www.npmjs.com/package/@azuro-org/toolkit) library.
+This function can assist with grouping and sorting outcomes by market key.
 
+## Try it yourself
 
 [Playground](https://stackblitz.com/edit/react-ts-3ggqdj?file=useData.ts)
