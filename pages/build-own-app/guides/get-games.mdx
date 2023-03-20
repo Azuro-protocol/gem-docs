@@ -3,7 +3,7 @@ import { Callout } from 'nextra-theme-docs'
 # Get Games
 
 <Callout type="warning" emoji="⚠️">
-  We highly recommend reading the ["GraphQL" section](/build-own-app/dive-deeper/graphql) first.
+  We highly recommend reading the ["GraphQL" section](/build-own-app/reference/graphql) first.
 </Callout>
 
 There are two ways to obtain a list of sport events: fetching games grouped by sport or fetching all games and then
@@ -75,7 +75,7 @@ Since Subgraphs contain data from different `LP` contracts, it's possible to hav
 `LP` contracts. In order to avoid issues related to duplicated data, it's important to identify which `LP` contract
 your application will interact with and use the corresponding address to filter the data. This ensures that only relevant
 data is retrieved and reduces the risk of conflicts and errors. It's recommended to carefully consider which `LP`
-contract to use based on your specific use case and business requirements. [Get more information](/build-own-app/dive-deeper/contracts#avoid-duplications).
+contract to use based on your specific use case and business requirements. [Get more information](/build-own-app/reference/contracts#avoid-duplications).
 
 ```ts
 useQuery(QUERY, {
@@ -90,7 +90,7 @@ useQuery(QUERY, {
 ```
 
 <Callout type="warning" emoji="⚠️">
-  From ["GraphQL" section](/dive-deeper/graphql#specificity):
+  From ["GraphQL" section](/reference/graphql#specificity):
 
   > When working with Subgraphs, all address values are stored in lowercase. This means that when passing variables to
   queries, it's important to convert the transmitted value to lowercase, or use the `_contains_nocase` postfix.
