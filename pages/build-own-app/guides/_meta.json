@@ -1,8 +1,8 @@
 {
-  "sport-events": "Sport Events",
-  "fetch-odds-values": "Fetch Odds Values",
+  "get-games": "Get Games",
+  "get-odds-values": "Get Odds Values",
   "real-time-odds-updates": "Real-time Odds Updates",
   "markets-and-outcomes": "Markets and Outcomes",
   "place-a-bet": "Place a Bet",
-  "bets-history": "Bets History"
+  "get-bets-history": "Get Bets History"
 }

@@ -1,0 +1,137 @@
+import { Callout } from 'nextra-theme-docs'
+
+# Get Games
+
+<Callout type="warning" emoji="⚠️">
+  We highly recommend reading the ["GraphQL" section](/build-own-app/dive-deeper/graphql) first.
+</Callout>
+
+There are two ways to obtain a list of sport events: fetching games grouped by sport or fetching all games and then
+grouping them by sport.
+
+However, there may be situations where you need to retrieve the top 10 games for all sports. In this case, you would
+need to make a request to fetch a list of all games, as GraphQL does not provide a way to directly filter results by sport.
+After retrieving the list of games, you can then group them by sport to obtain the top 10 games for each sport.
+
+## Fetch Games
+
+```graphql
+query Games {
+  games {
+    ...Game
+  }
+}
+
+fragment Game on Game {
+  sport {
+    name
+  }
+  league {
+    name
+    country {
+      name
+    }
+  }
+  participants {
+    name
+    image
+  }
+  startsAt
+}
+```
+
+The `Game` fragment contains the main fields that are needed to display a list of games to users.
+
+<Callout type="warning" emoji="⚠️">
+  Requesting all games, including those that have long been over, can put unnecessary strain on the GraphQL node and
+  cause performance issues. In general, it's best to only request the data that you need for your application.
+</Callout>
+
+[Try it yourself in GraphiQL](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+Games+%7B%0A++games%28first%3A+1%29+%7B%0A++++...Game%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A%7D&operationName=MyQuery)
+
+### Filter games by start date
+
+If you only need to display games that are currently in progress or scheduled to start in the future, you can use the
+`startsAt` field in the query to filter out games that have already ended. For example, you could modify the query to
+only retrieve games that are scheduled to start in future:
+
+```ts
+useQuery(QUERY, {
+  variables: {
+    where: {
+      startsAt_gt: Math.floor(Date.now() / 1000),
+    },
+  },
+})
+```
+
+<Callout type="info" emoji="ℹ">
+  Note that the value is calculated in seconds.
+</Callout>
+
+### Filter games by `LP` address
+
+Since Subgraphs contain data from different `LP` contracts, it's possible to have duplicated games across multiple
+`LP` contracts. In order to avoid issues related to duplicated data, it's important to identify which `LP` contract
+your application will interact with and use the corresponding address to filter the data. This ensures that only relevant
+data is retrieved and reduces the risk of conflicts and errors. It's recommended to carefully consider which `LP`
+contract to use based on your specific use case and business requirements. [Get more information](/build-own-app/dive-deeper/contracts#avoid-duplications).
+
+```ts
+useQuery(QUERY, {
+  variables: {
+    where: {
+      liquidityPool_: {
+        address: LP_ADDRESS,
+      },
+    },
+  },
+})
+```
+
+<Callout type="warning" emoji="⚠️">
+  From ["GraphQL" section](/dive-deeper/graphql#specificity):
+
+  > When working with Subgraphs, all address values are stored in lowercase. This means that when passing variables to
+  queries, it's important to convert the transmitted value to lowercase, or use the `_contains_nocase` postfix.
+</Callout>
+
+### Get games with active outcomes
+
+```ts
+useQuery(QUERY, {
+  variables: {
+    where: {
+      hasActiveConditions: true,
+    },
+  },
+})
+```
+
+This parameter filters games that don't have a single active condition to bet on, or in other words, games that have
+at least one Condition not in the paused/cancelled status. This ensures that only games with available betting options
+are returned in the query results. Most likely you will always use this parameter.
+
+
+## Fetch Top 10 Games
+
+It's possible to sort games in the query by the volume of bets using the `orderBy` argument in the GraphQL query.
+By default, games are sorted by their start time, but you can sort them by other fields such as the total amount of bets
+placed on the game.
+
+```graphql
+query MyQuery {
+  games(
+    first: 10,
+    orderBy: turnover,
+    orderDirection: desc
+  ) {
+    ...Game
+  }
+}
+```
+
+
+## Try it yourself
+
+[Playground](https://stackblitz.com/edit/react-ts-upfhof?file=App.tsx)

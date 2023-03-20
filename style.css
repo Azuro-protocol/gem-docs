@@ -9,3 +9,7 @@ ul {
 p + p {
   margin-top: 0.8em !important;
 }
+
+blockquote {
+  margin-top: 0.8em !important;
+}

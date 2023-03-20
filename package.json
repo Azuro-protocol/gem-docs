@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "next dev -p 5009",
     "start": "next start",
-    "build": "next build && next export"
+    "build": "next build && next export",
+    "deploy": "npm run build && surge -d azuro-v2-docs.surge.sh -p out"
   },
   "dependencies": {
     "next": "^13.0.7",
