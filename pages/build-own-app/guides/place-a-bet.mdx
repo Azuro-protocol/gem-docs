@@ -6,26 +6,22 @@ To place bets there are 2 methods on `LP` contract: `bet` and `betNative`.
 method is used for non-native tokens like USDC in Polygon.
 
 ```ts
-betNative(coreAddress, deadline, {
-  affiliate,
-  data,
-}, { value: rawAmount })
-```
-
-```ts
-bet(coreAddress, rawAmount, deadline, {
-  affiliate,
-  data,
-})
-```
-
-```ts
 import * as ethers from 'ethers'
 
 const data = ethers.utils.defaultAbiCoder.encode(
   [ 'uint256', 'uint64', 'uint64' ],
   [ conditionId, outcomeId, minOdds ]
 )
+
+betNative(coreAddress, deadline, {
+  affiliate,
+  data,
+}, { value: rawAmount })
+
+bet(coreAddress, rawAmount, deadline, {
+  affiliate,
+  data,
+})
 ```
 
 To clarify, `conditionId` and `outcomeId` values should be taken from the specific outcome that the user is placing
@@ -46,6 +42,7 @@ query Game($id: String!) {
       coreAddress
       outcomes {
         outcomeId
+        odds
       }
     }
   }
@@ -107,6 +104,7 @@ const outcome = {
   coreAddress: '...',
   conditionId: '...',
   outcomeId: '...',
+  odds: '...',
 }
 
 const lpContract = new ethers.Contract(outcome.lpAddress, LP_ABI, RPC_PROVIDER)
@@ -118,9 +116,8 @@ const betAmount = 100 // 100 xDAI
 const tokenDecimals = 18 // xDAI has 18 decimals
 const rawAmount = parseUnits(betAmount, tokenDecimals)
 
-const currentOdds = 1.5
 const slippage = 5
-const minOdds = 1 + (currentOdds - 1) * (100 - slippage) / 100
+const minOdds = 1 + (outcome.odds - 1) * (100 - slippage) / 100
 const rawMinOdds = parseUnits(minOdds, 12)
 
 const data = ethers.utils.defaultAbiCoder.encode(
