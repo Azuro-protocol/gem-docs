@@ -1,108 +1,150 @@
-import { Callout } from 'nextra-theme-docs'
-
 # Place a Bet
 
-```ts copy
-import { type BigNumberish, utils, Contract } from 'ethers'
+To place bets there are 2 methods on `LP` contract: `bet` and `betNative`.
+
+`betNative` should be used when placing bets in native token, as example xDAI in Gnosis chain. On other hand `bet`
+method is used for non-native tokens like USDC in Polygon.
+
+```ts
+betNative(coreAddress, deadline, {
+  affiliate,
+  data,
+}, { value: rawAmount })
+```
+
+```ts
+bet(coreAddress, rawAmount, deadline, {
+  affiliate,
+  data,
+})
+```
+
+```ts
+import * as ethers from 'ethers'
+
+const data = ethers.utils.defaultAbiCoder.encode(
+  [ 'uint256', 'uint64', 'uint64' ],
+  [ conditionId, outcomeId, minOdds ]
+)
+```
+
+To clarify, `conditionId` and `outcomeId` values should be taken from the specific outcome that the user is placing
+their bet on within the game. These IDs can be obtained by iterating through the outcomes array of the Game object and
+finding the relevant outcome that the user has selected.
+
+Additionally, the `coreAddress` value should be the address of the `Core` contract that is associated with the `LP`
+contract that the user is betting on. Each condition entity has `coreAddress` field containing this value.
+
+```graphql
+query Game($id: String!) {
+  game(id: $id) {
+    liquidityPool {
+      address
+    }
+    conditions {
+      conditionId
+      coreAddress
+      outcomes {
+        outcomeId
+      }
+    }
+  }
+}
+```
+
+[//]: # (TODO add a link to the section describing how to iterate through conditions.)
+
+The `minOdds` parameter is used to specify the minimum odds value at which the bet can be placed. If the current odds
+value is lower than the specified value, the bet cannot be placed and will be rejected by the contract.
+
+To calculate the minimum odds, you can use the slippage factor. The slippage factor is the percentage by which
+the current odds can change in a smaller direction.
+
+For example, if the current odds for an outcome is 2, and the user sets a slippage factor of 5%, then the minimum odds
+that the user will accept is 1.9 (2 * 0.95). This ensures that the user's bet is not accepted if the odds fall below
+the minimum acceptable value.
+
+The slippage factor can be specified by the user in the interface and then passed as a parameter to the bet method.
+
+```ts
+const currentOdds = 1.5 // the odds value taken from contracts in the moment of bet placing
+const slippage = 5 // 5%
+const minOdds = 1 + (currentOdds - 1) * (100 - slippage) / 100
+```
+
+The betting methods accept BigNumberish value for `minOdds`.
+
+```ts
 import { parseUnits } from '@ethersproject/units'
 
-const betDataTypes = {
-  // pre-match (Core) and live (LiveCore) 'data' type: CoreBetData
-  core: [ 'uint256', 'uint64', 'uint64' ],
-  // express (BetExpress) 'data' type: SubBet[]
-  express: [ 'tuple(uint256, uint64)[]' ],
-}
-
-type GetBetDataBytesParams = {
-  type?: 'core'
-  input: {
-    conditionId: BigNumberish
-    outcomeId: BigNumberish
-    minOdds: BigNumberish
-  }
-} | {
-  type: 'express'
-  input: {
-    conditionId: BigNumberish
-    outcomeId: BigNumberish
-  }[]
-}
-
-export const getBetDataBytes = ({ type, input }: GetBetDataBytesParams) => {
-  if (type === 'express') {
-    const value = input.map(({ conditionId, outcomeId }) => [ conditionId, outcomeId ])
-
-    return utils.defaultAbiCoder.encode(betDataTypes.express, value)
-  }
-
-  const { conditionId, outcomeId, minOdds } = input
-
-  return utils.defaultAbiCoder.encode(betDataTypes.core, [ conditionId, outcomeId, minOdds ])
-}
-
-// some outcome button data
-const outcome = {
-  outcomeId: 1,
-  condition: {
-    conditionId: 2,
-    core: {
-      address: '0x',
-      liquidityPool: {
-        address: '0x',
-      },
-    },
-  },
-}
-
-const lpAddress = outcome.condition.core.liquidityPool.address
-const coreAddress = outcome.condition.core.address
-
-const lpContract = new Contract(lpAddress, LP_ABI, RPC_PROVIDER)
-
-const deadline = Math.floor(Date.now() / 1000) + 2000 // the time (in seconds) for which the transaction should be submitted
-const affiliate = AFFILIATE_ADDRESS // your affiliate wallet address
-const conditionId = outcome.condition.conditionId
-const outcomeId = outcome.outcomeId
-
-const slippage = 5 // 5%
-const odds = 1.5 // the odds value taken from contracts in moment of bet placing
-const minOdds = 1 + (odds - 1) * (100 - slippage) / 100 // the minimum value at which a bet should be made
 const oddsDecimals = 12 // current protocol version odds has 12 decimals
-const rawMinOdds = parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
+const rawMinOdds = parseUnits(minOdds, oddsDecimals)
+```
+
+`deadline` is a parameter that specifies the deadline by which the transaction must be included in a block. If the
+transaction is not included in a block before the deadline, the transaction will revert. The value of this parameter
+should be passed in seconds.
+
+```ts
+const currentTime = Math.floor(Date.now() / 1000)
+const deadline = currentTime + 2000 // the bet should be accepted within the next 2000 seconds
+```
+
+`affiliate` is an address of crypto wallet where the rewards for user referrals should be transferred.
+
+[//]: # (TODO add a link to the docs describing AFFILIATE system.)
+
+
+## The final code example
+
+```ts
+import * as ethers from 'ethers'
+import { parseUnits } from '@ethersproject/units'
+
+// some outcome data
+const outcome = {
+  lpAddress: '...',
+  coreAddress: '...',
+  conditionId: '...',
+  outcomeId: '...',
+}
+
+const lpContract = new ethers.Contract(outcome.lpAddress, LP_ABI, RPC_PROVIDER)
+
+const deadline = Math.floor(Date.now() / 1000) + 2000
+const affiliate = '...'
 
 const betAmount = 100 // 100 xDAI
 const tokenDecimals = 18 // xDAI has 18 decimals
 const rawAmount = parseUnits(betAmount, tokenDecimals)
 
-const data = getBetDataBytes({
-  input: {
-    conditionId,
-    outcomeId,
-    minOdds: rawMinOdds,
-  },
-})
+const currentOdds = 1.5
+const slippage = 5
+const minOdds = 1 + (currentOdds - 1) * (100 - slippage) / 100
+const rawMinOdds = parseUnits(minOdds, 12)
 
-let tx
+const data = ethers.utils.defaultAbiCoder.encode(
+  [ 'uint256', 'uint64', 'uint64' ],
+  [ outcome.conditionId, outcome.outcomeId, rawMinOdds ]
+)
 
-// in Gnosis bet token is xDAI (native token)
-// in Polygon bet token is USDC (non native token)
-if (IS_BET_TOKEN_NATIVE) {
-  tx = await lpContract.betNative(coreAddress, deadline, {
+// if chain is Gnosis then place bets in xDAI native token
+if (chainId === 100) {
+  lpContract.betNative(outcome.coreAddress, deadline, {
     affiliate,
     data,
   }, { value: rawAmount })
 }
 else {
-  tx = await lpContract.bet(coreAddress, rawAmount, deadline, {
+  lpContract.bet(outcome.coreAddress, rawAmount, deadline, {
     affiliate,
     data,
   })
 }
-
-const receipt = await tx.wait()
 ```
 
-<Callout type="info" emoji="ℹ️️">
-  `AFFILIATE_ADDRESS` is the address of crypto wallet controlled by you. You will be able to claim affiliate rewards in future.
-  [Read more about how affiliate program](/reference/rewards).
-</Callout>
+Note that when placing a bet, the user's tokens are transferred to the liquidity pool, and if the bet wins, they will
+receive LP tokens in return. The LP tokens can be redeemed for tokens once the outcome is settled.
+
+It is important to ensure that the user has sufficient funds in their account before placing a bet, and to handle errors
+gracefully if the bet cannot be placed due to insufficient funds or other reasons.
