@@ -1,16 +1,16 @@
 export default {
   project: {
-    link: 'https://github.com/Azuro-protocol/sdk-docs',
+    link: 'https://github.com/Azuro-protocol/v2-docs',
   },
-  docsRepositoryBase: 'https://github.com/Azuro-protocol/sdk-docs/blob/core/docs/pages',
+  docsRepositoryBase: 'https://github.com/Azuro-protocol/v2-docs/tree/main/pages',
   sidebar: {
     defaultMenuCollapseLevel: 0,
   },
   head: (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta property="og:title" content="Azuro V2" />
-      <meta property="og:description" content="Azuro V2 documentation" />
+      <meta property="og:title" content="Azuro Protocol" />
+      <meta property="og:description" content="Azuro Documentation" />
       <link rel="icon" href="/favicon/favicon.svg" type="image/svg+xml" />
       <link rel="icon" href="/favicon/favicon-32x32.png" type="image/png" />
       {/*<link*/}

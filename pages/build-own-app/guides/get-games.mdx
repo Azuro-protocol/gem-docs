@@ -47,7 +47,7 @@ The `Game` fragment contains the main fields that are needed to display a list o
   cause performance issues. In general, it's best to only request the data that you need for your application.
 </Callout>
 
-[Try it yourself in GraphiQL](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+Games+%7B%0A++games%28first%3A+1%29+%7B%0A++++...Game%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A%7D&operationName=MyQuery)
+[Try it yourself in GraphiQL](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+Games+%7B%0A++games%28first%3A+1%29+%7B%0A++++...Game%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A%7D&operationName=Games)
 
 ### Filter games by start date
 
@@ -92,8 +92,8 @@ useQuery(QUERY, {
 <Callout type="warning" emoji="⚠️">
   From ["GraphQL" section](/reference/graphql#specificity):
 
-  > When working with Subgraphs, all address values are stored in lowercase. This means that when passing variables to
-  queries, it's important to convert the transmitted value to lowercase, or use the `_contains_nocase` postfix.
+  _When working with Subgraphs, all address values are stored in lowercase. This means that when passing variables to
+  queries, it's important to convert the transmitted value to lowercase, or use the `_contains_nocase` postfix._
 </Callout>
 
 ### Get games with active outcomes
@@ -120,7 +120,7 @@ By default, games are sorted by their start time, but you can sort them by other
 placed on the game.
 
 ```graphql
-query MyQuery {
+query Games {
   games(
     first: 10,
     orderBy: turnover,

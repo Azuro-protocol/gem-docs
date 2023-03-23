@@ -6,6 +6,27 @@ To place bets there are 2 methods on `LP` contract: `bet` and `betNative`.
 method is used for non-native tokens like USDC in Polygon.
 
 ```ts
+bet(
+  core: string,
+  amount: BigNumberish,
+  expiresAt: BigNumberish,
+  betData: IBet.BetDataStruct,
+  overrides?: Overrides & { from?: string }
+): Promise<ContractTransaction>
+```
+
+```ts
+betNative(
+  core: string,
+  expiresAt: BigNumberish,
+  betData: IBet.BetDataStruct,
+  overrides?: PayableOverrides & { from?: string }
+): Promise<ContractTransaction>
+```
+
+## Usage
+
+```ts
 import * as ethers from 'ethers'
 
 const data = ethers.utils.defaultAbiCoder.encode(
@@ -92,7 +113,7 @@ const deadline = currentTime + 2000 // the bet should be accepted within the nex
 [//]: # (TODO add a link to the docs describing AFFILIATE system.)
 
 
-## The final code example
+## The Real App Example
 
 ```ts
 import * as ethers from 'ethers'
@@ -126,7 +147,7 @@ const data = ethers.utils.defaultAbiCoder.encode(
 )
 
 // if chain is Gnosis then place bets in xDAI native token
-if (chainId === 100) {
+if (appChainId === Gnosis.chainId) {
   lpContract.betNative(outcome.coreAddress, deadline, {
     affiliate,
     data,
@@ -140,8 +161,11 @@ else {
 }
 ```
 
-Note that when placing a bet, the user's tokens are transferred to the liquidity pool, and if the bet wins, they will
-receive LP tokens in return. The LP tokens can be redeemed for tokens once the outcome is settled.
-
-It is important to ensure that the user has sufficient funds in their account before placing a bet, and to handle errors
+It's important to ensure that the user has sufficient funds in their account before placing a bet, and to handle errors
 gracefully if the bet cannot be placed due to insufficient funds or other reasons.
+
+Keeping the odds updated is essential for providing the best user experience to your customers. By
+[subscribing to odds updates](/guides/real-time-odds-updates), you can keep the odds values up-to-date in real-time,
+which can help reduce the risk of user frustration or missed betting opportunities. Alternatively, you can
+[fetch the odds values](/guides/get-odds-values) before a user submits a bet to ensure that the odds values are current
+at the time of the bet placement.

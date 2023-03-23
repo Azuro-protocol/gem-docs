@@ -1,4 +1,194 @@
+import { Callout } from 'nextra-theme-docs'
+
 # Get Bets History
 
-[Playground](https://stackblitz.com/edit/react-ts-vhqcph?file=App.tsx)
-[Subgraph](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+MyQuery+%7B%0A++bets%28where%3A+%7Bactor%3A+%220x05ac3d28434804ec02ed9472490fc42d7e9e646d%22%7D%29+%7B%0A++++createdTxHash%0A++++betId%0A++++amount%0A++++odds%0A++++potentialPayout%0A++++status%0A++++isRedeemed%0A++++createdBlockTimestamp%0A++++outcome+%7B%0A++++++outcomeId%0A++++++condition+%7B%0A++++++++wonOutcome+%7B%0A++++++++++outcomeId%0A++++++++%7D%0A++++++%7D%0A++++%7D%0A++++game+%7B%0A++++++...Game%0A++++%7D%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A++status%0A%7D&operationName=MyQuery)
+## Bet Info
+
+To get information about user placed bets, you can use the following GraphQL query
+
+```graphql
+query BetsHistory($where: Bet_Filter) {
+  bets(where: $where) {
+    betId
+    amount
+    potentialPayout
+    status
+    isRedeemed
+    createdBlockTimestamp
+    createdTxHash
+    outcome {
+      outcomeId
+      odds
+    }
+  }
+}
+```
+
+This query returns the following information:
+
+- `betId` - the NFT ID, the token given to user for the exchange to placed tokens
+- `amount` - the bet amount
+- `potentialPayout` - the amount based on the bet odds to payout if user's bet wins
+- `status` - the bet status
+- `isRedeemed` - the boolean field represents the state if bet was redeemed by user
+- `createdBlockTimestamp` - the date when the bet was placed
+- `createdTxHash` - the transaction hash of the block in which the bet was mined
+- `outcome` - contains the state of outcome when the bet was placed
+
+To use this query, you can use the useQuery hook in React as shown below
+
+```ts
+useQuery(QUERY, {
+  variables: {
+    where: {
+      actor: account.toLowerCase(),
+    },
+  },
+})
+```
+
+Note that the `where` variable is used to filter bets placed by a specific user account.
+
+
+## Bet Status
+
+The bet status field value is of type enum and has 3 states.
+
+```graphql
+enum BetStatus {
+  Accepted
+  Canceled
+  Resolved
+}
+```
+
+The status field value is of type enum and has three states: `Accepted`, `Canceled`, and `Resolved`. Note that there is no
+middle status similar to `Pending`. Until the outcome the bet was made on is resolved, the status of the bet will be
+`Accepted`. If you need to have a status on when a game is in progress - `Live` then you need to extend status value
+with using game `startsAt`.
+
+```graphql
+query BetsHistory {
+  bets {
+    status
+    game {
+      startsAt
+    }
+  }
+}
+```
+
+```ts
+const isGameStarted = Date.now() / 1000 >= +bet.game.startsAt
+const isLive = isGameStarted && bet.status === BetStatus.Accepted
+```
+
+It's important to check if bet status is `Accepted` to handle the situation when game is finished and the results are resolved.
+Note that in current version of the protocol there is no way to understand when game is finished. So the `Live` status will be
+active until the game to be resolved.
+
+
+## Win / Lose
+
+To understand if the bet won or lost, you need to compare the outcome user placed a bet on and the win outcome.
+
+```graphql
+query BetsHistory {
+  bets {
+    outcome {
+      outcomeId
+      wonOutcome {
+        outcomeId
+      }
+    }
+  }
+}
+```
+
+```ts
+const userOutcome = bet.outcome.outcomeId
+const winOutcome = bet.outcome.condition.wonOutcome?.outcomeId
+const isWin = userOutcome === winOutcome
+```
+
+Note that until the outcome result is resolved `winOutcome` will be `undefined`.
+
+
+## Market and Selection Names
+
+```ts
+import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
+import dictionaries from '@/dictionaries'
+
+const marketName = getMarketName(bet.outcome.outcomeId, dictionaries)
+const selectionName = getSelectionName(bet.outcome.outcomeId, dictionaries)
+```
+
+
+## Game Info
+
+```graphql
+query BetsHistory {
+  bets {
+    game {
+      ...Game
+    }
+  }
+}
+
+fragment Game on Game {
+  sport {
+    name
+  }
+  league {
+    name
+    country {
+      name
+    }
+  }
+  participants {
+    name
+    image
+  }
+  startsAt
+}
+```
+
+
+## Pagination
+
+There can be a lot of bets from one user and there can be a problem with fetching all of them at once.
+
+<Callout type="warning" emoji="⚠️">
+  From ["GraphQL" section](/reference/graphql#specificity):
+
+  TheGraph has a limit of returning a maximum of 1000 elements per request, with a default of 100 elements. Keep this
+  limit in mind when building your queries. [Read how to paginate](https://thegraph.com/docs/en/querying/graphql-api/#pagination).
+</Callout>
+
+```graphql
+query BetsHistory($first: Int!, $skip: Int!) {
+  bets(first: $first, skip: $skip) {
+    ...Bet
+  }
+}
+```
+
+```ts
+const PAGE_SIZE = 100
+
+const [ page, setPage ] = useState(1)
+
+useQuery(QUERY, {
+  variables: {
+    skip: (page - 1) * PAGE_SIZE,
+    first: PAGE_SIZE,
+  },
+})
+```
+
+
+## Try it yourself
+
+[Playground](https://stackblitz.com/edit/react-ts-vhqcph?file=App.tsx)<br />
+[Subgraph](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+Games%28%24owner%3A+String%21%29+%7B%0A++bets%28first%3A+1%2C+where%3A+%7Bactor%3A+%24owner%7D%29+%7B%0A++++createdTxHash%0A++++betId%0A++++amount%0A++++odds%0A++++potentialPayout%0A++++status%0A++++isRedeemed%0A++++createdBlockTimestamp%0A++++outcome+%7B%0A++++++outcomeId%0A++++++condition+%7B%0A++++++++wonOutcome+%7B%0A++++++++++outcomeId%0A++++++++%7D%0A++++++%7D%0A++++%7D%0A++++game+%7B%0A++++++...Game%0A++++%7D%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A++status%0A%7D&operationName=MyQuery)

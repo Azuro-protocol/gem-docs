@@ -89,7 +89,7 @@ Create `pages/bets-history.js` file with the following content
 ```jsx copy
 import { useEthers } from '@usedapp/core'
 import dayjs from 'dayjs'
-import { getMarketName, assembleSelectionName } from '@azuro-org/dictionaries'
+import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
 import dictionaries from '@/dictionaries'
 import useBetsHistory from '@/hooks/useBetsHistory'
 
@@ -168,7 +168,7 @@ const BetInfo = ({ data }) => {
   const isCanceled = status === 'Canceled'
 
   const marketName = getMarketName(outcome.outcomeId, dictionaries)
-  const selectionName = assembleSelectionName(outcome.outcomeId, dictionaries)
+  const selectionName = getSelectionName(outcome.outcomeId, dictionaries)
 
   return (
     <div className="w-full py-4 px-6">
@@ -339,7 +339,7 @@ Here's what the final code for the file should look like
 
 ```jsx copy
 import { useEthers } from '@usedapp/core'
-import { getMarketName, assembleSelectionName } from '@azuro-org/dictionaries'
+import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
 import dayjs from 'dayjs'
 import useBetsHistory from '@/hooks/useBetsHistory'
 import useRedeemBet from '@/hooks/useRedeemBet'
@@ -379,7 +379,7 @@ const BetInfo = ({ data }) => {
   const isCanceled = status === 'Canceled'
 
   const marketName = getMarketName(outcome.outcomeId, dictionaries)
-  const selectionName = assembleSelectionName(outcome.outcomeId, dictionaries)
+  const selectionName = getSelectionName(outcome.outcomeId, dictionaries)
 
   return (
     <div className="w-full py-4 px-6">

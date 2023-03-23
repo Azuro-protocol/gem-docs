@@ -1,0 +1,47 @@
+# Redeem Bets
+
+When a user places a bet on Azuro, their tokens are transferred to the `LP` contract and they receive an NFT
+(non-fungible token) called `BetNft` in return. This NFT serves as proof of the user's bet and allows them to claim
+their winnings. Once the outcome is resolved, the `LP` contract will distribute the winnings to the users who placed
+winning bets. The BetNft can then be redeemed for the user's share of the winnings.
+
+If a game or a specific condition on the outcome of which a bet was made is canceled, the user can retrieve their
+tokens by calling the `withdrawPayout` function in the `LP` contract. This function takes as input the `betId` of the
+bet that the user wants to redeem.
+
+```ts
+withdrawPayout(
+  core: string,
+  tokenId: BigNumberish,
+  isNative: boolean,
+  overrides?: Overrides & { from?: string }
+): Promise<ContractTransaction>
+```
+
+## Usage
+
+```graphql
+query Bets {
+  bets {
+    betId
+    core {
+      address
+      liquidityPool {
+        address
+      }
+    }
+  }
+}
+```
+
+```ts
+const isNativeToken = appChainId === Gnosis.chainId
+
+const tx = await lpContract.connect(signer).withdrawPayout(
+  bet.core.address,
+  bet.betId,
+  isNativeToken
+)
+```
+
+`coreAddress` is required to specify on which `Core` contract user wants to redeem the bet.

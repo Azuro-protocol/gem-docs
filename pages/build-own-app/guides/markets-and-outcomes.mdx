@@ -31,7 +31,7 @@ conditions list, iterate through it to extract the pertinent market and outcome 
   teamPlayerId
   ```
 
-  For further information on how to utilize these IDs, please refer to the relevant section in the documentation.
+  For further information on how to get and utilize these IDs, please refer to the relevant section in the documentation.
   [Read about outcome IDs and dictionaries](/build-own-app/reference/dictionaries).
 </Callout>
 
@@ -75,7 +75,7 @@ query Game($id: String!) {
 ```
 
 ```ts
-import { getMarketKey, getMarketName, assembleSelectionName } from '@azuro-org/dictionaries'
+import { getMarketKey, getMarketName, getSelectionName } from '@azuro-org/dictionaries'
 import dictionaries from '@/dictionaries'
 
 // the final outcome object can contain any field that is relevant to your application. Extend the query with additional
@@ -104,7 +104,7 @@ conditions.forEach(({ conditionId, outcomes, coreAddress }) => {
 
     // we are obtaining the human-readable names of each market and the corresponding outcome selections
     const marketName = getMarketName(outcomeId, dictionaries)
-    const selectionName = assembleSelectionName(outcomeId, dictionaries)
+    const selectionName = getSelectionName(outcomeId, dictionaries)
 
     const outcome: Outcome = {
       conditionId,
