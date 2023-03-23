@@ -250,7 +250,7 @@ export default function useRedeemBet({ betId }) {
   const { state, send } = useContractFunction(lpContract, 'withdrawPayout', { transactionName: 'Approve' })
 
   const redeem = () => {
-    send(CORE_ADDRESS, betId)
+    send(CORE_ADDRESS, betId, false)
   }
 
   return {

@@ -93,10 +93,10 @@ const minOdds = 1 + (currentOdds - 1) * (100 - slippage) / 100
 The betting methods accept BigNumberish value for `minOdds`.
 
 ```ts
-import { parseUnits } from '@ethersproject/units'
+import * as ethers from 'ethers'
 
 const oddsDecimals = 12 // current protocol version odds has 12 decimals
-const rawMinOdds = parseUnits(minOdds, oddsDecimals)
+const rawMinOdds = ethers.utils.parseUnits(minOdds, oddsDecimals)
 ```
 
 `deadline` is a parameter that specifies the deadline by which the transaction must be included in a block. If the
@@ -117,7 +117,6 @@ const deadline = currentTime + 2000 // the bet should be accepted within the nex
 
 ```ts
 import * as ethers from 'ethers'
-import { parseUnits } from '@ethersproject/units'
 
 // some outcome data
 const outcome = {
@@ -135,11 +134,11 @@ const affiliate = '...'
 
 const betAmount = 100 // 100 xDAI
 const tokenDecimals = 18 // xDAI has 18 decimals
-const rawAmount = parseUnits(betAmount, tokenDecimals)
+const rawAmount = ethers.utils.parseUnits(betAmount, tokenDecimals)
 
 const slippage = 5
 const minOdds = 1 + (outcome.odds - 1) * (100 - slippage) / 100
-const rawMinOdds = parseUnits(minOdds, 12)
+const rawMinOdds = ethers.utils.parseUnits(minOdds, 12)
 
 const data = ethers.utils.defaultAbiCoder.encode(
   [ 'uint256', 'uint64', 'uint64' ],

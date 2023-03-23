@@ -1,5 +1,7 @@
 import { Image } from '@components/image'
 
+# Get Game Details
+
 ## Fetch Game Data
 
 Create a new file called `useSportEvent.js` in the `hooks` folder of your project. Copy and paste the following
@@ -109,7 +111,7 @@ export default function useSportEvent() {
 
     game = { sport, league, participants, startsAt }
 
-    markets = !data ? null : aggregateOutcomesByMarkets({
+    markets = aggregateOutcomesByMarkets({
       lpAddress: liquidityPool.address,
       conditions,
       dictionaries,

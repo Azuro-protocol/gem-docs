@@ -200,7 +200,7 @@ Create a new file called `usePlaceBet.js` in the `hooks`. Let's add the business
 
 ```js copy
 import { useState } from 'react'
-import { formatUnits } from '@ethersproject/units'
+import * as ethers from 'ethers'
 import { Polygon, useEthers, useTokenBalance } from '@usedapp/core'
 
 const USDC_DECIMALS = 6
@@ -212,7 +212,7 @@ export default function usePlaceBet() {
 
   const isRightChain = chainId === Polygon.chainId
   const rawBalance = useTokenBalance(USDC_ADDRESS, account)
-  const balance = rawBalance ? formatUnits(rawBalance, USDC_DECIMALS) : '0'
+  const balance = rawBalance ? ethers.utils.formatUnits(rawBalance, USDC_DECIMALS) : '0'
 
   return {
     isRightChain,
@@ -227,15 +227,14 @@ export default function usePlaceBet() {
 
 If you're not familiar with what a "allowance" is, we recommend reading [this article](https://support.metamask.io/hc/en-us/articles/6174898326683-What-is-a-token-approval-).
 
-```js {3, 8-10, 15-28, 32-35}
+```js {3, 7-9, 14-27, 31-34}
 import { useState } from 'react'
-import { formatUnits } from '@ethersproject/units'
-import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
 import * as ethers from 'ethers'
+import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
 
 const USDC_DECIMALS = 6
 const USDC_ADDRESS = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
-const LP_ADDRESS = '0x204e7371Ade792c5C006fb52711c50a7efC843ed'
+const LP_ADDRESS = '0x2a838AB9b037db117576db8D0DcC3B686748EF7c'
 
 const usdcContract = new ethers.Contract(USDC_ADDRESS, ERC20Interface)
 
@@ -244,7 +243,7 @@ export default function usePlaceBet() {
 
   const rawAllowance = useTokenAllowance(USDC_ADDRESS, account, LP_ADDRESS)
   const isAllowanceFetching = rawAllowance === undefined
-  const allowance = rawAllowance && formatUnits(rawAllowance, USDC_DECIMALS)
+  const allowance = rawAllowance && ethers.utils.formatUnits(rawAllowance, USDC_DECIMALS)
   const isApproveRequired = +allowance < +amount
 
   const { state: approveState, send: _approve } = useContractFunction(usdcContract, 'approve', { transactionName: 'Approve' })
@@ -269,11 +268,10 @@ export default function usePlaceBet() {
 
 ### Place bet
 
-```js copy {2, 9-10, 13, 18-41, 46}
+```js copy {8-9, 12, 14, 17-41, 45}
 import { useState } from 'react'
-import { formatUnits, parseUnits } from '@ethersproject/units'
-import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
 import * as ethers from 'ethers'
+import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
 
 const USDC_DECIMALS = 6
 const USDC_ADDRESS = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
@@ -295,8 +293,8 @@ export default function usePlaceBet({ outcome, onBetPlace }) {
     const slippage = 5 // 5%
     const minOdds = 1 + (odds - 1) * (100 - slippage) / 100 // the minimum value at which a bet should be made
     const oddsDecimals = 12 // current protocol version odds has 12 decimals
-    const rawMinOdds = parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
-    const rawAmount = parseUnits(amount, USDC_DECIMALS)
+    const rawMinOdds = ethers.utils.parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
+    const rawAmount = ethers.utils.parseUnits(amount, USDC_DECIMALS)
     const deadline = Math.floor(Date.now() / 1000) + 2000 // the time (in seconds) within which the transaction should be submitted
     const affiliate = "0x0000000000000000000000000000000000000000" // your affiliate wallet address
 
@@ -324,9 +322,8 @@ Here's what the final code for the file should look like
 
 ```js copy
 import { useState } from 'react'
-import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
-import { formatUnits, parseUnits } from '@ethersproject/units'
 import * as ethers from 'ethers'
+import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
 
 const USDC_DECIMALS = 6
 const USDC_ADDRESS = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174'
@@ -344,11 +341,11 @@ export default function usePlaceBet({ outcome, onBetPlace }) {
 
   const isRightChain = chainId === Polygon.chainId
   const rawBalance = useTokenBalance(USDC_ADDRESS, account)
-  const balance = rawBalance ? formatUnits(rawBalance, USDC_DECIMALS) : '0'
+  const balance = rawBalance ? ethers.utils.formatUnits(rawBalance, USDC_DECIMALS) : '0'
 
   const rawAllowance = useTokenAllowance(USDC_ADDRESS, account, LP_ADDRESS)
   const isAllowanceFetching = rawAllowance === undefined
-  const allowance = rawAllowance && formatUnits(rawAllowance, USDC_DECIMALS)
+  const allowance = rawAllowance && ethers.utils.formatUnits(rawAllowance, USDC_DECIMALS)
   const isApproveRequired = +allowance < +amount
 
   const { state: approveState, send: _approve } = useContractFunction(usdcContract, 'approve', { transactionName: 'Approve' })
@@ -369,10 +366,10 @@ export default function usePlaceBet({ outcome, onBetPlace }) {
     const slippage = 5 // 5%
     const minOdds = 1 + (odds - 1) * (100 - slippage) / 100 // the minimum value at which a bet should be made
     const oddsDecimals = 12 // current protocol version odds has 12 decimals
-    const rawMinOdds = parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
+    const rawMinOdds = ethers.utils.parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
 
     const amountDecimals = 6 // USDC decimals
-    const rawAmount = parseUnits(amount, amountDecimals)
+    const rawAmount = ethers.utils.parseUnits(amount, amountDecimals)
 
     const deadline = Math.floor(Date.now() / 1000) + 2000 // the time (in seconds) within which the transaction should be submitted
     const affiliate = "0x0000000000000000000000000000000000000000" // your affiliate wallet address

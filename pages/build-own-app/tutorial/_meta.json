@@ -6,10 +6,10 @@
       "pagination": false
     }
   },
-  "setup-a-project": "Setup a project",
-  "prepare-to-connect-user-wallets": "Prepare to connect user wallets",
-  "get-sport-events": "Get sport events",
-  "get-sport-event-details": "Get sport event details",
-  "place-a-first-bet": "Place a first bet",
-  "get-bets-history": "Get bets history"
+  "setup-a-project": "Setup a Project",
+  "prepare-to-connect-user-wallets": "Prepare to Connect User Wallets",
+  "get-games": "Get Games",
+  "get-game-details": "Get Game Details",
+  "place-a-first-bet": "Place a First Bet",
+  "get-bets-history": "Get Bets History"
 }
