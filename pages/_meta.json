@@ -1,11 +1,14 @@
 {
   "index": {
     "title": "Introduction",
-    "theme": {
-      "breadcrumb": false,
-      "pagination": false
-    }
+    "display": "hidden"
   },
-  "copy-bookmaker-xyz": "Copy Bookmaker.XYZ",
-  "build-own-app": "Build Your Own App"
+  "copy-bookmaker-xyz": {
+    "title": "Copy Bookmaker.XYZ",
+    "type": "page"
+  },
+  "build-own-app": {
+    "title": "Build Your Own App",
+    "type": "page"
+  }
 }

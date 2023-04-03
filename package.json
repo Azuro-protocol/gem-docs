@@ -9,7 +9,7 @@
     "dev": "next dev -p 5009",
     "start": "next start",
     "build": "next build && next export",
-    "deploy": "npm run build && surge -d azuro-v2-docs.surge.sh -p out"
+    "deploy": "npm run build && surge out gem.azuro.org"
   },
   "dependencies": {
     "next": "^13.0.7",

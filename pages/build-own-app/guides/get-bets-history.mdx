@@ -9,20 +9,20 @@ To get information about the user-placed bets, you can use the following GraphQL
 ```graphql
 query BetsHistory($where: Bet_Filter) {
   bets(where: $where) {
-    betId
-    amount
-    potentialPayout
-    status
-    result
-    isRedeemable
-    isRedeemed
-    createdBlockTimestamp
-    createdTxHash
-    outcome {
+    betId # the NFT ID, the token given to the user for the exchange of placed tokens
+    amount # the bet amount
+    potentialPayout # the amount based on the bet odds to payout if the user's bet wins
+    status # the bet status
+    result # the state representing if the user wins or loses
+    isRedeemable # the boolean field representing the state if the user can redeem the bet
+    isRedeemed # the boolean field representing the state if the bet was redeemed by the user
+    createdBlockTimestamp # the date when the bet was placed
+    createdTxHash # the transaction hash of the block in which the bet was mined
+    outcome { # contains the state of the outcome when the bet was placed
       outcomeId
       odds
     }
-    game {
+    game { # contains the information about the game the bet was placed on
       ...Game
     }
   }
@@ -45,22 +45,6 @@ fragment Game on Game {
   startsAt
 }
 ```
-
-This query returns the following information:
-
-- `betId` - the NFT ID, the token given to the user for the exchange of placed tokens
-- `amount` - the bet amount
-- `potentialPayout` - the amount based on the bet odds to payout if the user's bet wins
-- `status` - the bet status
-- `result` - the state representing if the user wins or loses
-- `isRedeemable` - the boolean field representing the state if the user can redeem the bet
-- `isRedeemed` - the boolean field representing the state if the bet was redeemed by the user
-- `createdBlockTimestamp` - the date when the bet was placed
-- `createdTxHash` - the transaction hash of the block in which the bet was mined
-- `outcome` - contains the state of the outcome when the bet was placed
-- `game` - contains the information about the game the bet was placed on
-
-To use this query, you can use the useQuery hook in React as shown below
 
 ```ts
 useQuery(QUERY, {

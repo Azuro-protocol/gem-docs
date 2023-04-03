@@ -3,69 +3,71 @@ import { Callout } from 'nextra-theme-docs'
 # Markets and Outcomes
 
 In the Azuro protocol, data on markets and outcomes cannot be accessed directly. Instead, the protocol employs
-"conditions," which are objects that encompass multiple outcomes and the corresponding odds for each outcome. The odds
-within a specific market will change when a user places a bet.
-
-For instance, when a user bets on outcome "1" in the "Match Winner" market, the odds for both outcomes "1" and "2" will
-be affected. Each condition is responsible for recalculating the odds accordingly.
-
-To retrieve a list of markets and their associated outcomes, you must first obtain a list of conditions. Each condition
-represents a distinct market and contains information about its corresponding outcomes.
+`conditions`. Each condition represents a distinct market and contains information about its corresponding outcomes.
 
 You can acquire a list of conditions by sending GraphQL or RPC requests to the Core contract. After obtaining the
 conditions list, iterate through it to extract the pertinent market and outcome information.
 
-<Callout type="info" emoji="ℹ️️">
-  It's important to clarify the meaning of certain terms used in the documentation to avoid any confusion.
 
-  In this context, an "outcome" refers to an entity that contains information about a particular bet, including the market
-  to which it belongs, game period, etc. To be clear each outcome contains a list of IDs:
+## Get market and other names
 
-  ```
-  marketId
-  gamePeriodId
-  gameTypeId
-  gameVarietyId
-  pointsId
-  selectionId
-  teamPlayerId
-  ```
+Each `condition` has two `outcomeId` values, representing the outcomes for the bet. Each `outcomeId` is associated with
+a map of other IDs that are related to the data of the corresponding outcome.
 
-  For further information on how to get and utilize these IDs, please refer to the relevant section in the documentation.
-  [Read about outcome IDs and dictionaries](/build-own-app/reference/dictionaries).
-</Callout>
+By using the outcomeId, you can access an object that includes a list of IDs. These IDs correspond to specific data
+related to the corresponding outcome. The list of IDs includes the following:
+
+- `marketId`
+- `gamePeriodId`
+- `gameTypeId`
+- `gameVarietyId`
+- `pointsId`
+- `selectionId`
+- `teamPlayerId`
+
+Each of these IDs has a corresponding text representation. For instance, the `gamePeriodId: 1` corresponds to `"Whole game"`.
+
+In Azuro, we have created a dedicated space called `dictionaries` where you can find all the information related to outcomes.
+This feature has been implemented to assist in understanding the list of IDs related to each `outcomeId`. Take a look
+of source files [here](https://github.com/Azuro-protocol/dictionaries/blob/main/dictionaries/src).
+
+For example, the `outcomes.json` file provides the related IDs and can be utilized in the following way:
+
+```js
+const outcomeId = '1'
+
+const { marketId, gamePeriodId, gameTypeId, gameVarietyId, pointsId, selectionId, teamPlayerId } = outcomes[outcomeId]
+
+gamePeriods[gamePeriodId]     // "Whole game"
+gameTypes[gameTypeId]         // "Goal"
+gameVarieties[gameVarietyId]  // "Main game"
+points[pointsId]              // undefined (pointsId for this outcomeId is NULL)
+selections[selectionId]       // "Yes"
+teamPlayers[teamPlayerId]     // undefined (teamPlayerId for this outcomeId is NULL)
+```
+
+However, it's important to note that `marketId` doesn't have a file from which the market name can be derived from the
+ID alone. This is because each market can relate to different outcomes with different game periods and types. Therefore,
+to understand which market is related to a specific `outcomeId`, a special ID is required. You can check the `marketNames.js`
+and `marketDescriptions.js` files, which contain keys different from simple IDs. This key is a combination of other IDs,
+including `marketId-gamePeriodId-gameTypeId[-teamPlayerId]`.
+
+To make it even easier for developers, we have also created an NPM package that contains a CLI and helper functions
+for working with the dictionaries repository. The CLI allows you to download the latest version of the repository, and
+the helper functions make it easier to retrieve the text representation of IDs related to a specific outcomeId. Take a
+look of [`@azuro-org/dictionaries`](https://www.npmjs.com/package/@azuro-org/dictionaries).
 
 
 ## Aggregate outcomes by markets
 
-If try to explain in simple words the process of combining outcomes by markets, then this is a search for such outcomes
-whose `marketId`s match. But there is a nuance - `marketId` doesn't represent the pointer to the market 🤔. The world
-of betting is not so simple, yes.
-
-To obtain the correct pointer to a market, it is necessary to combine multiple IDs to create a unique `marketKey`.
-In Azuro, we use a specific format for creating a `marketKey`, which is
-
-```js
-marketId-gamePeriodId-gameTypeId[-teamPlayerId]
-```
-
-It is important to note that the `teamPlayerId` is optional, as not all outcomes have it.
-
-To generate the unique `marketKey` identifier, you can use the `getMarketKey` helper function from
-the [`@azuro-org/dictionaries`](https://www.npmjs.com/package/@azuro-org/dictionaries) package.
-
-In the following example, we will iterate through a list of game conditions and results with an array of markets.
-Each market will have its own name and a list of outcomes associated with it.
+Now we know how to get market ID which has related outcomes. Using this knowledge you can aggregate outcomes from conditions and
+get market name with related outcomes. Let's start with real code example
 
 ```graphql
 query Game($id: String!) {
   game(id: $id) {
-    liquidityPool {
-      address
-    }
     conditions {
       conditionId
-      coreAddress
       outcomes {
         outcomeId
       }
@@ -74,59 +76,48 @@ query Game($id: String!) {
 }
 ```
 
+Here we receive a list of conditions with related outcomes. After this we need to get the `marketKey` for each outcome.
+Using this key we can group outcomes.
+
 ```ts
-import { getMarketKey, getMarketName, getSelectionName } from '@azuro-org/dictionaries'
-import dictionaries from '@/dictionaries'
+import { getMarketKey } from '@azuro-org/dictionaries'
+import dictionaries from '@/dictionaries' // the path to the downloaded files
 
-// the final outcome object can contain any field that is relevant to your application. Extend the query with additional
-// fields if required. However, there are certain fields that are required as parameters for placing bets
-type Outcome = {
-  conditionId: string
-  outcomeId: string
-  lpAddress: string
-  coreAddress: string
-  selectionName: string
-}
+const outcomesByMarkets = {}
 
-// the result we are aiming to obtain is a list of markets, which will be of type Market[]
-type Market = {
-  marketName: string
-  outcomes: Outcome[]
-}
-
-const lpAddress = game.liquidityPool.address
-const marketsMap: Record<string, Market> = {}
-
-conditions.forEach(({ conditionId, outcomes, coreAddress }) => {
+conditions.forEach(({ conditionId, outcomes }) => {
   outcomes.forEach(({ outcomeId }) => {
-    // we are using the same key format that was discussed earlier
     const marketKey = getMarketKey(outcomeId, dictionaries)
 
-    // we are obtaining the human-readable names of each market and the corresponding outcome selections
-    const marketName = getMarketName(outcomeId, dictionaries)
-    const selectionName = getSelectionName(outcomeId, dictionaries)
-
-    const outcome: Outcome = {
+    const outcome = {
       conditionId,
       outcomeId,
-      lpAddress,
-      coreAddress,
-      selectionName,
     }
 
-    if (!marketsMap[marketKey]) {
-      marketsMap[marketKey] = {
-        marketName,
-        outcomes: [],
-      }
+    if (!outcomesByMarkets[marketKey]) {
+      outcomesByMarkets[marketKey] = []
     }
 
-    marketsMap[marketKey].outcomes.push(outcome)
+    outcomesByMarkets[marketKey].push(outcome)
   })
 })
 ```
 
-At this point, we have successfully combined outcomes into groups that share the same market key.
+The markets and outcomes related to them can be used to create a data array that can be rendered as outcome buttons on
+a game page
+
+```ts
+import { getMarketName } from '@azuro-org/dictionaries'
+import dictionaries from '@/dictionaries'
+
+Object.keys(outcomesByMarkets).forEach((marketKey) => {
+  const marketName = getMarketName({ marketKey, dictionaries })
+  const outcomes = outcomesByMarkets[marketKey]
+})
+```
+
+
+## Group and sort outcomes
 
 To improve the UX, it's recommended to group the available outcomes within each market and sort them in a meaningful way.
 To better illustrate the concept of grouping and sorting outcomes within a market, let's use Handicap as an example.
@@ -136,23 +127,27 @@ To better illustrate the concept of grouping and sorting outcomes within a marke
   that the final result of the game is determined after adding 1 goal to the number of goals scored by 'Team 1'.
 </Callout>
 
-
 ```ts
+type Outcome = {
+  conditionId: string
+  outcomeId: string
+}
+
 type FinalMarket = {
-  name: string
+  marketKey: string
   outcomes: Outcome[][]
 }
 
 const finalMarketsMap: Record<string, FinalMarket> = {}
 
 // sort by outcomeId and group by conditionId
-Object.keys(marketsMap).forEach((marketKey) => {
-  const { marketName, outcomes } = marketsMap[marketKey]
-
+Object.keys(outcomesByMarkets).forEach((marketKey) => {
   finalMarketsMap[marketKey] = {
-    marketName,
+    marketKey,
     outcomes: null,
   }
+
+  const outcomes = outcomesByMarkets[marketKey]
 
   // sort the outcomes by `selectionId` (outcome's selection reference)
   outcomes.sort((a, b) => {

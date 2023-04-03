@@ -13,3 +13,11 @@ p + p {
 blockquote {
   margin-top: 0.8em !important;
 }
+
+.nextra-nav-container nav a:first-child {
+  margin-right: 5rem !important;
+}
+
+.nextra-search {
+  margin-left: auto !important;
+}
