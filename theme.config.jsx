@@ -1,8 +1,8 @@
 export default {
   project: {
-    link: 'https://github.com/Azuro-protocol/v2-docs',
+    link: 'https://github.com/Azuro-protocol/gem-docs',
   },
-  docsRepositoryBase: 'https://github.com/Azuro-protocol/v2-docs/tree/main/pages',
+  docsRepositoryBase: 'https://github.com/Azuro-protocol/gem-docs/tree/main',
   sidebar: {
     defaultMenuCollapseLevel: 0,
   },

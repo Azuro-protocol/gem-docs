@@ -5,7 +5,8 @@
   },
   "copy-bookmaker-xyz": {
     "title": "Copy Bookmaker.XYZ",
-    "type": "page"
+    "type": "page",
+    "display": "hidden"
   },
   "build-own-app": {
     "title": "Build Your Own App",
