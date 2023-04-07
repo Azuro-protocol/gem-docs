@@ -9,6 +9,8 @@ If a game or a specific condition on the outcome of which a bet was made is canc
 tokens by calling the `withdrawPayout` function in the `LP` contract. This function takes as input the `betId` of the
 bet that the user wants to redeem.
 
+## Redeem a bet
+
 ```ts
 withdrawPayout(
   core: string,
@@ -17,8 +19,6 @@ withdrawPayout(
   overrides?: Overrides & { from?: string }
 ): Promise<ContractTransaction>
 ```
-
-## Usage
 
 ```graphql
 query Bets {
@@ -45,3 +45,32 @@ const tx = await lpContract.connect(signer).withdrawPayout(
 ```
 
 `coreAddress` is required to specify on which `Core` contract user wants to redeem the bet.
+
+
+## Batch Redeem
+
+To redeem multiple bets at once, you can use `withdrawPayouts` method on the `ProxyFront` smart contract.
+
+```ts
+withdrawPayouts(
+  lp: PromiseOrValue<string>,
+  data: IProxyFront.WithdrawPayoutDataStruct[],
+  isNative: PromiseOrValue<boolean>,
+  overrides?: Overrides & { from?: PromiseOrValue<string> }
+): Promise<ContractTransaction>
+```
+
+```ts
+const isNativeToken = appChainId === Gnosis.chainId
+
+const data = bets.map(({ coreAddress, betId }) => ({
+  core: coreAddress,
+  tokenId: betId,
+}))
+
+const tx = await proxyFrontContract.connect(signer).withdrawPayouts(
+  lpContract.address,
+  data,
+  isNativeToken
+)
+```
