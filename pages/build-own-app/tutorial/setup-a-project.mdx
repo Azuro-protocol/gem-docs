@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 # Setup a Project
 
 ## Setup Next.js Project
@@ -40,7 +42,7 @@ npx tailwindcss init -p
 
 Update **tailwind.config.js**. Add paths to the files that will use Tailwind CSS, add `.container` styles and breakpoints
 
-```bash {4,7-17} copy
+```bash copy filename="tailwind.config.js"
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -65,19 +67,10 @@ module.exports = {
 }
 ```
 
-Add the Tailwind CSS directives that Tailwind will use to inject its generated styles to a Global Stylesheet.
+Add the Tailwind CSS directives that Tailwind will use to inject its generated styles to a Global Stylesheet. Also add
+some styles for the feature usage.
 
-Replace the CSS code in `styles/globals.css` with
-
-```css copy
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
-
-To save time in the future, let's add some styles for the feature usage
-
-```css copy {5-29}
+```css copy filename="styles/globals.css"
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -107,31 +100,24 @@ To save time in the future, let's add some styles for the feature usage
 ```
 
 
-## Dictionaries
-
-The Azuro Protocol offers an NPM package called "dictionaries". This package provides text names for markets and
-outcomes (selections). To learn more about using the "dictionaries" and how it can assist with texts, please
-refer to [the documentation section](/build-own-app/reference/dictionaries).
-
-```bash copy
-npm install @azuro-org/dictionaries
-```
-
-
 ## Packages
 
-During development, you will need to install additional packages to ensure smooth progress. Please proceed by
-installing the necessary packages
+Install the packages which will be used during development
 
 ```bash copy
-npm install dayjs @azuro-org/toolkit
+npm install @azuro-org/dictionaries @azuro-org/toolkit dayjs
 ```
+
+<Callout type="info">
+  Azuro offers NPM packages: [`@azuro-org/dictionaries`](https://www.npmjs.com/package/@azuro-org/dictionaries) and
+  [`@azuro-org/toolkit`](https://www.npmjs.com/package/@azuro-org/toolkit).
+</Callout>
 
 
 ## Components and Business Logic
 
-Let's create two folders for organizing our project files: "components" for storing the components that will be created
-during this tutorial and "hooks" for storing all the business logic
+Create two folders for organizing project files: "components" for storing the components that will be created
+during this tutorial and "hooks" for the business logic.
 
 ```bash copy
 mkdir components hooks
@@ -140,18 +126,10 @@ mkdir components hooks
 
 ## Clean Up
 
-Let's clean up the application to prepare for the next steps.
+Clean up the application to prepare for the next steps.
 
 1. Remove `styles/Home.module.css`
 2. Remove `pages/api` folder
-3. Replace code in `pages/index.js` with
-```tsx copy
-export default function Home() {
-  return (
-    <main />
-  )
-}
-```
 
 **Great job! You have completed the setup and are now ready to dive into the exciting world of developing a betting
 website on the Azuro protocol. Get creative, explore the possibilities, and build amazing!**

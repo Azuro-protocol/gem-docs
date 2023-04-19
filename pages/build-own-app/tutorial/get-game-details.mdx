@@ -51,7 +51,7 @@ refer to the documentation provided [here](#).
 
 Adjust the query with additional fields and use helpers to get markets
 
-```js {3, 22-36, 44-69} copy
+```js {3, 22-36, 44-69} copy filename="hooks/useSportEvent.js"
 import { useRouter } from 'next/router'
 import { gql, useQuery } from '@apollo/client'
 import { aggregateOutcomesByMarkets } from '@azuro-org/toolkit'
@@ -134,7 +134,7 @@ uses a complex logic to map outcomes to their respective markets. If you are int
 
 Create `pages/games/[id].js` file with the following content
 
-```jsx copy
+```jsx copy filename="pages/games/[id].js"
 import dayjs from 'dayjs'
 import useSportEvent from '@/hooks/useSportEvent'
 
@@ -182,7 +182,7 @@ export default function Game() {
 
 ## Render Markets in UI
 
-```jsx copy {3-35, 38, 47}
+```jsx copy {3-35, 38, 47} filename="pages/games/[id].js"
 ...
 
 const Markets = ({ markets }) => (

@@ -105,7 +105,7 @@ export default PlaceBetModal
 
 Update `pages/games/[id].js`
 
-```js copy {2-3, 7-16, 36, 52-60, 75}
+```js copy {2-3, 7-16, 36, 52-60, 75} filename="pages/games/[id].js"
 ...
 import { useState } from 'react'
 import PlaceBetModal from '@/components/PlaceBetModal'
@@ -197,7 +197,7 @@ Create a new file called `usePlaceBet.js` in the `hooks`. Let's add the business
 
 ### Balance and amount
 
-```js copy
+```js copy filename="hooks/usePlaceBet.js"
 import { useState } from 'react'
 import * as ethers from 'ethers'
 import { Polygon, useEthers, useTokenBalance } from '@usedapp/core'
@@ -226,7 +226,7 @@ export default function usePlaceBet() {
 
 If you're not familiar with what a "allowance" is, we recommend reading [this article](https://support.metamask.io/hc/en-us/articles/6174898326683-What-is-a-token-approval-).
 
-```js {3, 7-9, 14-27, 31-34}
+```js {3, 7-9, 14-27, 31-34} filename="hooks/usePlaceBet.js"
 import { useState } from 'react'
 import * as ethers from 'ethers'
 import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
@@ -267,7 +267,7 @@ export default function usePlaceBet() {
 
 ### Place bet
 
-```js copy {8-9, 12, 14, 17-41, 45}
+```js copy {8-9, 12, 14, 17-41, 45} filename="hooks/usePlaceBet.js"
 import { useState } from 'react'
 import * as ethers from 'ethers'
 import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
@@ -319,7 +319,7 @@ export default function usePlaceBet({ outcome, onBetPlace }) {
 
 Here's what the final code for the file should look like
 
-```js copy
+```js copy filename="hooks/usePlaceBet.js"
 import { useState } from 'react'
 import * as ethers from 'ethers'
 import { Polygon, useEthers, useTokenBalance, useTokenAllowance, useContractFunction, ERC20Interface } from '@usedapp/core'
@@ -403,7 +403,7 @@ export default function usePlaceBet({ outcome, onBetPlace }) {
 
 Use the hook inside the `PlaceBetModal.js`
 
-```js {2, 7-17, 32-33, 39-57}
+```js {2, 7-17, 32-33, 39-57} filename="components/PlaceBetModal.js"
 ...
 import usePlaceBet from '@/hooks/usePlaceBet'
 
