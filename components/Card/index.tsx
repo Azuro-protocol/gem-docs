@@ -4,7 +4,13 @@ import Link from 'next/link'
 import styles from './style.module.css'
 
 
-export function SectionCard(props) {
+type Props = {
+  title: string
+  text: string
+  href: string
+}
+
+export function SectionCard(props: Props) {
   const { title, text, href } = props
 
   return (
