@@ -92,10 +92,9 @@ Note that until the outcome is resolved `result` will be `null`.
 
 ```ts
 import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
-import dictionaries from '@/dictionaries'
 
-const marketName = getMarketName(bet.outcome.outcomeId, dictionaries)
-const selectionName = getSelectionName(bet.outcome.outcomeId, dictionaries)
+const marketName = getMarketName({ outcomeId: bet.outcome.outcomeId })
+const selectionName = getSelectionName({ outcomeId: bet.outcome.outcomeId })
 ```
 
 Read more about dictionaries [here](/build-own-app/reference/dictionaries).

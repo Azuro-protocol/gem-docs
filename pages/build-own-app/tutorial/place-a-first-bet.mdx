@@ -13,7 +13,6 @@ Create a `PlaceBetModal.js` file in the `components` folder with the following c
 ```js copy filename="components/PlaceBetModal.js"
 import dayjs from 'dayjs'
 import { getMarketName } from '@azuro-org/dictionaries'
-import dictionaries from '@/dictionaries'
 
 const GameInfo = ({ game }) => (
   <div className="py-4 px-6 rounded-b-xl shadow-xl">
@@ -40,7 +39,7 @@ const GameInfo = ({ game }) => (
 )
 
 const OutcomeInfo = ({ outcome }) => {
-  const marketName = getMarketName(outcome.outcomeId, dictionaries)
+  const marketName = getMarketName({ outcomeId: outcome.outcomeId })
 
   return (
     <div className="grid grid-cols-[auto_1fr] gap-y-3 mt-2 text-md">

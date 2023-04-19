@@ -29,7 +29,7 @@ Each of these IDs has a corresponding text representation. For instance, the `ga
 
 In Azuro, we have created a dedicated space called `dictionaries` where you can find all the information related to outcomes.
 This feature has been implemented to assist in understanding the list of IDs related to each `outcomeId`. Take a look
-of source files [here](https://github.com/Azuro-protocol/dictionaries/blob/main/dictionaries/src).
+of source files [here](https://github.com/Azuro-protocol/dictionaries/blob/main/dictionaries).
 
 For example, the `outcomes.json` file provides the related IDs and can be utilized in the following way:
 
@@ -81,13 +81,12 @@ Using this key we can group outcomes.
 
 ```ts
 import { getMarketKey } from '@azuro-org/dictionaries'
-import dictionaries from '@/dictionaries' // the path to the downloaded files
 
 const outcomesByMarkets = {}
 
 conditions.forEach(({ conditionId, outcomes }) => {
   outcomes.forEach(({ outcomeId }) => {
-    const marketKey = getMarketKey(outcomeId, dictionaries)
+    const marketKey = getMarketKey(outcomeId)
 
     const outcome = {
       conditionId,
@@ -108,10 +107,9 @@ a game page
 
 ```ts
 import { getMarketName } from '@azuro-org/dictionaries'
-import dictionaries from '@/dictionaries'
 
 Object.keys(outcomesByMarkets).forEach((marketKey) => {
-  const marketName = getMarketName({ marketKey, dictionaries })
+  const marketName = getMarketName({ marketKey })
   const outcomes = outcomesByMarkets[marketKey]
 })
 ```
@@ -128,6 +126,8 @@ To better illustrate the concept of grouping and sorting outcomes within a marke
 </Callout>
 
 ```ts
+import { dictionaries } from '@azuro-org/dictionaries'
+
 type Outcome = {
   conditionId: string
   outcomeId: string

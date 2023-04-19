@@ -90,7 +90,6 @@ Create `pages/bets-history.js` file with the following content
 import { useEthers } from '@usedapp/core'
 import dayjs from 'dayjs'
 import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
-import dictionaries from '@/dictionaries'
 import useBetsHistory from '@/hooks/useBetsHistory'
 
 export default function BetsHistory() {
@@ -167,8 +166,8 @@ const BetInfo = ({ data }) => {
   const isResolved = status === 'Resolved'
   const isCanceled = status === 'Canceled'
 
-  const marketName = getMarketName(outcome.outcomeId, dictionaries)
-  const selectionName = getSelectionName(outcome.outcomeId, dictionaries)
+  const marketName = getMarketName({ outcomeId: outcome.outcomeId })
+  const selectionName = getSelectionName({ outcomeId: outcome.outcomeId })
 
   return (
     <div className="w-full py-4 px-6">
@@ -343,7 +342,6 @@ import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
 import dayjs from 'dayjs'
 import useBetsHistory from '@/hooks/useBetsHistory'
 import useRedeemBet from '@/hooks/useRedeemBet'
-import dictionaries from '@/dictionaries'
 
 const GameInfo = ({ game }) => (
   <div className="w-full py-4 px-6 bg-white rounded-xl shadow-xl">
@@ -378,8 +376,8 @@ const BetInfo = ({ data }) => {
   const isResolved = status === 'Resolved'
   const isCanceled = status === 'Canceled'
 
-  const marketName = getMarketName(outcome.outcomeId, dictionaries)
-  const selectionName = getSelectionName(outcome.outcomeId, dictionaries)
+  const marketName = getMarketName({ outcomeId: outcome.outcomeId })
+  const selectionName = getSelectionName({ outcomeId: outcome.outcomeId })
 
   return (
     <div className="w-full py-4 px-6">

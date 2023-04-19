@@ -13,12 +13,8 @@ Each game may have many markets and outcomes related to these markets, e.g. foot
 - etc
 
 Blockchain doesn't store text information about outcomes. Each Outcome has `outcomeId`, Use it to get the information from
-protocol dictionaries. "dictionaries" is set of files with text descriptions of specific outcome. Check [v2.0.2 dictionaries](https://github.com/Azuro-protocol/public-config/tree/main/dictionaries/v2.0.2/json/maps)
-for a better understanding.
-
-<Callout type="info" emoji="ℹ️️">
-  The latest version of dictionaries can be found [here](https://github.com/Azuro-protocol/public-config/tree/main/dictionaries/).
-</Callout>
+protocol dictionaries. "dictionaries" is set of files with text descriptions of specific outcome. Check our
+[dictionaries repository](https://github.com/Azuro-protocol/dictionaries/tree/main/dictionaries) for a better understanding.
 
 The work with dictionaries starts with `outcomes.json` file. This is the heart of dictionaries, this file contains the
 decryption of the outcome ID in the form of other IDs: `selectionId`, `marketId`, `gamePeriodId`, `gameTypeId`, `gameVarietyId`,
@@ -46,7 +42,7 @@ const points = points[pointsId]
 const teamPlayer = teamPlayers[teamPlayerId]
 ```
 
-## Helpers
-
-We recommend to use [@azuro-org/dictionaries](https://www.npmjs.com/package/@azuro-org/dictionaries) package
-to work with dictionaries. Read the description to see how easy and simple it's to use.
+<Callout type="info" emoji="ℹ️️">
+  We recommend to use [@azuro-org/dictionaries](https://www.npmjs.com/package/@azuro-org/dictionaries) package
+  to work with dictionaries. Read the description of the package to see how easy and simple it's to use.
+</Callout>

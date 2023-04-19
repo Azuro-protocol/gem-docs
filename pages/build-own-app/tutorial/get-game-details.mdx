@@ -51,11 +51,10 @@ refer to the documentation provided [here](#).
 
 Adjust the query with additional fields and use helpers to get markets
 
-```js {3-4, 23-37, 45-70} copy
+```js {3, 22-36, 44-69} copy
 import { useRouter } from 'next/router'
 import { gql, useQuery } from '@apollo/client'
 import { aggregateOutcomesByMarkets } from '@azuro-org/toolkit'
-import dictionaries from '@/dictionaries'
 
 const QUERY = `
   query Game($id: String!) {
@@ -114,7 +113,6 @@ export default function useSportEvent() {
     markets = aggregateOutcomesByMarkets({
       lpAddress: liquidityPool.address,
       conditions,
-      dictionaries,
     })
   }
 

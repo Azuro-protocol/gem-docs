@@ -117,26 +117,6 @@ refer to [the documentation section](/build-own-app/reference/dictionaries).
 npm install @azuro-org/dictionaries
 ```
 
-Add new script to your `package.json`
-
-```bash {5-6} filename="package.json" copy
-"scripts": {
-  "dev": "next dev",
-  "build": "npm run get-dicts && next build",
-  "start": "next start",
-  "lint": "next lint",
-  "get-dicts": "dictionaries -o ./dictionaries -v latest -t js"
-}
-```
-
-Run the following command to download dictionaries
-
-```bash copy
-npm run get-dicts
-```
-
-This command will create a new folder in project`s root directory named "dictionaries" containing a set of js files.
-
 
 ## Packages
 
