@@ -1,0 +1,91 @@
+import { PageHeadline, Formula } from 'components'
+
+<PageHeadline
+  title="Odds"
+  subTitle="Odds are the measure of how much a market participant (i.e. a bettor) can win vs how much they bet."
+/>
+
+Odds represent the probability of a particular outcome in a Condition actually happening. The odds for each outcome of
+a [Condition](/concepts/protocol/conditions) are determined as the ratio of the total Condition funds to the funds of
+that particular outcome.
+
+The higher the odds, the lower the chances of the outcome happening and the higher the potential payout for the player
+who placed a bet on that outcome. Betting odds are used by the [Pool](/concepts/protocol/pools) to manage the risk and
+set payout rates for different bets.
+
+The calculation of the odds is based on the virtual funds of the Condition and its margin.
+Once the Condition is created, initial reinforcement is distributed proportionally among the outcome virtual funds based
+on their initial odds provided by the [Feed Provider](/concepts/basic/feed-providers). When a bettor places a bet,
+the outcome virtual fund on which they bet increases by the amount of the bet, and the net odds are calculated using
+the following formula:
+
+<Formula>
+$$
+  o_{i}=\frac{F_{0} + F_{1}} {F_{i}},\text{where } F_i \text{ is a virtual fund of the outcome } i
+$$
+</Formula>
+
+Also the betting odds are adjusted according to the profit margin size set when creating the Condition. In order for
+the bookmaker to make a profit, the final odds are decreased by the size of the outcome **spread**, which is calculated
+based on the probability of the outcome and the profit margin. The probability of the outcome is calculated as the
+reciprocal of the net odds of the outcome:
+
+<Formula>
+$$
+  p_{i}=\frac{1}{o_i}=\frac{F_i} {F_0+F_1}\text{, where } F_i \text{ is a virtual fund of the outcome } i
+$$
+</Formula>
+
+The size of the outcome spread is proportional to the size of the profit margin and inversely proportional to the
+probability of the outcome. The spread for odds is calculated in such a way that the following conditions are met:
+
+<Formula>
+$$
+  \frac{s_{1}}{s_{0}} = \frac{p_{0}}{p_{1}}
+$$
+</Formula>
+
+<Formula>
+$$
+  \forall i :s_{i} = 1 - p_{i} o_{i}
+$$
+</Formula>
+
+<Formula>
+$$
+  \\1 - \frac{1}{\sum\frac{1}{o_{i}}}=margin
+$$
+</Formula>
+
+<Formula className="text-md">
+$$
+  \text{ where }
+  \\s_i \text{ is a spread of the outcome } i,
+  \\p_i \text{ is a probability of the outcome } i,
+  \\o_i \text{ is an odds of the outcome i with applied spread } s_i
+$$
+</Formula>
+
+To find the spreads that satisfy the conditions described above, it is necessary to solve a system of differential
+equations, which is not feasible within the framework of EVM smart contracts. Therefore, the spread is calculated using
+a special formula that approximates it with some degree of error.
+
+The payout size for a bet on outcome i in the event of its winning is calculated as follows:
+
+<Formula>
+$$
+  payout=o_i * (1-s_i)*a, \text{where } a \text{ is a bet amount}
+$$
+</Formula>
+
+After the bet has been accepted, the virtual fund of the other outcome changes as follows:
+
+<Formula>
+$$
+  F_{1-i}\mathrel{{-}{=}}payout-a,\text{where } a \text{ is a bet amount}
+$$
+</Formula>
+
+Thus, automatic market making of the betting odds is performed. However, Feed Provider also has the ability to change
+the odds of each outcome at any time by passing desired values to a special method, thereby setting the desired odds
+for accepting the next bets on the Condition.

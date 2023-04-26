@@ -1,0 +1,18 @@
+import { PageHeadline, Callout } from 'components'
+
+<PageHeadline
+  title="FreeBet"
+  subTitle="A tool that enables granting free bets to any user."
+/>
+
+<Callout type="info">
+  This contract does not affect the logic of a Pool's contracts
+</Callout>
+
+The FreeBet contract allows you to provide a non-transferable ERC-721 token that allows the user to place a free bet
+on any [PrematchCore](/contracts/prematch-core) contract. Each FreeBet token has a denomination, expiration time, and
+minimum betting odds requirement. If the free bet wins, the bettor receives only the
+difference between the winnings and the bet amount.
+
+The minter of the FreeBet token pays for its denomination. The FreeBet contract takes care of everything related to
+making the granted bet and withdrawing winnings from the LP on behalf of the user.

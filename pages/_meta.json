@@ -1,15 +1,36 @@
 {
   "index": {
     "title": "Introduction",
-    "display": "hidden"
+    "display": "hidden",
+    "theme": {
+      "sidebar": false,
+      "breadcrumb": false,
+      "pagination": false,
+      "toc": false
+    }
   },
-  "copy-bookmaker-xyz": {
-    "title": "Copy Bookmaker.XYZ",
-    "type": "page",
-    "display": "hidden"
+  "tutorial": {
+    "title": "Tutorial",
+    "type": "page"
   },
-  "build-own-app": {
-    "title": "Build Your Own App",
+  "concepts": {
+    "title": "Concepts",
+    "type": "page"
+  },
+  "contracts": {
+    "title": "Contracts",
+    "type": "page"
+  },
+  "apis": {
+    "title": "APIs",
+    "type": "page"
+  },
+  "tools": {
+    "title": "Tools",
+    "type": "page"
+  },
+  "components": {
+    "title": "Components",
     "type": "page"
   }
 }

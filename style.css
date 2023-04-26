@@ -2,20 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-ul {
-  margin-top: 0 !important;
-}
+@layer base {
+  a {
+    text-decoration: none !important;
+  }
 
-p + p {
-  margin-top: 0.8em !important;
-}
+  main a:not(.no-underline):not(.\!no-underline):hover {
+    text-decoration: underline !important;
+  }
 
-blockquote {
-  margin-top: 0.8em !important;
+  ul {
+    margin-top: 0 !important;
+  }
+
+  p + p {
+    margin-top: 0.8em !important;
+  }
+
+  blockquote {
+    margin-top: 0.8em !important;
+  }
+
+  table {
+    width: 100%;
+    display: table !important;
+  }
 }
 
 .nextra-nav-container nav a:first-child {
   margin-right: 5rem !important;
+}
+
+.nextra-nav-container nav a {
+  margin-right: 0.5rem !important;
+  font-size: 1rem !important;
+}
+
+.nextra-nav-container nav a:nth-child(2) {
+  display: none !important;
+}
+
+.nextra-nav-container nav a:last-child {
+  margin-right: 0 !important;
 }
 
 .nextra-search {

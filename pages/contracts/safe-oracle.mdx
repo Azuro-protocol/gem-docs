@@ -1,0 +1,33 @@
+import { PageHeadline, Callout } from 'components'
+
+<PageHeadline
+  title="SafeOracle"
+  subTitle="A dispute resolution system for Condition results."
+/>
+
+<Callout type="warning">
+  The contract is not implemented in the main networks at the moment
+</Callout>
+
+<Callout type="info">
+  This contract does not affect the logic of a Pool's contracts
+</Callout>
+
+The SafeOracle contract allows to create and resolve [Conditions](/concepts/protocol/conditions) on any
+[PrematchCore](/contracts/prematch-core) contract, with an option for any user to dispute the result. If the result is
+disputed or not provided within the specified period set at the time of Condition creation,
+[Azuro DAO](/concenpts/governance/overview) will provide the result.
+
+The SafeOracle's logic guarantees timely and accurate results for created Conditions or cancels them if the correct
+result is impossible to determine. This eliminates the risk of fraud against bettors by the
+[feed provider](/concepts/basic/feed-providers) and the possibility of their funds being locked due to the feed
+provider's failure to provide the result.
+
+When creating a Condition through SafeOracle, the feed provider places a fixed amount as collateral, which will be
+returned to them if their result is timely and accurate. Otherwise, the collateral will be used as a reward for Azuro DAO
+and optionally the disputant.
+
+A dispute can be opened by a disputant only within a limited timeframe after the feed provider provides the result
+for the Condition. After this period, the result will be accepted and executed on the LP contract. When opening a dispute,
+the disputant also places a collateral, which is half of the feed provider's collateral. If the DAO determines that
+the result is incorrect, the disputant will double their collateral; otherwise, they will lose their funds.

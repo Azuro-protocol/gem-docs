@@ -1,0 +1,25 @@
+# Conditions
+
+In the design of the Azuro protocol, each market presented on a [Pool](/concepts/protocol/pools) is called a Condition.
+
+Conditions are managed by [feed providers](/concepts/basic/feed-providers) and contain information about the
+game it is associated with, reinforcement, margin and bets, funds, odds, and potential
+payouts for each outcome.
+
+The following is an example of data used in a [pre-match](/contracts/prematch-core) Condition:
+
+```json
+{
+  "gameId": 1567913801,
+  "funds": [ 9042226398630705800000, 8942920756775340683000 ],  // The outcome fund is equal to the total volume of bets on the Condition + reinforcement - potential payouts in the event of the opposing outcome winning
+  "virtualFunds": [ 3444665423020949702439, 5540481732385096780561 ], // Used to calculate odds
+  "reinforcement": 9000000000000000000000,
+  "affiliatesReward": 0, // The Condition turned out to be unprofitable
+  "outcomes": [ 6977, 6978 ],
+  "outcomeWin": 6977,
+  "margin": 75000000000, // 7.5%
+  "oracle": "0x67f15dD0AbA990362607B11C52A1d920b732580a", // Condition creator address
+  "state": 1, // Resolved
+  "leaf": 1099511627964 // The leaf of Liquidity Tree
+}
+```

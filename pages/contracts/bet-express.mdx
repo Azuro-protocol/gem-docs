@@ -1,0 +1,24 @@
+import { PageHeadline, Callout } from 'components'
+
+<PageHeadline
+  title="BetExpress"
+  subTitle="A Betting Engine that combines outcomes from different Conditions in a single bet."
+/>
+
+<Callout type="warning">
+  The contract is not implemented in the main networks at the moment
+</Callout>
+
+The BetExpress contract allows users to place express bets. The contract is linked to a specific deployed
+[PrematchCore](/contracts/prematch-core) contract and only takes information about the
+[Conditions](/concepts/protocol/conditions) from it.
+
+An unlimited number of sub-bets on different Conditions can be included in a single Express, but the maximum possible
+winnings for one Condition in all bets should not exceed a predetermined amount. An Express cannot include sub-bets on
+Conditions related to the same game, as in this case, the winnings of the sub-bets become
+interdependent events. Express bets also affect the betting odds in the Conditions on which the bet is placed.
+
+The winnings for an express bet can only be obtained after all Conditions included in it have been completed. If a
+Condition included in an Express is canceled, the Express bet is still valid but the potential winnings will be adjusted
+proportionally based on the betting odds of the canceled sub-bet. If all Conditions included in the Express are canceled,
+the bettor can claim their bet back.

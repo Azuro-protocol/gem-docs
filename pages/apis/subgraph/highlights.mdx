@@ -1,0 +1,46 @@
+import { Callout } from 'components'
+
+# Highlights
+
+### Limits
+
+TheGraph has a limit of returning a maximum of 1000 elements per request, with a default of 100 elements. Keep this
+limit in mind when building your queries. [Read how to paginate](https://thegraph.com/docs/en/querying/graphql-api/#pagination).
+
+### IDs
+
+TheGraph uses a unique `id: ID!` (TheGraph Ids) for @entity directives in schemas. These ids are technical and do not
+correspond to Azuro entities. Azuro entities use prefixes in their ids (Azuro Ids), such as `sportId` for sports
+and `gameId` for games. Avoid using `id` if it is not necessary.
+
+### Addresses
+
+When working with Subgraphs, all address values are stored in lowercase. This means that when passing variables to
+queries, it's important to convert the transmitted value to lowercase, or use the `_contains_nocase` postfix.
+
+### Entity Duplications
+
+There can be several `LP` contracts within a single blockchain network. There are several reasons for this, such as
+managing different currency pools or addressing risk management concerns.
+
+Each `LP` contract can contain multiple `Core` contracts, with each `Core` contract differing in terms of the logic
+used for different casino games or pre-match/live betting. For example, the logic for pre-match/live betting may
+differ from that used for other casino games.
+
+<Callout type="warning" emoji="⚠️">
+  The presence of multiple identical contracts in the Azuro Protocol can lead to entities with the same IDs. This is
+  because entities created on different contracts may share the same ID, which can make it difficult to distinguish between them.
+
+  For example, different `LP`s may have the same games with the same `gameId`, while conditions created on `Core` contracts
+  may have the same `conditionId`.
+</Callout>
+
+When interacting with entities in the Azuro Protocol, it's important to use the `coreAddress` and `lpAddress` properties
+to identify the specific contract to which the entity belongs.
+
+For example, when querying for games, you should include the `lpAddress` as a filter to ensure that you are only retrieving
+games from the correct `LP` contract. Similarly, when placing bets, you should include the `coreAddress` to ensure that
+the bet is being placed on the correct `Core` contract.
+
+By using these additional properties to identify the specific contract and entity, you can help prevent issues related
+to duplicate IDs and ensure that your application is able to function as intended.

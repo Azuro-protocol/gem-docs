@@ -1,0 +1,86 @@
+# Glossary
+
+### Automated Market Maker
+
+An automated market maker is a smart contract on Ethereum that holds liquidity reserves. Users can trade against these
+reserves at prices determined by a fixed formula. Anyone may contribute liquidity to these smart contracts, earning
+pro-rata trading fees in return.
+
+### Liquidity Provider (LP)
+
+Someone who deposits ERC20 tokens into a given liquidity pool. Liquidity providers take on price risk and are
+compensated with trading fees.
+
+### Liquidity
+
+Digital assets that are stored in a Azuro pool contract, and are able to be traded against by traders.
+
+### ERC20
+
+ERC20 tokens are fungible tokens on Ethereum. Azuro supports all standard ERC20 implementations.
+
+### Factory
+
+A smart contract that deploys Pools and Betting Engine smart contracts.
+
+### Pool
+
+A contract deployed by the Factory that pairs two ERC-20 assets. Different pools may have different
+fees despite containing the same token pair.
+
+### Betting Engines
+
+A collective term for contracts that encompass the logic of creating Conditions, accepting bets, computing payouts
+for bets, and calculating Affiliate rewards.
+
+### Conditions
+
+Each Market presented on a Pool is called a Condition.
+
+### Market
+
+A sports betting market is a specific category of bet on a certain fixture or event.
+
+### Games
+
+A Game is an entity within Pool's contracts that provides information about a game or event. The Game includes
+information about when the match will start, as well as an IPFS hash containing information about the event.
+Based on the Game, an unlimited number of Conditions can be created.
+
+### Outcome (Selection)
+
+the simplest type of bet in a bookmaker’s office, the winning of which is determined by the result of a sporting
+event - the victory of team(player) 1 or team 2(player), or a draw (if possible).
+
+### Bet
+
+At its core, sports betting is putting money behind an outcome of your choice and getting paid if that outcome is achieved.
+
+### Freebet (Free Bet)
+
+A bet of a specified value for which a bookmaker offers to pay the stake.
+
+### Express
+
+Express is a type of bet where a user can combine outcomes from different Conditions and place them as a single bet.
+This bet wins if each of the selected outcomes in the set wins, with the payout coefficient being the product of the
+selected Odds taking into account the applied Margin.
+
+### Odds
+
+The ratio of winnings to the stake and bettor also get his wager returned. So wagering 1 at 1:5 pays out 6 (5 + 1).
+
+### Margin
+
+The margin (also referred to as "spread" or "vig/vigorish") is the difference between the probability of a betting
+outcome happening and the odds that bettors can place bets with (for this outcome). In traditional
+online betting, it is also referred to as the "bookmakers advantage" or "house edge".
+
+On Azuro protocol, margin is one of the immutable properties of a Condition, set at the time of its creation.
+
+### Affiliate
+
+A frontend operator can be apps, widgets, tools, integrations or even standalone products which use the Azuro
+liquidity pools and deliver a UI for users to interact with.
+
+

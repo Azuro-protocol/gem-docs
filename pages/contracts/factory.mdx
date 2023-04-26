@@ -1,0 +1,31 @@
+import { Image, Callout } from 'components'
+
+# Factory
+
+The Factory contract contains functions for deploying [Pools](/concepts/protocol/pools) and
+[Betting Engines](/concepts/protocol/betting-engines) associated with them. It stores the addresses of the BeaconProxy
+contracts for [LP](/contracts/lp), [AzuroBet](/contracts/azuro-bet), [Access](/contracts/access) and all available types
+of Betting Engines. The list of Betting Engines types available for deployment is determined by [Azuro DAO](/concepts/governance/overview),
+and currently includes only the [PrematchCore](/contracts/prematch-core) contract, but soon it will be supplemented
+by [BetExpress](/contracts/bet-express).
+
+<Callout type="info">
+  All contracts deployed via Factory belong to the account that deployed them. Only the pool owner has access to add
+  new Betting Engines to the pool.
+</Callout>
+
+The process of creating a Pool involves deploying an LP contract responsible for the main pool's logic, along with an
+Access contract that manages access policies to the LP and the associated Betting Engine contracts. When a Betting Engine
+is plugged in, its contract instance is deployed, and and if the contract logic permits it, an AzuroBet contract is
+also deployed to manage the betting tokens on it.
+
+---
+
+Simplified diagrams of how the Factory contract works and the Pools created using it:
+
+<Image
+  src="/images/contracts/factory/diagram-1.png"
+  width={3534}
+  height={2375}
+/>
+

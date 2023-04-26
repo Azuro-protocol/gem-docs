@@ -1,0 +1,37 @@
+import { Callout } from 'components'
+
+# Fees & Rewards
+
+The term "fee" within Azuro protocol refers to the percentage of the [Pool](/concepts/protocol/pools)'s profit that is
+distributed as rewards to those who contribute to its operation.
+
+Currently, there are three types of contributors in the Pool, each with a corresponding fee: [Azuro DAO](/concepts/governance/overview) fee,
+[Data Provider](/concepts/basic/data-providers) fee, and [Affiliate](/concepts/basic/affiliates) fee. The part of the
+profit and loss that is not distributed among these three participants remains to be allocated to the [LP](/contracts/lp)
+liquidity deposits.
+
+Azuro DAO and Data Providers have the same reward mechanism: after the completion of each [Condition](/concepts/protocol/conditions),
+the profit or loss of the pool is multiplied by the fee rate and added to the contributor reward balance. If the balance
+is positive and enough time has passed since the previous withdrawal, the contributor can withdraw their due reward.
+
+The Affiliate reward mechanism differs from that of Azuro DAO and Data Providers. At the moment, in all
+[Betting Engines](/concepts/protocol/betting-engines), Affiliates only share in Pool's profits, but not losses. The
+calculation of Affiliate rewards is determined individually by each Betting Engine. For example, because profit
+calculation for [PrematchCore](/contracts/prematch-core) Affiliates is a gas-expensive operation, in withdrawal requests,
+Affiliates also provide a list of Condition IDs for which they want to get their reward.
+
+Currently Azuro Pool  liquidity providers get the majority share of pool's profits. However, it is expected that the
+settings will be updated as per the table below, as usage increases.
+
+| Actor | % share of profit* | Address |
+|---|---|---|
+| [Liquidity Providers](/concepts/basic/liquidity-providers) | 25 | N/A |
+| [Affiliates (Frontends)](/concepts/basic/affiliates) | 60 | N/A |
+| [Data Providers](/concepts/basic/data-providers) | 10 | `0x77e803ad3a4a52d5ab609451b8ba60cea7a5bea6` |
+| [Azuro DAO](/concepts/governance/overview) | 5 | `0xef18f2f054a7ad2909333051aa42d5c0bb3f92f6` |
+
+<Callout icon="*" type="reference">
+  In the current implementation, Frontends only share in the Pool's profitable conditions but not the losing ones,
+  which makes it difficult to precisely predict profit sharing % (i.e. it may deviate from the expected settings above,
+  depending on performance). An update which allows for precise setting of profit distribution is planned for Q4, 2023.
+</Callout>

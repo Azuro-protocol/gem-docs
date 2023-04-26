@@ -1,0 +1,15 @@
+# LP
+
+The LP contract serves as the main entry point for a [Pool](/concepts/protocol/pools)'s logic. Through it, the Pool owner
+can enable or disable plugged [Betting Engines](/concepts/protocol/betting-engines), adjust
+reinforcement limits and minimum bet amounts for each Betting Engine, manage games, and
+change [fee](/concepts/basic/fees-and-rewards) shares for [Azuro DAO](/concepts/governance/overview),
+[Data Provider](/concepts/basic/data-providers), and [Affiliates](/concepts/basic/affiliates). All operations
+related to depositing or withdrawing funds, such as placing a new bet, receiving winnings, or receiving
+DAO/Data Provider/Affiliate rewards, are performed through the LP contract.
+
+The LP contract also contains a pool of liquidity for conditions reinforcement. Anyone can become a liquidity provider
+by adding liquidity to the Pool and receive a share of its profits and losses (P&L). Liquidity tokens (LPNFTs) represent
+the liquidity added by the user. LPNFTs can be redeemed partially or completely by the user at any time, with the user
+receiving their share of the common liquidity, including P&L from the time of adding liquidity. All deposits are stored
+in a special data structure called the Liquidity Tree, which provides a fair distribution of P&L among the deposits.

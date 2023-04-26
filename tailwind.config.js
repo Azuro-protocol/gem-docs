@@ -8,5 +8,10 @@ module.exports = {
     extend: {}
   },
   plugins: [],
-  darkMode: 'class'
+  darkMode: 'class',
+  safelist: [
+    'mr-2',
+    'pt-1',
+    'text-sky-500'
+  ]
 }

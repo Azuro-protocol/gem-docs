@@ -1,0 +1,15 @@
+import { PageHeadline } from 'components'
+
+<PageHeadline
+  title="AzuroBet"
+  subTitle="An ERC-721 enumerable token for bets."
+/>
+
+The AzuroBet contract is an ERC-721 enumerable token that secures the right to receive a reward if the bet wins or
+receive the bet back if the [Condition](/concepts/protocol/conditions) is canceled.
+
+It is less complex and costly than a standard ERC-721 Enumerable contract because the [CoreBase](/contracts/core-base)
+bet ID is incremental. Additionally, it provides additional view features such as obtaining the list of tokens owned by an address.
+
+At the moment, this contract is only used in the [PrematchCore](/contracts/prematch-core) contract. Each PrematchCore
+has its own AzuroBet contract deployed, and by and large, they can be considered a single functioning mechanism.
