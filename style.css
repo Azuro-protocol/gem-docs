@@ -29,8 +29,16 @@
   }
 }
 
-.nextra-nav-container nav a:first-child {
-  margin-right: 5rem !important;
+@media (max-width: 568px) {
+  .nextra-nav-container nav a:first-child {
+    margin-right: auto !important;
+  }
+}
+
+@media (min-width: 569px) {
+  .nextra-nav-container nav a:first-child {
+    margin-right: 5rem !important;
+  }
 }
 
 .nextra-nav-container nav a {
@@ -38,6 +46,7 @@
   font-size: 1rem !important;
 }
 
+/* Hide "Tutorial" from menu */
 .nextra-nav-container nav a:nth-child(2) {
   display: none !important;
 }

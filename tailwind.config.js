@@ -2,16 +2,12 @@
 module.exports = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx}'
+    './components/**/*.{js,ts,jsx,tsx}',
+    './theme.config.js'
   ],
   theme: {
     extend: {}
   },
   plugins: [],
-  darkMode: 'class',
-  safelist: [
-    'mr-2',
-    'pt-1',
-    'text-sky-500'
-  ]
+  darkMode: 'class'
 }

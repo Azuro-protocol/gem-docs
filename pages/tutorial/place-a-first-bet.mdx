@@ -42,7 +42,7 @@ const OutcomeInfo = ({ outcome }) => {
   const marketName = getMarketName({ outcomeId: outcome.outcomeId })
 
   return (
-    <div className="grid grid-cols-[auto_1fr] gap-y-3 mt-2 text-md">
+    <div className="grid lg:grid-cols-[auto_1fr] gap-y-3 mt-2 text-md">
       <span className="text-gray-400">Market</span>
       <span className="text-right font-semibold">{marketName}</span>
       <span className="text-gray-400">Selection</span>

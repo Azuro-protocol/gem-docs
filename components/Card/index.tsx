@@ -17,7 +17,7 @@ export function Card(props: Props) {
 
   return (
     <Link
-      className="block p-5 border cursor-pointer !text-black !no-underline rounded-xl shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      className="block p-5 border dark:nx-border-neutral-700 cursor-pointer !no-underline rounded-xl shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
       href={href}
       to={to}
       toTab={toTab}
@@ -26,7 +26,7 @@ export function Card(props: Props) {
         {
           Boolean(contentIcon) && (
             <NextImage
-              className={title ? 'w-10 h-10 mr-5' : 'w-7 h-7 mr-4'}
+              className={title ? 'w-9 h-9 mr-5' : 'w-7 h-7 mr-4'}
               src={contentIcon}
               width="80"
               height="80"
@@ -37,13 +37,13 @@ export function Card(props: Props) {
         <div className="space-y-1">
           {
             Boolean(title) && (
-              <div className="text-lg font-semibold">
+              <div className="text-black dark:text-white text-lg font-semibold">
                 {title}
               </div>
             )
           }
           <div
-            className={cx('text-md', title ? 'text-gray-700' : 'text-black')}
+            className={cx('text-md', title ? 'text-gray-700 dark:text-gray-400' : 'text-black dark:text-white')}
             dangerouslySetInnerHTML={{ __html: text }}
           />
         </div>

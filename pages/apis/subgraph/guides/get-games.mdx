@@ -2,10 +2,6 @@ import { Callout } from 'components'
 
 # Get Games
 
-<Callout type="warning" emoji="⚠️">
-  We highly recommend reading the ["GraphQL" section](/build-own-app/reference/graphql) first.
-</Callout>
-
 There are two ways to obtain a list of sport events: fetching games grouped by sport or fetching all games and then
 grouping them by sport.
 
@@ -75,7 +71,8 @@ Since Subgraphs contain data from different `LP` contracts, it's possible to hav
 `LP` contracts. In order to avoid issues related to duplicated data, it's important to identify which `LP` contract
 your application will interact with and use the corresponding address to filter the data. This ensures that only relevant
 data is retrieved and reduces the risk of conflicts and errors. It's recommended to carefully consider which `LP`
-contract to use based on your specific use case and business requirements. [Get more information](/build-own-app/reference/contracts#avoid-duplications).
+contract to use based on your specific use case and business requirements.
+[Get more information](/apis/subgraph/highlights#entity-duplications).
 
 ```ts
 useQuery(QUERY, {

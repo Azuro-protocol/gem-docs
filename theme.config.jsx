@@ -5,9 +5,7 @@ export default {
   docsRepositoryBase: 'https://github.com/Azuro-protocol/gem-docs/tree/main',
   banner: {
     key: 'tutorial',
-    text: <a href="/tutorial" target="_blank">
-      💎 Tutorial: Build your own bookmaker dApp. Read more →
-    </a>,
+    text: <a href="/tutorial">💎 Tutorial: Build your own bookmaker dApp. Read more →</a>,
   },
   sidebar: {
     defaultMenuCollapseLevel: 0,
@@ -43,7 +41,7 @@ export default {
         <path d="M73.432 4.99799H79.9043V19.3358H73.432V4.99799Z"/>
         <path fillRule="evenodd" clipRule="evenodd" d="M1.46768 0.664242H16.4049V4.92508H22.8609V19.3439H7.9156C5.95783 19.4646 4.00935 18.9902 2.32628 17.983C1.56152 17.434 0.948153 16.7005 0.543032 15.8507C0.13801 15.0009 -0.0455157 14.0625 0.00956174 13.1227C0.00333215 12.4058 0.109927 11.6923 0.325491 11.0085C0.392335 10.8438 0.470848 10.6841 0.560337 10.5306C0.726953 10.127 0.956657 9.7524 1.24075 9.42082C1.3776 9.27596 1.52671 9.14316 1.68631 9.02391C1.98484 8.75895 2.31392 8.53053 2.66643 8.34347C2.90207 8.21942 3.14562 8.11117 3.39549 8.01946C3.98068 7.80659 4.58208 7.64133 5.19377 7.52532C7.5267 7.05551 12.8244 7.05551 16.3805 7.05551V4.92508H1.46768V0.664242ZM10.3133 15.6015H16.3805V10.8141H10.0217C8.40972 10.8141 7.35662 11.0571 6.86251 11.5512C6.6416 11.7575 6.46797 12.0091 6.35326 12.2887C6.23866 12.5683 6.18576 12.8694 6.19831 13.1713C6.18378 13.4706 6.23253 13.7696 6.3414 14.0488C6.45027 14.328 6.61678 14.581 6.83007 14.7914C7.41338 15.3261 8.5798 15.6015 10.3133 15.6015Z"/>
       </svg>
-      <svg width="73" height="20" viewBox="0 0 457 126" className="ml-2" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg width="73" height="20" viewBox="0 0 457 126" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginLeft: '0.4rem' }}>
         <path d="M130.725 0H42.525L51.975 16.5L119 16.5L130.725 0Z" fill="#8B78FF"/>
         <path d="M42.525 0C22.05 0 0 24.5189 0 47.6757V78.3243C0 101.481 22.05 126 42.525 126L51.975 110C29.475 110 18.975 91.7081 18.975 74.4324V51.5676C18.975 34.3652 29.6719 16.6542 51.975 16.5L42.525 0Z" fill="#62D8FF"/>
         <path d="M37.8 47.6757C37.8 42.5676 40.635 32.3514 51.975 32.3514V16.5C29.6719 16.6542 18.975 34.3652 18.975 51.5676V74.4324C18.975 91.7081 29.475 110 51.975 110V93.6486C40.635 93.6486 37.8 83.4324 37.8 78.3243V47.6757Z" fill="#8B78FF"/>
@@ -85,7 +83,7 @@ export default {
   ),
   footer: {
     text: (
-      <span>{new Date().getFullYear()} © <a href="https://azuro.org" target="_blank">Azuro Protocol</a></span>
+      <span>{new Date().getFullYear()} © <a href="https://azuro.org" target="_blank">Azuro</a></span>
     ),
   },
   useNextSeoProps() {
@@ -93,4 +91,7 @@ export default {
       titleTemplate: '%s – Azuro'
     }
   },
+  safelist: [
+    'ml-2',
+  ]
 }

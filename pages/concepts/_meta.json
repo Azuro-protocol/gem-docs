@@ -2,6 +2,9 @@
   "overview": {
     "title": "What Is Azuro?"
   },
+  "the-azuro-vision": {
+    "title": "The Azuro Vision"
+  },
   "the-azuro-protocol": {
     "title": "The Azuro Protocol"
   },
@@ -10,6 +13,9 @@
   },
   "protocol": {
     "title": "Protocol Concepts"
+  },
+  "azuro-score": {
+    "title": "Azuro Score"
   },
   "governance": {
     "title": "Governance"

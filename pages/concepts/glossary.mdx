@@ -2,9 +2,7 @@
 
 ### Automated Market Maker
 
-An automated market maker is a smart contract on Ethereum that holds liquidity reserves. Users can trade against these
-reserves at prices determined by a fixed formula. Anyone may contribute liquidity to these smart contracts, earning
-pro-rata trading fees in return.
+Azuro utilise AMM mechanic inside its betting engine to adjust odds and provide users with correct values.
 
 ### Liquidity Provider (LP)
 
@@ -33,7 +31,7 @@ fees despite containing the same token pair.
 A collective term for contracts that encompass the logic of creating Conditions, accepting bets, computing payouts
 for bets, and calculating Affiliate rewards.
 
-### Conditions
+### Condition
 
 Each Market presented on a Pool is called a Condition.
 
@@ -41,15 +39,20 @@ Each Market presented on a Pool is called a Condition.
 
 A sports betting market is a specific category of bet on a certain fixture or event.
 
-### Games
+### Bettor
 
-A Game is an entity within Pool's contracts that provides information about a game or event. The Game includes
+Bettors can access the markets via websites, apps or widgets (known as "Frontends") that connect to Azuro to deliver
+betting services to end users.
+
+### Game
+
+An entity within Pool's contracts that provides information about a game or event. The Game includes
 information about when the match will start, as well as an IPFS hash containing information about the event.
 Based on the Game, an unlimited number of Conditions can be created.
 
 ### Outcome (Selection)
 
-the simplest type of bet in a bookmaker’s office, the winning of which is determined by the result of a sporting
+The simplest type of bet in a bookmaker’s office, the winning of which is determined by the result of a sporting
 event - the victory of team(player) 1 or team 2(player), or a draw (if possible).
 
 ### Bet
@@ -78,7 +81,7 @@ online betting, it is also referred to as the "bookmakers advantage" or "house e
 
 On Azuro protocol, margin is one of the immutable properties of a Condition, set at the time of its creation.
 
-### Affiliate
+### Affiliate (Frontend)
 
 A frontend operator can be apps, widgets, tools, integrations or even standalone products which use the Azuro
 liquidity pools and deliver a UI for users to interact with.

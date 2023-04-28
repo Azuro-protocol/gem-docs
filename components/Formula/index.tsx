@@ -10,7 +10,7 @@ export function Formula(props: React.PropsWithChildren<Props>) {
   const { children, className } = props
 
   return (
-    <div className={cx('my-10 text-lg', className)}>
+    <div className={cx('max-w-full overflow-auto my-10 text-lg', className)}>
       {children}
     </div>
   )

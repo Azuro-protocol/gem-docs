@@ -1,4 +1,5 @@
 import cx from 'clsx'
+import { Link } from 'components'
 
 
 type Props = {
@@ -6,24 +7,22 @@ type Props = {
   title: string
   href?: string
   to?: string
+  toTab?: string
 }
 
 export function Button(props: Props) {
-  const { className, title, href, to } = props
+  const { className, title, href, to, toTab } = props
 
   const aProps: any = {
-    className: cx('inline-flex py-2.5 px-6 text-md text-white border border-blue-600 bg-blue-600 rounded-lg cursor-pointer shadow-xl duration-200 select-none hover:bg-blue-500', className),
-    href: href || to,
-  }
-
-  if (!to && !/mailto/.test(href)) {
-    aProps.target = '_blank'
-    aProps.rel = 'noreferrer'
+    className: cx('inline-flex py-2.5 px-6 text-md !text-white !no-underline border border-blue-600 bg-blue-600 rounded-lg cursor-pointer shadow-xl duration-200 select-none hover:bg-blue-500', className),
+    href,
+    to,
+    toTab,
   }
 
   return (
-    <a {...aProps}>
+    <Link {...aProps}>
       {title}
-    </a>
+    </Link>
   )
 }

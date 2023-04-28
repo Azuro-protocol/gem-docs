@@ -186,10 +186,23 @@ Object.keys(outcomesByMarkets).forEach((marketKey) => {
     const rows: Outcome[][] = Object.values(outcomesByConditionId)
 
     finalMarketsMap[marketKey].outcomes = rows.sort((a, b) => {
-      const aSum = a.reduce((acc, { outcomeId }) => acc + +outcomeId, 0)
-      const bSum = b.reduce((acc, { outcomeId }) => acc + +outcomeId, 0)
+      const { points, outcomes } = dictionaries
 
-      return aSum - bSum
+      /*
+        sort by point in first outcome
+
+        Handicap
+        Team 1 (-2.5)   Team 2 (2.5)
+        Team 1 (-1.5)   Team 2 (1.5)
+
+        Total Goals
+        Over (1.5)   Under (1.5)
+        Over (2.5)   Under (2.5)
+      */
+      const aFirstOutcome = +points[outcomes[a[0].outcomeId].pointsId]
+      const bFirstOutcome = +points[outcomes[b[0].outcomeId].pointsId]
+
+      return aFirstOutcome - bFirstOutcome
     })
   }
 })

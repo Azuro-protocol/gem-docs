@@ -1,0 +1,91 @@
+import { Callout } from 'components'
+
+# Distribute Freebets
+
+1. Deploy [FreeBet](/contracts/free-bet) contract. Specify the token which will be used for freebets and the access address.
+distributed freebets. Note that the token asset should be same as in Liquidity Pool (LP) used for bets.
+2. Bound the contract with the [LP](/contracts/lp) using `setLP` method.
+3. Transfer tokens for distribution to the deployed contract.
+4. Distribute freebets using `mint` or `mintBatch` methods.
+
+
+### Manag
+
+### List the distributed freebets
+
+Use `FreeBetMinted` / `FreeBetMintedBatch` events to get a NFT ID of each distributed freebet. To list only active
+freebets (which weren't redeemed, canceled or withdrawn) need to filter the distributed freebets.
+
+### Freebet status
+
+The freebet status is not stored on the contract, it can be obtained from events. There can be 4 statuses: Created,
+Reissued, Redeemed, Withdrawn.
+
+When user redeem freebet (placing a bet using the freebet) the `FreeBetRedeemed` event is called.
+
+
+---
+
+- Call `balanceOf(freebetAddress)` on token contract to get tokens balance of your freebet contract.
+- Call `lockedReserve()` on freebet contract to get amount of tokens locked in the distributed freebets.
+
+
+
+<Callout type="warning">
+  Be sure that there is enough tokens for distribution. To get freebets contract balance use . To get the amount locked in distributed freebets.
+  Use `freebetContract.lockedReserve()`
+</Callout>
+
+<Callout type="info">
+  To use the freebets users should call `redeem` function on the FreeBet contract while placing a bet.
+</Callout>
+
+
+
+- You need to place a bet through a freebet contract (this is necessary in order to deduct the body of the bet from the payout). To do this, we call the redeem method - it takes the same properties as the bet from LP (in fact, it is a wrapper), but additional fields amount and id are needed (this is the freebet id). In the implementation of the freebet contract, you can put any part of the token, but now the layouts do not provide for this, so we put the entire amount from freebet at once. Either the usual lp errors will come in response, or a FreeBetRedeemed event will be generated (address indexed bettor, uint256 indexed id, uint256 indexed azurobetId, uint128 amount)
+- Keep calm - the betting partner will be the address of the feebet contract, do not forget to take this into account in analytics
+- because redeem freebet is a proxy call to LP - all our usual events are generated there
+- then our usual flow oracle manages the states
+
+- After that, several scenarios are possible - winning, losing and cancellation of the condition
+- When the condition is canceled, the freebet handler can call withdrawPayout or anyone can call resolvePayout for azuroBetId (LP betting ID) - as a result, a new freebet and event FreeBetReissue(address indexed receiver, uint256 indexed id, (uint128,uint64,uint64) bet will be generated. The time to which you need to spend the freebet will be updated, so it would be better if the method still pulls the owner - (saw the cancellation, pressed refund, re-received the freebet for the same time).
+- When winning, the freebet winner should call withdrawPayout - the token will burn, the money will be transferred - in fact, this is the functionality of the redim bet
+- If you lose, you don't need to do anything
+- there may be a situation when we have accumulated too many unassigned freebets (according to the engaged conditions), and the bodies of all bets hang on the LP (and I want to return them to the marketing budget of the freebet contract) - for this there is a resolvePayout method - it allows you to request a freebet for another user. at the same time, the user must come himself and pull withdraw for withdrawal, the behavior will not change here - it makes sense to pull this method from time to time for winning bets
+
+Additional functions:
+- there is also a withdrawal of unallocated capital through `withdrawReserve`
+- For native, the deposit method will be needed, so I'll probably add the usual deposit too, it will be possible to replenish the contract balance through it
+--There is a getExpiredUnburned method, which, according to a given range of free bet ids, issues expired and unburned ones from them. You can use it to search for such betas and burn them already by these ids
+
+
+
+
+
+
+
+- resolveExpired для уменьшения lockedReserve
+- выдали фрибет
+- юзер сделал ставку
+- оракул резолвнул событие
+- resolvePayout() чтобы сделать резолв фрибета
+  - если cancel то фрибет обнуляется
+- юзер может дернуть withdrawPayout() сам чтобы сделать resolvePayout и заклеймить выигрыш
+-
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
