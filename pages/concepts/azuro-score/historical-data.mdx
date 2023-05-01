@@ -1,10 +1,18 @@
 import { PageHeadline } from 'components'
 
 <PageHeadline
-  title="Historical Data"
-  subTitle="Updates to Azuro Score settings are listed here"
+  title="Historical Settings"
+  subTitle="Previous settings are documented here"
 />
 
-### Until Mar 3, 2023, 11:00AM UTC
+### From Feb, 16 to Mar 3, 2023, 11:00AM UTC:
 
-If the user’s Azuro Score is >  2 * degressive_level, then the points from betting are not multiplied at all.
+|for users with Azuro Score <10,000| 
+**$1 bet = 10 points **
+
+|for users with Azuro Score between 10,000 and 20,000| 
+**$1 bet = between 10 points and 5 points according to this formula: 
+((1-sqrt(Azuro Score/10000-1))+1)*5
+
+|for users with Azuro Score >20,000|
+**$1 bet = 5 points **
