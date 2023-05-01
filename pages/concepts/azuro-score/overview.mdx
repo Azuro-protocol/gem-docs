@@ -1,4 +1,4 @@
-import { PageHeadline, Callout, Button } from 'components'
+import { PageHeadline, Callout, Button, Formula } from 'components'
 
 <PageHeadline
   title="Azuro Score"
@@ -13,17 +13,13 @@ import { PageHeadline, Callout, Button } from 'components'
 
 ## How to earn Azuro Score points?
 
-### Bet using frontend dApps like https://bookmaker.XYZ 
+### Bet using frontend dApps like https://bookmaker.XYZ
 
-|for users with Azuro Score <10,000| 
-**$1 bet = 10 points **
-
-|for users with Azuro Score between 10,000 and 20,000| 
-**$1 bet = between 10 points and 1 point according to this formula: 
-(1-sqrt(Azuro Score/10000-1))*9+1
-
-|for users with Azuro Score >20,000|
-**$1 bet = 1 point **
+| Condition | Score |
+|---|---|
+| For users with Azuro Score \<10,000 | $1 bet = 10 points |
+| For users with Azuro Score between 10,000 and 20,000 | $1 bet = between 10 points and 1 point according to this formula: <Formula>$$(1 - (\sqrt{AzuroScore / 10000 - 1})) * 9 + 1$$</Formula> |
+| for users with Azuro Score \>20,000 | $1 bet = 1 point |
 
 <Callout type="info">
   - Only bets made (time of bet transaction) after Feb 16, 00:01 UTC, 2023 count.
@@ -37,10 +33,11 @@ import { PageHeadline, Callout, Button } from 'components'
   toTab="https://azuro.org/frontends"
 />
 
-
+<br />
+<br />
 ### Providing liquidity
 
-**1 USDC/XDAI liquidity for 1 increment of time = 0.3 points** (i.e. $1 liquidity provided for 2 increments
+**1 USDC/XDAI liquidity for 1 increment of time = 0.3 points** (i.e. \$1 liquidity provided for 2 increments
 (at least 20 days) = 0.6 points; $1 liquidity provided for 35 days = 0.9 points; and so on…)
 
 <Callout type="info">
