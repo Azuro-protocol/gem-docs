@@ -2,44 +2,33 @@ import { PageHeadline, Callout, Button } from 'components'
 
 <PageHeadline
   title="Azuro Score"
-  subTitle="Azuro Score is the measurement of early participants’ contribution to Azuro. It is the first opportunity to earn $AZUR tokens"
+  subTitle="Azuro Score points will be convertible into $AZUR tokens after the $AZUR token is launched"
 />
 
-Azuro Score points will be convertible into \$AZUR tokens after the \$AZUR token is launched.
 
 <Callout type="alert">
   There is no token on the market yet, beware of scams!
 </Callout>
 
-The Azuro Score program invites wide community participation and value adds helping ensure the success of Azuro as
-critical decentralized betting and gambling infrastructure. It is meant to lay the foundations for sufficient
-decentralization of the ecosystem and the governance of Azuro.
 
-To achieve this - it is important that participants are rewarded according to specific value adds. It is possible that
-the settings for how many points are awarded for what actions, and the actions themselves can be updated in order to
-find better balance in distribution among contributors and optimize for maximum value towards Azuro.
+## How to earn Azuro Score points?
 
+### Bet using frontend dApps like https://bookmaker.XYZ 
 
-## How to grow your Azuro Score?
+|for users with Azuro Score <10,000| 
+**$1 bet = 10 points **
 
-You can get Azuro Score points for the actions below:
+|for users with Azuro Score between 10,000 and 20,000| 
+**$1 bet = between 10 points and 1 point according to this formula: 
+(1-sqrt(Azuro Score/10000-1))*9+1
 
-### Using frontends
-
-Frontends list can be found [here](https://azuro.org/frontends).
-
-**1 USDC/XDAI bet = 5 points**
-  - If user’s Azuro Score is smaller than `degressive_level`, then the points from betting are multiplied by `1 + level_boost`.
-  - If the user’s Azuro Score is > `degressive_level` but < `2 * degressive_level`, then the points from betting are
-  multiplied by: `(2 - sqrt(user’s Azuro Score / degressive_level - 1)) * (1 + level_boost)`
-  - If the user’s Azuro Score is > `2 * degressive_level`, then the points from betting are divided by 5. (this setting was different until 11:00AM UTC, March 3, 2023. You can see the old setting here).
-
-**`degressive_level` = 10,000**
-<br />**`level_boost` = 100%**
+|for users with Azuro Score >20,000|
+**$1 bet = 1 point **
 
 <Callout type="info">
   - Only bets made (time of bet transaction) after Feb 16, 00:01 UTC, 2023 count.
   - Score points are attributed immediately after the settlement of the betting markets. Betting on canceled events/markets will not give points.
+  - For previous settings check [here](https://gem.azuro.org/concepts/azuro-score/historical-data).
 </Callout>
 
 <Button
@@ -51,13 +40,11 @@ Frontends list can be found [here](https://azuro.org/frontends).
 
 ### Providing liquidity
 
-Liquidity provision gives points using a function of 2 parameters: amount of liquidity provided & amount of time it is
-provided for. Time is measured in 10-day increments. 1 increment is 10 full days. Only full increments count.
-
-**1 USDC/XDAI liquidity for 1 increment of time = 0.3 points** (i.e. 1 USDC/XDAI added liquidity for 2 increments
-(at least 20 days) = 0.6 points; 1 USDC/XDAI added liquidity for 35 days = 0.9 points; and so on…)
+**1 USDC/XDAI liquidity for 1 increment of time = 0.3 points** (i.e. $1 liquidity provided for 2 increments
+(at least 20 days) = 0.6 points; $1 liquidity provided for 35 days = 0.9 points; and so on…)
 
 <Callout type="info">
+  - 1 increment of time is 10 days. Only full increments count.
   - There is no restrictions on adding/withdrawing liquidity. The points are calculated according to the total amount of time liquidity has been provided for.
   - Only liquidity providers (addresses) adding liquidity after Feb 15, 00:01 UTC, 2023 (when Azuro pools were opened to the public) can receive points. If the LP (address) was LPing before this point in time (i.e. private liquidity) - it is excluded from Azuro Score points.
   - Score points are updated/attributed once per day at midnight UTC.
@@ -71,17 +58,5 @@ provided for. Time is measured in 10-day increments. 1 increment is 10 full days
 
 ---
 
-<Callout type="warning">
-  The settings can be changed in the future. Should this happen all changes will be announced promptly. It is expected
-  that there may be a Stage 2 of the Azuro Score before the launch of the $AZUR Token.
-</Callout>
-
-
-## Since when is the Azuro Score live?
-
-**The Azuro Score is live since 16 Feb, 2023 00:01 UTC with no end date decided yet.**
-
+**The Azuro Score is live since 16 Feb, 2023 00:01 UTC**
 You can check your score [here](https://www.azuro.org/score).
-
-At the start - a point drop has been executed to early supporters of Azuro, and a symbolic point drop has been executed
-to many Ethereum addresses to celebrate the launch on Polygon. For details about the drops check [Drops](/concepts/azuro-score/drops).
