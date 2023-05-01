@@ -1,5 +1,5 @@
 {
-  "name": "azuro-v2-docs",
+  "name": "azuro-gem-docs",
   "version": "0.1.0",
   "engines": {
     "node": "=16.15.1",
@@ -9,7 +9,7 @@
     "dev": "next dev -p 5009",
     "start": "next start",
     "build": "next build && next export",
-    "deploy": "npm run build && surge out azuro-docs-for-review.surge.sh"
+    "deploy": "npm run build && surge out gem.azuro.org"
   },
   "dependencies": {
     "next": "^13.0.7",
