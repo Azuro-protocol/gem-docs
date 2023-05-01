@@ -20,16 +20,16 @@ disputed or not provided within the specified period set at the time of Conditio
 
 The SafeOracle's logic guarantees timely and accurate results for created Conditions or cancels them if the correct
 result is impossible to determine. This eliminates the risk of fraud against bettors by the
-[feed provider](/concepts/basic/feed-providers) and the possibility of their funds being locked due to the feed
+[data provider](/concepts/basic/data-providers) and the possibility of their funds being locked due to the data
 provider's failure to provide the result.
 
-When creating a Condition through SafeOracle, the feed provider places a fixed amount as collateral, which will be
+When creating a Condition through SafeOracle, the data provider places a fixed amount as collateral, which will be
 returned to them if their result is timely and accurate. Otherwise, the collateral will be used as a reward for Azuro DAO
 and optionally the disputant.
 
-A dispute can be opened by a disputant only within a limited timeframe after the feed provider provides the result
-for the Condition. After this period, the result will be accepted and executed on the LP contract. When opening a dispute,
-the disputant also places a collateral, which is half of the feed provider's collateral. If the DAO determines that
+A dispute can be opened by a disputant only within a limited timeframe after the data providers result for the Condition.
+After this period, the result will be accepted and executed on the LP contract. When opening a dispute,
+the disputant also places a collateral, which is half of the data provider's collateral. If the DAO determines that
 the result is incorrect, the disputant will double their collateral; otherwise, they will lose their funds.
 
 

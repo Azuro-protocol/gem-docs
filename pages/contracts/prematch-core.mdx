@@ -11,21 +11,21 @@ of possible outcomes. (E.g. in a horse races with 12 horses, each condition can 
 Horse Y Win or any other, Horse Z Win or any other, and so forth).
 
 Currently, PrematchCore is the only type of [Betting Engine](/concepts/protocol/betting-engines) in use. Through it,
-[feed providers](/concepts/basic/feed-providers) can create Conditions for games that
+[data providers](/concepts/basic/data-providers) can create Conditions for games that
 have not yet started on the [LP](/contracts/lp) contract to which the PrematchCore contract belongs, providing
 information about the winning outcome after the result is known.
 
 Before the Game starts, anyone can place a bet on one of the two outcomes of the Condition through LP contract and
 receive an ERC-721 [AzuroBet](/contracts/azuro-bet) token, representing the right to own the bet. The betting odds are
 calculated based on the current ratio of funds for the outcomes of Condition, taking into account its margin rate.
-The feed provider also can virtually change the ratio at its discretion at any time, which affects the resulting odds.
+The data provider also can virtually change the ratio at its discretion at any time, which affects the resulting odds.
 If the bet is successful, the bettor can request a refund of their winnings from the LP, otherwise, they receives nothing.
 
 PrematchCore takes a reinforcement for bets from the [Pool](/concepts/protocol/pools) to which it belongs. When a bet
 is placed, PrematchCore locks/unlocks a portion of the liquidity from the LP so that after each bet, only the amount
 equal to the maximum possible loss of the Pool for the given Condition is locked.
 
-If the event associated with the Condition is canceled, the feed provider can cancel the Condition. In this case, all
+If the event associated with the Condition is canceled, the data provider can cancel the Condition. In this case, all
 bets are returned to the bettors, and the Pool does not earn or lose any funds.
 
 

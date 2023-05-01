@@ -15,7 +15,7 @@ set payout rates for different bets.
 
 The calculation of the odds is based on the virtual funds of the Condition and its margin.
 Once the Condition is created, initial reinforcement is distributed proportionally among the outcome virtual funds based
-on their initial odds provided by the [Feed Provider](/concepts/basic/feed-providers). When a bettor places a bet,
+on their initial odds provided by the [data provider](/concepts/basic/data-providers). When a bettor places a bet,
 the outcome virtual fund on which they bet increases by the amount of the bet, and the net odds are calculated using
 the following formula:
 
@@ -86,6 +86,6 @@ $$
 $$
 </Formula>
 
-Thus, automatic market making of the betting odds is performed. However, Feed Provider also has the ability to change
+Thus, automatic market making of the betting odds is performed. However, data provider also has the ability to change
 the odds of each outcome at any time by passing desired values to a special method, thereby setting the desired odds
 for accepting the next bets on the Condition.
