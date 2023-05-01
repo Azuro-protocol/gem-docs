@@ -8,16 +8,13 @@
   },
   "factory": "Factory",
   "lp": "LP",
-  "---2": {
-    "type": "separator"
-  },
   "core-base": "CoreBase",
   "prematch-core": "PrematchCore",
   "bet-express": "BetExpress",
+  "azuro-bet": "AzuroBet",
   "---3": {
     "type": "separator"
   },
-  "azuro-bet": "AzuroBet",
   "free-bet": "FreeBet",
   "safe-oracle": "SafeOracle",
   "access": "Access"
