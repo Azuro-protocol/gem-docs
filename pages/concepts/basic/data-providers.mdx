@@ -1,11 +1,12 @@
 # Data Providers
 
-A Data Provider is an entity that receives a share of the profit that is due to the [Pool](/concepts/protocol/pools).
-It can be either the Pool owner or any other address, for additional security.
+A Data Provider is an entity with the necessary access [access](/contracts/access) in a Pool to create and cancel events, create, resolve or cancel [Conditions](/concepts/protocol/conditions) and update the odds. Data Providers are the entities ensuring there are Conditions to bet on, and that the probabilities for these conditions are such that the pool generates a profit from the betting over time.
 
-The pool owner is responsible for attracting liquidity providers to the Pool, as well as for hiring and managing
-[feed providers](/concepts/basic/feed-providers) and other participants who populate the Pool with data related to
-[Conditions](/concepts/protocol/conditions) and ensuring timely and correct provision of betting odds.
+At the time of creation of Conditions the Data Provider sets:
+1. Total virtual [reinforcements](/concepts/protocol/reinforcement) for each condition and the respective outcomes
+2. Margin for each condition/outcomes thus setting the [odds](/concepts/protocol/odds)
+
+The Data Provider receives a share of the profit that is due to the [Pool](/concepts/protocol/pools). It can be either the Pool owner or any other address, for additional security.
 
 In contracts infrastructure, the Data Provider is represented as an address to which a part of the profit share
 [is credited](/concepts/basic/fees-and-rewards) by [LP](/contracts/lp) after the completion of each Condition.
