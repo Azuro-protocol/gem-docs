@@ -1,3 +1,17 @@
+import { Callout } from 'components'
+
 # Use Freebets
 
+To check whether a user has any freebets and obtain information about them, it's necessary to read events from the
+blockchain since there's no direct way to get a list of freebets from the [Freebet](/contracts/free-bet) contract.
+You can read more about the events on the ["Distribute Freebets"](/contracts/guides/distribute-freebets) page.
 
+<Callout type="info">
+  We recommend caching the received data, it can be saved in a database for future use.
+</Callout>
+
+Once the data on all the freebets is obtained, you can determine the availability of free bets for a specific user.
+
+To use a freebet, the user needs to call the `redeem` function.
+
+To claim their winnings or refunds if the condition was canceled users should call the `withdrawPayout` function.
