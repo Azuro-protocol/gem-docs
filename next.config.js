@@ -6,6 +6,18 @@ const withNextra = require('nextra')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/build-own-app',
+        destination: '/tutorial',
+        permanent: false,
+      }
+    ]
+  },
+  images: {
+    unoptimized: true
+  },
   webpack: (config, { isServer, webpack }) => {
     // fixes npm packages that depend on `fs` module
     if (!isServer) {
@@ -49,9 +61,6 @@ const nextConfig = {
     )
 
     return config
-  },
-  images: {
-    unoptimized: true
   }
 }
 
