@@ -32,5 +32,23 @@
   "components": {
     "title": "Components",
     "type": "page"
+  },
+  "privacy-policy": {
+    "display": "hidden",
+    "theme": {
+      "sidebar": false,
+      "breadcrumb": false,
+      "pagination": false,
+      "toc": false
+    }
+  },
+  "terms-of-use": {
+    "display": "hidden",
+    "theme": {
+      "sidebar": false,
+      "breadcrumb": false,
+      "pagination": false,
+      "toc": false
+    }
   }
 }

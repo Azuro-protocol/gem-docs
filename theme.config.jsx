@@ -1,7 +1,10 @@
+import { ThemeSwitch } from 'nextra-theme-docs'
+import Footer from './components/Footer'
+
 export default {
-  project: {
-    link: 'https://github.com/Azuro-protocol',
-  },
+  // project: {
+  //   link: 'https://github.com/Azuro-protocol',
+  // },
   docsRepositoryBase: 'https://github.com/Azuro-protocol/gem-docs/tree/main',
   banner: {
     key: 'tutorial',
@@ -81,9 +84,14 @@ export default {
       </svg>
     </div>
   ),
+  navbar: {
+    extraContent: (
+      <ThemeSwitch />
+    ),
+  },
   footer: {
-    text: (
-      <span>{new Date().getFullYear()} © <a href="https://azuro.org" target="_blank">Azuro</a></span>
+    component: (
+      <Footer />
     ),
   },
   useNextSeoProps() {
