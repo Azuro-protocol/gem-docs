@@ -38,8 +38,7 @@
     "theme": {
       "sidebar": false,
       "breadcrumb": false,
-      "pagination": false,
-      "toc": false
+      "pagination": false
     }
   },
   "terms-of-use": {
@@ -47,8 +46,7 @@
     "theme": {
       "sidebar": false,
       "breadcrumb": false,
-      "pagination": false,
-      "toc": false
+      "pagination": false
     }
   }
 }
