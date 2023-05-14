@@ -1,67 +1,35 @@
 # Glossary
 
+### Affiliate (Frontend)
+
+A frontend operator can be apps, widgets, tools, integrations or even standalone products which use the Azuro
+liquidity pools and deliver a UI for users to interact with.
+
 ### Automated Market Maker
 
 Azuro utilise AMM mechanic inside its betting engine to adjust odds and provide users with correct values.
 
-### Liquidity Provider (LP)
+### Bet
 
-Someone who deposits ERC20 tokens into a given liquidity pool. Liquidity providers take on price risk and are
-compensated with betting margin.
-
-### Liquidity
-
-Digital assets that are stored in a Azuro pool contract, and are able to be traded against by traders.
-
-### ERC20
-
-ERC20 tokens are fungible tokens on Ethereum. Azuro supports all standard ERC20 implementations.
-
-### Factory
-
-A smart contract that deploys Pools and Betting Engine smart contracts.
-
-### Pool
-
-A system of smart contracts that forms a unified betting platform. Anyone can deploy their own Pool on the network
-using the Factory.
+At its core, sports betting is putting money behind an outcome of your choice and getting paid if that outcome is achieved.
 
 ### Betting Engines
 
 A collective term for contracts that encompass the logic of creating Conditions, accepting bets, computing payouts
 for bets, and calculating Affiliate rewards.
 
-### Condition
-
-Each Market presented on a Pool is called a Condition.
-
-### Market
-
-A sports betting market is a specific category of bet on a certain fixture or event.
-
 ### Bettor
 
 Bettors can access the markets via websites, apps or widgets (known as "Frontends") that connect to Azuro to deliver
 betting services to end users.
 
-### Game
+### Condition
 
-An entity within Pool's contracts that provides information about a game or event. The Game includes
-information about when the match will start, as well as an IPFS hash containing information about the event.
-Based on the Game, an unlimited number of Conditions can be created.
+Each Market presented on a Pool is called a Condition.
 
-### Outcome (Selection)
+### ERC20
 
-The simplest type of bet in a betting app’s office, the winning of which is determined by the result of a sporting
-event - the victory of team(player) 1 or team 2(player), or a draw (if possible).
-
-### Bet
-
-At its core, sports betting is putting money behind an outcome of your choice and getting paid if that outcome is achieved.
-
-### Freebet (Free Bet)
-
-A bet of a specified value for which a betting app offers to pay the stake.
+ERC20 tokens are fungible tokens on Ethereum. Azuro supports all standard ERC20 implementations.
 
 ### Express
 
@@ -69,9 +37,28 @@ Express is a type of bet where a user can combine outcomes from different Condit
 This bet wins if each of the selected outcomes in the set wins, with the payout coefficient being the product of the
 selected Odds taking into account the applied Margin.
 
-### Odds
+### Factory
 
-The ratio of winnings to the stake and bettor also get his wager returned. So wagering 1 at 1:5 pays out 6 (5 + 1).
+A smart contract that deploys Pools and Betting Engine smart contracts.
+
+### Freebet (Free Bet)
+
+A bet of a specified value for which a betting app offers to pay the stake.
+
+### Game
+
+An entity within Pool's contracts that provides information about a game or event. The Game includes
+information about when the match will start, as well as an IPFS hash containing information about the event.
+Based on the Game, an unlimited number of Conditions can be created.
+
+### Liquidity
+
+Digital assets that are stored in a Azuro pool contract, and are able to be traded against by traders.
+
+### Liquidity Provider (LP)
+
+Someone who deposits ERC20 tokens into a given liquidity pool. Liquidity providers take on price risk and are
+compensated with betting margin.
 
 ### Margin
 
@@ -81,9 +68,20 @@ online betting, it is also referred to as the "bookmakers advantage" or "house e
 
 On Azuro protocol, margin is one of the immutable properties of a Condition, set at the time of its creation.
 
-### Affiliate (Frontend)
+### Market
 
-A frontend operator can be apps, widgets, tools, integrations or even standalone products which use the Azuro
-liquidity pools and deliver a UI for users to interact with.
+A sports betting market is a specific category of bet on a certain fixture or event.
 
+### Odds
 
+The ratio of winnings to the stake and bettor also get his wager returned. So wagering 1 at 1:5 pays out 6 (5 + 1).
+
+### Outcome (Selection)
+
+The simplest type of bet in a betting app’s office, the winning of which is determined by the result of a sporting
+event - the victory of team(player) 1 or team 2(player), or a draw (if possible).
+
+### Pool
+
+A system of smart contracts that forms a unified betting platform. Anyone can deploy their own Pool on the network
+using the Factory.
