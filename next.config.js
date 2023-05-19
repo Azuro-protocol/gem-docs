@@ -12,7 +12,12 @@ const nextConfig = {
         source: '/build-own-app',
         destination: '/tutorial',
         permanent: false,
-      }
+      },
+      {
+        source: '/concepts/basic/fees-and-rewards',
+        destination: '/concepts/basic/rewards',
+        permanent: false,
+      },
     ]
   },
   images: {
