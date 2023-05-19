@@ -9,13 +9,16 @@ type Props = {
   href?: string
   to?: string
   toTab?: string
+  customColor?: boolean
 }
 
 export function Link(props: Props) {
-  const { children, className, href, to, toTab } = props
+  const { children, className, href, to, toTab, customColor } = props
 
   const nodeProps: any = {
-    className: cx('nx-text-primary-600 nx-underline nx-decoration-from-font [text-underline-position:under]', className),
+    className: cx('nx-underline nx-decoration-from-font [text-underline-position:under]', {
+      'text-primary-600': !customColor,
+    }, className),
     href: href || to || toTab,
     target: toTab ? '_blank' : null,
     rel: toTab ? 'noreferrer' : null,

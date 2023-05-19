@@ -1,9 +1,23 @@
-import NextLink from 'next/link'
+import { Link } from 'components'
 
-function NavItem({ children, to }) {
+
+type NavItemProps = {
+  children: any
+  to?: string
+  toTab?: string
+}
+
+function NavItem({ children, to, toTab }: NavItemProps) {
 
   return (
-    <NextLink className="nx-text-sm contrast-more:nx-text-gray-700 contrast-more:dark:nx-text-gray-100 nx-relative -nx-ml-2 nx-whitespace-nowrap nx-p-2 nx-text-gray-600 hover:nx-text-gray-800 dark:nx-text-gray-400 dark:hover:nx-text-gray-200" href={to}>{children}</NextLink>
+    <Link
+      className="nx-text-sm nx-relative -nx-ml-2 nx-whitespace-nowrap nx-p-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+      to={to}
+      toTab={toTab}
+      customColor
+    >
+      {children}
+    </Link>
   )
 }
 
@@ -12,11 +26,12 @@ export default function Footer() {
   return (
     <footer className="nx-bg-gray-100 nx-pb-[env(safe-area-inset-bottom)] dark:nx-bg-neutral-900 print:nx-bg-transparent">
       <div className="nx-mx-auto nx-flex nx-max-w-[90rem] nx-justify-center py-6 nx-text-gray-600 dark:nx-text-gray-400 md:nx-justify-start nx-pl-[max(env(safe-area-inset-left),1.5rem)] nx-pr-[max(env(safe-area-inset-right),1.5rem)]">
-        <div className="flex items-center justify-between md:justify-start w-full">
-          <div className="md:mr-14">{new Date().getFullYear()} © <a href="https://azuro.org" target="_blank">Azuro</a></div>
+        <div className="flex flex-col-reverse md:flex-row items-center justify-between md:justify-start w-full">
+          <div className="mt-2 md:mt-0 md:mr-14 text-sm">{new Date().getFullYear()} © <a href="https://azuro.org" target="_blank">Azuro</a></div>
           <div className="flex space-x-2">
             <NavItem to="/terms-of-use">Terms of Use</NavItem>
             <NavItem to="/privacy-policy">Privacy Policy</NavItem>
+            <NavItem to="https://azuro-protocol.notion.site/Media-Kit-84d14f69ef154c8bbc272bc0e82df16f">Media Kit</NavItem>
           </div>
         </div>
       </div>
