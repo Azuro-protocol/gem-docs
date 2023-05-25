@@ -33,6 +33,10 @@
     "title": "Components",
     "type": "page"
   },
+  "releases": {
+    "title": "Releases",
+    "type": "page"
+  },
   "privacy-policy": {
     "display": "hidden",
     "theme": {
