@@ -1,30 +1,30 @@
 import { Callout } from 'components'
 
-# 05/23 Express Bets
+# 05/23 Combo Bets
 
-Azuro Protocol recently launched a new type of bet called Express bets.
+Azuro Protocol recently launched a new type of bet called combo bets.
 
-The express bet is a type of bet that enables users to combine outcomes from different conditions and place them as a single bet. This bet wins only if each of the selected outcomes in the set wins, with the payout coefficient being the product of the selected odds, taking into account the applied margin.
+The combo bet is a type of bet that enables users to combine outcomes from different conditions and place them as a single bet. This bet wins only if each of the selected outcomes in the set wins, with the payout coefficient being the product of the selected odds, taking into account the applied margin.
 
-One of the advantages of express bets is that users can get higher odds. In contrast, betting apps can get a higher margin from the bets made by users. This is because a express bet contains the margin of all the included sub-bets on ordinaries, and it also increases turnover and profits by attracting players to express bets.
+One of the advantages of combo bets is that users can get higher odds. In contrast, betting apps can get a higher margin from the bets made by users. This is because a combo bet contains the margin of all the included sub-bets on ordinaries, and it also increases turnover and profits by attracting players to combo bets.
 
 
 ## Contracts
 
 ### Change Log
 
-Azuro Factory now offers support for a new **BettingEngine** called **BetExpress**.
+Azuro [Factory](/contracts/factory) now offers support for a new **BettingEngine** called **BetExpress**.
 
-With **BetExpress**, users can place express bets on events from one of the previously connected **PrematchCore** instances. The operation of the **BetExpress** contract generally does not affect the operation of **PrematchCore**, except that the odds in the **PrematchCore** also change as a result of making express bets, but more subtly compared to if the bet were placed on one of the **PrematchCore Conditions**.
+With **BetExpress**, users can place combo bets on events from one of the previously connected **PrematchCore** instances. The operation of the **BetExpress** contract generally does not affect the operation of **PrematchCore**, except that the odds in the **PrematchCore** also change as a result of making combo bets, but more subtly compared to if the bet were placed on one of the **PrematchCore Conditions**.
 
 ### Migration Guide
 
-To connect BetExpress to your pool, perform the following four simple steps:
+To connect [BetExpress](/contracts/bet-express) to your pool, perform the following four simple steps:
 
 1. The pool owner must call the `plugExpress` method of the Azuro Factory smart contract and pass the following parameters:
 
     - `lp` - The pool address for which you want to connect BetExpress.
-    - `core` - The address of the PrematchCore smart contract on which express bets will be placed within the deployed contract. The `core` smart contract must belong to the pool whose address is passed in the `lp` parameter.
+    - `core` - The address of the PrematchCore smart contract on which combo bets will be placed within the deployed contract. The `core` smart contract must belong to the pool whose address is passed in the `lp` parameter.
     - `coreType` - `"express"`.
 
     As a result, a new BetExpress smart contract will be deployed. You can obtain the address of the deployed BetExpress contract from the `core` parameter emitted by the Factory `NewBet` event.
@@ -42,7 +42,7 @@ To connect BetExpress to your pool, perform the following four simple steps:
 
     By default, the reinforcement ability for the deployed BettingEngine is 10^12 (100%), and the minimum bet is 1.
 
-    To set the `maxReinforcementShare` parameter inside the deployed BetExpress contract, which determines how much of the funds the BetExpress smart contract has at its disposal within the Pool can be lost by a single Condition across all express bets, follow these steps:
+    To set the `maxReinforcementShare` parameter inside the deployed BetExpress contract, which determines how much of the funds the BetExpress smart contract has at its disposal within the Pool can be lost by a single Condition across all combo bets, follow these steps:
 
 3. Call the `changeMaxReinforcementShare` method in the deployed BetExpress smart contract, passing the following parameter:
     - `newMaxReinforcementShare` - the desired maximum share where 10^12 is 100% of the current `reinforcementAbility`. You can change these settings in the future.
@@ -51,20 +51,20 @@ To connect BetExpress to your pool, perform the following four simple steps:
 
 4. Grant the BetExpress smart contract address access to the `changeOdds` method of the PrematchCore smart contract, which was passed to the `plugExpress` function in step 1. How to grant access depends on how your Pool's **Access** smart contract is configured.
 
-### How To Bet on Express Bets
+### How To Bet on Combo Bets
 
-To place an express bet, you must call the `bet` function of the LP smart contract and provide the following parameters:
+To place an combo bet, you must call the `bet` function of the LP smart contract and provide the following parameters:
 
 - `core` - The address of the BetExpress smart contract associated with the LP.
 - `amount` - The amount of the bet.
 - `expiresAt` - The timestamp after which the bet becomes invalid.
 - `betData` - A tuple that includes:
-  - `affiliate` - The address of the affiliate (frontend) through which you make the express bet. This address will receive the affiliate's reward for your bet. If you are making a bet independently, you can specify your address to receive affiliate rewards after resolving the condition.
-  - `data` - The data of the sub-bets included in the express bet. The data is represented as an ABI-encoded array of tuples `(conditionId, outcomeId)`, where:
+  - `affiliate` - The address of the affiliate (frontend) through which you make the combo bet. This address will receive the affiliate's reward for your bet. If you are making a bet independently, you can specify your address to receive affiliate rewards after resolving the condition.
+  - `data` - The data of the sub-bets included in the combo bet. The data is represented as an ABI-encoded array of tuples `(conditionId, outcomeId)`, where:
   - `conditionId` - The ID of the condition for the sub-bet.
   - `outcomeId` - The ID of the outcome of the condition with ID `conditionId` for the sub-bet.
 
-Here is an example of data for placing a express bet that includes two sub-bets: on outcome `1` of Condition `101` and on outcome `2` of Condition `202`.
+Here is an example of data for placing a combo bet that includes two sub-bets: on outcome `1` of Condition `101` and on outcome `2` of Condition `202`.
 
 - `core` - `"0x7a73EF9087C6E7043ec2125DB159E908B2267B11"`
 - `amount` - `1000000000000000000`
@@ -75,7 +75,7 @@ Here is an example of data for placing a express bet that includes two sub-bets:
 
 **Users are unable to place bets due to the `TooLargeReinforcement` custom error.**
 
-This message indicates that the user is trying to place a express bet that would cause one of the conditions to exceed the `maxReinforcementShare` limit. To increase the limit on how much a single condition can lose across all express bets, call the `changeMaxReinforcementShare` function in the BetExpress smart contract with a new limit (refer to step 3 of the Migration Guide).
+This message indicates that the user is trying to place a combo bet that would cause one of the conditions to exceed the `maxReinforcementShare` limit. To increase the limit on how much a single condition can lose across all combo bets, call the `changeMaxReinforcementShare` function in the BetExpress smart contract with a new limit (refer to step 3 of the Migration Guide).
 
 **Users are unable to place bets due to the `AccessNotGranted` custom error.**
 
@@ -83,7 +83,7 @@ This means that you still need to grant the BetExpress smart contract access to 
 
 **Users cannot place bets because of the `TooFewSubbets` custom error.**
 
-This means that the user is attempting to place a express bet with fewer than two sub-bets, which is forbidden.
+This means that the user is attempting to place a combo bet with fewer than two sub-bets, which is forbidden.
 
 
 
@@ -91,13 +91,13 @@ This means that the user is attempting to place a express bet with fewer than tw
 
 ### Motivation
 
-The main goal of the major release is to allow support for express bets to existing within the same entity as single bets. In the initial version, all single bets were associated with a single `Outcome` entity. This needed to be clarified because the `Outcome` entity also had the `odds` field. GraphQL users might have mistakenly assumed that this field represented the bet odds.
+The main goal of the major release is to allow support for combo bets to existing within the same entity as single bets. In the initial version, all single bets were associated with a single `Outcome` entity. This needed to be clarified because the `Outcome` entity also had the `odds` field. GraphQL users might have mistakenly assumed that this field represented the bet odds.
 
-To address this confusion, we are introducing the `Selection` entity. It combines the bet, bet odds, and outcome. Now, all bets contain a `selections: Selection[]` field that merges single and express bets into a single entity. For a single bet, this field will contain only one selection entity item, while for an express bet, it will contain two or more.
+To address this confusion, we are introducing the `Selection` entity. It combines the bet, bet odds, and outcome. Now, all bets contain a `selections: Selection[]` field that merges single and combo bets into a single entity. For a single bet, this field will contain only one selection entity item, while for an combo bet, it will contain two or more.
 
 ### Change Log
 
-In order to keep the current implementation, a new version of Subgraph has been added. Use the following endpoints to implement express bets:
+In order to keep the current implementation, a new version of Subgraph has been added. Use the following endpoints to implement combo bets:
 
 - Polygon: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v2
 - Gnosis: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-v2
@@ -152,7 +152,7 @@ In addition, the oracles field has been removed from **LiquidityPoolContract**. 
 
 **Selection**
 
-This entity describes the selected outcome of the game within a single condition. Express bets contain several selections, while single bets can contain only one selection.
+This entity describes the selected outcome of the game within a single condition. Combo bets contain several selections, while single bets can contain only one selection.
 
 - The fields:
   - `id` - entity id, a composite string `{betEntityId}_{conditionId}`
@@ -176,7 +176,7 @@ This entity describes the selected outcome of the game within a single condition
   - `affilate` → `affiliate`
 
 - New fields have been added:
-  - `type` - type of bet. `Ordinar` for single bet or `Express` for express bet
+  - `type` - type of bet. `Ordinar` for single bet or `Express` for combo bet
   - `payout` - actual payout, formatted taking into account decimals. **0** in case of loss, from **1** to `potentialPayout` value for a full win or a payout for a cancellation of part of the conditions
   - `approxSettledAt` - approximate time of bet settlement - time of settlement of the latest condition from all sub-bets + 2 hours
   - `rawPayout` - actual payout, raw value
@@ -269,7 +269,7 @@ Recommendations:
 
 ## Client
 
-### Bet on Express Bets
+### Bet on Combo Bets
 
 ```js
 minOdds = '12000000000000'
