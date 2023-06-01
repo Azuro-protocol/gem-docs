@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-# 05/23 Combo Bets
+# 05/24 Combo Bets
 
 Azuro Protocol recently launched a new type of bet called combo bets.
 
@@ -211,8 +211,7 @@ This entity describes the selected outcome of the game within a single condition
 
 ### Migration Guide
 
-1. Change the GraphQL endpoints.
-2. Update the `bet` and `bets` queries for GraphQL. Refer to the "Change Log" section above to see which fields have been modified.
+Update the `bet` and `bets` queries for GraphQL. Refer to the "Change Log" section above to see which fields have been modified.
 
 Example:
 
@@ -269,20 +268,26 @@ Recommendations:
 
 ## Client
 
+### Migration Guide
+
+1. Change the GraphQL endpoints.
+2. Change the GraphQL queries (take a look the "Migrate Guide" from the section above).
+3. Update contract ABIs. You can find them [here](https://github.com/Azuro-protocol/public-config/tree/main/abis/eth/protocol/v2.7.3).
+
 ### Bet on Combo Bets
 
 ```js
 minOdds = '12000000000000'
 
 selections = [
-  {
-    conditionId: '101',
-    outcomeId: '1'
-  },
-  {
-    conditionId: '202',
-    outcomeId: '2'
-  }
+  [
+    '101', // conditionId
+    '1' // outcomeId
+  ],
+  [
+    '202', // conditionId
+    '2' // outcomeId
+  ]
 ]
 
 data = ethers.utils.defaultAbiCoder.encode(
