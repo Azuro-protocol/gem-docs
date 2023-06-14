@@ -17,13 +17,18 @@ An unlimited number of sub-bets on different Conditions can be included in a sin
 
 The coefficients for the sub-bets are calculated as follows:
 
-First, the coefficients for each sub-bet are calculated without margin and with a zero value for "amount". 
-Then, all the coefficients are summed up, and the resulting sum is referred to as "oddsSum". The product of all coefficients is also calculated, denoted as "oddsProd".
-Next, to determine the bet amount for each sub-bet, the following formula is applied:
-subBetAmount = (oddsProd - 1) * expressBetAmount / (oddsSum - number of sub-bets)
-where "expressBetAmount" represents the total bet amount on the Express, and "number of sub-bets" is the count of sub-bets included in the Express.
-Then, to calculate the odds with margin (each sub-bet has its own margin corresponding to the ordinary condition), the following formula is used:
-expressOdds = the multiplication of coefficients of all sub-bets.
+1. the coefficients for each sub-bet are calculated without margin and with a zero value for "amount".
+2. All the coefficients are summed up, and the resulting sum is referred to as "oddsSum". The product of all coefficients is also calculated, denoted as "oddsProd".
+3. To determine the bet amount for each sub-bet, the following formula is applied:
+    ```
+    subBetAmount = (oddsProd - 1) * expressBetAmount / (oddsSum - number of sub-bets)
+    ```
+    where "expressBetAmount" represents the total bet amount on the Express, and "number of sub-bets" is the count of sub-bets included in the Express.
+
+4. To calculate the odds with margin (each sub-bet has its own margin corresponding to the ordinary condition), the following formula is used:
+    ```
+    expressOdds = the multiplication of coefficients of all sub-bets
+    ```
 
 The winnings for a combo bet can only be obtained after all the included Conditions have been completed. If a Condition included in an Express is canceled, the combo bet remains valid, but the potential winnings will be adjusted proportionally based on the betting odds of the canceled sub-bet. If all the Conditions included in the Express are canceled, the bettor can claim their bet back.
 
