@@ -13,15 +13,24 @@ The BetExpress contract allows users to place combo bets. The contract is linked
 [PrematchCore](/contracts/prematch-core) contract and only takes information about the
 [Conditions](/concepts/protocol/conditions) from it.
 
-An unlimited number of sub-bets on different Conditions can be included in a single Express, but the maximum possible
-winnings for one Condition in all bets should not exceed a predetermined amount. An Express cannot include sub-bets on
-Conditions related to the same game, as in this case, the winnings of the sub-bets become
-interdependent events. Combo bets also affect the betting odds in the Conditions on which the bet is placed.
+An unlimited number of sub-bets on different Conditions can be included in a single Express, but the maximum possible winnings for one Condition in all bets are limited to a fixed amount of 25,000. There is also another restriction on the maximum net payout for all Expresses at a given moment, which should not exceed a certain percentage of the total pool, currently around 250,000.
 
-The winnings for an combo bet can only be obtained after all Conditions included in it have been completed. If a
-Condition included in an Express is canceled, the combo bet is still valid but the potential winnings will be adjusted
-proportionally based on the betting odds of the canceled sub-bet. If all Conditions included in the Express are canceled,
-the bettor can claim their bet back.
+The coefficients for the sub-bets are calculated as follows:
+
+1. the coefficients for each sub-bet are calculated without margin and with a zero value for "amount".
+2. All the coefficients are summed up, and the resulting sum is referred to as "oddsSum". The product of all coefficients is also calculated, denoted as "oddsProd".
+3. To determine the bet amount for each sub-bet, the following formula is applied:
+    ```
+    subBetAmount = (oddsProd - 1) * expressBetAmount / (oddsSum - number of sub-bets)
+    ```
+    where "expressBetAmount" represents the total bet amount on the Express, and "number of sub-bets" is the count of sub-bets included in the Express.
+
+4. To calculate the odds with margin (each sub-bet has its own margin corresponding to the ordinary condition), the following formula is used:
+    ```
+    expressOdds = the multiplication of coefficients of all sub-bets
+    ```
+
+The winnings for a combo bet can only be obtained after all the included Conditions have been completed. If a Condition included in an Express is canceled, the combo bet remains valid, but the potential winnings will be adjusted proportionally based on the betting odds of the canceled sub-bet. If all the Conditions included in the Express are canceled, the bettor can claim their bet back.
 
 
 ### Reference
