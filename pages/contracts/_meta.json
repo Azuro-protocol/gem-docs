@@ -12,6 +12,7 @@
   "prematch-core": "PrematchCore",
   "bet-express": "BetExpress",
   "azuro-bet": "AzuroBet",
+  "proxy-front": "ProxyFront",
   "---3": {
     "type": "separator"
   },

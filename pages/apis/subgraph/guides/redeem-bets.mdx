@@ -50,28 +50,26 @@ const tx = await lpContract.connect(signer).withdrawPayout(
 
 ## Batch Redeem
 
-To redeem multiple bets at once, you can use `withdrawPayouts` method on the `ProxyFront` smart contract.
+To redeem multiple bets at once, you can use `withdrawPayouts` method on the [ProxyFront](/contracts/proxy-front) smart contract.
 
 ```ts
 withdrawPayouts(
-  lp: PromiseOrValue<string>,
-  data: IProxyFront.WithdrawPayoutDataStruct[],
-  isNative: PromiseOrValue<boolean>,
-  overrides?: Overrides & { from?: PromiseOrValue<string> }
-): Promise<ContractTransaction>
+  data: Array<{
+    core: string,
+    tokenId: BigNumberish,
+    isNative: boolean
+  }>
+)
 ```
 
 ```ts
-const isNativeToken = appChainId === Gnosis.chainId
+const isNative = appChainId === Gnosis.chainId
 
 const data = bets.map(({ coreAddress, betId }) => ({
   core: coreAddress,
   tokenId: betId,
+  isNative,
 }))
 
-const tx = await proxyFrontContract.connect(signer).withdrawPayouts(
-  lpContract.address,
-  data,
-  isNativeToken
-)
+withdrawPayouts(data)
 ```
