@@ -11,7 +11,7 @@
     text-decoration: underline !important;
   }
 
-  ul {
+  ul, ol {
     margin-top: 0 !important;
   }
 
