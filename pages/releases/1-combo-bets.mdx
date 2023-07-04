@@ -53,7 +53,7 @@ To connect [BetExpress](/contracts/bet-express) to your pool, perform the follow
 
 ### How To Bet on Combo Bets
 
-To place an combo bet, you must call the `bet` function of the LP smart contract and provide the following parameters:
+To place a combo bet, you must call the `bet` function of the LP smart contract and provide the following parameters:
 
 - `core` - The address of the BetExpress smart contract associated with the LP.
 - `amount` - The amount of the bet.
@@ -91,9 +91,9 @@ This means that the user is attempting to place a combo bet with fewer than two 
 
 ### Motivation
 
-The main goal of the major release is to allow support for combo bets to existing within the same entity as single bets. In the initial version, all single bets were associated with a single `Outcome` entity. This needed to be clarified because the `Outcome` entity also had the `odds` field. GraphQL users might have mistakenly assumed that this field represented the bet odds.
+The main goal of the major release is to allow support for combo bets to exist within the same entity as single bets. In the initial version, all single bets were associated with a single `Outcome` entity. This needed to be clarified because the `Outcome` entity also had the `odds` field. GraphQL users might have mistakenly assumed that this field represented the bet odds.
 
-To address this confusion, we are introducing the `Selection` entity. It combines the bet, bet odds, and outcome. Now, all bets contain a `selections: Selection[]` field that merges single and combo bets into a single entity. For a single bet, this field will contain only one selection entity item, while for an combo bet, it will contain two or more.
+To address this confusion, we are introducing the `Selection` entity. It combines the bet, bet odds, and outcome. Now, all bets contain a `selections: Selection[]` field that merges single and combo bets into a single entity. For a single bet, this field will contain only one selection entity item, while for a combo bet, it will contain two or more.
 
 ### Change Log
 
@@ -271,7 +271,7 @@ Recommendations:
 ### Migration Guide
 
 1. Change the GraphQL endpoints.
-2. Change the GraphQL queries (take a look the "Migrate Guide" from the section above).
+2. Change the GraphQL queries (take a look at the "Migrate Guide" from the section above).
 3. Update contract ABIs. You can find them [here](https://github.com/Azuro-protocol/public-config/tree/main/abis/eth/protocol/v2.7.3).
 
 ### Bet on Combo Bets
