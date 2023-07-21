@@ -75,3 +75,7 @@
 .nextra-search {
   margin-left: auto !important;
 }
+
+.nextra-code-block.nx-mt-6 {
+  margin-top: 0.8rem !important;
+}

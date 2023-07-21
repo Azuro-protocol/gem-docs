@@ -1,0 +1,293 @@
+import { Callout } from 'components'
+
+# 07/21 Multi Outcomes (Preparation)
+
+Azuro Protocol is preparing for a major release to provide access to new features:
+
+- Events with multiple outcomes. This will be the first step towards adding new sports;
+- A new system for calculating rewards for frontend operators;
+- New freebet management system.
+
+The plan is to migrate the contracts from 2.7.3 to 2.9.0 version.
+
+<Callout type="alert">
+  The new version of the protocol will be incompatible with the current one. Clients need to migrate and upgrade to the new version.
+</Callout>
+
+**Main changes:**
+
+- New Core and Express(Combo) contracts;
+- The methods working with native tokens moved from LP to ProxyFront;
+- Conditions support more than 2 outcomes. No more need for additional regrouping (markets aggregation) on the client side.
+
+**Migration plan:**
+
+- Azuro will provide a testnet of the current and future versions.
+- Frontends will have time to change the code of their applications and test these changes.
+- We will announce the migration in advance at the test stand - it will be a dress rehearsal before the migration on the prod.
+- Next, we will announce the migration date on the prod. Frontends should be ready to switch at the specified time.
+
+**Stages of migration in production:**
+
+- Azuro will stop creating prod events on current contracts.
+- After all events are resolved, Azuro will trigger rewards redeem for all frontend operators.
+- The protocol will be switched to new contracts.
+
+<Callout type="info">
+  About all migration dates (on the test stand and in production) we will notify you in advance. The approximate date of migration on the prod at the moment is August 15/16 at 11:00 (CET).
+</Callout>
+<br />
+
+## Contracts
+
+### Change Log
+
+- Added ability to withdraw bet before condition resolved (cash out).
+- Added ability to flexibly manage reserved liquidity for created conditions: change reinforcement and margin.
+- Operations (bet, withdrawPayout, addLiquidity, withdrawLiquidity) with native tokens should be proceed using “ProxyFront” contract.
+- Core contract renamed to PrematchCore.
+- Affiliate rewards calculation model changed to off-chain.
+
+#### ProxyFront.sol
+
+1. New functions `addLiquidityNative` and `withdrawLiquidityNative` to operate with liquidity in native token
+
+    ```solidity
+    addLiquidityNative(
+      address lp,
+      bytes calldata data // reserved for future use, now just pass "0x"
+    ) payable
+    ```
+
+    ```solidity
+    withdrawLiquidityNative(
+      address lp,
+      uint48 depositId, // LP token ID
+      uint40 percent // withdrawal percentage (100% = 1^12)
+    ) payable
+    ```
+
+2. New function `bet` to place bets using native token or/and to batch multiple bets
+
+    ```solidity
+    bet(
+      address lp,
+      BetData[] calldata data
+    ) payable
+
+    struct BetData {
+      address core;
+      uint128 amount;
+      uint64 expiresAt;
+      BetDataStruct extraData;
+    }
+    ```
+
+    <Callout type="info">
+      Note that using `bet` for placing bets in ERC20 tokens requires users to make an approve of tokens spending.
+    </Callout>
+
+3. New function `withdrawPayouts` to withdraw payouts using native token or/and to batch multiple bets
+
+    ```solidity
+    withdrawPayouts(WithdrawPayoutData[] calldata data)
+
+    struct WithdrawPayoutData {
+      address core;
+      uint256 tokenId; // bet token ID
+      bool isNative;
+    }
+    ```
+
+#### LP.sol
+
+1. The following methods have been removed:
+
+    - `betNative`
+    - `addLiquidityNative`
+    - `withdrawLiquidityNative`
+    - `claimAffiliateRewardFor`
+    - `daoFee`
+    - `oracleFee`
+
+2. `addLiquidity` has been changed
+
+    ```solidity
+    addLiquidity(
+      uint128 amount,
+      bytes calldata data // reserved for future use, now just pass "0x"
+    ): uint48 depositId
+    ```
+
+3. The parameters of `bet()` and `betFor()` have been changed, added returning of bet token ID value
+
+    ```solidity
+    // ICoreBase
+    struct CoreBetData {
+      uint256 conditionId; // The match or game ID
+      uint64 outcomeId; // ID of predicted outcome
+    }
+
+    // betData.data for prematch (PrematchCore) is ICoreBase.CoreBetData
+    // betData.data for express (BetExpress) is ICoreBase.CoreBetData[]
+
+    // IBet
+    struct BetData {
+      address affiliate; // address indicated as an affiliate when placing bet
+      uint64 minOdds;
+      bytes data; // core-specific customized bet data
+    }
+
+    function bet(
+      address core,
+      uint128 amount,
+      uint64 expiresAt,
+      IBet.BetData calldata betData
+    ): uint256 tokenId
+
+    function betFor(
+      address bettor,
+      address core,
+      uint128 amount,
+      uint64 expiresAt,
+      IBet.BetData calldata betData
+    ): uint256 tokenId
+    ```
+
+4.
+
+    ```solidity
+    claimReward(): uint128 claimedAmount
+    ```
+
+5. Getting fees values has been changed
+
+    ```solidity
+    uint64[3] public fees
+
+    fees[0] // DAO fee
+    fees[1] // data provider fee
+    ```
+
+6. `getLeaf()` replaced with `getLastDepositId()`
+
+    ```solidity
+    function getLastDepositId(): uint48 depositId
+    ```
+
+7. `viewPayout()` and `withdrawPayout()` have returned value of payout amount
+
+    ```solidity
+    viewPayout(address core, uint256 tokenId): uint128 amount
+    ```
+
+    ```solidity
+    withdrawPayout(address core, uint256 tokenId): uint128 amount
+    ```
+
+#### PrematchCore.sol
+
+1. `condition` structure has been changed
+
+    ```solidity
+    struct Condition {
+      uint256 gameId;
+      uint128[] payouts;
+      uint128[] virtualFunds;
+      uint128 totalNetBets;
+      uint128 reinforcement;
+      uint128 fund;
+      uint64 margin;
+      uint64 endsAt;
+      uint48 lastDepositId;
+      uint8 winningOutcomesCount;
+      ConditionState state;
+      address oracle;
+    }
+
+    getCondition(uint256 conditionId): Condition
+    ```
+
+2. Getter `isOutcomeWinning` has beed added:
+
+    ```solidity
+    isOutcomeWinning(uint256 conditionId, uint64 outcome): bool
+    ```
+
+3. Getter `isConditionResolved` has been added:
+
+    ```solidity
+    isConditionResolved(uint256 conditionId): bool
+    ```
+
+
+## GraphQL
+
+### Change Log
+
+#### Game
+
+- `ipfsHash` has been removed. Game information is now provided directly to the `createGame` method on the smart contracts and can be accessed through the `NewGame` event. All data from this event is still available in other fields for your convenience.
+
+#### Condition
+
+- The main objective of this major release is to introduce support for multi-outcome conditions (markets). In previous versions, all `Condition` entities only supported two outcomes for each condition, with a single winning outcome (`wonOutcome`) in cases where the condition was resolved without cancellation. With the new contracts, conditions can now have more than two outcomes, including multiple winning outcomes, such as the Double Chance market. As a result, the `wonOutcome` field has been migrated to `wonOutcomes: [Outcome!]`. `wonOutcomeId` replaced with `wonOutcomeIds`.
+- A new service field `_winningOutcomesCount` has been added.
+
+#### Freebet
+
+- In current version there is field `burned: boolean` which represents if Freebet NFT was burned (as consequence is resolved). This field continue exist in new version and represent only state of token burning. In the new version freebets can be resolved without burning. Therefore, a new field `isResolved: boolean` is added.
+
+#### Event
+
+- The `leafId` field in `LiquidityAdded` and `LiquidityRemoved` events has been renamed to `depositId`.
+
+
+## Migration Guide
+
+To accommodate the current implementation, a new version of the Subgraph has been added. Please note that this version requires the use of the new Core contracts (the new versions of Prematch and Express). We recommend implementing these features in our development environment. You can utilize the following endpoints to implement multiple outcomes:
+
+1. Setup testnet environment in your application:
+
+    **Gnosis 2.7.3 (graph v2)**
+
+    lp: `0xe068Bf88317fA2eb3EAEcBfe1e486d8b2dDe7761`<br />
+    prematch core: `0xfb22dFfdeb3aed0Ee9475c1aDaDF1e8991193D3c`<br />
+    express core: `0xd3ac70B5326c201c8527da6999d9A0C74f7A1Adc`<br />
+    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v2
+
+    **Polygon Mumbai 2.7.3 (graph v2)**
+
+    lp: `0xe47F16bc95f4cF421f008BC5C23c1D3d5F402935`<br />
+    prematch core: `0x53193ae93495fED11322Eac595Dc1A58c483f0bB`<br />
+    express core: `0xa8951593Abd2b28F142238A2128a2F4301464EaA`<br />
+    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-mumbai-dev-v2
+
+    **Arbitrum Goerli 2.7.3 (graph v2)**
+
+    lp: `0x482e419711E63d0E49CbDC696858Ef1E4764771e`<br />
+    prematch core: `0x2Bf9190486CffF61eA2AD4f2aa8B47458e8C0767`<br />
+    express core: `0xecbFd2e4AaFaB41e8e5f8eE429D982a7A6A64Af8`<br />
+    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-arbitrum-goerli-dev-v2
+
+    **Gnosis 2.9.0 (updated from 2.7.3, graph v3)**
+
+    lp: `0x1b31eE571dB0dDe82C4734854b8adbB87B100C44`<br />
+    new prematch core: `0xb4F3BcBA1E8acf18b85BcDc92b0d5F73A1eA5C6F`<br />
+    new express core: `0x0108795f577aad031f0c6c6c18f87d8c63886922`<br />
+    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v3
+
+    If you need Mumbai or Arbitrum Goerli networks of 2.9.0 please contact our team.
+
+2. Read the change logs in this article and do necessary changes. The main points are here:
+    1. `wonOutcomeId`, `wonOutcome` → `wonOutcomeIds`, `wonOutcomes`.
+    2. operations (bet, withdrawPayout, addLiquidity, withdrawLiquidity) with native tokens should be proceed using “ProxyFront” contract.
+    3. the parameters passed to `bet` and `betFor` methods on the LP contract have been changed.
+
+3. Wait when Azuro announce about migration in testnet. Azuro will provide additional details on this process.
+
+## Deprecation Notice
+
+<Callout type="alert">
+  After migrating to the new version the Subgraphs V1 and V2 will be disabled!
+</Callout>
