@@ -137,14 +137,14 @@ The plan is to migrate the contracts from 2.7.3 to 2.9.0 version.
       bytes data; // core-specific customized bet data
     }
 
-    function bet(
+    bet(
       address core,
       uint128 amount,
       uint64 expiresAt,
       IBet.BetData calldata betData
     ): uint256 tokenId
 
-    function betFor(
+    betFor(
       address bettor,
       address core,
       uint128 amount,
@@ -171,7 +171,7 @@ The plan is to migrate the contracts from 2.7.3 to 2.9.0 version.
 6. `getLeaf()` replaced with `getLastDepositId()`
 
     ```solidity
-    function getLastDepositId(): uint48 depositId
+    getLastDepositId(): uint48 depositId
     ```
 
 7. `viewPayout()` and `withdrawPayout()` have returned value of payout amount
