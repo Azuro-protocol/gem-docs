@@ -8,7 +8,7 @@ Azuro Protocol is preparing for a major release to provide access to new feature
 - A new system for calculating rewards for frontend operators;
 - New freebet management system.
 
-The plan is to migrate the contracts from 2.7.3 to 2.9.0 version.
+The plan is to migrate the contracts from 2.7.3 to 2.10.0 version.
 
 <Callout type="alert">
   The new version of the protocol will be incompatible with the current one. Clients need to migrate and upgrade to the new version.
@@ -272,15 +272,38 @@ To accommodate the current implementation, a new version of the Subgraph has bee
     bet token: `0x600d18607e2805f4c669381f28fdcd1d5074b4b4`<br />
     subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-arbitrum-goerli-dev-v2
 
-    **Gnosis 2.9.0 (updated from 2.7.3, graph v3)**
+    **Gnosis 2.10.0 (updated from 2.7.3, graph v3)**
 
-    lp: `0x1b31eE571dB0dDe82C4734854b8adbB87B100C44`<br />
-    new prematch core: `0xb4F3BcBA1E8acf18b85BcDc92b0d5F73A1eA5C6F`<br />
-    new express core: `0x0108795f577aad031f0c6c6c18f87d8c63886922`<br />
-    bet token: `0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d`<br />
-    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v3
+    LP: `0x4e5BBE3e1f559C8010b516C603B619a932de3DF4`<br />
+    PREMATCH_CORE: `0x6f60d66e853A769391B105d21C410AD035512Cc2`<br />
+    BET_EXPRESS: `0x1dD7BA44c23a621BBfD6c4322DA6E1CA81C17700`<br />
+    PROXY_FRONT: `0x135a1256a8b48643DD0823fE189ADD1c2a012DBa`<br />
+    TOKEN: `0xe91d153e0b41518a2ce8dd3d7944fa863463a97d`<br />
+    ACCESS: `0xBfbA0B1abE87A028Fb2CD26555Eabf0Ae71F6100`<br />
+    AZURO_BET: `0xF2ef2267261dF0F5599b27c255D0AF6B20f62651`<br />
+    Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v3
 
-    If you need Mumbai or Arbitrum Goerli networks of 2.9.0 please contact our team.
+    **Mumbai 2.10.0 (updated from 2.7.3, graph v3)**
+
+    LP: `0xe511677660402c9E1741510b811906e5e905f003`<br />
+    PREMATCH_CORE: `0x7EBD2c87B94A036bE658A5FC9cB7ca4be0bD618a`<br />
+    BET_EXPRESS: `0x726b602B307A01233E1573387D3684ee4e2F3f22`<br />
+    PROXY_FRONT: `0xa43328ABd99ae605A87661E7fC84a0e509DE6BD0`<br />
+    TOKEN: `0x3656D53A11090B00408678af46544a8F5C0cd0FB`<br />
+    ACCESS: `0x430bdD95Eb2Cc894101160a5052119a7Dd629C6a`<br />
+    AZURO_BET: `0xC68c93cE0E9447068eaf08e118D215001F5742bd`<br />
+    Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-mumbai-dev-v3
+
+    **Arbitrum Goerli 2.10.0 (updated from 2.7.3, graph v3)**
+
+    LP: `0x02a88e08142B262Cc66c81977d8FbE86aFe90C58`<br />
+    PREMATCH_CORE: `0x72A3e11B4683fA3C4b91C387509C7324E0Ea8B6B`<br />
+    BET_EXPRESS: `0xA663E719B9B81cd62C59495181D594F4D47d9085`<br />
+    PROXY_FRONT: `0x4eDedEab8ecB17cB569a1aCEe4D60a49AECabB10`<br />
+    TOKEN: `0x600d18607e2805f4c669381f28fdcd1d5074b4b4`<br />
+    ACCESS: `0x974E421249cea227D2DA5B353f98885dC3aDA215`<br />
+    AZURO_BET: `0xD8B7C6F54cCfbDbA70f01bBc3773CF574b9f63fa`<br />
+    Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-arbitrum-goerli-dev-v3
 
 2. Read the change logs in this article and do necessary changes. The main points are here:
     1. `wonOutcomeId`, `wonOutcome` → `wonOutcomeIds`, `wonOutcomes`.
