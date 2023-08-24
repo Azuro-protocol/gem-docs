@@ -226,20 +226,20 @@ The plan is to migrate the contracts from 2.7.3 to 2.10.0 version.
 
 #### Game
 
-- `ipfsHash` has been removed. Game information is now provided directly to the `createGame` method on the smart contracts and can be accessed through the `NewGame` event. All data from this event is still available in other fields for your convenience.
+- `ipfsHash` has been removed. Game information is now provided directly to the `createGame` method on the smart contracts and can be accessed through the `NewGame` event. All data from this event is still available in other fields for your convenience.
 
 #### Condition
 
-- The main objective of this major release is to introduce support for multi-outcome conditions (markets). In previous versions, all `Condition` entities only supported two outcomes for each condition, with a single winning outcome (`wonOutcome`) in cases where the condition was resolved without cancellation. With the new contracts, conditions can now have more than two outcomes, including multiple winning outcomes, such as the Double Chance market. As a result, the `wonOutcome` field has been migrated to `wonOutcomes: [Outcome!]`. `wonOutcomeId` replaced with `wonOutcomeIds`.
-- A new service field `_winningOutcomesCount` has been added.
+- The main objective of this major release is to introduce support for multi-outcome conditions (markets). In previous versions, all `Condition` entities only supported two outcomes for each condition, with a single winning outcome (`wonOutcome`) in cases where the condition was resolved without cancellation. With the new contracts, conditions can now have more than two outcomes, including multiple winning outcomes, such as the Double Chance market. As a result, the `wonOutcome` field has been migrated to `wonOutcomes: [Outcome!]`. `wonOutcomeId` replaced with `wonOutcomeIds`.
+- A new service field `_winningOutcomesCount` has been added.
 
 #### Freebet
 
-- In current version there is field `burned: boolean` which represents if Freebet NFT was burned (as consequence is resolved). This field continue exist in new version and represent only state of token burning. In the new version freebets can be resolved without burning. Therefore, a new field `isResolved: boolean` is added.
+- In current version there is field `burned: boolean` which represents if Freebet NFT was burned (as consequence is resolved). This field continue exist in new version and represent only state of token burning. In the new version freebets can be resolved without burning. Therefore, a new field `isResolved: boolean` is added.
 
 #### Event
 
-- The `leafId` field in `LiquidityAdded` and `LiquidityRemoved` events has been renamed to `depositId`.
+- The `leafId` field in `LiquidityAdded` and `LiquidityRemoved` events has been renamed to `depositId`.
 
 
 ## Migration Guide
@@ -250,27 +250,35 @@ To accommodate the current implementation, a new version of the Subgraph has bee
 
     **Gnosis 2.7.3 (graph v2)**
 
-    lp: `0xe068Bf88317fA2eb3EAEcBfe1e486d8b2dDe7761`<br />
-    prematch core: `0xfb22dFfdeb3aed0Ee9475c1aDaDF1e8991193D3c`<br />
-    express core: `0xd3ac70B5326c201c8527da6999d9A0C74f7A1Adc`<br />
-    bet token: `0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d`<br />
-    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v2
+    LP: `0xe068Bf88317fA2eb3EAEcBfe1e486d8b2dDe7761`<br />
+    PREMATCH_CORE: `0xfb22dFfdeb3aed0Ee9475c1aDaDF1e8991193D3c`<br />
+    BET_EXPRESS: `0xd3ac70B5326c201c8527da6999d9A0C74f7A1Adc`<br />
+    TOKEN: `0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d`<br />
+    Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v2
 
     **Polygon Mumbai 2.7.3 (graph v2)**
 
-    lp: `0xe47F16bc95f4cF421f008BC5C23c1D3d5F402935`<br />
-    prematch core: `0x53193ae93495fED11322Eac595Dc1A58c483f0bB`<br />
-    express core: `0xa8951593Abd2b28F142238A2128a2F4301464EaA`<br />
-    bet token: `0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4`<br />
-    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-mumbai-dev-v2
+    LP: `0xe47F16bc95f4cF421f008BC5C23c1D3d5F402935`<br />
+    PREMATCH_CORE: `0x53193ae93495fED11322Eac595Dc1A58c483f0bB`<br />
+    BET_EXPRESS: `0xa8951593Abd2b28F142238A2128a2F4301464EaA`<br />
+    TOKEN: `0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4`<br />
+    Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-mumbai-dev-v2
 
     **Arbitrum Goerli 2.7.3 (graph v2)**
 
-    lp: `0x482e419711E63d0E49CbDC696858Ef1E4764771e`<br />
-    prematch core: `0x2Bf9190486CffF61eA2AD4f2aa8B47458e8C0767`<br />
-    express core: `0xecbFd2e4AaFaB41e8e5f8eE429D982a7A6A64Af8`<br />
-    bet token: `0x600d18607e2805f4c669381f28fdcd1d5074b4b4`<br />
-    subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-arbitrum-goerli-dev-v2
+    LP: `0x482e419711E63d0E49CbDC696858Ef1E4764771e`<br />
+    PREMATCH_CORE: `0x2Bf9190486CffF61eA2AD4f2aa8B47458e8C0767`<br />
+    BET_EXPRESS: `0xecbFd2e4AaFaB41e8e5f8eE429D982a7A6A64Af8`<br />
+    TOKEN: `0x600d18607e2805f4c669381f28fdcd1d5074b4b4`<br />
+    Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-arbitrum-goerli-dev-v2
+
+    **Linea Goerli 2.7.3 (graph v2)**
+
+    LP: `0xc365224ef4Fa75D56a280C5A3925caDbF7bd8eeE`<br />
+    PREMATCH_CORE: `0x2b3cDdf565Ab5ED9DD7AcFaD4428B7E913F9B001`<br />
+    BET_EXPRESS: `0x77500b84C074Cc59fF002b22Cd49ceFaE0B79970`<br />
+    TOKEN: `0xa07e6dA79723961a7a933566c42D3Cf1dbE5B19c`<br />
+    Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-linea-goerli-dev-v3
 
     **Gnosis 2.10.0 (updated from 2.7.3, graph v3)**
 
@@ -285,11 +293,11 @@ To accommodate the current implementation, a new version of the Subgraph has bee
 
     **Mumbai 2.10.0 (updated from 2.7.3, graph v3)**
 
-    LP: `0xe511677660402c9E1741510b811906e5e905f003`<br />
-    PREMATCH_CORE: `0x7EBD2c87B94A036bE658A5FC9cB7ca4be0bD618a`<br />
-    BET_EXPRESS: `0x726b602B307A01233E1573387D3684ee4e2F3f22`<br />
+    LP: `0xe47F16bc95f4cF421f008BC5C23c1D3d5F402935`<br />
+    PREMATCH_CORE: `0x8ea11e2aefab381e87b644e018ae1f78aa338851`<br />
+    BET_EXPRESS: `0xc0a46fc9952e4b804960a91ece75f89952a2c205`<br />
     PROXY_FRONT: `0xa43328ABd99ae605A87661E7fC84a0e509DE6BD0`<br />
-    TOKEN: `0x3656D53A11090B00408678af46544a8F5C0cd0FB`<br />
+    TOKEN: `0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4`<br />
     ACCESS: `0x430bdD95Eb2Cc894101160a5052119a7Dd629C6a`<br />
     AZURO_BET: `0xC68c93cE0E9447068eaf08e118D215001F5742bd`<br />
     Subgraph: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-mumbai-dev-v3
