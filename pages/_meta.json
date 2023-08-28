@@ -21,16 +21,16 @@
     "title": "Contracts",
     "type": "page"
   },
-  "apis": {
-    "title": "APIs",
+  "subgraph": {
+    "title": "Subgraph",
     "type": "page"
   },
-  "tools": {
-    "title": "Tools",
+  "sdk": {
+    "title": "SDK",
     "type": "page"
   },
-  "components": {
-    "title": "Components",
+  "guides": {
+    "title": "Guides",
     "type": "page"
   },
   "releases": {

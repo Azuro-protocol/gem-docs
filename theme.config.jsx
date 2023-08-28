@@ -6,10 +6,10 @@ export default {
   //   link: 'https://github.com/Azuro-protocol',
   // },
   docsRepositoryBase: 'https://github.com/Azuro-protocol/gem-docs/tree/main',
-  banner: {
-    key: 'tutorial',
-    text: <a href="/tutorial">💎 Tutorial: Build your own betting dApp. Read more →</a>,
-  },
+  // banner: {
+  //   key: 'tutorial',
+  //   text: <a href="/tutorial">💎 Tutorial: Build your own betting dApp. Read more →</a>,
+  // },
   sidebar: {
     defaultMenuCollapseLevel: 0,
   },
