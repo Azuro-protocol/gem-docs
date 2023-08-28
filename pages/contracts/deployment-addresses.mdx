@@ -1,199 +1,152 @@
 import { Tab, Tabs } from 'nextra-theme-docs'
+import { ContractsAddresses } from 'components'
+
 
 # Deployment Addresses
 
 ### Beacons
 
-<Tabs className="mt-6" items={[ 'Arbitrum', 'Polygon', 'Gnosis' ]}>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [Factory](/contracts/factory) | `0x752735c1a93fe359E7BAC65f9981E7796e1039Ef` |
-| [LP Beacon](/contracts/lp) | `0x57C7628F0325981e5CD43C157dbb8Daee75E9470` |
-| [Access Beacon](/contracts/access) | `0xE40FdeB78BD64E7ab4BB12FA8C4046c85642eD6f` |
-| [PrematchCore Beacon](/contracts/prematch-core) | `0x5fAFE8203a4cB1f102CAF7C1AC9fD500043E78cf` |
-| [AzuroBet Beacon](/contracts/azuro-bet) | `0xA35aD8c68c1a53ab8B9212750759E82e63c05027` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [Factory](/contracts/factory) | `0xDe3E9A39aF548b5daA8365D30A5F6E7a7fA0203d` |
-| [LP Beacon](/contracts/lp) | `0x795b48F8beFAF911548D978E8a2D4E182D6dCe92` |
-| [Access Beacon](/contracts/access) | `0x19373B1244FF562a41AdEb3d72C377Bf01B0A125` |
-| [PrematchCore Beacon](/contracts/prematch-core) | `0xC11f8ad396A0464DFf77b3050A2724ba65e422D3` |
-| [AzuroBet Beacon](/contracts/azuro-bet) | `0x97d26F857891F51855Cc207e694F99DA03DeA178` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [Factory](/contracts/factory) | `0x8EA1a7241537F10fa73363FDC6380F3FC8619c03` |
-| [LP Beacon](/contracts/lp) | `0x68762711E7Bea5716c715A9bb3978e56A842043A` |
-| [Access Beacon](/contracts/access) | `0x043a704a3dc7F1d1a5e3071a7A02cc88625F8448` |
-| [PrematchCore Beacon](/contracts/prematch-core) | `0xbb555056A2EEa0816B4bE0eddF1e38Fa201A8623` |
-| [AzuroBet Beacon](/contracts/azuro-bet) | `0xbDBF716cb5F39AFF6135E12AE4D7134746823fC0` |
-    </div>
-  </Tab>
-</Tabs>
-
+<ContractsAddresses
+  tabs={[
+    {
+      chain: 'Gnosis',
+      addresses: {
+        factory: '0x8EA1a7241537F10fa73363FDC6380F3FC8619c03',
+        lp: '0x68762711E7Bea5716c715A9bb3978e56A842043A',
+        access: '0x043a704a3dc7F1d1a5e3071a7A02cc88625F8448',
+        prematchCore: '0xbb555056A2EEa0816B4bE0eddF1e38Fa201A8623',
+        azuroBet: '0xbDBF716cb5F39AFF6135E12AE4D7134746823fC0',
+      },
+    },
+    {
+      chain: 'Polygon',
+      addresses: {
+        factory: '0xDe3E9A39aF548b5daA8365D30A5F6E7a7fA0203d',
+        lp: '0x795b48F8beFAF911548D978E8a2D4E182D6dCe92',
+        access: '0x19373B1244FF562a41AdEb3d72C377Bf01B0A125',
+        prematchCore: '0xC11f8ad396A0464DFf77b3050A2724ba65e422D3',
+        azuroBet: '0x97d26F857891F51855Cc207e694F99DA03DeA178',
+      },
+    },
+    {
+      chain: 'Arbitrum',
+      addresses: {
+        factory: '0x752735c1a93fe359E7BAC65f9981E7796e1039Ef',
+        lp: '0x57C7628F0325981e5CD43C157dbb8Daee75E9470',
+        access: '0xE40FdeB78BD64E7ab4BB12FA8C4046c85642eD6f',
+        prematchCore: '0x5fAFE8203a4cB1f102CAF7C1AC9fD500043E78cf',
+        azuroBet: '0xA35aD8c68c1a53ab8B9212750759E82e63c05027',
+      },
+    },
+  ]}
+/>
 
 ### Contracts (Production)
 
-<Tabs className="mt-6" items={[ 'Linea v2.7.3', 'Arbitrum v2.7.3', 'Polygon v2.7.3', 'Gnosis v2.7.3' ]}>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0xc365224ef4Fa75D56a280C5A3925caDbF7bd8eeE` |
-| [Access](/contracts/access) | `0x401858dfeF7894a20395cAb56b68e2fED1EDdc3c` |
-| [PrematchCore](/contracts/prematch-core) | `0x2b3cDdf565Ab5ED9DD7AcFaD4428B7E913F9B001` |
-| [BetExpress](/contracts/bet-express) | `0x77500b84C074Cc59fF002b22Cd49ceFaE0B79970` |
-| [AzuroBet](/contracts/azuro-bet) | `0xB9E4CB7Dcfb418aa2a7Cd5FE8194597791097f09` |
-| [ProxyFront](/contracts/proxy-front) | `0xebB163618078A233e7460d0715219A5ec443E7b5` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0x20513ba6A4717c67e14291331BC99dd2aCE90038` |
-| [Access](/contracts/access) | `0x8A4BE2A0bB1a0E5B445E6569eF271Ad5Dac859Bf` |
-| [PrematchCore](/contracts/prematch-core) | `0x7a75cfb4D5394e213D80AA683056eF796Ccc6693` |
-| [BetExpress](/contracts/bet-express) | `0x11470095252A6FE41C8ee6F7628ffB9298a1051C` |
-| [AzuroBet](/contracts/azuro-bet) | `0xB66773dD2Dc3497152Dc754EE5B2fC5B0b87BD28` |
-| [ProxyFront](/contracts/proxy-front) | `0x6D139BF82e6ff731CC0209349Dd41B7fEB5cf635` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0x7043E4e1c4045424858ECBCED80989FeAfC11B36` |
-| [Access](/contracts/access) | `0x76c3b2971Ad1E68E6325bCdc5720B3f4843591C2` |
-| [PrematchCore](/contracts/prematch-core) | `0x3B182e9FbF50398A412d17D7969561E3BfcC4fA4` |
-| [BetExpress](/contracts/bet-express) | `0xbb13f8981cefd19ddc5338f0f1e11de45e8a11ca` |
-| [AzuroBet](/contracts/azuro-bet) | `0x351c8BACF9C75f54F50F7c601B80CD7a3B73070C` |
-| [ProxyFront](/contracts/proxy-front) | `0x0f0dA1F5dF5Ab5c06Ee96F437ba1Ab5ab7557e73` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0x204e7371Ade792c5C006fb52711c50a7efC843ed` |
-| [Access](/contracts/access) | `0xC6C6b2f43180bfe7d6193d4Cd41C34cE952Def08` |
-| [PrematchCore](/contracts/prematch-core) | `0xC95C831c7bDb0650b8cD5F2a542b263872d8ed0e` |
-| [BetExpress](/contracts/bet-express) | `0x4eE3923484dfdc7Ea2F1c558c2c820a97a727636` |
-| [AzuroBet](/contracts/azuro-bet) | `0xA3A1B460c68dc91c5B3f71f5487A76fac42858bf` |
-| [ProxyFront](/contracts/proxy-front) | `0x731dCDB5287c56B44ebe2b1A5FCDF26B45777551` |
-    </div>
-  </Tab>
-</Tabs>
+<ContractsAddresses
+  tabs={[
+    {
+      chain: 'Gnosis v2.7.3',
+      addresses: {
+        lp: '0xc365224ef4Fa75D56a280C5A3925caDbF7bd8eeE',
+        prematchCore: '0x2b3cDdf565Ab5ED9DD7AcFaD4428B7E913F9B001',
+        expressCore: '0x77500b84C074Cc59fF002b22Cd49ceFaE0B79970',
+        proxyFront: '0xebB163618078A233e7460d0715219A5ec443E7b5',
+        betToken: '',
+        access: '0x401858dfeF7894a20395cAb56b68e2fED1EDdc3c',
+        azuroBet: '0xB9E4CB7Dcfb418aa2a7Cd5FE8194597791097f09',
+      },
+    },
+    {
+      chain: 'Polygon v2.7.3',
+      addresses: {
+        lp: '0x20513ba6A4717c67e14291331BC99dd2aCE90038',
+        prematchCore: '0x7a75cfb4D5394e213D80AA683056eF796Ccc6693',
+        expressCore: '0x11470095252A6FE41C8ee6F7628ffB9298a1051C',
+        proxyFront: '0x6D139BF82e6ff731CC0209349Dd41B7fEB5cf635',
+        betToken: '',
+        access: '0x8A4BE2A0bB1a0E5B445E6569eF271Ad5Dac859Bf',
+        azuroBet: '0xB66773dD2Dc3497152Dc754EE5B2fC5B0b87BD28',
+      },
+    },
+    {
+      chain: 'Arbitrum v2.7.3',
+      addresses: {
+        lp: '0x7043E4e1c4045424858ECBCED80989FeAfC11B36',
+        prematchCore: '0x3B182e9FbF50398A412d17D7969561E3BfcC4fA4',
+        expressCore: '0xbb13f8981cefd19ddc5338f0f1e11de45e8a11ca',
+        proxyFront: '0x0f0dA1F5dF5Ab5c06Ee96F437ba1Ab5ab7557e73',
+        betToken: '',
+        access: '0x76c3b2971Ad1E68E6325bCdc5720B3f4843591C2',
+        azuroBet: '0x351c8BACF9C75f54F50F7c601B80CD7a3B73070C',
+      },
+    },
+    {
+      chain: 'Linea v2.7.3',
+      addresses: {
+        lp: '0x204e7371Ade792c5C006fb52711c50a7efC843ed',
+        prematchCore: '0xC95C831c7bDb0650b8cD5F2a542b263872d8ed0e',
+        expressCore: '0x4eE3923484dfdc7Ea2F1c558c2c820a97a727636',
+        proxyFront: '0x731dCDB5287c56B44ebe2b1A5FCDF26B45777551',
+        betToken: '',
+        access: '0xC6C6b2f43180bfe7d6193d4Cd41C34cE952Def08',
+        azuroBet: '0xA3A1B460c68dc91c5B3f71f5487A76fac42858bf',
+      },
+    },
+  ]}
+/>
 
 ### Contracts (Development)
 
-<Tabs className="mt-6" items={[
-  'Gnosis 2.7.3',
-  'Mumbai 2.7.3',
-  'Arbitrum Goerli 2.7.3',
-  'Linea Goerli 2.7.3',
-  'Gnosis 2.10.0',
-  'Mumbai 2.10.0',
-  'Arbitrum Goerli 2.10.0',
-]}>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0xe068Bf88317fA2eb3EAEcBfe1e486d8b2dDe7761` |
-| [Access](/contracts/access) | `0x7e2143e539e4409c1aaEaDF4e33CB8eF90F1EB81` |
-| [PrematchCore](/contracts/prematch-core) | `0xfb22dFfdeb3aed0Ee9475c1aDaDF1e8991193D3c` |
-| [BetExpress](/contracts/bet-express) | `0xd3ac70B5326c201c8527da6999d9A0C74f7A1Adc` |
-| [ProxyFront](/contracts/proxy-front) |  |
-| [AzuroBet](/contracts/azuro-bet) | `0x77E153B486832F140147694F890f75C884b3794b` |
-| ERC20 (Bet Token) | `0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0xe47f16bc95f4cf421f008bc5c23c1d3d5f402935` |
-| [Access](/contracts/access) | `0x9c673336D713B5587924a8B5455865E38e3F864D` |
-| [PrematchCore](/contracts/prematch-core) | `0x53193ae93495fED11322Eac595Dc1A58c483f0bB` |
-| [BetExpress](/contracts/bet-express) | `0xa8951593Abd2b28F142238A2128a2F4301464EaA` |
-| [ProxyFront](/contracts/proxy-front) |  |
-| [AzuroBet](/contracts/azuro-bet) | `0x3C37477122187B511E04F4Bc0F00872F7f5EC2Db` |
-| ERC20 (Bet Token) | `0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0x482e419711E63d0E49CbDC696858Ef1E4764771e` |
-| [Access](/contracts/access) | `0xa610811E42a09bC5e336010D189dB0Ce21d30988` |
-| [PrematchCore](/contracts/prematch-core) | `0x2Bf9190486CffF61eA2AD4f2aa8B47458e8C0767` |
-| [BetExpress](/contracts/bet-express) | `0xecbFd2e4AaFaB41e8e5f8eE429D982a7A6A64Af8` |
-| [ProxyFront](/contracts/proxy-front) |  |
-| [AzuroBet](/contracts/azuro-bet) | `0x5C1c3E0adb4E600277e8C0c3F9188235AeAd704e` |
-| ERC20 (Bet Token) | `0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0xc365224ef4Fa75D56a280C5A3925caDbF7bd8eeE` |
-| [Access](/contracts/access) | `0xa610811E42a09bC5e336010D189dB0Ce21d30988` |
-| [PrematchCore](/contracts/prematch-core) | `0x2b3cDdf565Ab5ED9DD7AcFaD4428B7E913F9B001` |
-| [BetExpress](/contracts/bet-express) | `0x77500b84C074Cc59fF002b22Cd49ceFaE0B79970` |
-| [ProxyFront](/contracts/proxy-front) |  |
-| [AzuroBet](/contracts/azuro-bet) | `0xB9E4CB7Dcfb418aa2a7Cd5FE8194597791097f09` |
-| ERC20 (Bet Token) | `0xa07e6dA79723961a7a933566c42D3Cf1dbE5B19c` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0x4e5BBE3e1f559C8010b516C603B619a932de3DF4` |
-| [Access](/contracts/access) | `0xBfbA0B1abE87A028Fb2CD26555Eabf0Ae71F6100` |
-| [PrematchCore](/contracts/prematch-core) | `0x6f60d66e853A769391B105d21C410AD035512Cc2` |
-| [BetExpress](/contracts/bet-express) | `0x1dD7BA44c23a621BBfD6c4322DA6E1CA81C17700` |
-| [ProxyFront](/contracts/proxy-front) | `0x135a1256a8b48643DD0823fE189ADD1c2a012DBa` |
-| [AzuroBet](/contracts/azuro-bet) | `0xF2ef2267261dF0F5599b27c255D0AF6B20f62651` |
-| ERC20 (Bet Token) | `0xe91d153e0b41518a2ce8dd3d7944fa863463a97d` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0xe47F16bc95f4cF421f008BC5C23c1D3d5F402935` |
-| [Access](/contracts/access) | `0x430bdD95Eb2Cc894101160a5052119a7Dd629C6a` |
-| [PrematchCore](/contracts/prematch-core) | `0x8ea11e2aefab381e87b644e018ae1f78aa338851` |
-| [BetExpress](/contracts/bet-express) | `0xc0a46fc9952e4b804960a91ece75f89952a2c205` |
-| [ProxyFront](/contracts/proxy-front) | `0xa43328ABd99ae605A87661E7fC84a0e509DE6BD0` |
-| [AzuroBet](/contracts/azuro-bet) | `0xC68c93cE0E9447068eaf08e118D215001F5742bd` |
-| ERC20 (Bet Token) | `0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4` |
-    </div>
-  </Tab>
-  <Tab>
-    <div className="overflow-auto">
-|||
-| --- | --- |
-| [LP](/contracts/lp) | `0x02a88e08142B262Cc66c81977d8FbE86aFe90C58` |
-| [Access](/contracts/access) | `0x974E421249cea227D2DA5B353f98885dC3aDA215` |
-| [PrematchCore](/contracts/prematch-core) | `0x72A3e11B4683fA3C4b91C387509C7324E0Ea8B6B` |
-| [BetExpress](/contracts/bet-express) | `0xA663E719B9B81cd62C59495181D594F4D47d9085` |
-| [ProxyFront](/contracts/proxy-front) | `0x4eDedEab8ecB17cB569a1aCEe4D60a49AECabB10` |
-| [AzuroBet](/contracts/azuro-bet) | `0xD8B7C6F54cCfbDbA70f01bBc3773CF574b9f63fa` |
-| ERC20 (Bet Token) | `0x600d18607e2805f4c669381f28fdcd1d5074b4b4` |
-    </div>
-  </Tab>
-</Tabs>
+<ContractsAddresses
+  tabs={[
+    {
+      chain: 'Gnosis v2.7.3',
+      addresses: {
+        lp: '0xc365224ef4Fa75D56a280C5A3925caDbF7bd8eeE',
+        prematchCore: '0x2b3cDdf565Ab5ED9DD7AcFaD4428B7E913F9B001',
+        expressCore: '0x77500b84C074Cc59fF002b22Cd49ceFaE0B79970',
+        proxyFront: '0xebB163618078A233e7460d0715219A5ec443E7b5',
+        betToken: '',
+        access: '0x401858dfeF7894a20395cAb56b68e2fED1EDdc3c',
+        azuroBet: '0xB9E4CB7Dcfb418aa2a7Cd5FE8194597791097f09',
+      },
+    },
+    {
+      chain: 'Polygon v2.7.3',
+      addresses: {
+        lp: '0x20513ba6A4717c67e14291331BC99dd2aCE90038',
+        prematchCore: '0x7a75cfb4D5394e213D80AA683056eF796Ccc6693',
+        expressCore: '0x11470095252A6FE41C8ee6F7628ffB9298a1051C',
+        proxyFront: '0x6D139BF82e6ff731CC0209349Dd41B7fEB5cf635',
+        betToken: '',
+        access: '0x8A4BE2A0bB1a0E5B445E6569eF271Ad5Dac859Bf',
+        azuroBet: '0xB66773dD2Dc3497152Dc754EE5B2fC5B0b87BD28',
+      },
+    },
+    {
+      chain: 'Arbitrum v2.7.3',
+      addresses: {
+        lp: '0x7043E4e1c4045424858ECBCED80989FeAfC11B36',
+        prematchCore: '0x3B182e9FbF50398A412d17D7969561E3BfcC4fA4',
+        expressCore: '0xbb13f8981cefd19ddc5338f0f1e11de45e8a11ca',
+        proxyFront: '0x0f0dA1F5dF5Ab5c06Ee96F437ba1Ab5ab7557e73',
+        betToken: '',
+        access: '0x76c3b2971Ad1E68E6325bCdc5720B3f4843591C2',
+        azuroBet: '0x351c8BACF9C75f54F50F7c601B80CD7a3B73070C',
+      },
+    },
+    {
+      chain: 'Linea v2.7.3',
+      addresses: {
+        lp: '0x204e7371Ade792c5C006fb52711c50a7efC843ed',
+        prematchCore: '0xC95C831c7bDb0650b8cD5F2a542b263872d8ed0e',
+        expressCore: '0x4eE3923484dfdc7Ea2F1c558c2c820a97a727636',
+        proxyFront: '0x731dCDB5287c56B44ebe2b1A5FCDF26B45777551',
+        betToken: '',
+        access: '0xC6C6b2f43180bfe7d6193d4Cd41C34cE952Def08',
+        azuroBet: '0xA3A1B460c68dc91c5B3f71f5487A76fac42858bf',
+      },
+    },
+  ]}
+/>
