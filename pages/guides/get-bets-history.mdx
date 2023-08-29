@@ -7,23 +7,48 @@ import { Callout } from 'components'
 To get information about the user-placed bets, you can use the following GraphQL query
 
 ```graphql
-query BetsHistory($where: Bet_Filter) {
-  bets(where: $where) {
-    betId # the NFT ID, the token given to the user for the exchange of placed tokens
-    amount # the bet amount
-    potentialPayout # the amount based on the bet odds to payout if the user's bet wins
-    status # the bet status
-    result # the state representing if the user wins or loses
-    isRedeemable # the boolean field representing the state if the user can redeem the bet
-    isRedeemed # the boolean field representing the state if the bet was redeemed by the user
-    createdBlockTimestamp # the date when the bet was placed
-    createdTxHash # the transaction hash of the block in which the bet was mined
-    outcome { # contains the state of the outcome when the bet was placed
-      outcomeId
-      odds
+query Bets(
+  $first: Int,
+  $skip: Int,
+  $where: Bet_filter!,
+  $orderBy: Bet_orderBy,
+  $orderDirection: OrderDirection
+) {
+  bets(
+    first: $first,
+    skip: $skip,
+    where: $where,
+    orderBy: $orderBy,
+    orderDirection: $orderDirection
+  ) {
+    id
+    type
+    tokenId: betId
+    amount
+    status
+    payout
+    potentialPayout
+    result
+    isRedeemed
+    odds
+    createdAt: createdBlockTimestamp
+    txHash: createdTxHash
+    core {
+      address
     }
-    game { # contains the information about the game the bet was placed on
-      ...Game
+    selections {
+      odds
+      result
+      outcome {
+        outcomeId
+        wonOutcomeIds
+        condition {
+          conditionId
+          game {
+            ...MainGameInfo
+          }
+        }
+      }
     }
   }
 }
@@ -50,13 +75,13 @@ fragment Game on Game {
 useQuery(QUERY, {
   variables: {
     where: {
-      actor: account.toLowerCase(),
+      actor_starts_with_nocase: userWalletAddress,
     },
   },
 })
 ```
 
-Note that the `where` variable is used to filter bets placed by a specific user account.
+Each `bets` item represents the result of a transaction, and this transaction can contain several bets at once in the case of an combo bet. To preserve consistency, there is a `selections` field in the data that contains an array of data about each bet. For single bets, this field will contain one element.
 
 
 ## Bet Status
@@ -93,8 +118,8 @@ Note that until the outcome is resolved `result` will be `null`.
 ```ts
 import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
 
-const marketName = getMarketName({ outcomeId: bet.outcome.outcomeId })
-const selectionName = getSelectionName({ outcomeId: bet.outcome.outcomeId })
+const marketName = getMarketName({ outcomeId })
+const selectionName = getSelectionName({ outcomeId })
 ```
 
 Read more about dictionaries [here](/concepts/protocol/dictionaries).
@@ -133,7 +158,7 @@ useQuery(QUERY, {
 ```
 
 
-## Try it yourself
+{/* ## Try it yourself
 
 [Playground](https://stackblitz.com/edit/react-ts-vhqcph?file=App.tsx)<br />
-[Subgraph](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+Games%28%24owner%3A+String%21%29+%7B%0A++bets%28first%3A+2%2C+where%3A+%7Bactor%3A+%24owner%7D%29+%7B%0A++++createdTxHash%0A++++betId%0A++++amount%0A++++odds%0A++++potentialPayout%0A++++status%0A++++result%0A++++isRedeemable%0A++++isRedeemed%0A++++createdBlockTimestamp%0A++++outcome+%7B%0A++++++outcomeId%0A++++++condition+%7B%0A++++++++wonOutcome+%7B%0A++++++++++outcomeId%0A++++++++%7D%0A++++++%7D%0A++++%7D%0A++++game+%7B%0A++++++...Game%0A++++%7D%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A++status%0A%7D&operationName=MyQuery)
+[Subgraph](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+Games%28%24owner%3A+String%21%29+%7B%0A++bets%28first%3A+2%2C+where%3A+%7Bactor%3A+%24owner%7D%29+%7B%0A++++createdTxHash%0A++++betId%0A++++amount%0A++++odds%0A++++potentialPayout%0A++++status%0A++++result%0A++++isRedeemable%0A++++isRedeemed%0A++++createdBlockTimestamp%0A++++outcome+%7B%0A++++++outcomeId%0A++++++condition+%7B%0A++++++++wonOutcome+%7B%0A++++++++++outcomeId%0A++++++++%7D%0A++++++%7D%0A++++%7D%0A++++game+%7B%0A++++++...Game%0A++++%7D%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A++status%0A%7D&operationName=MyQuery) */}
