@@ -1,132 +1,328 @@
+import { Tabs, Tab } from 'nextra-theme-docs'
 import { Callout } from 'components'
 
 # Place a Bet
 
-To place bets there are 2 methods on `LP` contract: `bet` and `betNative`.
 
-`betNative` should be used when placing bets in native token, as example xDAI in Gnosis chain. On other hand `bet`
-method is used for non-native tokens like USDT in Polygon.
+## Place a single bet using ERC20 token
 
-
-## Usage
-
-There is no difference in calling methods to place single or combo bet. But it's different when placing bets using network's native token or ERC20 token.
-
+<Tabs items={[ 'Ethers', 'Wagmi' ]}>
+  <Tab>
 ```ts
-// place bets using native token (xDAI in Gnosis)
+import { ethers } from 'ethers'
 
-betNative(coreAddress, expiresAt, {
-  affiliate,
-  data,
-}, { value: amount })
+const data = ethers.utils.defaultAbiCoder.encode(
+  [ 'tuple(uint256, uint64)' ], 
+  [ { conditionId, outcomeId } ]
+)
+
+lp.bet(
+  prematchCoreAddress,
+  rawAmount,
+  deadline,
+  {
+    affiliate,
+    data,
+    minOdds: rawMinOdds,
+  }
+)
 ```
-
+  </Tab>
+  <Tab>
 ```ts
-// place bets using ERC20 token (USDT in Polygon)
+import { useContractWrite, encodeAbiParameters } from 'wagmi'
 
-bet(coreAddress, amount, expiresAt, {
-  affiliate,
-  data,
+const data = encodeAbiParameters(
+  parseAbiParameters('uint256, uint64'),
+  [
+    BigInt(conditionId),
+    BigInt(outcomeId),
+  ]
+)
+
+useContractWrite({
+  address: lpAddress,
+  abi: lpAbi,
+  functionName: 'bet',
+  args: [
+    prematchCoreAddress,
+    rawAmount,
+    BigInt(deadline),
+    {
+      affiliate,
+      data,
+      minOdds: rawMinOdds,
+    }
+  ],
 })
 ```
+  </Tab>
+</Tabs>
 
-### Interface
+<Callout type="warning">
+  Note that the placing bets in ERC20 tokens requires users to make an approve of tokens spending.
+</Callout>
 
+
+## Place a single bet using native token
+
+To perform actions with native token you should use [ProxyFront](/contracts/proxy-front) contract.
+
+<Callout type="info">
+  Note that data structure differs from the structure of [placing single bet on LP contract](/guides/place-a-bet#place-a-single-bet). 
+</Callout>
+
+<Tabs items={[ 'Ethers', 'Wagmi' ]}>
+  <Tab>
 ```ts
-bet(
-  core: string,
-  amount: BigNumberish,
-  expiresAt: BigNumberish,
-  betData: {
-    affiliate: string,
-    data: BytesLike
-  }
+import { ethers } from 'ethers'
+
+const data = ethers.utils.defaultAbiCoder.encode(
+  [ 'tuple(uint256, uint64)' ], 
+  [ { conditionId, outcomeId } ]
 )
-```
 
-```ts
-// payable function
-betNative(
-  core: string,
-  expiresAt: BigNumberish,
-  betData: {
-    affiliate: string,
-    data: BytesLike
-  }
-)
-```
-
-### Encode `data`
-
-Each method has `betData.data` argument which contains encoded data. The encoding is different for single and combo bets.
-
-```ts
-// single bet
-
-const selection = {
-  outcomeId: '29',
-  condition: {
-    conditionId: '486903008559711340',
+const betData = {
+  core: prematchCoreAddress,
+  amount: rawAmount,
+  expiresAt: deadline,
+  extraData: {
+    affiliate,
+    data,
+    minOdds: rawMinOdds,
   },
 }
 
-const data = ethers.utils.defaultAbiCoder.encode(
-  [
-    'uint256',
-    'uint64',
-    'uint64',
+proxyFront.bet(
+  lpAddress,
+  [ 
+    betData,
   ],
-  [
-    selection.condition.conditionId,
-    selection.outcomeId,
-    rawMinOdds,
-  ]
+  {
+    value: rawAmount,
+  }
 )
 ```
-
+  </Tab>
+  <Tab>
 ```ts
-// combo bet
+import { useContractWrite, encodeAbiParameters } from 'wagmi'
 
-const selections = [
-  {
-    outcomeId: '29',
-    condition: {
-      conditionId: '486903008559711340',
-    },
-  },
-  {
-    outcomeId: '40',
-    condition: {
-      conditionId: '486903113559850093',
-    },
-  },
-]
-
-const tuple = selections.map((selection) => [
-  selection.condition.conditionId,
-  selection.outcomeId,
-])
-
-const data = ethers.utils.defaultAbiCoder.encode(
+const data = encodeAbiParameters(
+  parseAbiParameters('uint256, uint64'),
   [
-    'tuple(uint256, uint64)[]',
-    'uint64',
-  ],
-  [
-    tuple,
-    rawMinOdds,
+    BigInt(conditionId),
+    BigInt(outcomeId),
   ]
 )
+
+const betData = {
+  core: prematchCoreAddress,
+  amount: rawAmount,
+  expiresAt: deadline,
+  extraData: {
+    affiliate,
+    data,
+    minOdds: rawMinOdds,
+  },
+}
+
+useContractWrite({
+  address: lpAddress,
+  abi: lpAbi,
+  functionName: 'bet',
+  args: [
+    lpAddress,
+    [ 
+      betData,
+    ],
+  ],
+  value: rawAmount,
+})
 ```
+  </Tab>
+</Tabs>
+
+<Callout type="warning">
+  Don't forget to specify the `value` in the transaction data indicating the bet amount in native token.
+</Callout>
+
+
+## Place several bets in batch
+
+To place several bets in one transaction you should use [ProxyFront](/contracts/proxy-front) contract.
+
+<Tabs items={[ 'Ethers', 'Wagmi' ]}>
+  <Tab>
+```ts
+import { ethers } from 'ethers'
+
+const selections: { conditionId: string, outcomeId: string }[]
+
+const data = selections.map(({ conditionId, outcomeId }) => {
+  return ethers.utils.defaultAbiCoder.encode(
+    [ 'tuple(uint256, uint64)' ], 
+    [ { conditionId, outcomeId } ]
+  )
+})
+
+const betData = {
+  core: prematchCoreAddress,
+  amount: rawAmount,
+  expiresAt: deadline,
+  extraData: {
+    affiliate,
+    data,
+    minOdds: rawMinOdds,
+  },
+}
+
+proxyFront.bet(
+  lpAddress,
+  [ 
+    betData,
+  ],
+  {
+    value: rawAmount, // pass this prop only if you'd like to bet in native token
+  }
+)
+```
+  </Tab>
+  <Tab>
+```ts
+import { useContractWrite, encodeAbiParameters } from 'wagmi'
+
+const selections: { conditionId: string, outcomeId: string }[]
+
+const data = selections.map(({ conditionId, outcomeId }) => {
+  return encodeAbiParameters(
+    parseAbiParameters('uint256, uint64'),
+    [
+      BigInt(conditionId),
+      BigInt(outcomeId),
+    ]
+  )
+})
+
+useContractWrite({
+  address: lpAddress,
+  abi: lpAbi,
+  functionName: 'bet',
+  args: [
+    prematchCoreAddress,
+    rawAmount,
+    BigInt(deadline),
+    {
+      affiliate,
+      data,
+      minOdds: rawMinOdds,
+    }
+  ],
+  value: rawAmount, // pass this prop only if you'd like to bet in native token
+})
+```
+  </Tab>
+</Tabs>
+
+<Callout type="warning">
+  Don't forget to specify the `value` in the transaction data if you'd like to place bets in native token.
+</Callout>
+
+
+## Place a combo bet
+
+To place several bets in one transaction you should use [ProxyFront](/contracts/proxy-front) contract.
+
+<Tabs items={[ 'Ethers', 'Wagmi' ]}>
+  <Tab>
+```ts
+import { ethers } from 'ethers'
+
+const selections: { conditionId: string, outcomeId: string }[]
+
+const data = ethers.utils.defaultAbiCoder.encode(
+  [ 'tuple(uint256, uint64)[]' ], 
+  [ selections ]
+)
+
+const betData = {
+  core: expressCoreAddress,
+  amount: rawAmount,
+  expiresAt: deadline,
+  extraData: {
+    affiliate,
+    data,
+    minOdds: rawMinOdds,
+  },
+}
+
+proxyFront.bet(
+  lpAddress,
+  [ 
+    betData,
+  ],
+  {
+    value: rawAmount, // pass this prop only if you'd like to bet in native token
+  }
+)
+```
+  </Tab>
+  <Tab>
+```ts
+import { useContractWrite, encodeAbiParameters } from 'wagmi'
+
+const selections: { conditionId: string, outcomeId: string }[]
+
+const data = encodeAbiParameters(
+  parseAbiParameters('(uint256, uint64)[]'),
+  [
+    selections.map(({ conditionId, outcomeId }) => {
+      return [
+        BigInt(conditionId),
+        BigInt(outcomeId),
+      ]
+    }),
+  ]
+)
+
+useContractWrite({
+  address: lpAddress,
+  abi: lpAbi,
+  functionName: 'bet',
+  args: [
+    prematchCoreAddress,
+    rawAmount,
+    BigInt(deadline),
+    {
+      affiliate,
+      data,
+      minOdds: rawMinOdds,
+    }
+  ],
+  value: rawAmount, // pass this prop only if you'd like to bet in native token
+})
+```
+  </Tab>
+</Tabs>
+
+<Callout type="warning">
+  Don't forget to specify the `value` in the transaction data if you'd like to place bets in native token.
+</Callout>
+
+
+
+## Highlights
+
+### `conditionId` & `outcomeId`
 
 To clarify, `conditionId` and `outcomeId` values should be taken from the specific outcome that the user is placing
 their bet on within the game. These ids can be obtained by iterating through the outcomes array of the Game object and
 finding the relevant outcome that the user has selected.
 
-Additionally, the `coreAddress` value should be the address of the `Core` contract that is associated with the `LP`
-contract that the user is betting on. Each condition entity has `coreAddress` field containing this value.
+Additionally, the `prematchCoreAddress` value should be the address of the `Core` contract that is associated with the `LP`
+contract that the user is betting on. Each condition entity has `prematchCoreAddress` field containing this value.
 
-### What is `rawMinOdds`?
+### `rawMinOdds`
 
 The `minOdds` parameter is used to specify the minimum odds value at which the bet can be placed. If the current odds value is lower than the specified value, the bet cannot be placed and will be rejected by the contract.
 
@@ -146,10 +342,10 @@ The betting methods accept `BigNumberish` value for `minOdds`.
 
 ```ts
 const oddsDecimals = 12 // in current version of protocol odds has 12 decimals
-const rawMinOdds = ethers.utils.parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
+const rawMinOdds = parseUnits(minOdds.toFixed(oddsDecimals), oddsDecimals)
 ```
 
-### What is `expiresAt`?
+### `deadline`
 
 This parameter specifies the deadline by which the transaction must be included in a block. If the transaction is not included in a block before the deadline, the transaction will revert. The value of this parameter should be passed in seconds.
 
@@ -158,91 +354,9 @@ const currentTime = Math.floor(Date.now() / 1000)
 const deadline = currentTime + 2000 // the bet should be accepted within the next 2000 seconds
 ```
 
-### What is `affiliate`?
+### `affiliate`
 
-This is the wallet address where the rewards will be distributed. Please be aware that the accumulation of rewards is predicated on them being associated with this specific wallet. To receive your rewards directly into this wallet, you must redeem them accordingly. [Read about rewards distribution here](concepts/basic/rewards).
-
-
-## Batching
-
-To place multiple single bets at once, you can use `bet` method on the [ProxyFront](/contracts/proxy-front) smart contract.
-
-```ts
-bet(
-  lp: string,
-  items: Array<{
-    core: string,
-    amount: BigNumberish,
-    expiresAt: BigNumberish,
-    extraData: {
-      affiliate: string,
-      data: BytesLike
-    }
-  }>
-)
-```
-
-```ts
-const selections = [
-  {
-    outcomeId: '29',
-    condition: {
-      conditionId: '486903008559711340',
-    },
-  },
-  {
-    outcomeId: '40',
-    condition: {
-      conditionId: '486903008559711340',
-    },
-  },
-]
-
-const items = selections.map((selection) => {
-  const data = ethers.utils.defaultAbiCoder.encode(
-    [
-      'uint256',
-      'uint64',
-      'uint64',
-    ],
-    [
-      selection.condition.conditionId,
-      selection.outcomeId,
-      rawMinOdds,
-    ]
-  )
-
-  return {
-    core: coreAddress,
-    amount: betAmount, // note that this is amount for specific selection (each single bet)
-    expiresAt,
-    extraData: {
-      affiliate,
-      data,
-    }
-  }
-})
-
-// place bets using native token (xDAI in Gnosis)
-bet(lpAddress, items, {
-  value: totalAmount, // totalAmount refers to sum of all bet amounts for each single bet in the batch
-})
-
-// place bets using ERC20 token (USDT in Polygon)
-bet(lpAddress, items)
-```
-
-<Callout type="info">
-  Please refer to the sections above to understand what [`rawMinOdds`](/apis/subgraph/guides/place-a-bet#what-is-rawminodds), [`expiresAt`](/apis/subgraph/guides/place-a-bet#what-is-expiresat) and [`affiliate`](/apis/subgraph/guides/place-a-bet#what-is-affiliate) arguments are.
-</Callout>
-
-<Callout type="info">
-  Note that all amounts should be converted to `BigNumberish` with using token decimals.
-
-  ```
-    ethers.utils.parseUnits(String(amount), tokenDecimals)
-  ```
-</Callout>
+This is the wallet address where the rewards will be distributed. Please be aware that the accumulation of rewards is predicated on them being associated with this specific wallet. To receive your rewards directly into this wallet, you must redeem them accordingly. [Read about rewards distribution here](/concepts/basic/rewards).
 
 
 ## Recommendations
