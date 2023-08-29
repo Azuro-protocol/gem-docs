@@ -1,0 +1,80 @@
+import { Callout } from 'components'
+
+# 08/14 Multi Outcomes (Migration)
+
+Azuro has carried out a successful migration to provide access to new features:
+
+- Events with multiple outcomes. This will be the first step towards adding new sports;
+- A new system for calculating rewards for frontend operators;
+- New freebet management system.
+
+The contracts migrated from 2.7.3 to 2.10.0 version.
+
+<Callout type="alert">
+  The new version of the protocol is incompatible with the previous version! Clients need to migrate and upgrade to the new version.
+</Callout>
+
+**Main changes:**
+
+- New Core and Express(Combo) contracts;
+- The methods working with native tokens moved from LP to ProxyFront;
+- Conditions support more than 2 outcomes. No more need for additional regrouping (markets aggregation) on the client side.
+
+<Callout type="info">
+  You can find the detailed information about the release changes in <b>[07/21 Multi Outcomes (Preparation)](/releases/4-multi-outcomes-preparation)</b> release note.
+</Callout>
+
+
+## New Smart Contracts
+
+<Callout type="info">
+  The ABI files for new smart contracts can be found in the Azuro's <b>[public-config](https://github.com/Azuro-protocol/public-config/tree/main/abis/eth/protocol/v2.10.0)</b> repository.
+</Callout>
+
+### Gnosis
+
+| Contracts | Address |
+| --- | --- |
+| Bet Token | xDAI (native) |
+| LP | `0x204e7371Ade792c5C006fb52711c50a7efC843ed` |
+| BetExpress | `0xDbC3BE2DDB53e1a288F7b7a4d020F8056D3b0F7C` |
+| PrematchCore | `0x7f3F3f19c4e4015fd9Db2f22e653c766154091EF` |
+| ProxyFront | `0xaAAc47Bb9B16bcF89FdB54B1326327a223458d6d` |
+| AzuroBet | `0xA3A1B460c68dc91c5B3f71f5487A76fac42858bf` |
+| Access | `0xC6C6b2f43180bfe7d6193d4Cd41C34cE952Def08` |
+
+### Polygon
+
+| Contracts | Address |
+| --- | --- |
+| Bet Token | `0xc2132d05d31c914a87c6611c10748aeb04b58e8f` |
+| LP | `0x7043E4e1c4045424858ECBCED80989FeAfC11B36` |
+| BetExpress | `0x92a4e8Bc6B92a2e1ced411f41013B5FE6BE07613` |
+| PrematchCore | `0xA40F8D69D412b79b49EAbdD5cf1b5706395bfCf7` |
+| ProxyFront | `0x200BD65A3189930634af857C72281abE63C3da5e` |
+| AzuroBet | `0x351c8BACF9C75f54F50F7c601B80CD7a3B73070C` |
+| Access | `0x76c3b2971Ad1E68E6325bCdc5720B3f4843591C2` |
+
+### Arbitrum
+
+| Contracts | Address |
+| --- | --- |
+| Bet Token | `0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9` |
+| LP | `0x20513ba6A4717c67e14291331BC99dd2aCE90038` |
+| BetExpress | `0x526f1F20e2E5D6bf0E13c551f6Cc400261fB9D75` |
+| PrematchCore | `0x23724eB8663c1a7fF529313B97142918D9fd9a1a` |
+| ProxyFront | `0x8eC5B99270DB359D57f2B7b46cE97aB4598591Fb` |
+| AzuroBet | `0xB66773dD2Dc3497152Dc754EE5B2fC5B0b87BD28` |
+| Access | `0x8A4BE2A0bB1a0E5B445E6569eF271Ad5Dac859Bf` |
+
+### Linea
+
+| Contracts | Address |
+| --- | --- |
+| Bet Token |0`xA219439258ca9da29E9Cc4cE5596924745e12B93` |
+| LP | `0xc365224ef4Fa75D56a280C5A3925caDbF7bd8eeE` |
+| BetExpress | `0x0E64f9448452E220e193F01ec67340c4e2605327` |
+| PrematchCore | `0x7613766c1a874B788dec2bf21137ee7D6cd135bB` |
+| ProxyFront | `0x1cFE94Fc269178137A8247a5817a0495E3061B69` |
+| AzuroBet | `0xB9E4CB7Dcfb418aa2a7Cd5FE8194597791097f09` |
+| Access | `0x401858dfeF7894a20395cAb56b68e2fED1EDdc3c` |
