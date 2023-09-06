@@ -52,10 +52,12 @@ to understand which market is related to a specific `outcomeId`, a special ID is
 and `marketDescriptions.js` files, which contain keys different from simple IDs. This key is a combination of other IDs,
 including `marketId-gamePeriodId-gameTypeId[-teamPlayerId]`.
 
-To make it even easier for developers, we have also created an NPM package that contains a CLI and helper functions
-for working with the dictionaries repository. The CLI allows you to download the latest version of the repository, and
-the helper functions make it easier to retrieve the text representation of IDs related to a specific outcomeId. Take a
-look of [`@azuro-org/dictionaries`](https://www.npmjs.com/package/@azuro-org/dictionaries).
+<Callout type="info">
+  To make it even easier for developers, we have also created an NPM package that contains a CLI and helper functions
+  for working with the dictionaries repository. The CLI allows you to download the latest version of the repository, and
+  the helper functions make it easier to retrieve the text representation of IDs related to a specific outcomeId. Take a
+  look of [`@azuro-org/dictionaries`](https://www.npmjs.com/package/@azuro-org/dictionaries).
+</Callout>
 
 
 ## Aggregate outcomes by markets
@@ -213,10 +215,7 @@ const finalMarkets = Object.values(finalMarketsMap)
 The example provided demonstrates how you can group and sort outcomes. However, it is important to note that the sorting
 method may differ depending on the specific requirements of your application.
 
-If the grouping and sorting method described above is suitable for your needs, you can utilize the
-`aggregateOutcomesByMarkets` helper function from the [`@azuro-org/toolkit`](https://www.npmjs.com/package/@azuro-org/toolkit) library.
-This function can assist with grouping and sorting outcomes by market key.
 
-## Try it yourself
+{/* ## Try it yourself
 
-[Playground](https://stackblitz.com/edit/react-ts-3ggqdj?file=useData.ts)
+[Playground](https://stackblitz.com/edit/react-ts-3ggqdj?file=useData.ts) */}
