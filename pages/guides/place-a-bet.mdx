@@ -306,6 +306,9 @@ useContractWrite({
 </Tabs>
 
 <Callout type="warning">
+  Some conditions have restrictions and cannot be used in a combo bet, for example, eSports conditions. To avoid this error you need check the `isExpressForbidden` field in condition subgraph data, if this field is `true` than you should forbid such combo bet and show warning notification in your ui.
+</Callout>
+<Callout type="warning">
   Don't forget to specify the `value` in the transaction data if you'd like to place bets in native token.
 </Callout>
 
