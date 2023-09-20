@@ -19,13 +19,10 @@ jobs:
           cache: 'npm'
 
       - name: Install packages
-        run: npm ci
+        run: npm ci && npm i -g surge
 
       - name: Build
         run: npm run build
-
-      - name: Install surge
-        run: npm install -g surge
 
       - name: Publish
         run: surge ./out dev-gem.azuro.org --token ${{ secrets.SURGE_TOKEN }}
