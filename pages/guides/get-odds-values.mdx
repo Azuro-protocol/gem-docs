@@ -17,7 +17,7 @@ const QUERY = gql`
   query ConditionOdds($where: Condition_filter) {
     conditions(where: $where) {
       outcomes {
-        odds
+        currentOdds
       }
     }
   }
@@ -43,7 +43,7 @@ const QUERY = gql`
     game(id: $id) {
       conditions {
         outcomes {
-          odds
+          currentOdds
         }
       }
     }

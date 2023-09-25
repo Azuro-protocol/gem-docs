@@ -16,7 +16,6 @@ The bet NFT also serves as a way to display users' betting history and allows th
 withdrawPayout(
   core: string,
   tokenId: BigNumberish,
-  isNative: boolean,
   overrides?: Overrides & { from?: string }
 ): Promise<ContractTransaction>
 ```
@@ -36,12 +35,9 @@ query Bets {
 ```
 
 ```ts
-const isNativeToken = appChainId === Gnosis.chainId
-
 const tx = await lpContract.connect(signer).withdrawPayout(
   bet.core.address,
   bet.betId,
-  isNativeToken
 )
 ```
 
@@ -57,18 +53,16 @@ withdrawPayouts(
   data: Array<{
     core: string,
     tokenId: BigNumberish,
-    isNative: boolean
+    isNative: false // param exists in current version of contract but isn't suitable for combo bets
   }>
 )
 ```
 
 ```ts
-const isNative = appChainId === Gnosis.chainId
-
 const data = bets.map(({ coreAddress, betId }) => ({
   core: coreAddress,
   tokenId: betId,
-  isNative,
+  isNative: false,
 }))
 
 withdrawPayouts(data)
