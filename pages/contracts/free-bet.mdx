@@ -9,14 +9,31 @@ import { PageHeadline, Callout } from 'components'
   This contract does not affect the logic of a Pool's contracts
 </Callout>
 
-The FreeBet contract allows you to provide a non-transferable ERC-721 token that allows the user to place a free bet
-on any [PrematchCore](/contracts/prematch-core) contract. Each FreeBet token has a denomination, expiration time, and
-minimum betting odds requirement. If the free bet wins, the bettor receives only the
-difference between the winnings and the bet amount.
+The FreeBet contract enables users to place free bets on any [PrematchCore](/contracts/prematch-core) contract.
+Each FreeBet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
+Additionally, each FreeBet contract is limited to a particular affiliate address to offer free bets exclusively to their
+customers. It's important to note that when a free bet wins, the bettor receives only the difference between the winnings
+and the original bet amount.
 
-The minter of the FreeBet token pays for its denomination. The FreeBet contract takes care of everything related to
-making the granted bet and withdrawing winnings from the [LP](/contracts/lp) on behalf of the user.
+## Key Features
 
+### 1. Bet Placement
+The FreeBet contract handles everything related to placing the granted bet on behalf of the user.
+
+### 2. Withdraw Winnings
+Users can withdraw their winnings from the [LP](/contracts/lp) through the FreeBet contract.
+
+## Limitation to Affiliate Address
+To ensure that free bets are granted only to specific customers, the FreeBet contract restricts the distribution to
+a certain affiliate address.
+
+## Claimable Feature
+The FreeBet distribution process is cost-effective for frontend operators. Customers will cover the gas fees for the
+`bet` transaction, and the claim fee will be included as part of this process. This reduces the operational
+costs associated with distributing free bets.
+
+For more detailed information on how to distribute free bets, please refer to the
+[Free Bets Distribution Guide](/contracts/guides/distribute-freebets).
 
 ### Reference
 

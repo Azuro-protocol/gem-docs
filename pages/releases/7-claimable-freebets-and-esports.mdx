@@ -1,0 +1,48 @@
+# XX/XX Azuro Protocol Claimable FreeBets and eSports Integration
+
+## Introduction
+
+The Azuro Protocol team is excited to announce the launch of free bets for all Azuro Protocol frontend operators.
+In this update, we introduce the concept of claimable free bets, making the minting process completely free for
+frontend operators. To gain access to the free bets contract admin panel, all you need to do is make a request to
+the Azuro Protocol team, top up the contract balance, and kickstart your marketing campaign.
+
+## GraphQL Changes
+
+### Change Log
+
+**FreebetContract Entity:**
+
+- The `name` field has been deprecated as it is no longer necessary.
+- The `manager` field has been added to provide better control and management of the contract.
+
+**Freebet Entity:**
+
+- The `freebetContractName` field has been deprecated as it is no longer necessary.
+
+## eSports Integration
+
+In this update, we introduce enhancements to accommodate eSports conditions within the Azuro Protocol ecosystem.
+
+**Condition Entity:**
+
+- We've added the `isExpressForbidden` field. Certain conditions, such as those related to eSports, now come with
+restrictions and cannot be used in a combo bet. To prevent errors, check the `isExpressForbidden` field in condition
+subgraph data. If it is set to `true`, you should prohibit such combo bets and display a warning notification
+in your user interface.
+
+## Other Enhancements
+
+We've made some additional improvements to enhance the Azuro Protocol experience:
+
+**Event Entity:**
+
+- Added `gasPrice` and `gasUsed` fields to provide more detailed information about events.
+
+## Conclusion
+
+With these updates, we aim to provide a smoother and more efficient experience for Azuro Protocol frontend
+operators. Whether you're interested in claimable free bets or integrating eSports conditions, these changes are
+designed to empower you with more control and flexibility.
+
+If you have any questions or need further assistance, please don't hesitate to reach out to the Azuro Protocol team.
