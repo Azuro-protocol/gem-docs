@@ -1,4 +1,4 @@
-import { Callout } from 'components'
+import { Image, Callout } from 'components'
 
 # Distribute Freebets
 
@@ -26,3 +26,65 @@ function on the FreeBet contract.
   We recommend limiting the IDs provided to the `resolvePayout` function parameters to avoid errors during transaction
   execution.
 </Callout>
+
+# Distribute Freebets with Azuro Admin Panel
+
+Follow these steps to distribute Freebets using the Azuro Freebets Admin Panel:
+
+1. **Sign In to Azuro Freebets Admin Panel**: Start by signing in to the Azuro Freebets Admin Panel using
+your credentials.
+
+<Image
+  src="/images/freebets-admin/01.png"
+  width={1382}
+  height={1020}
+/>
+
+2. **View Available Contracts**: Upon logging in, you'll see a list of contracts that you can use to distribute
+Freebets to your customers. The list includes contract balance, locked reserve, issued Freebets,
+and the safe balance for your new campaign.
+
+<Image
+  src="/images/freebets-admin/02.png"
+  width={2860}
+  height={1662}
+/>
+
+3. **Create a New Freebets Campaign**: To create a new Freebets campaign, provide the following details:
+   - Contract address
+   - Expiration date
+   - Amount for each Freebet
+   - Minimum odds for a bet
+
+Additionally, please provide a list of the addresses for distribution.
+
+<Image
+  src="/images/freebets-admin/03.png"
+  width={2024}
+  height={1596}
+/>
+
+**Successful Campaign Creation**: After successfully creating your Freebets campaign,
+you will see a confirmation message.
+<Image
+  src="/images/freebets-admin/04.png"
+  width={1496}
+  height={292}
+/>
+
+ **Check Active Campaigns**: To review your active Freebets campaigns, click on the "Details" button.
+
+<Image
+  src="/images/freebets-admin/05.png"
+  width={2588}
+  height={1304}
+/>
+
+6. **Note on Budget Limitation**: Please note that we provide you with the flexibility to distribute Freebets
+without a budget limitation. However, if your customers claim Freebets for an amount exceeding what you've provided
+to the contract, they will encounter an error during the smart contract execution call.
+
+By following these steps, you can efficiently distribute Freebets to your customers and manage your campaigns
+using the Azuro Freebets Admin Panel.
+
+If you have any questions or require assistance, please don't hesitate to contact our support team.
