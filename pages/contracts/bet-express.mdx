@@ -5,15 +5,15 @@ import { PageHeadline, Callout } from 'components'
   subTitle="A Betting Engine that combines outcomes from different Conditions in a single bet"
 />
 
-<Callout type="warning">
-  The contract is not implemented in the main networks at the moment
-</Callout>
-
 The BetExpress contract allows users to place combo bets. The contract is linked to a specific deployed
 [PrematchCore](/contracts/prematch-core) contract and only takes information about the
 [Conditions](/concepts/protocol/conditions) from it.
 
 An unlimited number of sub-bets on different Conditions can be included in a single Express, but the maximum possible winnings for one Condition in all bets are limited to a fixed amount of 25,000. There is also another restriction on the maximum net payout for all Expresses at a given moment, which should not exceed a certain percentage of the total pool, currently around 250,000.
+
+<Callout type="warning">
+  Some conditions have restrictions and cannot be used in a combo bet, for example, eSports conditions. To avoid this error you need check the `isExpressForbidden` field in condition subgraph data, if this field is `true` than you should forbid such combo bet and show warning notification in your UI.
+</Callout>
 
 The coefficients for the sub-bets are calculated as follows:
 
