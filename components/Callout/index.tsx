@@ -20,7 +20,7 @@ export function Callout(props: React.PropsWithChildren<Props>) {
 
   icon = icon || ({
     'info': 'ℹ️',
-    'warning': '🚧',
+    'warning': '⚠️',
     'alert': '🚨',
     'feature': '💎',
   })[type]

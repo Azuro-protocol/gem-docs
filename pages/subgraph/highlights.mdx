@@ -7,6 +7,11 @@ import { Callout } from 'components'
 TheGraph has a limit of returning a maximum of 1000 elements per request, with a default of 100 elements. Keep this
 limit in mind when building your queries. [Read how to paginate](https://thegraph.com/docs/en/querying/graphql-api/#pagination).
 
+### Indexing errors
+
+In rare cases indexing errors of new data may occur in subgraph nodes. In that case queries will throw an error with no data by default.
+We're reacting fast on such accidents. But while it isn't fixed, you can add param `subgraphError: allow` to your queries to ignore these errors and work with existing data.
+
 ### IDs
 
 TheGraph uses a unique `id: ID!` (TheGraph Ids) for @entity directives in schemas. These ids are technical and do not

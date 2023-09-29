@@ -14,7 +14,7 @@ make a request every 3 seconds.
 
 ```js copy
 const QUERY = gql`
-  query ConditionOdds($where: Condition_filter) {
+  query ConditionOdds($where: Condition_filter, subgraphError: allow) {
     conditions(where: $where) {
       outcomes {
         currentOdds
@@ -39,7 +39,7 @@ and is viewing it.
 
 ```js copy
 const QUERY = gql`
-  query GameOdds($id: String) {
+  query GameOdds($id: String, subgraphError: allow) {
     game(id: $id) {
       conditions {
         outcomes {

@@ -10,7 +10,7 @@ outcome of which a bet was made is canceled, users can retrieve their tokens bac
 The bet NFT also serves as a way to display users' betting history and allows them to track their bets and winnings.
 
 
-## Redeem a bet
+## General required structure
 
 ```ts
 withdrawPayout(
@@ -24,21 +24,42 @@ withdrawPayout(
 query Bets {
   bets {
     betId
+    payout
+    amount
+    status
+    result
+    isRedeemable
+    isRedeemed
     core {
       address
       liquidityPool {
         address
       }
     }
+    freebet {
+      freebetId
+      freebetContractAddress
+    }
   }
 }
 ```
 
+## Regular bets
+
+Customer can redeem bet if it was canceled (`bet.status = BetStatus.Canceled`) or if `result = BetResult.Win`.
+There are two flags to simplify the process: `bet.isRedeemable` (customer can redeem) & `bet.isRedeemed` (already redeemed)
+
+You should ensure that `freebet` field is `null`. If it exists, use [freebet redeem](#freebet-redeem)
+
 ```ts
-const tx = await lpContract.connect(signer).withdrawPayout(
-  bet.core.address,
-  bet.betId,
-)
+const isFreebet = Boolean(bet.freebet)
+
+if (!isFreebet && bet.isRedeemable) {
+  const tx = await lpContract.connect(signer).withdrawPayout(
+    bet.core.address,
+    bet.betId,
+  )
+}
 ```
 
 `coreAddress` is required to specify on which `Core` contract user wants to redeem the bet.
@@ -53,7 +74,8 @@ withdrawPayouts(
   data: Array<{
     core: string,
     tokenId: BigNumberish,
-    isNative: false // param exists in current version of contract but isn't suitable for combo bets
+    // @deprecated
+    isNative: false // param exists in current version of contract but doesn't work with combo bets.
   }>
 )
 ```
@@ -65,5 +87,22 @@ const data = bets.map(({ coreAddress, betId }) => ({
   isNative: false,
 }))
 
-withdrawPayouts(data)
+const tx = await proxyFrontContract.connect(signer).withdrawPayouts(data)
+```
+
+## Freebet redeem
+
+Note that customer will only receive profit from the bet: `bet.payout - bet.amount`, the body of bet (amount) will be returned to freebet contract.
+
+To redeem freebet use freebet contract.
+
+
+```ts
+const isFreebet = Boolean(bet.freebet)
+
+if (isFreebet) {
+  const freebetContract = new Contract(bet.freebet.freebetContractAddress, freebetABI)
+
+  const tx = await freebetContract.connect(signer).withdrawPayout(bet.freebet.freebetId)
+}
 ```

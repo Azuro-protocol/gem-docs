@@ -1,4 +1,4 @@
-import { Callout } from 'components'
+import { Callout, Card } from 'components'
 
 # Markets and Outcomes
 
@@ -70,13 +70,25 @@ query Game($id: String!) {
   game(id: $id) {
     conditions {
       conditionId
+      status
+      isExpressForbidden
       outcomes {
         outcomeId
+        currentOdds
       }
     }
   }
 }
 ```
+<Callout type="warning">
+  It's important to use `status` field for smooth UX. You can filter or just disable outcome buttons for paused/canceled conditions.
+  Pre-match bets are only accepted for `status = "Created"`.
+</Callout>
+<Callout type="warning">
+  Some conditions have restrictions and cannot be used in a combo bet, for example, eSports conditions.
+  To avoid this error you need check the `isExpressForbidden` field in condition subgraph data,
+  if this field is true than you should forbid such combo bet and show warning notification in your UI.
+</Callout>
 
 Here we receive a list of conditions with related outcomes. After this we need to get the `marketKey` for each outcome.
 Using this key we can group outcomes.
@@ -87,12 +99,13 @@ import { getMarketKey } from '@azuro-org/dictionaries'
 const outcomesByMarkets = {}
 
 conditions.forEach(({ conditionId, outcomes }) => {
-  outcomes.forEach(({ outcomeId }) => {
+  outcomes.forEach(({ outcomeId, currentOdds }) => {
     const marketKey = getMarketKey(outcomeId)
 
     const outcome = {
       conditionId,
       outcomeId,
+      currentOdds,
     }
 
     if (!outcomesByMarkets[marketKey]) {
@@ -121,11 +134,6 @@ Object.keys(outcomesByMarkets).forEach((marketKey) => {
 
 To improve the UX, it's recommended to group the available outcomes within each market and sort them in a meaningful way.
 To better illustrate the concept of grouping and sorting outcomes within a market, let's use Handicap as an example.
-
-<Callout type="info" emoji="ℹ️️">
-  Handicap - this is a bet where an artificial advantage is given to one of the teams. E.g. if 'Team 1' has Handicap +1, it means
-  that the final result of the game is determined after adding 1 goal to the number of goals scored by 'Team 1'.
-</Callout>
 
 ```ts
 import { dictionaries } from '@azuro-org/dictionaries'
@@ -212,10 +220,26 @@ Object.keys(outcomesByMarkets).forEach((marketKey) => {
 const finalMarkets = Object.values(finalMarketsMap)
 ```
 
-The example provided demonstrates how you can group and sort outcomes. However, it is important to note that the sorting
-method may differ depending on the specific requirements of your application.
+<Callout type="info">
+  Handicap - this is a bet where an artificial advantage is given to one of the teams. E.g. if 'Team 1' has Handicap +1, it means
+  that the final result of the game is determined after adding 1 goal to the number of goals scored by 'Team 1'.
+</Callout>
 
+The example provided demonstrates how you can group and sort outcomes. You can use `aggregateOutcomesByMarkets` from [`@azuro-org/toolkit`](https://www.npmjs.com/package/@azuro-org/toolkit) package to do the same grouping and sorting.
 
-{/* ## Try it yourself
+<div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+  <Card
+    contentIcon="/images/svg/npm.svg"
+    text="@azuro-org/dictionaries"
+    toTab="https://www.npmjs.com/package/@azuro-org/dictionaries"
+  />
+  <Card
+    contentIcon="/images/svg/npm.svg"
+    text="@azuro-org/toolkit"
+    toTab="https://www.npmjs.com/package/@azuro-org/toolkit"
+  />
+</div>
 
-[Playground](https://stackblitz.com/edit/react-ts-3ggqdj?file=useData.ts) */}
+[//]: # ({/* ## Try it yourself)
+
+[//]: # ([Playground]&#40;https://stackblitz.com/edit/react-ts-3ggqdj?file=useData.ts&#41; */})

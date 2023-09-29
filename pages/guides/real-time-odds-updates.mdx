@@ -16,12 +16,32 @@ const coreContract = new Contract(CORE_ADDRESS, CORE_ABI, RPC_PROVIDER)
 coreContract.on('NewBet', async (...args) => {
   const [ bettor, affiliate, conditionId, tokenId, outcomeId, amount, odds, funds ] = args
 
-  eventEmitter.dispatch('NewBetPlaced', {
+  eventEmitter.dispatch('OddsUpadted', {
     coreAddress: CORE_ADDRESS,
     conditionId,
-    outcomeId,
   })
 })
+
+coreContract.on('OddsChanged', async (...args) => {
+  const [ bettor, affiliate, conditionId, tokenId, outcomeId, amount, odds, funds ] = args
+
+  eventEmitter.dispatch('OddsUpadted', {
+    coreAddress: CORE_ADDRESS,
+    conditionId,
+  })
+})
+
+coreContract.on('ConditionStopped', async (...args) => {
+  const [ rawConditionId, isStopped ] = args
+  const conditionId = String(rawConditionId)
+
+  eventEmitter.dispatch('ConditionStopped', {
+    coreAddress: CORE_ADDRESS,
+    conditionId,
+    isStopped,
+  })
+})
+
 ```
 
 ```ts copy filename="OutcomeButton.ts"
@@ -35,20 +55,32 @@ type Outcome = {
 
 const outcome: Outcome = ...
 
-eventEmitter.subscribe('NewBetPlaced', (event) => {
+eventEmitter.subscribe('OddsUpadted', (event) => {
   if (
     event.coreAddress === outcome.condition.coreAddress
     && event.conditionId === outcome.condition.conditionId
-    && event.outcomeId === outcome.outcomeId
   ) {
     // Fetch new odds value
   }
 })
+
+eventEmitter.subscribe('ConditionStopped', (event) => {
+  if (
+    event.coreAddress === outcome.condition.coreAddress
+    && event.conditionId === outcome.condition.conditionId
+  ) {
+    // Based on event.isStopped, disable or enable outcome buttons
+  }
+})
 ```
 
-<Callout type="warning" emoji="⚠️">
+<Callout type="warning">
   It's important to note that the `conditionId` and `outcomeId` values on different Core contracts may match.
   Therefore, it's important to do a check at the Core contract address.
+</Callout>
+
+<Callout type="info">
+  You don't need to subscribe to express core contract. It calls `OddsChanged` event on core contract with every combo bet.
 </Callout>
 
 The information on how to fetch odds values can be found in ["Get Odds Values"](/apis/subgraph/guides/get-odds-values)
@@ -60,30 +92,18 @@ section.
 It is highly probable that you will interact with multiple core contracts simultaneously. In such cases, multiple
 subscribers will be required. GraphQL can be utilized to obtain a list of core contract addresses.
 
-```graphql copy
-query CoreContracts {
-  coreContracts {
-    address
-  }
-}
-```
-
-or for specific LP
-
-```graphql copy
-query CoreContracts($where: CoreContract_filter) {
-  coreContracts(where: $where) {
-    address
-  }
-}
-```
-
-
-## Best Practices
-
-To minimize the cost of sending requests via RPC (Remote Procedure Call) or GraphQL, there is an option to combine
-multiple requests into batches.
-
-<Callout type="info" emoji="️">
-  // TODO
+<Callout type="info">
+  Filter core contracts from graphql by type. Current active type for prematch core is `pre-match-v2`
 </Callout>
+
+```graphql copy
+query CoreContracts{
+  coreContracts(
+    where: { liquidityPool: "<LP_ADDRESS_LOWERCASE>", type: "pre-match-v2" }
+    subgraphError: allow
+  ) {
+    address
+    type
+  }
+}
+```
