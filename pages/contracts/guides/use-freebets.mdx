@@ -1,4 +1,5 @@
 import { Callout } from 'components'
+import { Tab, Tabs } from 'nextra-theme-docs'
 
 # Use Freebets
 
@@ -8,3 +9,169 @@ new freebets distributed for the customers.
 To use a freebet, the user needs to call the `redeem` function.
 
 To claim their winnings or refunds if the condition was canceled users should call the `withdrawPayout` function.
+
+
+### Fetch available freebets
+
+```ts copy
+type Address = `0x${string}`
+type Hex = `0x${string}`
+
+enum RestFreebetStatus {
+  New = 'New',
+  Claimed = 'Claimed',
+  Redeemed = 'Redeemed',
+  Canceled = 'Canceled',
+  Reissued = 'Reissued',
+  Withdrawn = 'Withdrawn',
+}
+
+type RestFreebet = {
+  id: number
+  owner: Address
+  amount: string // raw '10000000'
+  minOdds: string // raw '10000000'
+  contractId: number
+  signature: Hex
+  expiresAt: number // unix timestamp in seconds
+  campaign: string
+  status: RestFreebetStatus
+  contract: {
+    id: number
+    affiliate: Address
+    chainId: string
+    freebetContractAddress: Address
+    decimals: number
+  }
+}
+
+const baseUrl = isDev
+  ? 'https://dev-freebets.azuro.org/api'
+  : 'https://freebets.azuro.org/api'
+
+const freebetFetcher = async (bettorAddress: string): Promise<RestFreebet[]> => {
+  const response = await axios.get<RestFreebet[]>(`${baseUrl}/v1/public/freebets/list`, {
+    params: {
+      owner: bettorAddress.toLowerCase(),
+      affiliate: '0x...', // your affiliate address
+    },
+  })
+
+  return response.data || []
+}
+```
+
+Api returns all available to claim freebets for specified bettor (status: `New` | `Reissued`).
+
+<Callout type="warning">
+  If you work in several chains, pay attention to handle it, api returns all available freebets from all supported chains.
+  You must validate that `freebet.contract.chainId` is the same as current app chain before suggesting to use it for a bet.
+  Also validate that odds of selected outcome (including slippage) satisfies `freebet.minOdds`.
+</Callout>
+
+<Callout type="alert">
+  Freebets are not acceptable for combo bets.
+</Callout>
+
+### Use freebet to place a bet
+
+If you're not familiar with generic logic around placing a bet, please read [Guides section](/guides/place-a-bet) first.
+
+<Callout type="warning">
+  To apply freebet, `outcome.rawMinOdds` should be greater than `freebet.minOdds`. The bet should be single - freebets aren't applicable to combo bets.
+</Callout>
+
+<Tabs items={[ 'Ethers', 'Wagmi' ]}>
+<Tab>
+```ts
+import { ethers } from 'ethers'
+
+if (BigInt(outcome.rawMinOdds) <  BigInt(freebet.minOdds)) {
+  // outcome minOdds should be greater than freebet.minOdds
+  return
+}
+
+const data = ethers.utils.defaultAbiCoder.encode(
+  [ 'tuple(uint256, uint64)' ],
+  [ { conditionId, outcomeId } ]
+)
+
+const freebetContract = new Contract(freebet.contract.freebetContractAddress, freebetABI)
+
+freebetContract.bet(
+  {
+    chainId: freebet.contract.chainId,
+    expiresAt: freebet.expiresAt,
+    amount: freebet.amount,
+    freeBetId: freebet.id,
+    minOdds: freebet.minOdds,
+    owner: account,
+  },
+  freebet.signature,
+  coreAddress,
+  conditionId,
+  outcomeId,
+  deadline,
+  outcome.rawMinOdds
+)
+```
+</Tab>
+<Tab>
+```ts
+import { useContractWrite, encodeAbiParameters } from 'wagmi'
+
+if (BigInt(outcome.rawMinOdds) <  BigInt(freebet.minOdds)) {
+  // outcome minOdds should be greater than freebet.minOdds
+  return
+}
+
+const data = encodeAbiParameters(
+  parseAbiParameters('uint256, uint64'),
+  [
+    BigInt(conditionId),
+    BigInt(outcomeId),
+  ]
+)
+
+useContractWrite({
+  address: freebet.contract.freebetContractAddress,
+  abi: freebetABI,
+  functionName: 'bet',
+  args: [
+    {
+      chainId: freebet.contract.chainId,
+      expiresAt: freebet.expiresAt,
+      amount: freebet.amount,
+      freeBetId: freebet.id,
+      minOdds: freebet.minOdds,
+      owner: account,
+    },
+    freebet.signature,
+    coreAddress,
+    BigInt(conditionId),
+    BigInt(outcomeId),
+    BigInt(deadline),
+    outcome.rawMinOdds
+  ],
+})
+```
+</Tab>
+</Tabs>
+
+
+### Withdraw a winning freebet
+
+When customer placed a freebet, it will become regular bet in their bet history.
+<Callout type="info">
+  The customer will only receive profit from the bet: `bet.payout - bet.amount`, the body of bet (amount) will be returned to the freebet contract
+</Callout>
+To redeem a winning freebet, you should call freebet contract:
+```ts
+const freebetContract = new Contract(bet.freebet.freebetContractAddress, freebetABI)
+
+const tx = await freebetContract.connect(signer).withdrawPayout(bet.freebet.freebetId)
+```
+
+All details about bet history and base logic of redeem, please read in Guides section:
+[Bet history](/guides/get-bets-history) & [Redeem Bets](/guides/redeem-bets)
+
