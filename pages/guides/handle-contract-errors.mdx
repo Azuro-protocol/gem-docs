@@ -1,0 +1,69 @@
+import { Callout } from 'components'
+
+
+# Handle errors from contarcts
+
+In most cases of operation fail, contracts return an error code
+(which is a hex - 4-byte error call selector of error name, for example, `0xfd25ed88` = `SmallOdds` from the Core contract).
+
+You can log and handle these errors for a better UX (show to your user what exactly went wrong) and support.
+All errors are included in contracts ABI.
+
+<Callout type="info">
+  Please note, the error can be transmitted from different ABI for a transaction
+  (e.g. "bet" in ProxyFront may return an error from ProxyFront, LP or Core)
+  and may be nested in a sublevel of an error.
+</Callout>
+
+### Example of universal getter of contract error (wagmi/viem)
+
+```ts copy filename=getContractErrorInfo.ts
+import { decodeErrorResult, isHex } from 'viem'
+import { coreABI, freebetABI, proxyFrontABI, lpABI } from 'path/to/abi'
+
+const abis = [ coreABI, lpABI, freebetABI, proxyFrontABI ]
+
+const getContractErrorHashFromError = (error: any): string | undefined => {
+  if (error?.version && /viem/.test(error.version)) {
+    const code = error?.data
+
+    if (!isHex(code) && error?.cause) {
+      return getContractErrorHashFromError(error.cause)
+    }
+
+    return code
+  }
+}
+
+export default function getContractErrorInfo(error: any) {
+  const hex = getContractErrorHashFromError(error)
+
+  if (!isHex(hex)) {
+    return {
+      hex: null,
+      name: null,
+    }
+  }
+
+  let foundErrorName = null
+
+  abis.some((abi) => {
+    try {
+      const { errorName } = decodeErrorResult({
+        abi,
+        data: hex,
+      })
+
+      foundErrorName = errorName
+    }
+    catch {}
+
+    return foundErrorName
+  })
+
+  return {
+    hex,
+    name: foundErrorName,
+  }
+}
+```

@@ -5,5 +5,6 @@
   "real-time-odds-updates": "Real-time Odds Updates",
   "place-a-bet": "Place a Bet",
   "get-bets-history": "Get Bets History",
-  "redeem-bets": "Redeem Bets"
+  "redeem-bets": "Redeem Bets",
+  "handle-contract-errors": "Handle Contract Errors"
 }

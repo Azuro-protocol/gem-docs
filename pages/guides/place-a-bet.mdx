@@ -410,7 +410,7 @@ This is the wallet address where the rewards will be distributed. Please be awar
 
 ## Recommendations
 
-It's important to ensure that the user has sufficient funds in their account before placing a bet, and to handle errors
+It's important to ensure that the user has sufficient funds in their account before placing a bet, and to [handle errors](/guides/handle-contract-errors)
 gracefully if the bet cannot be placed due to insufficient funds or other reasons.
 
 Keeping the odds updated is essential for providing the best user experience to your customers. By
@@ -418,66 +418,3 @@ Keeping the odds updated is essential for providing the best user experience to 
 which can help reduce the risk of user frustration or missed betting opportunities. Alternatively, you can
 [fetch the odds values](/guides/get-odds-values) before a user submits a bet to ensure that the odds values are current
 at the time of the bet placement.
-
-## Handle errors from contracts
-
-In most cases of operation fail, contracts return an error code
-(which is a hex - 4-byte error call selector of error name, for example, `0xfd25ed88` = `SmallOdds` from the Core contract).
-
-You can log and handle these errors for a better UX (show to your user what exactly went wrong) and support.
-All errors are included in contracts ABI.
-
-For decoding error code, please note that the error can be transmitted from different ABI (ProxyFront (if used), LP, Core) and may be stored in a sublevel of an error.
-
-### Example of getting contract error
-
-```ts copy filename=getContractErrorInfo.ts
-import { decodeErrorResult, isHex } from 'viem'
-import { coreABI, freebetABI, proxyFrontABI, lpv2ABI } from 'path/to/abi'
-
-const abis = [ coreABI, lpv2ABI, freebetABI, proxyFrontABI ]
-
-const getContractErrorHashFromError = (error: any): string | undefined => {
-  if (error?.version && /viem/.test(error.version)) {
-    const code = error?.data
-
-    if (!isHex(code) && error?.cause) {
-      return getContractErrorHashFromError(error.cause)
-    }
-
-    return code
-  }
-}
-
-export default function getContractErrorInfo(error: any) {
-  const hex = getContractErrorHashFromError(error)
-
-  if (!isHex(hex)) {
-    return {
-      hex: null,
-      name: null,
-    }
-  }
-
-  let foundErrorName = null
-
-  abis.some((abi) => {
-    try {
-      const { errorName } = decodeErrorResult({
-        abi,
-        data: hex,
-      })
-
-      foundErrorName = errorName
-    }
-    catch {}
-
-    return foundErrorName
-  })
-
-  return {
-    hex,
-    name: foundErrorName,
-  }
-}
-```
