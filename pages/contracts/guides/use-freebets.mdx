@@ -3,7 +3,7 @@ import { Tab, Tabs } from 'nextra-theme-docs'
 
 # Use Freebets
 
-Use the [Azuro FreeBets API](https://freebets.azuro.org/api/v1/public/freebets/docs/static/index.html) to get info about
+Use the [Azuro FreeBets API](https://api.azuro.org/api/v1/public/freebets/docs/static/index.html) to get info about
 new freebets distributed for the customers.
 
 To use a freebet, the user needs to call the `redeem` function.
@@ -46,8 +46,8 @@ type RestFreebet = {
 }
 
 const baseUrl = isDev
-  ? 'https://dev-freebets.azuro.org/api'
-  : 'https://freebets.azuro.org/api'
+  ? 'https://dev-api.azuro.org/api'
+  : 'https://api.azuro.org/api'
 
 const freebetFetcher = async (bettorAddress: string): Promise<RestFreebet[]> => {
   const response = await axios.get<RestFreebet[]>(`${baseUrl}/v1/public/freebets/list`, {
