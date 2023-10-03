@@ -18,7 +18,16 @@ costs associated with distributing free bets.
 - If freebet isn't claimed before expiration time, it just becomes expired, doesn't require any actions and disappears from available freebets list for the customer in rest api.
 [Read how to use freebets in UI](/guides/freebets/use-freebets).
 - **When a free bet wins, the bettor receives only the difference between the winnings
-and the original bet amount.**
+and the original bet amount.** The amount of the free bet will be returned to your contract balance.
+
+<Callout type="info">
+  Example:\
+  Free bet amount: 5 USDT.\
+  The customer places a bet on an outcome with odds 1.5. Potential payout: 7.5 USDT.\
+  Bet wins, after redeeming:
+  - The customer will receive: 2.5 USDT (from the LP).
+  - Your free bet contract will return: 5 USDT (from lockedReserve).
+</Callout>
 
 ## Distribute Freebets
 
