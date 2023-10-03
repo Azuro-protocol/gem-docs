@@ -4,7 +4,7 @@ import { Image, Callout, Button } from 'components'
 
 _Read [overview](/guides/freebets/overview) first to understand key features of freebet tool._
 
-To get started with distributing FreeBets, follow these steps:
+To get started with distributing Freebets, follow these steps:
 
 1. **Request FreeBet Contracts**: Begin by making a [request to the Azuro Protocol team](https://azuro.typeform.com/freebetpanel) to create FreeBet
 contracts for your use. Once approved, you will gain access to our Freebets admin panel, and your new contracts
@@ -24,9 +24,9 @@ contract. You can top up your contract by simply sending tokens to your contract
 a regular ERC-20 transfer.
 
 3. **Withdraw Liquidity**: When you wish to withdraw liquidity from the contract, call the `withdrawReserve(amount)`
-function. Keep in mind that only tokens not reserved for FreeBets can be withdrawn.
+function. Keep in mind that only tokens not reserved for Freebets can be withdrawn.
 To release reserved tokens, use the `resolvePayout(freeBetIds[])` function, especially when customers have not
-resolved their FreeBets (i.e., they haven't claimed their bets).
+resolved their Freebets (i.e., they haven't claimed their bets).
 
 4. **Locked Reserve**: You can check the amount of locked tokens that cannot be withdrawn by using the `lockedReserve`
 function on the FreeBet contract.
