@@ -1,7 +1,8 @@
 import { Callout } from 'components'
 
 
-# Handle errors from contarcts
+# Handle errors from contracts
+To understand why placing or redeeming bet transaction may be reverted, it's highly recommended to handle errors.
 
 In most cases of operation fail, contracts return an error code
 (which is a hex - 4-byte error call selector of error name, for example, `0xfd25ed88` = `SmallOdds` from the Core contract).
@@ -10,18 +11,17 @@ You can log and handle these errors for a better UX (show to your user what exac
 All errors are included in contracts ABI.
 
 <Callout type="info">
-  Please note, the error can be transmitted from different ABI for a transaction
-  (e.g. "bet" in ProxyFront may return an error from ProxyFront, LP or Core)
-  and may be nested in a sublevel of an error.
+  Please note, the error can be transmitted from different ABI for a transaction and may be nested in a sublevel of an error.
+  E.g. "bet" in ProxyFront may return an error from ProxyFront, LP or Core (Prematch / Express).
 </Callout>
 
 ### Example of universal getter of contract error (wagmi/viem)
 
 ```ts copy filename=getContractErrorInfo.ts
 import { decodeErrorResult, isHex } from 'viem'
-import { coreABI, freebetABI, proxyFrontABI, lpABI } from 'path/to/abi'
+import { coreABI, expressABI, freebetABI, proxyFrontABI, lpABI } from 'path/to/abi'
 
-const abis = [ coreABI, lpABI, freebetABI, proxyFrontABI ]
+const abis = [ coreABI, expressABI, lpABI, freebetABI, proxyFrontABI ]
 
 const getContractErrorHashFromError = (error: any): string | undefined => {
   if (error?.version && /viem/.test(error.version)) {
@@ -67,3 +67,11 @@ export default function getContractErrorInfo(error: any) {
   }
 }
 ```
+
+## Some contract errors description
+
+#### TooLargeReinforcement
+`0x46980695` = `TooLargeReinforcement(uint256 conditionId)`
+
+This error from ExpressCore, each condition has dynamic limit of maximum total payout.
+If it's thrown, it means that limit is reached and all combo bets with this condition can't be accepted anymore.
