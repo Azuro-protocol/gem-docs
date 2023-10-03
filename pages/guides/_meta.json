@@ -6,5 +6,9 @@
   "place-a-bet": "Place a Bet",
   "get-bets-history": "Get Bets History",
   "redeem-bets": "Redeem Bets",
-  "handle-contract-errors": "Handle Contract Errors"
+  "handle-contract-errors": "Handle Contract Errors",
+  "---": {
+    "type": "separator"
+  },
+  "freebets": "Freebets"
 }
