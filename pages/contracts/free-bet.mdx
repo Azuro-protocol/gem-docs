@@ -1,39 +1,39 @@
 import { PageHeadline, Callout } from 'components'
 
 <PageHeadline
-  title="FreeBet"
-  subTitle="A tool that enables granting free bets to any user"
+  title="Freebet"
+  subTitle="A tool that enables granting freebets to any user"
 />
 
 <Callout type="info">
   This contract does not affect the logic of a Pool's contracts
 </Callout>
 
-The FreeBet contract enables users to place free bets on any [PrematchCore](/contracts/prematch-core) contract.
+The FreeBet contract enables users to place freebets on any [PrematchCore](/contracts/prematch-core) contract.
 Each FreeBet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
-Additionally, each FreeBet contract is limited to a particular affiliate address to offer free bets exclusively to their
-customers. It's important to note that when a free bet wins, the bettor receives only the difference between the winnings
+Additionally, each FreeBet contract is limited to a particular affiliate address to offer freebets exclusively to their
+customers. It's important to note that when a freebet wins, the bettor receives only the difference between the winnings
 and the original bet amount.
 
 ## Key Features
 
 ### 1. Bet Placement
-The FreeBet contract handles everything related to placing the granted bet on behalf of the user.
+The Freebet contract handles everything related to placing the granted bet on behalf of the user.
 
 ### 2. Withdraw Winnings
-Users can withdraw their winnings from the [LP](/contracts/lp) through the FreeBet contract.
+Users can withdraw their winnings from the [LP](/contracts/lp) through the Freebet contract.
 
 ## Limitation to Affiliate Address
-To ensure that free bets are granted only to specific customers, the FreeBet contract restricts the distribution to
+To ensure that freebets are granted only to specific customers, the Freebet contract restricts the distribution to
 a certain affiliate address.
 
 ## Claimable Feature
-The FreeBet distribution process is cost-effective for frontend operators. Customers will cover the gas fees for the
+The Freebet distribution process is cost-effective for frontend operators. Customers will cover the gas fees for the
 `bet` transaction, and the claim fee will be included as part of this process. This reduces the operational
-costs associated with distributing free bets.
+costs associated with distributing freebets.
 
-For more detailed information on how to distribute free bets, please refer to the
-[Free Bets Distribution Guide](/guides/freebets/distribute-freebets).
+For more detailed information on how to distribute freebets, please refer to the
+[Freebets Distribution Guide](/guides/freebets/distribute-freebets).
 
 ### Reference
 
@@ -44,4 +44,6 @@ For more detailed information on how to distribute free bets, please refer to th
 
 ### Guides
 
+- [Overiew](/guides/freebets/overview)
 - [Distribute Freebets](/guides/freebets/distribute-freebets)
+- [Use freebets in UI](/guides/freebets/use-freebets)
