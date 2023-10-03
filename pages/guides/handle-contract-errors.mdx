@@ -70,8 +70,16 @@ export default function getContractErrorInfo(error: any) {
 
 ## Some contract errors description
 
+#### SmallOdds
+`0xfd25ed88` = `SmallOdds`
+
+Core contracts (prematch/express) calculates odds for a bet on thy fly. This error means that final odds are lower than passed `minOdds` param.
+
+We recommend to calculate odds with amount of bet and add a slippage before customer sent the placing bet transaction.
+
 #### TooLargeReinforcement
 `0x46980695` = `TooLargeReinforcement(uint256 conditionId)`
 
-This error from ExpressCore, each condition has dynamic limit of maximum total payout.
+This error from ExpressCore, the maximum possible winnings for one Condition in all bets are limited to a fixed amount.
+See details in [Contracts section](/contracts/bet-express).
 If it's thrown, it means that limit is reached and all combo bets with this condition can't be accepted anymore.
