@@ -27,12 +27,14 @@ and the original bet amount.** The amount of the freebet will be returned to you
 
 <Callout type="info">
   Example of the flow:
-  1. Distribute freebet for 5 USDT.\
-  _Contract balance isn't changed_
-  2. The customer places a bet on an outcome with odds 1.5. Potential payout: 7.5 USDT.\
-  _Contract balance is reduced for bet amount - 5 USDT transferred to LP._
-  3. Bet wins, after redeeming:
-  - The customer will receive: 2.5 USDT
-  - Your freebet contract will receive: 5 USDT
+  1. Top up the balance of [ERC20 bet token](/contracts/deployment-addresses#contracts-production) on your freebet contract.\
+  _Let use for this example Gnosis chain, bet token is **WXDAI** (wrapped XDAI)._
+  1. Distribute a freebet for 5 WXDAI.\
+  _Contract balance isn't changed._
+  2. The customer places a bet on an outcome with odds 1.5. Potential payout: 7.5 WXDAI.\
+  _Contract balance is reduced for bet amount - 5 WXDAI transferred to the LP._
+  3. Bet wins, after redeeming:\
+  _The customer will receive: 2.5 WXDAI._\
+  _Your freebet contract will receive: 5 WXDAI._
 </Callout>
 
