@@ -14,20 +14,23 @@ But we do not recommend abusing this feature: when trying to use the freebet, th
 - The FreeBet distribution process is cost-effective for frontend operators. Customers will cover the gas fees for the
 `bet` transaction, and the claim fee will be included as part of this process. This reduces the operational
 costs associated with distributing free bets.
-- When a free bet is claimed by the customer, the amount of the free bet becomes locked on the contract (`lockedReserve = prevLockedReserve + amount`).
+- When a free bet is claimed by the customer, the amount of the free bet is transferred from contract balance to LP.
 - If freebet isn't claimed before expiration time, it just becomes expired, doesn't require any actions and disappears from available freebets list for the customer in rest api.
 [Read how to use freebets in UI](/guides/freebets/use-freebets).
 - **When a free bet wins, the bettor receives only the difference between the winnings
 and the original bet amount.** The amount of the free bet will be returned to your contract balance.
 
 <Callout type="info">
-  Example:\
-  Free bet amount: 5 USDT.\
-  The customer places a bet on an outcome with odds 1.5. Potential payout: 7.5 USDT.\
-  Bet wins, after redeeming:
+  Example of the flow:
+  1. Distribute free bet amount: 5 USDT.\
+  _Contract balance isn't changed_
+  2. The customer places a bet on an outcome with odds 1.5. Potential payout: 7.5 USDT.\
+  _Contract balance is reduced for bet amount - 5 USDT transferred to LP._
+  3. Bet wins, after redeeming:
   - The customer will receive: 2.5 USDT (from the LP).
   - Your free bet contract will return: 5 USDT (from lockedReserve).
 </Callout>
+
 
 ## Distribute Freebets
 
