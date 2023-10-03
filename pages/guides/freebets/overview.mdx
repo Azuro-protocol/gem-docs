@@ -10,10 +10,9 @@ A tool that enables granting freebets to any user.
 The Freebet contract enables users to place freebets on any [PrematchCore](/contracts/prematch-core) contract.
 Each freebet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
 
-Each Freebet contract is limited to a particular affiliate address to offer freebets exclusively to your
-customers.
-
 **Key notes:**
+- Each Freebet contract is limited to a particular affiliate address to offer freebets exclusively to your
+customers.
 - Distribution of freebets doesn't lock any liquidity before claim. You can create as much freebets as you want (even if available balance doesn't cover total amount).
 But we do not recommend abusing this feature: when trying to use the freebet, the customer will receive an error if the available balance is not enough.
 - The Freebet distribution process is cost-effective for frontend operators (off-chain). Customers will pay the gas fees for the
