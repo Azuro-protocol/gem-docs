@@ -1,0 +1,37 @@
+import { Callout } from 'components'
+
+# Freebets
+A tool that enables granting free bets to any user.
+
+- [Contract details](/contracts/free-bet)
+- [Distribution guide](/guides/freebets/distribute-freebets)
+- [Using freebets in the UI guide](/guides/freebets/use-freebets)
+
+The FreeBet contract enables users to place free bets on any [PrematchCore](/contracts/prematch-core) contract.
+Each FreeBet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
+Additionally, each FreeBet contract is limited to a particular affiliate address to offer free bets exclusively to their
+customers.
+
+**Key notes:**
+- Distribution of freebets doesn't lock any liquidity before claim. You can create as much freebets as you want (even if available balance doesn't cover total amount).
+But we do not recommend abusing this feature: when trying to use the freebet, the customer will receive an error if the available balance is not enough.
+- The FreeBet distribution process is cost-effective for frontend operators. Customers will cover the gas fees for the
+`bet` transaction, and the claim fee will be included as part of this process. This reduces the operational
+costs associated with distributing free bets.
+- When a free bet is claimed by the customer, the amount of the free bet is transferred from contract balance to LP.
+- If freebet isn't claimed before expiration time, it just becomes expired, doesn't require any actions and disappears from available freebets list for the customer in rest api.
+[Read how to use freebets in UI](/guides/freebets/use-freebets).
+- **When a free bet wins, the bettor receives only the difference between the winnings
+and the original bet amount.** The amount of the free bet will be returned to your contract balance.
+
+<Callout type="info">
+  Example of the flow:
+  1. Distribute free bet amount: 5 USDT.\
+  _Contract balance isn't changed_
+  2. The customer places a bet on an outcome with odds 1.5. Potential payout: 7.5 USDT.\
+  _Contract balance is reduced for bet amount - 5 USDT transferred to LP._
+  3. Bet wins, after redeeming:
+  - The customer will receive: 2.5 USDT
+  - Your freebet contract will receive: 5 USDT
+</Callout>
+
