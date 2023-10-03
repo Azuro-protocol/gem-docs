@@ -1,14 +1,41 @@
-import { Image, Callout } from 'components'
+import { Image, Callout, Button } from 'components'
 
-# Distribute Freebets
+# Freebets
+A tool that enables granting free bets to any user. [Contract details](/contracts/free-bet)
+
+The FreeBet contract enables users to place free bets on any [PrematchCore](/contracts/prematch-core) contract.
+Each FreeBet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
+Additionally, each FreeBet contract is limited to a particular affiliate address to offer free bets exclusively to their
+customers.
+
+**Key notes:**
+- Distribution of freebets doesn't lock any liquidity before claim. You can create as much freebets as you want (even if available balance doesn't cover total amount).
+But we do not recommend abusing this feature: when trying to use the freebet, the customer will receive an error if the available balance is not enough.
+- The FreeBet distribution process is cost-effective for frontend operators. Customers will cover the gas fees for the
+`bet` transaction, and the claim fee will be included as part of this process. This reduces the operational
+costs associated with distributing free bets.
+- When a free bet is claimed by the customer, the amount of the free bet becomes locked on the contract (`lockedReserve = prevLockedReserve + amount`).
+- If freebet isn't claimed before expiration time, it just becomes expired, doesn't require any actions and disappears from available freebets list for the customer in rest api.
+[Read how to use freebets in UI](/guides/freebets/use-freebets).
+- **When a free bet wins, the bettor receives only the difference between the winnings
+and the original bet amount.**
+
+## Distribute Freebets
 
 To get started with distributing FreeBets, follow these steps:
 
-1. **Request FreeBet Contracts**: Begin by making a request to the Azuro Protocol team to create FreeBet
+1. **Request FreeBet Contracts**: Begin by making a [request to the Azuro Protocol team](https://azuro.typeform.com/freebetpanel) to create FreeBet
 contracts for your use. Once approved, you will gain access to our Free Bets admin panel, and your new contracts
 integrated into our subgraphs. As the contract owner, you have the flexibility to withdraw
 funds from the marketing budget at any time. Additionally, FreeBet contracts will be deployed exclusively
 for your affiliate address, ensuring that your funds are allocated solely to your frontend.
+
+<div className="px-6">
+  <Button
+    toTab="https://azuro.typeform.com/freebetpanel"
+    title="Request contracts"
+  />
+</div>
 
 2. **Provide Liquidity**: To check the liquidity balance, use the `balanceOf(freebetAddress)` function on the token
 contract. You can top up your contract by simply sending tokens to your contract address, just as you would with
@@ -27,7 +54,7 @@ function on the FreeBet contract.
   execution.
 </Callout>
 
-# Distribute Freebets with Azuro Admin Panel
+## Distribute Freebets with Azuro Admin Panel
 
 Follow these steps to distribute Freebets using the Azuro Freebets Admin Panel:
 
@@ -57,6 +84,11 @@ and the safe balance for your new campaign.
    - Minimum odds for a bet
 
 Additionally, please provide a list of the addresses for distribution.
+
+<Callout type="info">
+  Distribution of freebets doesn't lock any liquidity before claim. You can create as much freebets as you want (even if available balance doesn't cover total amount).
+  But we do not recommend abusing this feature: when trying to use the freebet, the customer will receive an error if the available balance is not enough.
+</Callout>
 
 <Image
   src="/images/freebets-admin/03.png"
