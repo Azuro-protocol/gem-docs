@@ -93,13 +93,18 @@ query Game($id: String!) {
 Here we receive a list of conditions with related outcomes. After this we need to get the `marketKey` for each outcome.
 Using this key we can group outcomes.
 
-```ts
-import { getMarketKey } from '@azuro-org/dictionaries'
+```ts {7-10}
+import { dictionaries, getMarketKey } from '@azuro-org/dictionaries'
 
 const outcomesByMarkets = {}
 
 conditions.forEach(({ conditionId, outcomes }) => {
   outcomes.forEach(({ outcomeId, currentOdds }) => {
+    // for support old versions of dictionaries use outcomes dictionary as white-list for outcomes
+    if (!dictionaries.outcomes[outcomeId]) {
+      return
+    }
+
     const marketKey = getMarketKey(outcomeId)
 
     const outcome = {
