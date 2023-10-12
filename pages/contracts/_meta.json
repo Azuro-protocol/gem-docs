@@ -2,7 +2,7 @@
   "overview": "Overview",
   "deployment-addresses": "Deployment Addresses",
   "audits": "Audits",
-  "potential-errors": "Potential Errors",
+  "errors-handling": "Errors Handling",
   "---": {
     "type": "separator"
   },
