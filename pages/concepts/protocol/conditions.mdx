@@ -10,16 +10,17 @@ The following is an example of data used in a [pre-match](/contracts/prematch-co
 
 ```json
 {
-  "gameId": 1567913801,
-  "funds": [ 9042226398630705800000, 8942920756775340683000 ],  // The outcome fund is equal to the total volume of bets on the Condition + reinforcement - potential payouts in the event of the opposing outcome winning
-  "virtualFunds": [ 3444665423020949702439, 5540481732385096780561 ], // Used to calculate odds
-  "reinforcement": 9000000000000000000000,
-  "affiliatesReward": 0, // The Condition turned out to be unprofitable
-  "outcomes": [ 6977, 6978 ],
-  "outcomeWin": 6977,
-  "margin": 75000000000, // 7.5%
-  "oracle": "0x67f15dD0AbA990362607B11C52A1d920b732580a", // Condition creator address
-  "state": 1, // Resolved
-  "leaf": 1099511627964 // The leaf of Liquidity Tree
+    "gameId": 1579291089,
+    "payouts": [ 3750983690100000000, 0 ], // Potential payouts for each outcome of the Condition
+    "virtualFunds": [ 18817805231211999000000, 12434194768788001000000 ], // Used to calculate odds
+    "totalNetBets": 2000000000000000000, // The total amount of net bets placed in the Condition
+    "reinforcement": 31250000000000000000000,
+    "fund": 31252000000000000000000, // totalNetBets + reinforcement
+    "margin": 75000000000, // 7.5%
+    "lastDepositId": 1099511628233, // The ID of the last deposit in the Liquidity Pool at the time of creating the Condition
+    "winningOutcomesCount": 1,
+    "state": 1, // Resolved
+    "oracle": '0xF5B1216d1c1c1C075f7a11f44A975C291A291869', // Condition creator address
+    "isExpressForbidden": false // The condition can be used in a combo bet
 }
 ```
