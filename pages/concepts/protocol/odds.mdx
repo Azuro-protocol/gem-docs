@@ -21,18 +21,18 @@ the following formula:
 
 <Formula>
 $$
-  o_{i}=\frac{F_{0} + F_{1}} {F_{i}},\text{where } F_i \text{ is a virtual fund of the outcome } i
+  o_{i}=\frac{F_{0} + ... + F_{n}} {F_{i}},\text{where } F_i \text{ is a virtual fund of the outcome } i
 $$
 </Formula>
 
-Also the betting odds are adjusted according to the profit margin size set when creating the Condition. In order for
+Also, the betting odds are adjusted according to the profit margin size set when creating the Condition. In order for
 the betting app to make a profit, the final odds are decreased by the size of the outcome **spread**, which is calculated
 based on the probability of the outcome and the profit margin. The probability of the outcome is calculated as the
 reciprocal of the net odds of the outcome:
 
 <Formula>
 $$
-  p_{i}=\frac{1}{o_i}=\frac{F_i} {F_0+F_1}\text{, where } F_i \text{ is a virtual fund of the outcome } i
+  p_{i}=\frac{1}{o_i}=\frac{F_i} {F_{0} + ... + F_{n}}\text{, where } F_i \text{ is a virtual fund of the outcome } i
 $$
 </Formula>
 
@@ -41,13 +41,13 @@ probability of the outcome. The spread for odds is calculated in such a way that
 
 <Formula>
 $$
-  \frac{s_{1}}{s_{0}} = \frac{p_{0}}{p_{1}}
+  \forall j \neq i :\frac{s_{i}}{s_{j}} = \frac{p_{j}}{p_{i}}
 $$
 </Formula>
 
 <Formula>
 $$
-  \forall i :s_{i} = 1 - p_{i} o_{i}
+  s_{i} = 1 - p_{i} o_{i}
 $$
 </Formula>
 
@@ -78,11 +78,11 @@ $$
 $$
 </Formula>
 
-After the bet has been accepted, the virtual fund of the other outcome changes as follows:
+After the bet on outcome i has been accepted, the virtual fund of other outcomes changes as follows:
 
 <Formula>
 $$
-  F_{1-i}\mathrel{{-}{=}}payout-a,\text{where } a \text{ is a bet amount}
+  F_{j \neq i}\mathrel{{-}{=}}payout-a,\text{where } a \text{ is a bet amount}
 $$
 </Formula>
 

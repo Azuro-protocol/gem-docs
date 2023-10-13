@@ -2,18 +2,13 @@ import { PageHeadline } from 'components'
 
 <PageHeadline
   title="PrematchCore"
-  subTitle="A Betting Engine for pre-match 2-outcomes betting"
+  subTitle="A Betting Engine for multi-outcome pre-match betting"
 />
 
-The PrematchCore contract implements all the necessary logic for conducting pre-match betting with 2 possible outcomes.
-2-outcome [Conditions](/concepts/protocol/conditions) can be combined with each other to create markets with any amount
-of possible outcomes. (E.g. in a horse races with 12 horses, each condition can consist of Horse X Win or any other,
-Horse Y Win or any other, Horse Z Win or any other, and so forth).
-
-Currently, PrematchCore is the only type of [Betting Engine](/concepts/protocol/betting-engines) in use. Through it,
-[data providers](/concepts/basic/data-providers) can create Conditions for games that
-have not yet started on the [LP](/contracts/lp) contract to which the PrematchCore contract belongs, providing
-information about the winning outcome after the result is known.
+The PrematchCore is a [Betting Engine](/concepts/protocol/betting-engines) contract implements all the necessary logic
+for conducting pre-match betting with multiple outcomes. [Data providers](/concepts/basic/data-providers) can create
+Conditions for games that have not yet started on the [LP](/contracts/lp) contract to which the PrematchCore contract
+belongs, providing information about the winning outcomes after the result is known.
 
 Before the Game starts, anyone can place a bet on one of the two outcomes of the Condition through LP contract and
 receive an ERC-721 [AzuroBet](/contracts/azuro-bet) token, representing the right to own the bet. The betting odds are
