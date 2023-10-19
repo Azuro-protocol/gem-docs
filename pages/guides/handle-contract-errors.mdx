@@ -10,12 +10,15 @@ In most cases of operation fail, contracts return an error code
 You can log and handle these errors for a better UX (show to your user what exactly went wrong) and support.
 All errors are included in contracts ABI.
 
+See detailed description in [Contracts section](/contracts/errors-handling).
+
+
+### Example of universal getter of contract error (wagmi/viem)
+
 <Callout type="info">
   Please note, the error can be transmitted from different ABI for a transaction and may be nested in a sublevel of an error.
   E.g. "bet" in ProxyFront may return an error from ProxyFront, LP or Core (Prematch / Express).
 </Callout>
-
-### Example of universal getter of contract error (wagmi/viem)
 
 ```ts copy filename=getContractErrorInfo.ts
 import { decodeErrorResult, isHex } from 'viem'
@@ -67,19 +70,3 @@ export default function getContractErrorInfo(error: any) {
   }
 }
 ```
-
-## Some contract errors description
-
-#### SmallOdds
-`0xfd25ed88` = `SmallOdds`
-
-Core contracts (prematch/express) calculates odds for a bet on thy fly. This error means that final odds are lower than passed `minOdds` param.
-
-We recommend to calculate odds with amount of bet and add a slippage before customer sent the placing bet transaction.
-
-#### TooLargeReinforcement
-`0x46980695` = `TooLargeReinforcement(uint256 conditionId)`
-
-This error from ExpressCore, the maximum possible winnings for one Condition in all bets are limited to a fixed amount.
-See details in [Contracts section](/contracts/bet-express).
-If it's thrown, it means that limit is reached and all combo bets with this condition can't be accepted anymore.
