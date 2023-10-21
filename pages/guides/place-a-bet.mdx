@@ -283,6 +283,12 @@ See details on structure and how to fetch in [Use Freebets](/contracts/guides/us
   To apply freebet, `outcome.rawMinOdds` should be greater than `freebet.minOdds`. The bet should be single - freebets aren't applicable to combo bets.
 </Callout>
 
+<Callout type="warning">
+  Please note that we provide you with the flexibility to distribute Freebets without a budget limitation.
+  However, if your customers claim Freebets for an amount exceeding the freebet contract balance,
+  they will encounter an error during the smart contract execution call.
+</Callout>
+
 <Tabs items={[ 'Ethers', 'Wagmi' ]}>
 <Tab>
   ```ts

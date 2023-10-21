@@ -4,9 +4,10 @@ import { Image, Callout, Button } from 'components'
 
 _Read [overview](/guides/freebets/overview) first to understand key features of freebet tool._
 
-To get started with distributing Freebets, follow these steps:
+## Keynotes
 
-1. **Request Freebet Contracts**: Begin by making a [request to the Azuro Protocol team](https://azuro.typeform.com/freebetpanel) to create Freebet
+### Request Freebet Contracts
+Begin by making a [request to the Azuro Protocol team](https://azuro.typeform.com/freebetpanel) to create Freebet
 contracts for your use. Once approved, you will gain access to our Freebets admin panel, and your new contracts
 integrated into our subgraphs. As the contract owner, you have the flexibility to withdraw
 funds from the marketing budget at any time. Additionally, Freebet contracts will be deployed exclusively
@@ -19,47 +20,57 @@ for your affiliate address, ensuring that your funds are allocated solely to you
   />
 </div>
 
-2. **Provide Liquidity**: To check the liquidity balance, use the `balanceOf(freebetAddress)` function on the token
+### Provide Liquidity
+To check the liquidity balance, use the `balanceOf(freebetAddress)` function on the token
 contract. You can top up your contract by simply sending tokens to your contract address, just as you would with
 a regular ERC-20 transfer.
 
-3. **Withdraw Liquidity**: When you wish to withdraw liquidity from the contract, call the `withdrawReserve(amount)`
+### Withdraw Liquidity
+When you wish to withdraw liquidity from the contract, call the `withdrawReserve(amount)`
 function. Keep in mind that only tokens not reserved for Freebets can be withdrawn.
 To release reserved tokens, use the `resolvePayout(freeBetIds[])` function, especially when customers have not
 resolved their Freebets (i.e., they haven't claimed their bets).
-
-4. **Locked Reserve**: You can check the amount of locked tokens that cannot be withdrawn by using the `lockedReserve`
-function on the Freebet contract.
 
 <Callout type="info">
   We recommend limiting the IDs provided to the `resolvePayout` function parameters to avoid errors during transaction
   execution.
 </Callout>
 
+### Locked Reserve
+You can check the amount of locked tokens that cannot be withdrawn by using the `lockedReserve`
+function on the Freebet contract.
+
+### Budget Limitation
+Please note that we provide you with the flexibility to distribute Freebets
+without a budget limitation. However, if your customers claim Freebets for an amount exceeding what you've provided
+to the contract, they will encounter an error during the smart contract execution call.
+
 ## Distribute Freebets with Azuro Admin Panel
 
 Follow these steps to distribute Freebets using the Azuro Freebets Admin Panel:
 
-1. **Sign In to Azuro Freebets Admin Panel**: Start by signing in to the Azuro Freebets Admin Panel using
-your credentials.
+### 1. Sign In to Admin Panel
+Start by signing in to the Azuro Freebets Admin Panel using your credentials.
 
 <Image
-  src="/images/freebets-admin/01.png"
+  src="/images/freebets/admin/01.png"
   width={1382}
   height={1020}
 />
 
-2. **View Available Contracts**: Upon logging in, you'll see a list of contracts that you can use to distribute
+### 2. View Available Contracts
+Upon logging in, you'll see a list of contracts that you can use to distribute
 Freebets to your customers. The list includes contract balance, locked reserve, issued Freebets,
 and the safe balance for your new campaign.
 
 <Image
-  src="/images/freebets-admin/02.png"
+  src="/images/freebets/admin/02.png"
   width={2860}
   height={1662}
 />
 
-3. **Create a New Freebets Campaign**: To create a new Freebets campaign, provide the following details:
+### 3. Create a New Freebets Campaign
+To create a new Freebets campaign, provide the following details:
    - Contract address
    - Expiration date
    - Amount for each Freebet
@@ -73,7 +84,7 @@ Additionally, please provide a list of the addresses for distribution.
 </Callout>
 
 <Image
-  src="/images/freebets-admin/03.png"
+  src="/images/freebets/admin/03.png"
   width={2024}
   height={1596}
 />
@@ -81,24 +92,21 @@ Additionally, please provide a list of the addresses for distribution.
 **Successful Campaign Creation**: After successfully creating your Freebets campaign,
 you will see a confirmation message.
 <Image
-  src="/images/freebets-admin/04.png"
+  src="/images/freebets/admin/04.png"
   width={1496}
   height={292}
 />
 
- **Check Active Campaigns**: To review your active Freebets campaigns, click on the "Details" button.
+### Check Active Campaigns
+To review your active Freebets campaigns, click on the "Details" button.
 
 <Image
-  src="/images/freebets-admin/05.png"
+  src="/images/freebets/admin/05.png"
   width={2588}
   height={1304}
 />
 
-6. **Note on Budget Limitation**: Please note that we provide you with the flexibility to distribute Freebets
-without a budget limitation. However, if your customers claim Freebets for an amount exceeding what you've provided
-to the contract, they will encounter an error during the smart contract execution call.
-
 By following these steps, you can efficiently distribute Freebets to your customers and manage your campaigns
 using the Azuro Freebets Admin Panel.
 
-If you have any questions or require assistance, please don't hesitate to contact our support team.
+If you have any questions or require assistance, please don't hesitate to contact [our support team](mailto:team@azuro.org).

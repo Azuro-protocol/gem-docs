@@ -1,4 +1,4 @@
-import { Callout } from 'components'
+import { Callout, Image, Button } from 'components'
 
 # Freebets
 A tool that enables granting freebets to any user.
@@ -10,7 +10,35 @@ A tool that enables granting freebets to any user.
 The Freebet contract enables users to place freebets on any [PrematchCore](/contracts/prematch-core) contract.
 Each freebet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
 
-**Key notes:**
+### Lifecycle
+
+1. You issue a freebet for a certain amount and with a specific deadline in the admin panel from yours freebet contract to the user's address.
+_How-to in [Distribution guide](/guides/freebets/distribute-freebets) section._
+2. The user accesses your application's UI, sees a notification that a freebet is available to them until a certain date.
+_How-to in [Use freebets](/guides/freebets/use-freebets) section._
+3. The user places a bet using the provided freebet*. _(How-to in [Place a bet](/guides/place-a-bet#place-a-freebet) section)_
+4. After the event is resolved:
+* If the bet wins, when the user claims their winnings (_how-to in [Redeem bets](/guides/redeem-bets#freebet-redeem) section_), they receive a profit from the win (payout - freebet amount),
+and the amount of the issued freebet is returned to the freebet contract balance.
+* If the bet loses, the freebet amount contributes to the revenue of the LP with your affiliate address.
+
+\* If the user fails to use the freebet by the deadline date, the freebet amount is returned to the balance of your freebet contract.
+
+<Image
+  className="hidden dark:block"
+  src="/images/freebets/lifecycle-dark.png"
+  width={1616}
+  height={1322}
+/>
+
+<Image
+  className="block dark:hidden"
+  src="/images/freebets/lifecycle-light.png"
+  width={1616}
+  height={1322}
+/>
+
+### Keynotes
 - Each Freebet contract is limited to a particular affiliate address to offer freebets exclusively to your
 customers.
 - Distribution of freebets doesn't lock any liquidity before claim. You can create as much freebets as you want (even if available balance doesn't cover total amount).
@@ -38,3 +66,23 @@ and the original bet amount.** The amount of the freebet will be returned to you
   _Your freebet contract will receive: 5 WXDAI._
 </Callout>
 
+## Start using freebets
+
+1. **Request Freebet Contracts**: Begin by making a [request to the Azuro Protocol team](https://azuro.typeform.com/freebetpanel) to create Freebet
+contracts for your use. Once approved, you will gain access to our Freebets admin panel, and your new contracts
+integrated into our subgraphs. As the contract owner, you have the flexibility to withdraw
+funds from the marketing budget at any time. Additionally, Freebet contracts will be deployed exclusively
+for your affiliate address, ensuring that your funds are allocated solely to your frontend.
+
+<div className="px-6">
+  <Button
+    toTab="https://azuro.typeform.com/freebetpanel"
+    title="Request access"
+  />
+</div>
+
+2. **Provide Liquidity**: To check the liquidity balance, use the `balanceOf(freebetAddress)` function on the token
+contract or use UI of Freebets admin panel. You can top up your contract by simply sending tokens to your contract address, just as you would with
+a regular ERC-20 transfer.
+
+3. [Distribute freebets with admin panel](/guides/freebets/distribute-freebets#distribute-freebets-with-azuro-admin-panel).

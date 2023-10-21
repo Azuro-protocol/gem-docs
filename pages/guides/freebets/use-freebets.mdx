@@ -3,15 +3,14 @@ import { Tab, Tabs } from 'nextra-theme-docs'
 
 # Use Freebets
 
-Use the [Azuro Freebets API](https://api.azuro.org/api/v1/public/freebets/docs/static/index.html) to get info about
-new freebets distributed for the customers.
-
-To use a freebet, the user needs to call the `redeem` function.
-
-To claim their winnings or refunds if the condition was canceled users should call the `withdrawPayout` function.
+To use a freebet, the user needs:
+1. See available freebet list (fetched from the azuro api) in the UI.
+2. Call the `bet` function on the Freebet contract with data from available freebet.
+3. To claim their winnings or refunds if the condition was canceled users should call the `withdrawPayout` function.
 
 
 ### Fetch available freebets
+Use the [Azuro Freebets API](https://api.azuro.org/api/v1/public/freebets/docs/static/index.html) to get info about new freebets distributed for the customers.
 
 ```ts copy
 type Address = `0x${string}`
@@ -79,6 +78,12 @@ If you're not familiar with generic logic around placing a bet, please read [Gui
 
 <Callout type="warning">
   To apply freebet, `outcome.rawMinOdds` should be greater than `freebet.minOdds`. The bet should be single - freebets aren't applicable to combo bets.
+</Callout>
+
+<Callout type="warning">
+  Please note that we provide you with the flexibility to distribute Freebets without a budget limitation.
+  However, if your customers claim Freebets for an amount exceeding the freebet contract balance,
+  they will encounter an error during the smart contract execution call.
 </Callout>
 
 <Tabs items={[ 'Ethers', 'Wagmi' ]}>
