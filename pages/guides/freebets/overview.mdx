@@ -10,7 +10,9 @@ A tool that enables granting freebets to any user.
 The Freebet contract enables users to place freebets on any [PrematchCore](/contracts/prematch-core) contract.
 Each freebet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
 
-### Lifecycle
+## Lifecycle
+
+Let's consider the life cycle of a free bet, omitting technical details:
 
 1. You issue a freebet for a certain amount and with a specific deadline in the admin panel from yours freebet contract to the user's address.
 _How-to in [Distribution guide](/guides/freebets/distribute-freebets) section._
@@ -38,7 +40,7 @@ and the amount of the issued freebet is returned to the freebet contract balance
   height={1322}
 />
 
-### Keynotes
+## Keynotes
 - Each Freebet contract is limited to a particular affiliate address to offer freebets exclusively to your
 customers.
 - Distribution of freebets doesn't lock any liquidity before claim. You can create as much freebets as you want (even if available balance doesn't cover total amount).
