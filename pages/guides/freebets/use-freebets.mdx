@@ -44,12 +44,8 @@ type RestFreebet = {
   }
 }
 
-const baseUrl = isDev
-  ? 'https://dev-api.azuro.org/api'
-  : 'https://api.azuro.org/api'
-
 const freebetFetcher = async (bettorAddress: string): Promise<RestFreebet[]> => {
-  const response = await axios.get<RestFreebet[]>(`${baseUrl}/v1/public/freebets/list`, {
+  const response = await axios.get<RestFreebet[]>('https://api.azuro.org/api/v1/public/freebets/list', {
     params: {
       owner: bettorAddress.toLowerCase(),
       affiliate: '0x...', // your affiliate address
