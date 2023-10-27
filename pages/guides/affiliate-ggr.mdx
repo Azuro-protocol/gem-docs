@@ -81,7 +81,7 @@ const totalBetAmount = bets.reduce((e: number, {amount}) => e+Number(amount), 0)
 const totalWonAmount = bets.reduce((e: number, {payout}) => e+Number(payout), 0);
 ```
 
-## **Calculating GGR for a Specific Period of Time**
+## Calculating GGR for a Specific Period of Time
 
 ```graphql
 where: {
@@ -96,7 +96,7 @@ where: {
 - `$since`: The start date for the date range within which bets should be considered.
 - `$until`: The end date for the date range within which bets should be considered.
 
-## **Calculating GGR for Each User**
+## Calculating GGR for Each User
 
 To calculate the GGR for each user based on the above formulas, follow these steps:
 
