@@ -8,8 +8,8 @@ This documentation provides step-by-step instructions on how to calculate Gross 
 
 The GraphQL query used to retrieve the necessary data for calculating GGR per user is as follows:
 
-```
-{
+```graphql
+query Bets {
   bets(
     where: {
       status: Resolved,
