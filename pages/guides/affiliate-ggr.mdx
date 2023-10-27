@@ -12,10 +12,8 @@ The GraphQL query used to retrieve the necessary data for calculating GGR per us
 query Bets {
   bets(
     where: {
-      status: Resolved,
+      status_in: [Resolved, Canceled],
       _isFreebet: false,
-      resolvedBlockTimestamp_gte: $since,
-      resolvedBlockTimestamp_lte: $until,
       affiliate: $affiliate
     }
     first: 1000,
@@ -24,15 +22,12 @@ query Bets {
     bettor
     amount
     payout
-    result
   }
 }
 ```
 
 Explaining Variables:
 
-- `$since`: The start date for the date range within which bets should be considered.
-- `$until`: The end date for the date range within which bets should be considered.
 - `$affiliate`: The affiliate ID for which GGR is being calculated.
 - `$skip`: Used for pagination to skip a certain number of records when fetching data.
 
@@ -68,23 +63,53 @@ totalBetAmount = sum(bet.amount) for all bets
 - To calculate the `totalWonAmount`, sum up  the `payout` for each winning bet retrieved from the GraphQL query:
 
 ```
-totalWonAmount = sum(bet.payout) for all winning bets
+totalWonAmount = sum(bet.payout) for all winning or canceled bets
 ```
 
-## Calculating GGR for Each User
+## Calculating Affiliate's GGR
+
+To calculate the GGR for a specific affiliate:
+
+- Execute the GraphQL query with the affiliate's identifier.
+- Apply the GGR formula as described above.
+
+```tsx
+
+. . .
+// Sum up bet payouts and amounts
+const totalBetAmount = bets.reduce((e: number, {amount}) => e+Number(amount), 0);
+const totalWonAmount = bets.reduce((e: number, {payout}) => e+Number(payout), 0);
+```
+
+## **Calculating GGR for a Specific Period of Time**
+
+```graphql
+where: {
+      status_in: [Resolved, Canceled],
+      _isFreebet: false,
+      resolvedBlockTimestamp_gte: $since,
+      resolvedBlockTimestamp_lte: $until,
+      affiliate: $affiliate
+}
+```
+
+- `$since`: The start date for the date range within which bets should be considered.
+- `$until`: The end date for the date range within which bets should be considered.
+
+## **Calculating GGR for Each User**
 
 To calculate the GGR for each user based on the above formulas, follow these steps:
 
 1. Execute the GraphQL query to retrieve bets for the specific affiliate (`$affiliate`) within the specified date range (`$since` to `$until`).
 2. Loop through the retrieved bets:
-    - For each bet, identify the `bettor`, `amount`, `payout`, and `result`.
+    - For each bet, identify the `bettor`, `amount` and `payout`.
 3. Calculate GGR for each user:
     - Initialize an empty dictionary or data structure to store the calculated GGR for each user.
     - For each bet, determine the user who placed the bet.
     - Calculate the GGR for that user using the GGR formula:
 
 ```
-User's GGR = totalBetAmount - totalWonAmount
+GGR = totalBetAmount - totalWonAmount
 ```
 
 4.  Continue this process until you have processed all the retrieved bets.
@@ -98,9 +123,8 @@ import {request, gql} from "graphql-request";
 
 interface BetSpec {
   bettor: string;
-  amount: number;
-  payout: number;
-  result: string;
+  amount: Number;
+  payout: Number;
 }
 
 // Initialize an empty dictionary to store GGR per user
@@ -118,7 +142,7 @@ while (true) {
 
   // Process each bet
   for (const bet of graphRes.bets as BetSpec[]) {
-    const { bettor, amount, payout, result } = bet;
+    const { bettor, amount, payout } = bet;
 
     // Calculate GGR for each bet
     const ggr = amount - payout;
