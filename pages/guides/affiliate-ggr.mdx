@@ -145,8 +145,8 @@ interface BetSpec {
   bettor: string;
   amount: Number;
   payout: Number;
-	odds: Number;
-	_isFreebet: boolean;
+  odds: Number;
+  _isFreebet: boolean;
 }
 
 // Initialize an empty dictionary to store GGR per user
@@ -167,11 +167,11 @@ while (true) {
     const { bettor, amount, payout, odds, _isFreebet } = bet;
 
     // Calculate GGR for each bet
-		if (_isFreebet) {
-	    const ggr = amount - amount * (odds - 1);
-		} else {
-	    const ggr = amount - payout;
-		}
+    if (_isFreebet) {
+      const ggr = amount - amount * (odds - 1);
+    } else {
+      const ggr = amount - payout;
+    }
 
     // Add GGR to the user's total
     if (!ggrPerUser[bettor]) {
