@@ -8,6 +8,7 @@
   "redeem-bets": "Redeem Bets",
   "handle-contract-errors": "Handle Contract Errors",
   "affiliate-ggr": "Get bets made on specific Front(Affiliate)",
+  "azuro-score": "Azuro Score leaderboard",
   "---": {
     "type": "separator"
   },
