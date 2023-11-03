@@ -60,7 +60,7 @@ type ApiResponse = {
 
 ### Fetch total leaderboard
 
-Use [fetch method above](#method-params-and-result-types) without params to get total leaderboard.
+Use [fetch method above](#method-api-params-and-response-types) without params to get total leaderboard.
 
 Such API request returns default 13 rows (ranks: 1-10, 50, 100, 500).
 ```ts
@@ -82,7 +82,7 @@ const rows = await fetchAzuroScore()
 ```
 
 ### Fetch total leaderboard including specific bettor
-Use [fetch method above](#method-params-and-result-types) with `{ address }` param.
+Use [fetch method above](#method-api-params-and-response-types) with `{ address }` param.
 
 Such API request returns default 13 rows (ranks: 1-10, 50, 100, 500) and additional rows around the bettor if their rank is not in the default range.
 ```ts
@@ -112,7 +112,7 @@ const rows = await fetchAzuroScore({
 
 ### Fetch leaderboard for specific period
 
-Use [fetch method above](#method-params-and-result-types) with `{ since, until }` params.
+Use [fetch method above](#method-api-params-and-response-types) with `{ since, until }` params.
 Current Azuro Score multiplier period is WEEK, so pass **MONDAY's 00:00 timestamp in seconds**.
 
 Such API request returns default 13 rows (ranks: 1-10, 50, 100, 500).
@@ -144,7 +144,7 @@ const rows = await fetchAzuroScore({
 
 ### Fetch leaderboard for specific period including specific bettor
 
-Use [fetch method above](#method-params-and-result-types) with `{ since, until, address }` params.
+Use [fetch method above](#method-api-params-and-response-types) with `{ since, until, address }` params.
 Current Azuro Score multiplier period is WEEK, so pass **MONDAY's 00:00 timestamp in seconds**.
 
 Such API request returns:
