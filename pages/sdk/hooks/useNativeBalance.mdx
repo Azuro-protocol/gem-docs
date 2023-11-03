@@ -1,0 +1,20 @@
+Returns native token balance based on appChain
+
+#### Usage
+
+```ts
+import { useNativeBalance } from '@azuro-org/sdk'
+
+const { balance, rawBalance, loading, error } = useNativeBalance()
+```
+
+#### Return Value
+
+```ts
+{
+  balance: string | undefined
+  rawBalance: bigint | undefined
+  loading: boolean
+  error: Error | null
+}
+```

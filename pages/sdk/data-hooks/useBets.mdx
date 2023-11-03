@@ -1,0 +1,90 @@
+Used for fetch bets history for specific bettor.
+
+#### Usage
+
+```ts
+import { useBets } from '@azuro-org/data'
+
+const { loading, error, data: bets } = useBets(props)
+```
+
+#### Note
+
+The hook won't be called until `bettor` value is nullish.
+
+#### Props
+
+```ts
+{
+  filter: {
+    bettor: string // bettor address
+    limit?: number // limit the number of rows returned from a query
+    offset?: number // omit a specified number of rows before the beginning of the result set
+  }
+  orderBy?: Bet_OrderBy // efault: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
+  orderDir?: OrderDirection // order direction: asc, desc
+}
+```
+
+#### Custom query options
+
+To accommodate additional arguments within your GraphQL query, the optimal approach is to create a custom hook. This can be achieved by leveraging the fundamental Apollo `useQuery` hook as your starting point.
+
+```ts
+import { useQuery } from '@apollo/client'
+import { BetsDocument, BetsQueryResult, BetsQueryVariables } from '@azuro-org/sdk'
+
+const options = {
+  // your options
+}
+
+const { loading, error, data } = useQuery<BetsQueryResult, BetsQueryVariables>(BetsDocument, options)
+```
+
+#### Return Value
+
+```ts
+{
+  loading: boolean
+  error: Error | null
+  data: Bet[]
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+
+type BetOutcome = {
+  selectionName: string
+  odds: number
+  marketName: string
+  game: GameQuery['games'][0]
+  isWin: boolean | null
+  isLose: boolean | null
+  isCanceled: boolean
+} & Selection
+
+type Bet = {
+  tokenId: string
+  freebetId: string | null
+  freebetContractAddress?: Address
+  totalOdds: number
+  coreAddress: Address
+  lpAddress: Address
+  outcomes: BetOutcome[]
+  txHash: string
+  status: BetStatus
+  amount: string
+  possibleWin: number
+  payout: number
+  createdAt: number
+  isWin: boolean
+  isLose: boolean
+  isRedeemable: boolean
+  isRedeemed: boolean
+  isCanceled: boolean
+}
+```

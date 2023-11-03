@@ -1,0 +1,41 @@
+Used for fetch lightweight sports data for navigation.
+
+Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+
+You can find the list of available sports [here](https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v2/graphql?query=%7B%0A++sports+%7B%0A++++name%0A++%7D%0A%7D).
+
+#### Usage
+
+```ts
+import { useSportsNavigation } from '@azuro-org/sdk'
+
+
+const { loading, data } = useSportsNavigation(props)
+```
+
+#### Props
+
+```ts
+{
+  withGameCount?: boolean // adds the lightweight games data to sport for counting
+}
+```
+
+#### Return Value
+```ts
+{ 
+  loading: boolean
+  error: Error | null
+  data: { 
+    sports {
+      id
+      slug
+      name
+      // if `withGameCount` props is true includes games data
+      games {
+        id
+      }
+    }
+  }
+}
+```

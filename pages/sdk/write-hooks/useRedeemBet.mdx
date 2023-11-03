@@ -1,0 +1,29 @@
+Hook used for redeem win bet or fefund canceled one
+
+#### Usage
+
+```ts
+import { useRedeemBet } from '@azuro-org/sdk'
+
+
+const { submit, isPending, isProcessing } = useRedeemBet()
+
+submit()
+```
+
+#### Return Value
+```ts
+type SubmitProps = {
+  tokenId: string | bigint
+  coreAddress: Address
+}
+```
+```ts
+{
+  data: WriteContractResult | null
+  error: Error | null
+  submit: (props: SubmitProps) => Promise<TransactionReceipt>
+  isPending: boolean
+  isProcessing: boolean
+}
+```

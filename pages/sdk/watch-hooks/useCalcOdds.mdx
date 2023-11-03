@@ -1,0 +1,62 @@
+Used for calculating odds for bet with provided selections. It also subscribe to odds's changes
+
+#### Usage
+
+Initialize watcher in the root of your app
+
+```ts
+import { useOddsWatcher } from '@azuro-org/sdk'
+
+export function Watchers() {
+  useOddsWatcher()
+
+  return null
+}
+```
+
+Provide selections and bet amount for calculating
+
+```ts
+import { useCalcOdds } from '@azuro-org/sdk'
+
+const { data, isLoading, error } = useCalcOdds({
+  amount: 10,
+  selections: [
+    {
+      conditionId: '486903008559711340',
+      outcomeId: '29',
+    },  
+  ],
+})
+
+const { conditionsOdds, totalOdds } = data
+```
+
+#### Props
+
+```ts
+{
+  selections: Selection[]
+  amount?: string
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+```
+
+#### Return Value
+
+```ts
+{
+  data: {
+    conditionsOdds: bigint[] | undefined
+    totalOdds: bigint | undefined
+    loading: boolean
+    error: Error | null
+  }
+}
+```

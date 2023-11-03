@@ -1,3 +1,19 @@
 {
-  "overview": "Overview"
+  "overview": "Overview",
+  "installation": "Installation",
+  "utils": {
+    "title": "Utils"
+  },
+  "data-hooks": {
+    "title": "Data Hooks"
+  },
+  "write-hooks": {
+    "title": "Write Hooks"
+  },
+  "watch-hooks": {
+    "title": "Watch Hooks"
+  },
+  "hooks": {
+    "title": "Other Hooks"
+  }
 }
