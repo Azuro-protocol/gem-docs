@@ -1,8 +1,8 @@
 {
   "overview": "Overview",
   "installation": "Installation",
-  "contexts": {
-    "title": "Contexts"
+  "providers": {
+    "title": "Providers"
   },
   "utils": {
     "title": "Utils"

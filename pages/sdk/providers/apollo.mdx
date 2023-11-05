@@ -1,0 +1,40 @@
+import { Callout } from 'components'
+
+Used to settup Apollo provider for your React or Next.js application.
+
+If `appChain` was changed trigger refetching for all Data Hooks.
+
+#### Usage
+
+```ts {1-5, 20, 22}
+// For Next.js application
+import { ApolloProvider } from '@azuro-org/sdk/nextjs/apollo'
+
+// For React application
+import { ApolloProvider } from '@azuro-org/sdk/react/apollo'
+
+import { ChainProvider } from '@azuro-org/sdk'
+import { WagmiConfig, createConfig } from 'wagmi'
+import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
+
+
+const wagmiConfig = createConfig(config)
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <ChainProvider initialChainId={polygonMumbai.id}>
+        <ApolloProvider>
+          {children}
+        </ApolloProvider>
+      </ChainProvider>
+    </WagmiConfig>
+  )
+}
+```
+
+<Callout type="warning">
+  ApolloProvider has to have access to chain context.
+</Callout>
