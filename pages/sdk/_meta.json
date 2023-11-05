@@ -1,6 +1,9 @@
 {
   "overview": "Overview",
   "installation": "Installation",
+  "contexts": {
+    "title": "Contexts"
+  },
   "utils": {
     "title": "Utils"
   },

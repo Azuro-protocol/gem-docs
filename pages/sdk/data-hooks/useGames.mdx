@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 Used for fetch pre-match games.
 
 Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
@@ -28,11 +30,12 @@ const games = data?.games
   cacheTime?: number // the frequency with which to update data, **measured in seconds**
 }
 ```
-#### Note
 
-Numerous completed games exist in the Subgraph database. Displaying these already-initiated games in the pre-match list is generally unnecessary. To filter out such games, we employ the `startsAt_gt` parameter in the GraphQL query variables. This only retrieves games for which the `startsAt` time is later than `now()`.
+<Callout type="warning">
+  Numerous completed games exist in the Subgraph database. Displaying these already-initiated games in the pre-match list is generally unnecessary. To filter out such games, we employ the `startsAt_gt` parameter in the GraphQL query variables. This only retrieves games for which the `startsAt` time is later than `now()`.
 
-However, using the direct `now()` value for this parameter can be problematic as it can lead to frequent data re-fetches with each hook call. To mitigate this, we've introduced a caching mechanism that, by default, stores the results for 3 minutes. This caching duration can be modified by using the `cacheTime` parameter.
+  However, using the direct `now()` value for this parameter can be problematic as it can lead to frequent data re-fetches with each hook call. To mitigate this, we've introduced a caching mechanism that, by default, stores the results for 3 minutes. This caching duration can be modified by using the `cacheTime` parameter.
+</Callout>
 
 #### Custom query options
 

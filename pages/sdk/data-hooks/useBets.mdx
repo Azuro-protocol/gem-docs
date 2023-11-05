@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 Used for fetch bets history for specific bettor.
 
 #### Usage
@@ -8,9 +10,9 @@ import { useBets } from '@azuro-org/data'
 const { loading, error, data: bets } = useBets(props)
 ```
 
-#### Note
-
-The hook won't be called until `bettor` value is nullish.
+<Callout type="warning">
+  The hook won't be called until `bettor` value is nullish.
+</Callout>
 
 #### Props
 
