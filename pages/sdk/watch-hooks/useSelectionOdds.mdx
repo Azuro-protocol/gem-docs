@@ -1,0 +1,49 @@
+Used for watch odds's changes and subscribe to them
+
+#### Usage
+
+Initialize watcher in the root of your app
+
+```ts
+import { useOddsWatcher } from '@azuro-org/sdk'
+
+export function Watchers() {
+  useOddsWatcher()
+
+  return null
+}
+```
+
+Subscribe to changes in your outcome
+
+```ts
+import { useSelectionOdds } from '@azuro-org/sdk'
+
+const odds = useSelectionOdds({
+  selection: {
+    conditionId: '486903008559711340',
+    outcomeId: '29',
+  }
+  initialOdds: '2.2',
+})
+```
+
+#### useSelectionOdds Props
+
+```ts
+{
+  selection: Selection
+  initialOdds?: string
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+```
+
+#### useSelectionOdds Return Value
+
+`string`

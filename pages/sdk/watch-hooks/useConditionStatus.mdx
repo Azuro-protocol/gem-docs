@@ -1,0 +1,51 @@
+Used for watch condition's status changes and subscribe to them
+
+#### Usage
+
+Initialize watcher in the root of your app
+
+```ts
+import { useConditionStatusWatcher } from '@azuro-org/sdk'
+
+export function Watchers() {
+  useConditionStatusWatcher()
+
+  return null
+}
+```
+
+Subscribe to changes in your outcome
+
+```ts
+import { useConditionStatus } from '@azuro-org/sdk'
+
+const status = useConditionStatus({
+  conditionId: '486903008559711340',
+  initialStatus: ConditionStatus.Created,
+})
+
+const isDisabled = status !== ConditionStatus.Created
+```
+
+#### useConditionStatus Props
+
+```ts
+{
+  conditionId: string | bigint
+  initialStatus?: ConditionStatus
+}
+```
+
+#### useConditionStatus Return Value
+
+Returns condition status (defaults to `ConditionStatus.Created`).
+Value may be changed to `ConditionStatus.Paused` or `ConditionStatus.Created` by event from contract.
+
+```ts
+enum ConditionStatus {
+  Canceled = 'Canceled',
+  Created = 'Created',
+  Paused = 'Paused',
+  Resolved = 'Resolved'
+}
+```

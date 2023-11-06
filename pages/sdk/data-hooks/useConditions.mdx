@@ -1,0 +1,65 @@
+import { Callout } from 'components'
+
+Used for fetch the conditions of specific game.
+
+Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+
+#### Usage
+
+```ts
+import { useConditions } from '@azuro-org/data'
+const { loading, error, data } = useConditions(props)
+
+const conditions = data?.conditions
+```
+
+#### Props
+
+```ts
+{
+  gameId: string | bigint
+  filter?: {
+    outcomeIds?: string[]
+  }
+}
+```
+
+<Callout type="warning">
+  `gameId` property is not same as `id`. Each game fetched using `useGames` hook contains the gameId:
+
+  ```ts
+  import { useGame } from '@azuro-org/data'
+
+  const { loading, error, data } = useGames()
+
+  const gameId = data?.games[0]?.gameId
+
+  const { loading, error, data } = useConditions({ gameId })
+  ```
+</Callout>
+
+#### Return Value
+
+```ts
+{
+  loading: boolean
+  error: Error | null
+  data: {
+    conditions: Array<{
+      id: string
+      conditionId: string
+      status
+      core: {
+        address: string
+        liquidityPool: {
+          address: string
+        }
+      }
+      outcomes: Array<{
+        outcomeId: string
+        odds: string
+      }>
+    }>
+  }
+}
+```
