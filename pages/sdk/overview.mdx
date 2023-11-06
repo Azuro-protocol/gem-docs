@@ -4,6 +4,32 @@ import { Callout } from 'components'
 
 Sdk provides a comprehensive collection of handy React hooks and utils for creating your own betting application without having to worry about the tedious details of setup.
 
+## Main concept
+
+We have two entity:
+
+- **Selection**: Represents main data for bet, calculation odds and etc.
+- **Outcome**: Specific data, for example `BetOutcome` that includes `Selection`.
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+```
+
+```ts
+type BetOutcome = {
+  selectionName: string
+  odds: number
+  marketName: string
+  game: GameQuery['games'][0]
+  isWin: boolean | null
+  isLose: boolean | null
+  isCanceled: boolean
+} & Selection
+```
+
 ## Npm Package
 
 https://www.npmjs.com/package/@azuro-org/sdk
