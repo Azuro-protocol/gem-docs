@@ -19,7 +19,7 @@ Provide selections and bet amount for calculating
 ```ts
 import { useCalcOdds } from '@azuro-org/sdk'
 
-const { data, isLoading, error } = useCalcOdds({
+const { data, loading, error } = useCalcOdds({
   amount: 10,
   selections: [
     {
@@ -52,6 +52,8 @@ type Selection = {
 
 ```ts
 {
+  loading: boolean
+  error: Error | null
   data: {
     conditionsOdds: bigint[] | undefined
     totalOdds: bigint | undefined
