@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-Wrapper over useConditions for groupping conditions by market.
+Wrapper over [`useConditions`](/sdk/data-hooks/useConditions) for groupping conditions by market.
 
 #### Usage
 
@@ -22,7 +22,7 @@ const { loading, data: markets } = useGameMarkets(props)
 ```
 
 <Callout type="warning">
-  `gameId` property is not same as `id`. Each game fetched using `useGames` hook contains the gameId:
+  `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
 
   ```ts
   import { useGame } from '@azuro-org/data'

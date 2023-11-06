@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-Used for fetch specific game data.
+Hook is used for fetch specific game data.
 
 Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
 
@@ -21,7 +21,7 @@ const { loading, error, data: game } = useGame(props)
 ```
 
 <Callout type="warning">
-  `gameId` property is not same as `id`. Each game fetched using `useGames` hook contains the gameId:
+  `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
 
   ```ts
   import { useGame } from '@azuro-org/data'

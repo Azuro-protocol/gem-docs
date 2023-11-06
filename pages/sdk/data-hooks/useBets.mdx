@@ -1,6 +1,8 @@
 import { Callout } from 'components'
 
-Used for fetch bets history for specific bettor.
+Hook is used for fetch bets history for specific bettor.
+
+Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
 
 #### Usage
 
@@ -23,7 +25,7 @@ const { loading, error, data: bets } = useBets(props)
     limit?: number // limit the number of rows returned from a query
     offset?: number // omit a specified number of rows before the beginning of the result set
   }
-  orderBy?: Bet_OrderBy // efault: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
+  orderBy?: Bet_OrderBy // default: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
 }
 ```

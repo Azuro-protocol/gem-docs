@@ -2,14 +2,13 @@ import { Callout } from 'components'
 
 # Overview
 
-SDK provides a comprehensive collection of handy React hooks and utils for creating your own betting application without having to worry about the tedious details of setup.
+SDK provides a comprehensive collection of useful React hooks and utilities for creating your own betting application, eliminating the need to worry about the tedious setup details.
 
-## Main concept
+<Callout type="info">
+In the future you can meet these types and in order not to repeat, we'll provide descriptions here.
 
-We have two entity:
-
-- **Selection**: Represents uesr's choise, main data for bet and calculation odds, etc.
-- **Outcome**: Specific data, for example user's bet (`BetOutcome`) that includes `Selection`.
+- **Selection**: Represents the user's choise, main data for bet and odds calculation, etc.
+- **Outcome**: Specific data, such as the user's bet (`BetOutcome`) that includes `Selection`.
 
 ```ts
 type Selection = {
@@ -29,6 +28,7 @@ type BetOutcome = {
   isCanceled: boolean
 } & Selection
 ```
+</Callout>
 
 ## Npm Package
 
