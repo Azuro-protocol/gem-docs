@@ -23,7 +23,7 @@ const games = data?.games
   filter?: {
     limit?: number // limit the number of rows returned from a query
     offset?: number // omit a specified number of rows before the beginning of the result set
-    sportName?: string // returns games from specific sport
+    sportSlug?: string // returns games from specific sport
   }
   orderBy?: Game_OrderBy // default: Game_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
