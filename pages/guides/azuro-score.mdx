@@ -1,0 +1,203 @@
+# Get Azuro Score leaderboard
+
+Follow this guide to fetch data required to show Azuro Score leaderboard:
+- [Total](#fetch-total-leaderboard)
+- [Total including specific bettor](#fetch-total-leaderboard-including-specific-bettor)
+- [Increment by specific period](#fetch-leaderboard-for-specific-period)
+- [Increment by specific period including specific bettor](#fetch-leaderboard-for-specific-period-including-specific-bettor)
+
+If you not familiar with base concept about Azuro Score, read it [here](/concepts/azuro-score/overview).
+
+## API reference
+
+- All parameters are optional.
+- API request returns 13 rows with rank 1-10, 50, 100, 500 by default.
+- API request with `address` param returns default range of rows and up to 5 additional rows (bettor + 2 before + 2 after) if their rank is not in the default returning range.
+- API request with `address` and period params (`since, until`) may not return additional rows if this bettor didn't get any score in this period.
+- All rows are sorted by `rank`.
+
+### Method, API Params and Response Types
+
+```ts copy
+const fetchAzuroScore = async (params?: ApiParams) => {
+  const { since, until, address } = params || {}
+
+  const { data } = await axios.get<ApiResponse>('https://api.azuro.org/score/leaderboard', {
+    params: {
+      since,
+      until,
+      address: address?.toLowerCase(),
+    },
+  })
+
+  return data.data.top
+}
+
+type ApiParams = {
+  // MONDAY 0:00 Unix timestamp (seconds)
+  since?: number
+  // NEXT MONDAY 0:00 Unix timestamp (seconds)
+  until?: number
+  // bettor wallet address
+  address?: `0x${string}`
+}
+
+type ApiResponse = {
+  data: {
+    top: {
+      address: `0x${string}`
+      totalScore: number
+      // rewardMultiplier is:
+      // number - if period data (since/until) requested
+      // null - in case of total
+      rewardMultiplier: number | null
+      // starts from 1
+      rank: number
+    }[]
+  }
+}
+```
+
+### Fetch total leaderboard
+
+Use [fetch method above](#method-api-params-and-response-types) without params to get total leaderboard.
+
+Such API request returns default 13 rows (ranks: 1-10, 50, 100, 500).
+```ts
+// GET https://api.azuro.org/score/leaderboard
+const rows = await fetchAzuroScore()
+
+/* rows:
+[
+  { rank: 1, ... },
+  { rank: 2, ... },
+  ...
+  { rank: 9, ... },
+  { rank: 10, ... },
+  { rank: 50, ... },
+  { rank: 100, ... },
+  { rank: 500, ... },
+]
+ */
+```
+
+### Fetch total leaderboard including specific bettor
+Use [fetch method above](#method-api-params-and-response-types) with `{ address }` param.
+
+Such API request returns default 13 rows (ranks: 1-10, 50, 100, 500) and additional rows around the bettor if their rank is not in the default range.
+```ts
+// GET https://api.azuro.org/score/leaderboard?address=0x52ce909243b0098a80084af3f3149309e32d9617
+const rows = await fetchAzuroScore({
+  address: '0x52ce909243b0098a80084af3f3149309e32d9617',
+})
+
+/* rows:
+[
+  { rank: 1, ... },
+  { rank: 2, ... },
+  ...
+  { rank: 9, ... },
+  { rank: 10, ... },
+  { rank: 50, ... },
+  { rank: 100, ... },
+  { rank: 500, ... },
+  { rank: 504, ... }, // 2 additional rows before
+  { rank: 505, ... },
+  { rank: 506, address: '0x52ce909243b0098a80084af3f3149309e32d9617', ... }, // specified bettor
+  { rank: 507, ... },
+  { rank: 508, ... }, // 2 additional rows after
+]
+ */
+```
+
+### Fetch leaderboard for specific period
+
+Use [fetch method above](#method-api-params-and-response-types) with `{ since, until }` params.
+Current Azuro Score multiplier period is WEEK, so pass **MONDAY's 00:00 timestamp in seconds**.
+
+Such API request returns default 13 rows (ranks: 1-10, 50, 100, 500).
+
+```ts
+// MONDAY, 23 Oct 2023 00:00 UTC, SECONDS
+const since = new Date('2023-10-23T00:00:00.000Z').getTime() / 1000
+// MONDAY, 30 Oct 2023 00:00 UTC, SECONDS
+const until = new Date('2023-10-30T00:00:00.000Z').getTime() / 1000
+
+// GET https://api.azuro.org/score/leaderboard?since=1698019200&until=1698624000
+const rows = await fetchAzuroScore({
+  since,
+  until,
+})
+
+/* rows:
+[
+  { rank: 1,   rewardMultiplier: 3,   ... },
+  { rank: 2,   rewardMultiplier: 3,   ... },
+  ...
+  { rank: 10,  rewardMultiplier: 3,   ... },
+  { rank: 50,  rewardMultiplier: 2.5, ... },
+  { rank: 100, rewardMultiplier: 2,   ... },
+  { rank: 500, rewardMultiplier: 1.5, ... },
+]
+ */
+```
+
+### Fetch leaderboard for specific period including specific bettor
+
+Use [fetch method above](#method-api-params-and-response-types) with `{ since, until, address }` params.
+Current Azuro Score multiplier period is WEEK, so pass **MONDAY's 00:00 timestamp in seconds**.
+
+Such API request returns:
+- default 13 rows (ranks: 1-10, 50, 100, 500),
+- additional rows around bettor ONLY if specified bettor's `address` got some score in passed period.
+
+```ts
+// MONDAY, 23 Oct 2023 00:00 UTC, SECONDS
+const since = new Date('2023-10-23T00:00:00.000Z').getTime() / 1000
+// MONDAY, 30 Oct 2023 00:00 UTC, SECONDS
+const until = new Date('2023-10-30T00:00:00.000Z').getTime() / 1000
+
+// GET https://api.azuro.org/score/leaderboard?since=1698019200&until=1698624000&address=0x52ce909243b0098a80084af3f3149309e32d9617
+const rows1 = await fetchAzuroScore({
+  since,
+  until,
+  address: '0x52ce909243b0098a80084af3f3149309e32d9617', // has no score in this period
+})
+
+/* rows1:
+[
+  { rank: 1,   rewardMultiplier: 3,   ... },
+  { rank: 2,   rewardMultiplier: 3,   ... },
+  ...
+  { rank: 10,  rewardMultiplier: 3,   ... },
+  { rank: 50,  rewardMultiplier: 2.5, ... },
+  { rank: 100, rewardMultiplier: 2,   ... },
+  { rank: 500, rewardMultiplier: 1.5, ... },
+  // NO additional rows because specified bettor didn't get score in this period!
+]
+*/
+
+// GET https://api.azuro.org/score/leaderboard?since=1698019200&until=1698624000&address=0xcd4ddfbb49f9b6d1c6c187fa333792eccfbdf9da
+const rows2 = await fetchAzuroScore({
+  since,
+  until,
+  address: '0xcd4ddfbb49f9b6d1c6c187fa333792eccfbdf9da', // has score in this period
+})
+
+/* rows2:
+[
+  { rank: 1,   rewardMultiplier: 3,   ... },
+  { rank: 2,   rewardMultiplier: 3,   ... },
+  ...
+  { rank: 10,  rewardMultiplier: 3,   ... },
+  { rank: 50,  rewardMultiplier: 2.5, ... },
+  { rank: 98,  rewardMultiplier: 2,   ... }, // additional row before the bettor
+  { rank: 99,  rewardMultiplier: 2,   ... }, // additional row before the bettor
+  { rank: 100, rewardMultiplier: 2, address: '0xcd4ddfbb49f9b6d1c6c187fa333792eccfbdf9da', ... },  // the bettor
+  { rank: 101, rewardMultiplier: 1.5, ... }, // additional row after the bettor
+  { rank: 102, rewardMultiplier: 1.5, ... }, // additional row after the bettor
+  { rank: 500, rewardMultiplier: 1.5, ... },
+]
+*/
+```
+

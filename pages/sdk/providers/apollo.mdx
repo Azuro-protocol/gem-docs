@@ -1,0 +1,40 @@
+import { Callout } from 'components'
+
+ApolloProvider is used to setup Apollo provider for your React or Next.js application.
+
+It responds to network changes by automatically initiating a re-fetch of all the data, removing the necessity for a manual trigger of the re-fetch.
+
+#### Usage
+
+```ts {1-5, 20, 22}
+// For Next.js application
+import { ApolloProvider } from '@azuro-org/sdk/nextjs/apollo'
+
+// For React application
+import { ApolloProvider } from '@azuro-org/sdk/react/apollo'
+
+import { ChainProvider } from '@azuro-org/sdk'
+import { WagmiConfig, createConfig } from 'wagmi'
+import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
+
+
+const wagmiConfig = createConfig(config)
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <WagmiConfig config={wagmiConfig}>
+      <ChainProvider initialChainId={polygonMumbai.id}>
+        <ApolloProvider>
+          {children}
+        </ApolloProvider>
+      </ChainProvider>
+    </WagmiConfig>
+  )
+}
+```
+
+<Callout type="warning">
+  The ApolloProvider requires access to the chain context.
+</Callout>

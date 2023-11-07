@@ -1,0 +1,69 @@
+import { Callout } from 'components'
+
+Wrapper over [`useConditions`](/sdk/data-hooks/useConditions) for groupping conditions by market.
+
+#### Usage
+
+```ts
+import { useGameMarkets } from '@azuro-org/data'
+
+const { loading, data: markets } = useGameMarkets(props)
+```
+
+#### Props
+
+```ts
+{
+  gameId: string | bigint
+  filter?: {
+    outcomeIds?: string[]
+  }
+}
+```
+
+<Callout type="warning">
+  `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
+
+  ```ts
+  import { useGame } from '@azuro-org/data'
+
+  const { loading, error, data } = useGames()
+
+  const gameId = data?.games[0]?.gameId
+
+  const { loading, error, data } = useGame({ gameId })
+  ```
+</Callout>
+
+
+#### Return Value
+
+```ts
+{
+  loading: boolean
+  error: Error | null
+  data: Market[]
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+
+type MarketOutcome = {
+  selectionName: string
+  odds: string
+  lpAddress: string
+  coreAddress: string
+  status: ConditionStatus
+  gameId: string | bigint
+} & Selection
+
+type Market = {
+  name: string
+  description: string
+  outcomeRows: MarketOutcome[][]
+}
+```

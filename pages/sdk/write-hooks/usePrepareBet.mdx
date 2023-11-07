@@ -1,0 +1,75 @@
+Hook is used for place a bet and approve tokens spending if it needed.
+
+#### Usage
+
+```ts
+import { usePrepareBet } from '@azuro-org/sdk'
+
+const {
+  totalOdds,
+  approveTx,
+  betTx,
+  submit,
+  isApproveRequired,
+  isOddsLoading,
+  isAllowanceLoading,
+} = usePrepareBet({
+  amount: '10',
+  slippage: 5,
+  affiliate: '0x0000000000000000000000000000000000000000',
+  selections: [
+    {
+      conditionId: '486903008559711340',
+      outcomeId: '29',
+    },  
+  ],
+})
+
+submit()
+```
+
+#### Props
+
+```ts
+{
+  amount: string // bet amount
+  slippage: number // 5%
+  affiliate: Address // your affiliate address
+  selections: Selection[]
+  deadline?: number
+  onSuccess?(receipt: TransactionReceipt): void
+  onError?(err?: Error): void
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+```
+
+#### Return Value
+
+```ts
+{
+  isAllowanceLoading: boolean
+  isApproveRequired: boolean
+  isOddsLoading: boolean
+  conditionsOdds: string[]
+  totalOdds: string
+  submit: () => Promise<TransactionReceipt>
+  approveTx: {
+    isPending: boolean
+    isProcessing: boolean
+    data: WriteContractResult | null
+    error: Error | null
+  }
+  betTx: {
+    isPending: boolean
+    isProcessing: boolean
+    data: WriteContractResult | null
+    error: Error | null
+  }
+}
+```

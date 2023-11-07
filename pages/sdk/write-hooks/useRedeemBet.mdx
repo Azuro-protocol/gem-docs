@@ -1,0 +1,29 @@
+Hook is used for redeem a winning bet or refund a canceled.
+
+#### Usage
+
+```ts
+import { useRedeemBet } from '@azuro-org/sdk'
+
+
+const { submit, isPending, isProcessing } = useRedeemBet()
+
+submit()
+```
+
+#### Return Value
+```ts
+type SubmitProps = {
+  tokenId: string | bigint
+  coreAddress: Address
+}
+```
+```ts
+{
+  data: WriteContractResult | null
+  error: Error | null
+  submit: (props: SubmitProps) => Promise<TransactionReceipt>
+  isPending: boolean
+  isProcessing: boolean
+}
+```

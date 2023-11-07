@@ -1,0 +1,51 @@
+Hook is used for monitor changes in condition's status and subscribe to these changes.
+
+#### Usage
+
+Initialize watcher in the root of your app.
+
+```ts
+import { useConditionStatusWatcher } from '@azuro-org/sdk'
+
+export function Watchers() {
+  useConditionStatusWatcher()
+
+  return null
+}
+```
+
+Subscribe to changes in your outcome.
+
+```ts
+import { useConditionStatus } from '@azuro-org/sdk'
+
+const status = useConditionStatus({
+  conditionId: '486903008559711340',
+  initialStatus: ConditionStatus.Created,
+})
+
+const isDisabled = status !== ConditionStatus.Created
+```
+
+#### useConditionStatus Props
+
+```ts
+{
+  conditionId: string | bigint
+  initialStatus?: ConditionStatus
+}
+```
+
+#### useConditionStatus Return Value
+
+Returns the condition status, which defaults to `ConditionStatus.Created`.
+This value can be changed to `ConditionStatus.Paused` or back to `ConditionStatus.Created` by event from contract.
+
+```ts
+enum ConditionStatus {
+  Canceled = 'Canceled',
+  Created = 'Created',
+  Paused = 'Paused',
+  Resolved = 'Resolved'
+}
+```

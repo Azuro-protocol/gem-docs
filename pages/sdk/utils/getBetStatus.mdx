@@ -1,0 +1,40 @@
+Returns detailed bet status based on bet's status derived from the subgraph, alongside the result and associated games within the bet.
+
+#### Usage
+
+```ts
+import { getBetStatus, type Bet } from '@azuro-org/sdk'
+
+const { games, status, isWin, isLose } = bet as Bet // bet's data from useBets
+
+const betStatus = getBetStatus({
+  graphStatus: status,
+  games,
+  win: isWin,
+  lose: isLose,
+})
+```
+
+#### Props
+
+```ts
+{
+  graphStatus: BetStatus // bet's status from subgraph
+  games: GameQuery['games'][]
+  win: boolean
+  lose: boolean
+}
+```
+
+#### Return Value
+
+```ts
+enum BetStatus {
+  Accepted,
+  Live,
+  PendingResolution,
+  Canceled,
+  Won,
+  Lost,
+}
+```

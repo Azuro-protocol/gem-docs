@@ -1,0 +1,65 @@
+import { Callout } from 'components'
+
+Hook is used for fetch specific game data.
+
+Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+
+#### Usage
+
+```ts
+import { useGame } from '@azuro-org/data'
+
+const { loading, error, data: game } = useGame(props)
+```
+
+#### Props
+
+```ts
+{
+  gameId: string | bigint
+}
+```
+
+<Callout type="warning">
+  `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
+
+  ```ts
+  import { useGame } from '@azuro-org/data'
+
+  const { loading, error, data } = useGames()
+
+  const gameId = data?.games[0]?.gameId
+
+  const { loading, error, data } = useGame({ gameId })
+  ```
+</Callout>
+
+#### Return Value
+```ts
+{ 
+  loading: boolean
+  error: Error | null
+  data: { 
+    id: string
+    gameId: number
+    title?: string | null
+    startsAt: number
+    sport: { 
+      slug: string
+      name: string 
+    }
+    league: {
+      slug: string
+      name: string
+      country: { 
+        slug: string
+        name: string 
+      } 
+    }
+    participants: Array<{ 
+      image?: string | null
+      name: string 
+    }>
+  } 
+}
+```

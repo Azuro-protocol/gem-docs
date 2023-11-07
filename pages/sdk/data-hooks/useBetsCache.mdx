@@ -1,0 +1,82 @@
+Hook is used for update existing bet cache or add new bet to.
+
+#### Usage
+
+Update bet cache after redeem.
+
+```ts
+const { submit } = useRedeemBet()
+const { updateBetCache } = useBetsCache()
+
+const handleRedeem = async () => {
+  try {
+    await submit({ tokenId, coreAddress })
+    updateBetCache({
+      coreAddress,
+      tokenId,
+    }, {
+      isRedeemed: true,
+      isRedeemable: false,
+    })
+  } catch {}
+}
+
+handleRedeem()
+```
+
+Add the new bet to cache.
+
+```ts
+const { addBet } = useBetsCache()
+const { submit } = usePrepareBet({
+  amount,
+  slippage: 5,
+  affiliate: '0x0000000000000000000000000000000000000000',
+  selections,
+  onSuccess: (receipt: TransactionReceipt) => {
+    addBet({
+      receipt,
+      bet: {
+        amount,
+        outcomes: [...]
+      }
+    })
+  },
+})
+```
+
+#### Return Value
+
+```ts
+{
+  updateBetCache: ({ coreAddress, tokenId }: UpdateBetProps, values: Partial<BetFragment>) => void;
+  addBet: (props: NewBetProps) => void;
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+
+type UpdateBetProps = {
+  coreAddress: Address
+  tokenId: string
+}
+
+type BetCacheOutcome = {
+  odds: string | bigint
+  gameId: string | bigint
+} & Selection
+
+type NewBetProps = {
+  bet: {
+    amount: string
+    outcomes: BetCacheOutcome[]
+    freebetId?: string | bigint
+    freebetContractAddress?: Address
+  }
+  receipt: TransactionReceipt
+}
+```

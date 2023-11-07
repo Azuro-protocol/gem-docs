@@ -1,0 +1,20 @@
+Returns bet token balance based on appChain.
+
+#### Usage
+
+```ts
+import { useBetTokenBalance } from '@azuro-org/sdk'
+
+const { balance, rawBalance, loading, error } = useBetTokenBalance()
+```
+
+#### Return Value
+
+```ts
+{
+  balance: string | undefined
+  rawBalance: bigint | undefined
+  loading: boolean
+  error: Error | null
+}
+```
