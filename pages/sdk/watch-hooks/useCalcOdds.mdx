@@ -29,7 +29,7 @@ const { data, loading, error } = useCalcOdds({
   ],
 })
 
-const { conditionsOdds, totalOdds } = data
+const { selectionsOdds, totalOdds } = data
 ```
 
 #### Props
@@ -55,7 +55,7 @@ type Selection = {
   loading: boolean
   error: Error | null
   data: {
-    conditionsOdds: bigint[] | undefined
+    selectionsOdds: bigint[] | undefined
     totalOdds: bigint | undefined
     loading: boolean
     error: Error | null
