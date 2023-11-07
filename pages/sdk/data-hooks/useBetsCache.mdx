@@ -1,16 +1,25 @@
-Hook is used for update existing bet cache or add new bet to.
+import { Callout } from 'components'
+
+Hook is used for update bets cache.
+
+<Callout type="warning">
+  Can only be used with [`useBets`](/sdk/data-hooks/useBets).
+</Callout>
+
+When you fetch bets using `useBets`, the data is stored in the cache. This prevents the need to request the data again if the user revisits the page with the list of bets. However, it's essential to update this cache after a user places a new bet or redeems winning one, ensuring the list of bets remains up to date.
 
 #### Usage
 
-Update bet cache after redeem.
+Update the bet cache after the redeem action.
 
-```ts
-const { submit } = useRedeemBet()
+```ts {1, 8-14}
 const { updateBetCache } = useBetsCache()
+const { submit } = useRedeemBet()
 
 const handleRedeem = async () => {
   try {
     await submit({ tokenId, coreAddress })
+
     updateBetCache({
       coreAddress,
       tokenId,
@@ -24,9 +33,9 @@ const handleRedeem = async () => {
 handleRedeem()
 ```
 
-Add the new bet to cache.
+Update the cache with the new bet after the bet action.
 
-```ts
+```ts {1, 8-14}
 const { addBet } = useBetsCache()
 const { submit } = usePrepareBet({
   amount,
@@ -49,8 +58,8 @@ const { submit } = usePrepareBet({
 
 ```ts
 {
-  updateBetCache: ({ coreAddress, tokenId }: UpdateBetProps, values: Partial<BetFragment>) => void;
-  addBet: (props: NewBetProps) => void;
+  updateBetCache: ({ coreAddress, tokenId }: UpdateBetProps, values: Partial<BetFragment>) => void; // function to update an existing bet in the cache
+  addBet: (props: NewBetProps) => void; // function to add the new bet in the cache
 }
 ```
 
