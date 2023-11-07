@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-Provider is used for storing information about application chain.
+ChainProvider is used for storing information about application chain as well as to provide network change functionality.
 
 #### Usage
 
@@ -28,7 +28,7 @@ function Providers(props: { children: React.ReactNode }) {
 ```
 
 <Callout type="warning">
-  ChainProvider has to have access to wagmi context.
+  The ChainProvider requires access to the Wagmi context.
 </Callout>
 
 Get stored context data.

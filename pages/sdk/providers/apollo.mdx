@@ -1,8 +1,8 @@
 import { Callout } from 'components'
 
-Provider is used to setup Apollo provider for your React or Next.js application.
+ApolloProvider is used to setup Apollo provider for your React or Next.js application.
 
-If `appChain` was changed trigger refetching for all Data Hooks.
+It responds to network changes by automatically initiating a re-fetch of all the data, removing the necessity for a manual trigger of the re-fetch.
 
 #### Usage
 
@@ -36,5 +36,5 @@ function Providers(props: { children: React.ReactNode }) {
 ```
 
 <Callout type="warning">
-  ApolloProvider has to have access to chain context.
+  The ApolloProvider requires access to the chain context.
 </Callout>
