@@ -1,4 +1,4 @@
-Hook is used for place a bet and approve tokens spending if it needed.
+Hook is used for place a bet and approve tokens spending if necessary.
 
 #### Usage
 
@@ -35,10 +35,10 @@ submit()
   amount: string // bet amount
   slippage: number // 5%
   affiliate: Address // your affiliate address
-  selections: Selection[]
-  deadline?: number
-  onSuccess?(receipt: TransactionReceipt): void
-  onError?(err?: Error): void
+  selections: Selection[] // user's choise for bet
+  deadline?: number // duration after which the bet will be canceled if it does not get included in a block
+  onSuccess?(receipt: TransactionReceipt): void // callback function triggered after a successful bet
+  onError?(err?: Error): void // callback function triggered upon encountering an error
 }
 ```
 
@@ -53,19 +53,19 @@ type Selection = {
 
 ```ts
 {
-  isAllowanceLoading: boolean
-  isApproveRequired: boolean
-  isOddsLoading: boolean
-  conditionsOdds: string[]
-  totalOdds: string
-  submit: () => Promise<TransactionReceipt>
-  approveTx: {
+  isAllowanceLoading: boolean // flag indicates the fetching of allowance
+  isApproveRequired: boolean // flag indicates the necessity for token spending approval
+  isOddsLoading: boolean // flag indicates the fetching of selection's odds
+  selectionsOdds: string[] // array containing odds for the provided selections
+  totalOdds: string // tatal odds for the provided selections
+  submit: () => Promise<TransactionReceipt> // function used to trigger the bet action or token spending approval
+  approveTx: { // approve transaction data
     isPending: boolean
     isProcessing: boolean
     data: WriteContractResult | null
     error: Error | null
   }
-  betTx: {
+  betTx: { // bet transaction data
     isPending: boolean
     isProcessing: boolean
     data: WriteContractResult | null

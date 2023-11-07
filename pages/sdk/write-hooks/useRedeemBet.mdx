@@ -1,4 +1,4 @@
-Hook is used for redeem a winning bet or refund a canceled.
+Hook is used for redeem a winning bet or refund a canceled one.
 
 #### Usage
 
@@ -14,16 +14,16 @@ submit()
 #### Return Value
 ```ts
 type SubmitProps = {
-  tokenId: string | bigint
-  coreAddress: Address
+  tokenId: string | bigint // id of the bet's NFT
+  coreAddress: Address // core contract address
 }
 ```
 ```ts
 {
-  data: WriteContractResult | null
-  error: Error | null
-  submit: (props: SubmitProps) => Promise<TransactionReceipt>
-  isPending: boolean
-  isProcessing: boolean
+  data: WriteContractResult | null // transaction data
+  error: Error | null // redeem error
+  submit: (props: SubmitProps) => Promise<TransactionReceipt> // function used to trigger the redeem action
+  isPending: boolean // flag indicates the transaction approve action
+  isProcessing: boolean // flag indicates the transaction submitting
 }
 ```
