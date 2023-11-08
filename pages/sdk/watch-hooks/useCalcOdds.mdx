@@ -1,4 +1,6 @@
-Hook is used for calculating odds for a bet based on the provided selections. Additionally, it subscribes to changes in odds.
+import { Callout } from 'components'
+
+Hook is used for calculate the total odds before placing a bet. This is the odds on which the bet will be made without considering slippage. The total odds depend on the bet amount and the provided selections since each selection may have its individual settings for reinforcement and margin.
 
 #### Usage
 
@@ -31,6 +33,36 @@ const { data, loading, error } = useCalcOdds({
 
 const { selectionsOdds, totalOdds } = data
 ```
+
+
+<Callout type="info">
+Example of usage: Obtain the total odds for the provided selections.
+
+```ts
+import { type MarketOutcome, useCalcOdds } from '@azuro-org/sdk'
+
+
+type TotalOddsProps = {
+  outcomes: MarketOutcome[]
+  betAmount: string
+}
+
+function TotalOdds(props: TotalOddsProps) {
+  const { outcomes, betAmount } = props
+
+  const { data } = useCalcOdds({
+    amount: betAmount,
+    selections: outcomes,
+  })
+
+  const { totalOdds } = data || {}
+
+  return (
+    <span>{totalOdds}</span>
+  )
+}
+```
+</Callout>
 
 #### Props
 

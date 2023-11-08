@@ -3,7 +3,7 @@ Returns detailed game status based on game's status derived from the subgraph an
 #### Usage
 
 ```ts
-import { getGameStatus } from '@azuro-org/sdk'
+import { getGameStatus, GameStatus } from '@azuro-org/sdk'
 
 const { status, startsAt } = game // game's data from subgraph
 
@@ -11,6 +11,8 @@ const gameStatus = getGameStatus({
   graphStatus: status,
   startsAt,
 })
+
+const isGameInLive = gameStatus === GameStatus.Live
 ```
 
 #### Props

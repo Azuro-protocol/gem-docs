@@ -78,14 +78,13 @@ After completing the providers setup, you can begin using the [Data Hooks](/sdk/
 In your application, it's important to respond to changes in odds and condition statuses. Watchers play a key role in this process by subscribing to new contract events and signaling dependent hooks.
 
 ```ts
-import { useConditionStatusWatcher, useOddsWatcher } from '@azuro-org/sdk'
+import { useWatchers } from '@azuro-org/sdk'
 
 export function Watchers() {
-  useConditionStatusWatcher()
-  useOddsWatcher()
+  useWatchers()
 
   return null
 }
 ```
 
-After completing the watchers setup, you can begin using the [Watch Hooks](/sdk/watch-hooks/useConditionStatus).
+After completing the watchers setup, you can begin using the [Watch Hooks](/sdk/watch-hooks/useOutcome).
