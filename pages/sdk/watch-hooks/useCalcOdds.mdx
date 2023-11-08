@@ -47,7 +47,7 @@ type TotalOddsProps = {
   betAmount: string
 }
 
-function TotalOdds(props: OutcomeProps) {
+function TotalOdds(props: TotalOddsProps) {
   const { outcomes, betAmount } = props
 
   const { data } = useCalcOdds({
