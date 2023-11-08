@@ -1,5 +1,4 @@
 {
-  "useConditionStatus": "useConditionStatus",
-  "useCalcOdds": "useCalcOdds",
-  "useSelectionOdds": "useSelectionOdds"
+  "useOutcome": "useOutcome",
+  "useCalcOdds": "useCalcOdds"
 }
