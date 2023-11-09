@@ -4,7 +4,7 @@ Hook is used for maintain updated odds for a selection and also monitors the sus
 
 Whenever a bet is placed on the Azuro protocol, the system updates the odds related to the outcomes influenced by this bet. Utilize this hook to subscribe to the updated odds for the outcomes displayed in your UI. This ensures that bettors can observe the current changes and make informed betting decisions.
 
-[Conditions](/concepts/glossary#condition) have a status that indicates their current state. For instance, `ConditionStatus.Created` signifies the condition is available for betting, while `ConditionStatus.Paused` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an 'isLocked' flag, indicating whether placing a bet on this outcome is currently possible or not.
+[Conditions](/concepts/glossary#condition) have a status that indicates their current state. For instance, `ConditionStatus.Created` signifies the condition is available for betting, while `ConditionStatus.Paused` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this outcome is currently possible or not.
 
 #### Usage
 
