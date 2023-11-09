@@ -4,6 +4,5 @@
   "useGame": "useGame",
   "useConditions": "useConditions",
   "useGameMarkets": "useGameMarkets",
-  "useBets": "useBets",
-  "useBetsCache": "useBetsCache"
+  "useBets": "useBets"
 }
