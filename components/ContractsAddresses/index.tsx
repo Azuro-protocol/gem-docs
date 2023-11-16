@@ -12,6 +12,9 @@ type ContractName =
   | 'betToken'
   | 'access'
   | 'azuroBet'
+  | 'hostCore'
+  | 'clientCore'
+  | 'relayer'
 
 const config: Record<ContractName, { title: string, link?: string }> = {
   factory: {
@@ -45,6 +48,18 @@ const config: Record<ContractName, { title: string, link?: string }> = {
     title: 'AzuroBet',
     link: '/contracts/azuro-bet',
   },
+  hostCore: {
+    title: 'HostCore',
+    link: '/contracts/live-host-core',
+  },
+  clientCore: {
+    title: 'ClientCore',
+    link: '/contracts/live-client-core',
+  },
+  relayer: {
+    title: 'Relayer',
+    link: '/contracts/relayer',
+  },
 }
 
 const rows: ContractName[] = [
@@ -56,6 +71,9 @@ const rows: ContractName[] = [
   'betToken',
   'access',
   'azuroBet',
+  'hostCore',
+  'clientCore',
+  'relayer'
 ]
 
 type ContractsTableProps = {

@@ -12,5 +12,9 @@
   "---": {
     "type": "separator"
   },
-  "freebets": "Freebets"
+  "freebets": "Freebets",
+  "----": {
+    "type": "separator"
+  },
+  "live": "Live betting"
 }
