@@ -58,7 +58,7 @@ const config: Record<ContractName, { title: string, link?: string }> = {
   },
   relayer: {
     title: 'Relayer',
-    link: '/contracts/relayer',
+    link: '/contracts/live-relayer',
   },
 }
 
