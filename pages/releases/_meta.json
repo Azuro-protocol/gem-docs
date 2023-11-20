@@ -1,6 +1,9 @@
 {
-  "8-live-betting-in-testnet": {
+  "9-live-betting-in-testnet": {
     "title": "11/20 Live betting in Polygon Mumbai testnet"
+  },
+  "8-sdk": {
+    "title": "11/13 SDK"
   },
   "7-claimable-freebets-and-esports": {
     "title": "10/02 Claimable Freebets and eSports"
