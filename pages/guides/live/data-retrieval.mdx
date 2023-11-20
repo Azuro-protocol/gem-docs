@@ -1,0 +1,86 @@
+import { Callout } from 'components';
+
+# Live data retrieval
+
+All the live games and markets data is stored in the [`HostCore`](/contracts/live-host-core) smart contract in the `HostChain` (currently is a Gnosis chain)
+and can be retrieved via a [`LiveDataFeed`](/subgraph/overview#live-endpoints) subgraph.
+
+Data structure is almost the same as the one in the main Subgraph for prematch core contracts.
+
+<Callout type="info">
+  Key differences in the entities structure comparing to prematch subgraphs:
+
+  - Removed all entities and events related to bets (bets, freebets, expresses) and contracts (cores, liquidity pools).
+  - Removed `selection` entity and its relations.
+  - Entity `condition` doesn't have an `isExpressForbidden` field.
+  - Event `GameShifted` changed to `GameUpdated` (triggers by changing game status and/or start time).
+  - Event `ConditionShifted` completely removed.
+</Callout>
+
+Typical data feed lifecycle:
+
+1. `Game` appears in the `LiveDataFeed` subgraph in the `Created` state. It means that the game is in live state.
+2. `Conditions` start to appear in this game (usually they start to appear almost when the game starts and finish appearing in 5-10 minutes).
+3. During the game each `Condition` can change its state between `Paused` and `Created`. Also condition's odds can be changed.
+4. `Game` finishes and its status changes to `Finished`.
+5. After some period `Conditions` start to finalize their status to `Resolved`/`Canceled`.
+6. After all `Conditions` are resolved, the game change its status to `Resolved`.
+
+## How to display live games and markets
+
+Here we'll describe the logic of displaying live games and their markets.
+Supposed that you already have a frontend with setup prematch games.
+
+### Load live games
+
+When game goes live, it saves its id (so the same game in prematch and live subgraphs have the same `gameId` value),
+but it's stored in another smart contract, and you should load its info from another subgraph called [`LiveDataFeed`](/subgraph/overview#live-endpoints).
+
+We recommend you to call a snapshot of live games almost the same way you did it for prematch games (see [Get Games](/guides/get-games) section), but you need to filter them by `Created` status:
+
+```ts
+useQuery(QUERY, {
+  variables: {
+    where: {
+      status: 'Created',
+      hasActiveConditions: true, // Avoid this parameter if you want to get the game with no available markets
+    },
+  },
+})
+```
+
+<Callout type="warning">
+  While most of the games that we provide in prematch will go live, we don't guarantee it for each particular game.
+  Consider this when planning your UX.
+</Callout>
+
+<Callout type="feature">
+  If you want to effectively update your games list without querying big snapshots each time, you need to listen to the following events in the `LiveDataFeed` subgraph: `NewGame`, `GameUpdated`, `GameCanceled`.
+  For each new event you can get its `gameId` field and retrieve an actual game's info.
+</Callout>
+
+### Load markets
+
+For each live game you can request its markets (called `conditions`) the same way you do this for prematch games (see [Prepare game markets](/guides/markets-and-outcomes) section).
+
+<Callout type="warning">
+  Take into consideration that markets appear after the game created in the `HostCore` smart contract.
+  It means that this is a normal situation if a game doesn't have any live markets for a while.
+  You should continue to request game markets all the time and be ready to add a new ones until the game is finished.
+</Callout>
+
+### Get realtime markets updates
+
+As for prematch games, live game's markets are constantly updated:
+
+- Market can be stopped and unstopped.
+- Outcomes odds can be changed.
+
+For market stop/unstop action you need to listen to new `ConditionStopped` events in `LiveDataFeed` subgraph and then request the actual condition's state.
+
+For odds changes you need to listen to our `HostCore` smart contract event `OddsChanged` (the same way as described in [Real-time Odds Updates](/guides/real-time-odds-updates) section for prematch, just use the `HostCore` contract).
+
+### Finish a game
+
+When game finishes, its status changes on `Finished` until it has unsettled markets.
+When all markets are settled, its status changes on `Resolved`.

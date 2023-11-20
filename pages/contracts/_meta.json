@@ -18,5 +18,11 @@
   },
   "free-bet": "FreeBet",
   "safe-oracle": "SafeOracle",
-  "access": "Access"
+  "access": "Access",
+  "---4": {
+    "type": "separator"
+  },
+  "live-host-core": "Live: HostCore",
+  "live-client-core": "Live: ClientCore",
+  "live-relayer": "Live: Relayer"
 }
