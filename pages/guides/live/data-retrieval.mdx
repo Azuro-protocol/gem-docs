@@ -36,7 +36,7 @@ Supposed that you already have a frontend with setup prematch games.
 When game goes live, it saves its id (so the same game in prematch and live subgraphs have the same `gameId` value),
 but it's stored in another smart contract, and you should load its info from another subgraph called [`LiveDataFeed`](/subgraph/overview#live-endpoints).
 
-We recommend you to call a snapshot of live games almost the same way you did it for prematch games (see [Get Games](/guides/get-games) section), but you need to filter them by `Created` status:
+We recommend you to call a snapshot of live games almost the same way you did it for prematch games (see [Get Games](/guides/prematch/get-games) section), but you need to filter them by `Created` status:
 
 ```ts
 useQuery(QUERY, {
@@ -61,7 +61,7 @@ useQuery(QUERY, {
 
 ### Load markets
 
-For each live game you can request its markets (called `conditions`) the same way you do this for prematch games (see [Prepare game markets](/guides/markets-and-outcomes) section).
+For each live game you can request its markets (called `conditions`) the same way you do this for prematch games (see [Prepare game markets](/guides/prematch/markets-and-outcomes) section).
 
 <Callout type="warning">
   Take into consideration that markets appear after the game created in the `HostCore` smart contract.
@@ -78,7 +78,7 @@ As for prematch games, live game's markets are constantly updated:
 
 For market stop/unstop action you need to listen to new `ConditionStopped` events in `LiveDataFeed` subgraph and then request the actual condition's state.
 
-For odds changes you need to listen to our `HostCore` smart contract event `OddsChanged` (the same way as described in [Real-time Odds Updates](/guides/real-time-odds-updates) section for prematch, just use the `HostCore` contract).
+For odds changes you need to listen to our `HostCore` smart contract event `OddsChanged` (the same way as described in [Real-time Odds Updates](/guides/prematch/real-time-odds-updates) section for prematch, just use the `HostCore` contract).
 
 ### Finish a game
 
