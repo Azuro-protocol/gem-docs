@@ -1,16 +1,11 @@
 {
-  "get-games": "Get Games",
-  "markets-and-outcomes": "Prepare Game Markets",
-  "get-odds-values": "Get Odds Values",
-  "real-time-odds-updates": "Real-time Odds Updates",
-  "place-a-bet": "Place a Bet",
-  "get-bets-history": "Get Bets History",
-  "redeem-bets": "Redeem Bets",
-  "handle-contract-errors": "Handle Contract Errors",
-  "affiliate-ggr": "Get bets made on specific Front(Affiliate)",
-  "azuro-score": "Azuro Score leaderboard",
+  "prematch": "Prematch",
+  "live": "Live betting",
+  "freebets": "Freebets",
   "---": {
     "type": "separator"
   },
-  "freebets": "Freebets"
+  "handle-contract-errors": "Handle Contract Errors",
+  "affiliate-ggr": "Get bets made on specific Front(Affiliate)",
+  "azuro-score": "Azuro Score leaderboard"
 }
