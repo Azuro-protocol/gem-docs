@@ -65,6 +65,11 @@ const order: OrderSpec = {
   If you don't know a `chainId` value for a used chain, you can get it by searching in https://chainlist.org/?testnets=true.
 </Callout>
 
+<Callout type="warning">
+  Consider that before each order request you'll need to ensure that the user has approved enough tokens for bet itself and a fee for relayer that will compensate his native currency spending.
+  So the spending limit should be equal or higher than `order.amount + order.maxFee`.
+</Callout>
+
 ### Step 2: sign a message and send the order
 
 After order object has been prepared, user must sign a corresponding message
