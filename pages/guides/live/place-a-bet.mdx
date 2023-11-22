@@ -1,7 +1,224 @@
-import { Callout } from 'components'
+import { Callout, Image } from 'components'
 
 # Place a bet
 
-<Callout type="warning">
-  The page is under construction
+Placing a bet on live games in Azuro is a multistep process that can be described by the next diagram:
+
+<Image
+  src="/images/live/place-a-bet.png"
+  width={2010}
+  height={1846}
+/>
+
+Below we'll describe this process step-by-step.
+
+### Step 1: prepare the order data
+
+When the user wants to place a bet on some outcome (that identifies by `conditionId/outcomeId` combination),
+you'll need to prepare an `order` object to work with:
+
+```ts
+const now = Date.now();
+const deadline = 30; // bet deadline in seconds
+
+interface OrderSpec {
+  affiliate: string;
+  amount: string;
+  chainId: number;
+  conditionId: string;
+  outcomeId: number;
+  minPrice: string;
+  nonce: string;
+  expiresAt: number;
+  maxFee: string;
+}
+
+const order: OrderSpec = {
+  affiliate: '0x...',
+  amount: '15000000', // 15 USDT with 6 decimals
+  chainId: 80001, // Polygon Mumbai testnet chain id
+  conditionId: '123456789',
+  outcomeId: 29,
+  minPrice: '1980000000000', // Min odds, 1.98 with 12 decimals
+  nonce: String(now), // Unique (for the bettor wallet) increase-only integer
+  expiresAt: Math.round(now / 1000 + deadline), // Timestamp in seconds
+  maxFee: '100000', // 0.1 USDT with 6 decimals
+};
+```
+
+<Callout type="info">
+  `nonce` is an integer number that represents an order identifier and it should:
+  1. Be unique for the bettor's wallet address.
+  2. Be higher than previous used value.
+
+  So we recommend to use current timestamp (in milliseconds) to prevent any collisions,
+  but you are welcome to come up with your solution.
+
+  Like another potentially big integers we pass it as a string for safety.
 </Callout>
+
+<Callout type="info">
+  Please check a [highlights for prematch betting](/guides/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minPrice / deadline`.
+</Callout>
+
+<Callout type="info">
+  If you don't know a `chainId` value for a used chain, you can get it by searching in https://chainlist.org/?testnets=true.
+</Callout>
+
+### Step 2: sign a message and send the order
+
+After order object has been prepared, user must sign a corresponding message
+to give an allowance to a Relayer contract to place the bet.
+
+First you need to prepare a message:
+
+```ts
+// Example code is provided for `ethers v6` library
+import { AbiCoder, getBytes, keccak256 } from 'ethers';
+
+const orderDataAbi = ['address', 'uint128', 'uint256', 'uint256', 'uint64', 'uint64', 'uint256', 'uint256', 'uint256'];
+
+const createSignMessage = (abi: string[], order: OrderSpec): Uint8Array => {
+  const data = [
+    order.affiliate,
+    order.amount,
+    order.chainId,
+    order.conditionId,
+    order.outcomeId,
+    order.minPrice,
+    order.nonce,
+    order.expiresAt,
+    order.maxFee,
+  ];
+
+  const abiCoder = AbiCoder.defaultAbiCoder();
+  const encoded = abiCoder.encode(abi, data);
+
+  return getBytes(keccak256(encoded));
+};
+
+const message = createSignMessage(order);
+```
+
+Then the user must sign this message with his EVM wallet:
+
+```ts
+const bettorSignature = await wallet.signMessage(message);
+```
+
+Finally, you can build the signed order object and send it to Azuro Live Betting API:
+
+```ts
+enum Environment {
+  PolygonMumbaiAZUSD = 'PolygonMumbaiAZUSD', // Currently only this one supports live betting
+}
+
+interface SignedByBettorOrderSpec {
+  environment: Environment;
+  bettor: string;
+  data: OrderSpec;
+  bettorSignature: string;
+}
+
+const signedOrder: SignedByBettorOrderSpec = {
+  environment: Environment.PolygonMumbaiAZUSD, // Name of the azuro environment
+  bettor: wallet.address, // Address of the user's wallet
+  data: order, // Original order data
+  bettorSignature: bettorSignature, // Signed message
+};
+
+const API_BASE_URL = 'https://...'; // Azuro Live Betting API base url
+
+const response = await fetch(`${API_BASE_URL}/orders`, {
+  method: 'POST',
+  body: JSON.stringify(signedOrder)
+});
+
+const data = await response.json(); // Will have OrderResponseSpec interface described below
+
+const orderId = data.id; // You'll need it to track the order state
+```
+
+### Step 3: display the first response
+
+The last POST request will return an object that represents the created order (look on `OrderResponseSpec` interface):
+
+```ts
+enum OrderState {
+  Created = 'Created', // Order has been registered in the system and waits a Relayer to handle it
+  Pending = 'Pending', // Relayer has started handling the order
+  Sent = 'Sent', // Transaction has been sent to a blockchain by a Relayer
+  Accepted = 'Accepted', // Transaction succeeded, order has been accepted by a smart contract
+  Rejected = 'Rejected', // Order has been rejected for some reason, see `error` field for explanation
+}
+
+enum OrderError {
+  TokenAllowance = 'TokenAllowance',
+  ChecksFailed = 'ChecksFailed',
+  TooHighMinPrice = 'TooHighMinPrice',
+  PayoutNotGuaranteed = 'PayoutNotGuaranteed',
+  MessageNotVerified = 'MessageNotVerified',
+  BadData = 'BadData',
+  RejectedByProvider = 'RejectedByProvider',
+  ProviderError = 'ProviderError',
+  TooSmallFee = 'TooSmallFee',
+  TransactionFailed = 'TransactionFailed',
+  Other = 'Other',
+}
+
+interface OrderResponseSpec {
+  id: string;
+  state: OrderState;
+  error?: OrderError;
+  errorMessage?: string;
+}
+```
+
+If no error has occurred, order will have `Created` state.
+Otherwise, it will have `Rejected` state and filled `error` and (optionally) `errorMessage` fields.
+
+At this point you should show a user the actual order status and, if the order has been created, proceed with the following steps.
+
+<Callout type="info">
+  You need an `orderId` value to track the order state and you'll get it from the last response.
+  But anyway you can create this id by yourself by lower-cased `bettor` wallet address and `nonce` value:
+
+  ```ts
+  export const getOrderId = (data: SignedByBettorOrderSpec): string =>
+    [data.bettor.toLowerCase(), data.data.nonce].join('_');
+  ```
+</Callout>
+
+### Step 4: wait until the order state finalized and get a bet id
+
+Take an order id from the previous response (`orderId`) and start polling the endpoint `GET /orders/${orderId}`
+until the order state become either `Accepted` or `Rejected`. The response will have the `UpdatedOrderSpec` interface:
+
+```ts
+export interface UpdatedOrderSpec extends OrderResponseSpec {
+  txHash?: string;
+  betId?: number;
+}
+
+const response = await fetch(`${API_BASE_URL}/orders`, {
+  method: 'POST',
+  body: JSON.stringify(signedOrder)
+});
+
+const data = await response.json();
+
+switch (data.state) {
+  case OrderState.Accepted:
+    const betId = data.betId;
+    // Work with the bet
+  case OrderState.Rejected:
+    // Handle order rejection
+  default:
+    // Continue to poll the state
+}
+```
+
+If the order has been rejected, show the user a reason, why it happened.
+
+Otherwise, if it has been accepted, you'll have a `betId` field that represents a bet id that has been placed and stored in the smart contract.
+When you've got a bet id, you can work with it like with prematch bets.
