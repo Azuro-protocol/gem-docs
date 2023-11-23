@@ -1,7 +1,14 @@
-import { Callout } from 'components'
+import { PageHeadline, Callout } from 'components'
 
-# Relayer (Live betting)
+<PageHeadline
+  title="ClientCore (Live betting)"
+  subTitle="A Register Engine for the betting"
+/>
+
+Сontract "Relayer" is intended for execution of prepared and signed (by bettor and by oracle) bets, and payment of relaer's fee.
+Any "relayer" can send prepared bets using the "Relayer.betFor()" method. 
+At bet execution, “LP.betFor()” is executed and the reward is sent to the performer.
 
 <Callout type="warning">
-  The page is under construction
+  This contract is at early development/test phase
 </Callout>
