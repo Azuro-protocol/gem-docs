@@ -13,15 +13,15 @@ The higher the odds, the lower the chances of the outcome happening and the high
 who placed a bet on that outcome. Betting odds are used by the [Pool](/concepts/protocol/pools) to manage the risk and
 set payout rates for different bets.
 
-The calculation of the odds is based on the virtual funds of the Condition and its margin.
-Once the Condition is created, initial reinforcement is distributed proportionally among the outcome virtual funds based
+The calculation of the odds is based on the [Virtual Funds](/concepts/protocol/virtual-funds) of the Condition and its margin.
+Once the Condition is created, initial reinforcement is distributed proportionally among the outcome Virtual Funds based
 on their initial odds provided by the [data provider](/concepts/basic/data-providers). When a bettor places a bet,
-the outcome virtual fund on which they bet increases by the amount of the bet, and the net odds are calculated using
+the outcome Virtual Fund on which they bet increases by the amount of the bet, and the net odds are calculated using
 the following formula:
 
 <Formula>
 $$
-  o_{i}=\frac{F_{0} + ... + F_{n}} {F_{i}},\text{where } F_i \text{ is a virtual fund of the outcome } i
+  o_{i}=\frac{F_{0} + ... + F_{n}} {F_{i}},\text{where } F_i \text{ is a Virtual Fund of the outcome } i
 $$
 </Formula>
 
@@ -32,7 +32,7 @@ reciprocal of the net odds of the outcome:
 
 <Formula>
 $$
-  p_{i}=\frac{1}{o_i}=\frac{F_i} {F_{0} + ... + F_{n}}\text{, where } F_i \text{ is a virtual fund of the outcome } i
+  p_{i}=\frac{1}{o_i}=\frac{F_i} {F_{0} + ... + F_{n}}\text{, where } F_i \text{ is a Virtual Fund of the outcome } i
 $$
 </Formula>
 
@@ -77,15 +77,3 @@ $$
   payout=o_i * (1-s_i)*a, \text{where } a \text{ is a bet amount}
 $$
 </Formula>
-
-After the bet on outcome i has been accepted, the virtual fund of other outcomes changes as follows:
-
-<Formula>
-$$
-  F_{j \neq i}\mathrel{{-}{=}}payout-a,\text{where } a \text{ is a bet amount}
-$$
-</Formula>
-
-Thus, automatic market making of the betting odds is performed. However, data provider also has the ability to change
-the odds of each outcome at any time by passing desired values to a special method, thereby setting the desired odds
-for accepting the next bets on the Condition.
