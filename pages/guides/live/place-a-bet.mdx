@@ -3,6 +3,17 @@ import { Tabs, Tab } from 'nextra-theme-docs'
 
 # Place a bet
 
+<Callout type="info">
+  Azuro Live Betting API is currently deployed at:
+
+  ```
+  https://live-api.azuro.org/api/v1/public
+  ```
+
+  This url is subject to change when we go to production environment.
+  In the code below we will use `API_BASE_URL` variable for this url.
+</Callout>
+
 Placing a bet on live games in Azuro is a multistep process that can be described by the next diagram:
 
 <Image
@@ -135,8 +146,6 @@ const signedOrder: SignedByBettorOrderSpec = {
   data: order, // Original order data
   bettorSignature: bettorSignature, // Signed message
 };
-
-const API_BASE_URL = 'https://...'; // Azuro Live Betting API base url
 
 const response = await fetch(`${API_BASE_URL}/orders`, {
   method: 'POST',
