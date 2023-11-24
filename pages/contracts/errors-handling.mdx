@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 # Errors Handling
 
 
@@ -6,113 +8,247 @@
 ### [0x70555917] `UnknownCoreType()`
 Occurs when trying to create a **Core** with an unregistered type in the **Factory**.
 
+<Callout type="advice">
+    Consider trying a different Betting Engine type. Currently, the Azuro owned Factory supports two Betting Engine types: **"pre-match-v2"** and **"express-v2"**.
+</Callout>
+
 ### [0xd97216d0] `UnknownLP()`
 Occurs when attempting to plug a new **Core** into an address that is not a **Liquidity Pool** created by the **Factory**.
 
----
+<Callout type="advice">
+    Use the **LP** address that was deployed with this **Factory** on this network
+</Callout>
+
+
 ## LP
 
 ### [0xf41de086] `BetExpired()`
 Triggered when the specified by user bet placement deadline has elapsed.
 
+<Callout type="advice">
+    Make sure to place bets before the specified deadline or specify new, later deadline.
+</Callout>
+
 ### [0x61e278f4] `ClaimTimeout(uint64 waitTime)`
 Occurs if a reward is claimed before the required waiting time (`waitTime`) has passed.
+
+<Callout type="advice">
+    Wait for the specified time (`waitTime`) to pass before claiming a reward.
+</Callout>
 
 ### [0x324ec950] `CoreNotActive()`
 Signifies an operation attempt by a non-active **Core** within the **Liquidity Pool**.
 
+<Callout type="advice">
+    Use another **Core**.
+</Callout>
+
 ### [0xc7c9660f] `DepositDoesNotExist()`
 Encountered when attempting to donate liquidity to non-existent liquidity deposit.
+
+<Callout type="advice">
+    Use the ID of an existing liquidity deposit.
+</Callout>
 
 ### [0xc076a8db] `GameAlreadyCanceled()`
 Arises when canceling a **Game** that already canceled.
 
+<Callout type="advice">
+    Do not attempt to cancel a **Game** that has already been marked as canceled.
+</Callout>
+
 ### [0x46a9b15d] `GameAlreadyCreated()`
 Arises when creating a **Game** with already registered ID.
+
+<Callout type="advice">
+    Ensure that you use a unique and unregistered ID when creating a new **Game**.
+</Callout>
 
 ### [0x9b830337] `GameCanceled_()`
 Arises when creating a **Condition** attached to a canceled **Game**.
 
+<Callout type="advice">
+    Use the ID of the registered **Game** that has not been canceled
+</Callout>
+
 ### [0x87aeb83d] `GameNotExists()`
 Signifies an attempt to interact with a non-existent **Game**.
+
+<Callout type="advice">
+    Use the ID of the **Game** that was previously registered.
+</Callout>
 
 ### [0x5b10d6dd] `IncorrectCoreState()`
 Raised when an incorrect core state is provided.
 
+<Callout type="advice">
+    Specify one of these states: **1** (ACTIVE) or **2** (INACTIVE).
+</Callout>
+
 ### [0xcd3cb2bb] `IncorrectFee()`
 Occurs when attempting to change the Fee in such a way that the total sum of all Fees exceeds 100%.
+
+<Callout type="advice">
+    Ensure that the total sum of fees in the **Liquidity Pool** does not exceed 1e12 (100%).
+</Callout>
 
 ### [0xe3b4aa3e] `IncorrectGameId()`
 Arises when creating a **Game** with ID zero.
 
+<Callout type="advice">
+    Ensure that the ID provided when creating a **Game** is greater than zero. Zero is not a valid ID for a **Game**.
+</Callout>
+
 ### [0xcad66eef] `IncorrectMinBet()`
 Occurs when the minimum bet amount is changing to zero.
+
+<Callout type="advice">
+    Specify a higher minimum bet value.
+</Callout>
 
 ### [0xfa6bfc6d] `IncorrectMinDepo()`
 Occurs when the minimum liquidity deposit amount is changing to zero.
 
+<Callout type="advice">
+    Specify a higher minimum deposit value.
+</Callout>
+
 ### [0xc6e3629b] `IncorrectReinforcementAbility()`
 Occurs when the reinforcement ability of a **Core** is changing to a value larger than 1e12 (100%).
+
+<Callout type="advice">
+    Specify the lower reinforcement ability value.
+</Callout>
 
 ### [0x686c69fd] `IncorrectTimestamp()`
 Triggered when attempting to:
 - Create a **Game** with a starting time that has already passed.
 - Change a **Game**'s starting time to zero.
 
+<Callout type="advice">
+    Specify a higher starting time value.
+</Callout>
+
 ### [0x6bac637f] `LiquidityIsLocked()`
 Arises when there is insufficient liquidity remaining in the **Liquidity Pool** to cover the maximum potential payout for previously placed bets.
+
+<Callout type="advice">
+    Specify a lower amount of liquidity for withdrawal.
+</Callout>
 
 ### [0x79c416b2:] `LiquidityNotOwned()`
 Occurs when attempting to withdraw liquidity from a deposit that is not owned.
 
+<Callout type="advice">
+    Use the ID of a liquidity deposit that you own.
+</Callout>
+
 ### [0x4323a555] `NotEnoughLiquidity()`
 Occurs when attempting to place a bet with a potential payout that exceeds the available liquidity limit in the **Liquidity Pool** or the constraints on utilizing free liquidity within the **Core** used for the bet.
+
+<Callout type="advice">
+    Place a bet with a smaller amount or betting odds or use another **Core**.
+</Callout>
 
 ### [0x0c6d42ae] `OnlyFactory()`
 Indicates that a function can only be called by the **Factory** to which the **Liquidity Pool** belongs.
 
+<Callout type="advice">
+    Do not try to call this function.
+</Callout>
+
 ### [0x2fb3e827] `SmallBet()`
 Occurs when attempting to place a bet with an amount lower than the established limit.
+
+<Callout type="advice">
+     Specify a higher bet amount.
+</Callout>
 
 ### [0x20d3137f] `SmallDepo()`
 Occurs when attempting to deposit liquidity with an amount lower than the established limit.
 
+<Callout type="advice">
+     Specify a higher deposit amount.
+</Callout>
+
 ### [0x5c9ff7c5] `SmallDonation()`
 Occurs when attempting to donate zero amount of liquidity.
+
+<Callout type="advice">
+     Specify a higher donation amount.
+</Callout>
 
 ### [0xace41f2c] `UnknownCore()`
 Occurs when an operation is attempted with an unknown **Core** in the **Liquidity Pool**.
 
+<Callout type="advice">
+    Use the **Core** address that was deployed with this **Factory** on this network for this **Liquidity Pool**.
+</Callout>
+
 ### [0x7951e672] `WithdrawalTimeout(uint64 waitTime)`
 Triggered when attempting to withdraw liquidity before the waiting time (`waitTime`) for a deposit has passed.
 
----
+<Callout type="advice">
+    Wait for the specified waiting time (`waitTime`) to elapse before attempting to withdraw liquidity from a deposit.
+</Callout>
+
 
 ## PrematchCore
 
 ### [0xd70a0e30] `AlreadyPaid()`
 Raised when attempting to withdraw or view the payout for a bet that has already been paid out.
 
+<Callout type="advice">
+    Use the ID of a bet that is has not already been paid.
+</Callout>
+
 ### [0xf67321e5] `BetNotExists()`
 Occurs when attempting to withdraw or view payout for a bet that does not exist.
+
+<Callout type="advice">
+    Use the ID of an existing bet.
+</Callout>
 
 ### [0x17d65839] `CantChangeFlag()`
 Triggered when attempting to:
 - Pause or resume a **Condition** that has already been resolved or canceled, or the **Game** associated with it has been canceled.
 - Pause a **Condition** that is paused.
 - Resume a **Condition** that is not paused.
+-
+<Callout type="advice">
+    Follow these rules for changing the pause/resume status of a **Condition**:
+    - Do not pause or resume a **Condition** that has already been resolved or canceled.
+    - Do not pause a **Condition** that is already paused.
+    - Do not resume a **Condition** that is not paused.
+</Callout>
 
 ### [0xa9e7a90b] `ConditionAlreadyCreated()`
 Arises when creating a **Condition** with already registered ID.
 
+<Callout type="advice">
+    Ensure that you use a unique and unregistered ID when creating a new **Condition**.
+</Callout>
+
 ### [0xd81005a7] `ConditionAlreadyResolved()`
 Occurs when attempting to resolve a **Condition** that has already been resolved.
+
+<Callout type="advice">
+    Do not attempt to resolve a **Condition** that has already been marked as resolved.
+</Callout>
 
 ### [0x08c7dc1b] `ConditionNotExists()`
 Signifies an attempt to interact with a non-existent **Condition**.
 
+<Callout type="advice">
+    Ensure that the **Condition** you are trying to interact with exists and is registered in the **Core**.
+</Callout>
+
 ### [0xacb88053] `ConditionNotFinished()`
 Raised when attempting to view or withdraw payout of a bet for a **Condition** that is not yet finished.
+
+<Callout type="advice">
+    Wait until the **Condition** is finished before accessing its payouts.
+</Callout>
 
 ### [0x95c1a60f] `ConditionNotRunning()`
 Occurs when trying to place a bet on a **Condition** that:
@@ -120,124 +256,270 @@ Occurs when trying to place a bet on a **Condition** that:
 - The **Game** associated with it is already started.
 - The **Game** associated with it has been canceled.
 
+<Callout type="advice">
+    Make sure you do not attempt to place a bet on a **Condition** that falls into one of the mentioned scenarios. Ensure that the **Condition** is in a valid state for placing bets.
+</Callout>
+
 ### [0x1d8a6830] `DuplicateOutcomes(uint64 outcomeId)`
 Thrown when trying to create a **Condition** with a list of outcomes that contains a duplicate outcome with ID `outcomeId`.
+
+<Callout type="advice">
+    Ensure that the list of outcomes provided when creating a **Condition** does not contain any duplicate outcome IDs.
+</Callout>
 
 ### [0xba26162b] `GameAlreadyStarted()`
 Raised when attempting to create a new **Condition** for a **Game** that has already started.
 
+<Callout type="advice">
+    Do not attempt to create a new **Condition** for a **Game** that has already started. Check the status of the **Game** before creating a **Condition** associated with it.
+</Callout>
+
 ### [0x46286c22] `IncorrectConditionId()`
 Arises when creating a **Condition** with zero ID.
 
+<Callout type="advice">
+    Ensure that the ID provided when creating a **Condition** is greater than zero. Zero is not a valid ID for a **Condition**.
+</Callout>
+
 ### [0xbfa25e5a] `IncorrectMargin()`
 Occurs when attempting to set the margin of a **Condition** to a value greater than 1e12 (100%).
+
+<Callout type="advice">
+    Ensure that the margin value of a **Condition** does not exceed 1e12 (100%).
+</Callout>
 
 ### [0xefa40393] `IncorrectOdds()`
 Occurs when:
 - Odds calculated for a bet is less than the minimum odds value provided with that bet.
 - The probability of one of the outcomes within the **Condition** becomes less than 0.1% as a result of placing a bet.
 
+<Callout type="advice">
+    Follow these rules:
+    - Ensure that the calculated odds for a bet are equal to or greater than the minimum odds value provided.
+    - Avoid placing bets that would result in an outcome's probability falling below 0.1%.
+</Callout>
+
 ### [0xd2326e2b] `IncorrectOutcomesCount()`
 Occurs when attempting to create a **Condition** with the number of outcomes not within the range of 2 to 20.
+
+<Callout type="advice">
+    Create a **Condition** with a number of outcomes between 2 and 20.
+</Callout>
 
 ### [0xbd2b46cb] `IncorrectReinforcement()`
 Occurs when attempting to change a reinforcement of a **Condition** in a way that would insufficiently cover the maximum potential payouts for bets placed on the **Condition**.
 
+<Callout type="advice">
+    Ensure that changes to a **Condition's** reinforcement provide sufficient coverage for the maximum potential payouts of bets placed on that **Condition**.
+</Callout>
+
 ### [0x5e52656b] `IncorrectWinningOutcomesCount()`
 Occurs when the specified winning outcomes for a **Condition** is not in the range from one to one less than the **Condition** total outcomes.
+
+<Callout type="advice">
+    To address this error, when specifying winning outcomes for a **Condition**, make sure they fall within the range from one to one less than the total outcomes of the **Condition**.
+</Callout>
 
 ### [0xd44b3c62] `InsufficientFund()`
 Occurs when attempting to change a reinforcement of a **Condition** in a way that would insufficiently cover the funds of the **Condition**.
 
+<Callout type="advice">
+    Ensure that any changes to the reinforcement of a **Condition** provide adequate coverage for the funds associated with that **Condition**.
+</Callout>
+
 ### [0x7bcde10b] `NoPendingReward()`
 Thrown when attempting to claim a reward, but there is no pending reward to claim.
+
+<Callout type="advice">
+    Make sure there is a pending reward available before attempting to claim it.
+</Callout>
 
 ### [0x06923abf] `NothingChanged()`
 Occurs when attempting to change a reinforcement of a **Condition** to the same value.
 
+<Callout type="advice">
+    Ensure that any changes made to the reinforcement are different from the current value.
+</Callout>
+
 ### [0xdad84f8f] `OnlyLp()`
 Indicates that a function can only be called by the **Liquidity Pool** to which the **PrematchCore** belongs.
+
+<Callout type="advice">
+    Do not try to call this function.
+</Callout>
 
 ### [0xf432bce9] `OnlyOracle(address)`
 Raised when to resolve **Condition** by an address that is not it's oracle.
 
+<Callout type="advice">
+    Ensure that you resolving a **Condition** from an address that crated it.
+</Callout>
+
 ### [0xb6f9f890] `OutcomesAndOddsCountDiffer()`
 Occurs when the number of outcomes and odds provided for a **Condition** do not match.
+
+<Callout type="advice">
+    Ensure that the number of outcomes specified for a **Condition** matches the number of odds provided.
+</Callout>
 
 ### [0x131d0781] `ResolveTooEarly(uint64 waitTime)`
 Thrown when attempting to resolve a **Condition** before its **Game** start time plus one minute has passed.
 
+<Callout type="advice">
+    Wait until at least one minute after the **Game** start time before attempting to resolve a **Condition**.
+</Callout>
+
 ### [0x8218e4b2] `WrongOutcome()`
 This error is raised when trying to interact with non-existent outcome of a **Condition**.
+
+<Callout type="advice">
+    Verify that the outcome you are trying to interact with exists within the **Condition**.
+</Callout>
 
 ### [0xe1df1b79] `ZeroOdds()`
 Occurs when the odds provided for a **Condition** is zero.
 
----
+<Callout type="advice">
+    Do not specify odds of zero for a **Condition**.
+</Callout>
+
+
 ## BetExpress
 
 ### [0xd70a0e30] `AlreadyPaid()`
 Raised when attempting to withdraw or view the payout for a combo bet that has already been paid out.
 
+<Callout type="advice">
+   Ensure that you do not attempt to withdraw or view the payout for a combo bet that has already been paid out.
+</Callout>
+
 ### [0xf67321e5] `BetNotExists()`
 Occurs when attempting to withdraw or view payout for a combo bet that does not exist.
+
+<Callout type="advice">
+    Make sure the combo bet you are trying to access exists.
+</Callout>
 
 ### [0x816ea2d4] `ConditionNotFinished(uint256 conditionId)`
 Thrown when trying to withdraw or view payout for a combo bet, but the **Condition** with ID `conditionId` in the combo has not yet concluded.
 
+<Callout type="advice">
+    Ensure that each **Condition** has resolved or canceled or associated with game is canceled before accessing the combo bet payout.
+</Callout>
+
 ### [0x0912073c] `ConditionNotForExpress()`
 Occurs when trying to place a combo bet with a **Condition** that is marked as forbidden for it.
+
+<Callout type="advice">
+    Only use **Conditions** that have a property `isForExpress = true` when creating a combo bet.
+</Callout>
 
 ### [0xec8043e0] `ConditionNotRunning(uint256 conditionId)`
 Occurs when trying to place a combo bet with a **Condition** with ID `conditionId` that:
 - Has been resolved or canceled.
 - The **Game** associated with it is already started.
 - The **Game** associated with it has been canceled.
+-
+<Callout type="advice">
+  Do not include **Conditions** that have been resolved, canceled, or associated with games that are already in progress or canceled.
+</Callout>
 
 ### [0x7c36c886] `IncorrectMaxOdds()`
 Thrown when trying to make the maximum odds value for combo bets less than 1e12 (1.000000000000).
 
+<Callout type="advice">
+    Ensure that the maximum odds value for combo bets is set to a value equal to or greater than 1e12 (1.000000000000).
+</Callout>
+
 ### [0x4b4dc673] `LargeOdds()`
 Occurs when the odds for a combo bet exceeding the established maximum odds value.
+
+<Callout type="advice">
+    Ensure that the odds for combo bets do not exceed the maximum odds value.
+</Callout>
 
 ### [0xdad84f8f] `OnlyLp()`
 Indicates that a function can only be called by the **Liquidity Pool** to which the **BetExpress** belongs.
 
+<Callout type="advice">
+    Do not try to call this function.
+</Callout>
+
 ### [0x24d2b6d6] `SameGameIdsNotAllowed()`
 Thrown when in a combo bet there are multiple sub-bets for **Conditions** with the same **Game** ID.
+
+<Callout type="advice">
+    Ensure that there are no multiple sub-bets within a combo bet that are associated with **Conditions** having the same **Game** ID.
+</Callout>
 
 ### [0xfd25ed88] `SmallOdds()`
 Odds calculated for a combo bet is less than the minimum odds value provided with that bet.
 
+<Callout type="advice">
+    Make sure that the calculated odds for a combo bet are equal to or greater than the minimum odds value specified as the minimum odds.
+</Callout>
+
 ### [0x46980695] `TooLargeReinforcement(uint256 conditionId)`
 Occurs when the payouts depending on the outcome of the **Condition** with ID `conditionId` exceed the maximum value as a result of placing a combo bet.
+
+<Callout type="advice">
+    Place a combo bet with smaller amount or odds or do not use a Condition with ID `conditionId` in your bet.
+</Callout>
 
 ### [0xb70028af] `TooFewSubbets()`
 Raised when the number of sub-bets within a combo bet is less than two.
 
----
+<Callout type="advice">
+    Ensure that a combo bet includes a minimum of two sub-bets.
+</Callout>
+
+
 ## ProxyFront
 
 ### [0xd2ade556] `IncorrectValue()`
 This error is raised when the value sent in the bet function doesn't match the total amount of bids to be paid. The total value should match the total amount of bets.
 
----
+<Callout type="advice">
+    Verify that the amount you're sending is correct and aligned with the total value of the bets you intend to place.
+</Callout>
+
+
 ## Access
 
 ### [0x694f23ea] `AccessNotGranted()`
 Thrown when a caller has no access to a specific function of a contract.
 
+<Callout type="advice">
+    Ensure that the caller has the necessary access permissions to call the specific function of the contract. Grant the required access rights to the caller, or check if the caller meets the access criteria for that function.
+</Callout>
+
 ### [0x6b898b9f] `MaxRolesReached()`
 Raised when the maximum number of contract roles (limited to 256) is reached.
+
+<Callout type="advice">
+    Reutilize existing roles, redefining their access rights. Also you may need to review your role management strategy to stay within the 256-role limit.
+</Callout>
 
 ### [0x59dc379f] `NotTokenOwner()`
 Raised when the caller attempts to burn a token that they do not own or for which they are not an approved operator.
 
+<Callout type="advice">
+    Ensure that the caller either owns the token or has been approved as an operator for the token before attempting to perform actions such as burning.
+</Callout>
+
 ### [0xa810f304] `RoleAlreadyGranted()`
 Raised when an attempt is made to grant a role to an account that already has the role.
 
----
+<Callout type="advice">
+    Ensure that you do not attempt to grant a role to an account that already possesses the same role.
+</Callout>
+
+
 ## AzuroBet
 
 ### [0xdc96dfde] `OnlyCore()`
 Indicates that a function can only be called by the **Core** to which the **AzuroBet** belongs.
+
+<Callout type="advice">
+    Do not try to call this function.
+</Callout>

@@ -1,0 +1,70 @@
+import { PageHeadline, Formula } from 'components'
+
+<PageHeadline
+  title="Virtual Funds"
+  subTitle="Virtual Funds are a mechanism for calculating the probability of outcomes for a Condition"
+/>
+
+In CoreBase-based smart contracts, the probability of each outcome within a
+[Condition](/concepts/protocol/conditions) is stored in the form of Virtual Funds of outcomes.
+The greater the value of the Virtual Fund of the outcome relative to the Virtual Funds of other outcomes,
+the higher the perceived probability of that outcome, and consequently, the lower the [odds](/concepts/protocol/odds)
+for that particular outcome:
+
+<Formula>
+$$
+o_{i}=\frac{F_{0} + ... + F_{n}} {F_{i}},\text{where } F_i \text{ is a Virtual Fund of the outcome } i
+$$
+</Formula>
+
+When creating or modifying the odds of outcomes by the [Data Provider](/concepts/basic/data-providers), the total
+volume of Virtual Funds for all outcomes within the Condition is calculated using the following formula:
+
+<Formula>
+$$
+F=R-sum(bets)-max(payout)
+$$
+</Formula>
+
+<Formula className="text-md">
+$$
+\text{ where }
+\\R \text{ is the [Reinforcement](/concepts/protocol/reinforcement) of a Condition },
+\\sum(bets) \text{ is the sum of bets on all outcomes of a Conidition },
+\\max(payout) \text{ is the maximum potential payout to players for a Condition }
+$$
+</Formula>
+
+The main distinctive feature of Virtual Funds is that, despite their size incorporating the Reinforcement size
+designated at the creation of the Condition, the Reinforcement is not locked on the [LP](/contracts/lp) balance fully.
+Until the Condition is completed, only the liquidity amount needed to cover the maximum possible payout for
+the Condition through user bets is locked on the LP balance. The locked liquidity value is recalculated each time a user
+places a bet or a Data Provider provides Condition results. Thanks to this, the sum of Reinforcement amounts for all
+current Conditions may exceed the liquidity amount on the LP balance. If the Reinforcement limit has not been reached
+yet, but there is insufficient unlocked liquidity on the pool to support a bet, then that bet simply will not be accepted.
+This mechanism efficiently utilizes liquidity and sustains a large number of Conditions in the game at any given moment.
+
+The total volume of Virtual Funds does not always match the real fund of the Condition. When a player places
+a bet, the ratio of Virtual Funds changes. Before calculating the odds on which the bet will be accepted, the
+Virtual Fund of the outcome i on which the bet is placed increases by the size of the bet:
+
+<Formula>
+$$
+F_{i}=F_{i}-a,\text{where } a \text{ is a bet amount}
+$$
+</Formula>
+
+After the bet on outcome i has been accepted, the Virtual Fund of other outcomes changes as follows:
+
+<Formula>
+$$
+F_{j \neq i}\mathrel{{-}{=}}\frac{(payout-a)*F_{j}}{sum(F)},\text{where } a \text{ is a bet amount}
+$$
+</Formula>
+
+Thanks to the adjustment of Virtual Funds, in the absence of Data Provider control, an internal
+mechanism of an automatic market maker of the betting odds is performed: the greater the volume of bets on an outcome,
+the lower its odds, and the odds for other outcomes increase.
+
+Also, due to this mechanism, the overall loss for the Condition in the worst-case scenario cannot exceed the size of
+the reinforcement allocated by the Data Provider when creating the Condition.

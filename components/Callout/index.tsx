@@ -4,7 +4,7 @@ import cx from 'clsx'
 
 type Props = {
   icon?: string
-  type: 'info' | 'warning' | 'alert' | 'feature' | 'reference'
+  type: 'info' | 'warning' | 'alert' | 'feature' | 'advice' | 'reference'
 }
 
 export function Callout(props: React.PropsWithChildren<Props>) {
@@ -15,6 +15,7 @@ export function Callout(props: React.PropsWithChildren<Props>) {
     'bg-amber-50 border-amber-300 text-amber-900 dark:bg-amber-900/40 dark:border-amber-800 dark:text-orange-300': type === 'warning',
     'bg-red-50 border-red-300 text-red-900 dark:bg-red-900/40 dark:border-red-800 dark:text-red-200': type === 'alert',
     'bg-sky-50 border-sky-300 text-sky-900 dark:bg-sky-900/40 dark:border-sky-800 dark:text-sky-200': type === 'feature',
+    'bg-yellow-50 border-yellow-300 text-yellow-900 dark:bg-yellow-900/40 dark:border-yellow-800 dark:text-yellow-300': type === 'advice',
     'italic': type === 'reference',
   })
 
@@ -23,6 +24,7 @@ export function Callout(props: React.PropsWithChildren<Props>) {
     'warning': '⚠️',
     'alert': '🚨',
     'feature': '💎',
+    'advice': '💡',
   })[type]
 
   return (
