@@ -12,27 +12,27 @@ the higher the perceived probability of that outcome, and consequently, the lowe
 for that particular outcome:
 
 <Formula>
-    $$
-    o_{i}=\frac{F_{0} + ... + F_{n}} {F_{i}},\text{where } F_i \text{ is a Virtual Fund of the outcome } i
-    $$
+$$
+o_{i}=\frac{F_{0} + ... + F_{n}} {F_{i}},\text{where } F_i \text{ is a Virtual Fund of the outcome } i
+$$
 </Formula>
 
 When creating or modifying the odds of outcomes by the [Data Provider](/concepts/basic/data-providers), the total
 volume of Virtual Funds for all outcomes within the Condition is calculated using the following formula:
 
 <Formula>
-    $$
-    F=R-sum(bets)-max(payout)
-    $$
+$$
+F=R-sum(bets)-max(payout)
+$$
 </Formula>
 
 <Formula className="text-md">
-    $$
-    \text{ where }
-    \\R \text{ is the [Reinforcement](/concepts/protocol/reinforcement) of a Condition },
-    \\sum(bets) \text{ is the sum of bets on all outcomes of a Conidition },
-    \\max(payout) \text{ is the maximum potential payout to players for a Condition }
-    $$
+$$
+\text{ where }
+\\R \text{ is the [Reinforcement](/concepts/protocol/reinforcement) of a Condition },
+\\sum(bets) \text{ is the sum of bets on all outcomes of a Conidition },
+\\max(payout) \text{ is the maximum potential payout to players for a Condition }
+$$
 </Formula>
 
 The main distinctive feature of Virtual Funds is that, despite their size incorporating the Reinforcement size
@@ -49,17 +49,17 @@ a bet, the ratio of Virtual Funds changes. Before calculating the odds on which 
 Virtual Fund of the outcome i on which the bet is placed increases by the size of the bet:
 
 <Formula>
-    $$
-    F_{i}=F_{i}-a,\text{where } a \text{ is a bet amount}
-    $$
+$$
+F_{i}=F_{i}-a,\text{where } a \text{ is a bet amount}
+$$
 </Formula>
 
 After the bet on outcome i has been accepted, the Virtual Fund of other outcomes changes as follows:
 
 <Formula>
-    $$
-    F_{j \neq i}\mathrel{{-}{=}}\frac{(payout-a)*F_{j}}{sum(F)},\text{where } a \text{ is a bet amount}
-    $$
+$$
+F_{j \neq i}\mathrel{{-}{=}}\frac{(payout-a)*F_{j}}{sum(F)},\text{where } a \text{ is a bet amount}
+$$
 </Formula>
 
 Thanks to the adjustment of Virtual Funds, in the absence of Data Provider control, an internal
