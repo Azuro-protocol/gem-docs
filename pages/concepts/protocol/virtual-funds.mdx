@@ -29,14 +29,15 @@ $$
 <Formula className="text-md">
 $$
 \text{ where }
-\\R \text{ is the [Reinforcement](/concepts/protocol/reinforcement) of a Condition },
-\\sum(bets) \text{ is the sum of bets on all outcomes of a Conidition },
-\\max(payout) \text{ is the maximum potential payout to players for a Condition }
+\\R \text{ is the Reinfrocement of a Condition, }
+\\sum(bets) \text{ is the sum of bets on all outcomes of a Conidition, }
+\\max(payout) \text{ is the maximum potential payout to players for a Condition. }
 $$
 </Formula>
 
-The main distinctive feature of Virtual Funds is that, despite their size incorporating the Reinforcement size
-designated at the creation of the Condition, the Reinforcement is not locked on the [LP](/contracts/lp) balance fully.
+The main distinctive feature of Virtual Funds is that, despite their size incorporating the
+[Reinforcement](/concepts/protocol/reinforcement) size designated at the creation of the Condition, the Reinforcement is
+not locked on the [LP](/contracts/lp) balance fully.
 Until the Condition is completed, only the liquidity amount needed to cover the maximum possible payout for
 the Condition through user bets is locked on the LP balance. The locked liquidity value is recalculated each time a user
 places a bet or a Data Provider provides Condition results. Thanks to this, the sum of Reinforcement amounts for all
@@ -50,7 +51,7 @@ Virtual Fund of the outcome i on which the bet is placed increases by the size o
 
 <Formula>
 $$
-F_{i}=F_{i}-a,\text{where } a \text{ is a bet amount}
+F_{i}=F_{i}-a,\text{where } a \text{ is a bet amount. }
 $$
 </Formula>
 
@@ -58,7 +59,7 @@ After the bet on outcome i has been accepted, the Virtual Fund of other outcomes
 
 <Formula>
 $$
-F_{j \neq i}\mathrel{{-}{=}}\frac{(payout-a)*F_{j}}{sum(F)},\text{where } a \text{ is a bet amount}
+F_{j \neq i}\mathrel{{-}{=}}\frac{(payout-a)*F_{j}}{sum(F)},\text{where } a \text{ is a bet amount. }
 $$
 </Formula>
 
