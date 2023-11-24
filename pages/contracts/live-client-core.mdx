@@ -5,26 +5,26 @@ import { PageHeadline, Callout } from 'components'
   subTitle="A Register Engine for the betting"
 />
 
-"LiveCore" contract is designed to accept bets on sport events in real time and reserve payouts for them. 
-Bets are made according to the parameters  (event, outcome, odds, amount) approved and signed by the bettor and by the oracle. 
-Each LiveCore bet is "AzuroBet token" like it is in PrematchCore. The contract does not calculate coefficients, 
+"LiveCore" contract is designed to accept bets on sport events in real time and reserve payouts for them.
+Bets are made according to the parameters  (event, outcome, odds, amount) approved and signed by the bettor and by the Azuro backend.
+Each LiveCore bet is "AzuroBet token" as in PrematchCore. The contract does not calculate odds,
 it only checks the provided parameters and signatures.
 
-"LiveCore" contract checks the states of events: creates new ones and resolves finished events. When the event ends
+"LiveCore" contract checks the states of the events: creates new ones and resolves finished events. When the event ends
 at a certain "resolve time", bets made later than the "resolve time" are possible - these bets are considered canceled
 and can be returned back to the players (players take back "LP.withdrawPayout()" canceled bets by themselves).
 
-"LiveCore" is contract similar to “PrematchCore” does not store bet amounts and payments, it uses the “LP” contract: 
+"LiveCore" is contract similar to “PrematchCore” does not store bet amounts and payments, it uses the “LP” contract:
 sends bets and reserves the amount for payments there.
 
-A snapshot saving approach is used for cancele bets. In this way, bets are saved with time stamps and if bets are placed 
+A snapshot saving approach is used for canceled bets. In this way, bets are saved with time stamps and if bets are placed
 after the event "resolve time", it will be canceled.
 
 When bet places, a snapshot is saved.
-When the event ends at the "resolve time", the snapshot is restored and bets later than the "resolve time" are canceled 
+When the event ends at the "resolve time", the snapshot is restored and bets later than the "resolve time" are canceled
 and available for refund.
 
-In real time transaction of resolving event makes more later than actual "resolve time", 
+In real time transaction of resolving event makes more later than actual "resolve time",
 so there can be bets accepted after event actually finished - and these bets will be canceled at the event execution resolve.
 
 <Callout type="warning">
