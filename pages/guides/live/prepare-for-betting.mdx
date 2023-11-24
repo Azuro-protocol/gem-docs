@@ -1,0 +1,49 @@
+import { Callout } from 'components'
+
+# Prepare user wallet for betting
+
+After you [retrieved games and markets](/guides/live/data-retrieval), you can start to create a betting flow.
+But before your users can start to place their bets, they need to prepare their wallets for betting with the following steps:
+
+### Top up the native currency
+
+The user needs some small amount of native currency to mint test tokens and give an approval to our Relayer smart contract for spending his betting tokens.
+
+Currently, we are live in Polygon Mumbai testnet that's native currency is `MATIC`.
+To claim some amount for tests, you can use one of the following faucets:
+
+- https://faucet.polygon.technology/
+- https://mumbaifaucet.com/
+- https://faucet.quicknode.com/polygon/mumbai
+- https://faucets.chain.link/mumbai
+
+or just search for `mumbai testnet faucet`.
+
+### Claim test tokens
+
+Bets are placed in ERC20 tokens, currently we support custom `USDT` in Polygon Mumbai testnet.
+The contract address of this token is [`0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4`](https://mumbai.polygonscan.com/address/0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4).
+
+Before a user can start betting, he needs to mint some amount of this token by calling `mint` write method.
+We recommend you as a frontend operator to create a convenient interface to do that in 1 click and mint `1000 USDT` to the user's wallet.
+
+<Callout type="warning">
+  This token soon will be replaced with a new one called `AZUSD`, that implements a new logic.
+  We'll update this guide as soon as we deployed it with a new test stand.
+</Callout>
+
+### Give a spending approval
+
+In our live betting architecture users don't make transactions, they just sign a message that contains all the bet information and place an order.
+This order then been executed by a [Relayer](/contracts/live-relayer) - special backend service for transactions broadcasting.
+
+<Callout type="feature">
+  While we work in a testnet, you can ask users to give an approval to spend an unlimited amount of tokens.
+</Callout>
+
+### Summary
+
+After finishing all the steps above your users is fueled up with a native currency (that he will need to claim his winnings)
+and some test tokens for betting that are ready to be spent.
+
+Now you can proceed with a [betting flow](/guides/live/place-a-bet) implementation.
