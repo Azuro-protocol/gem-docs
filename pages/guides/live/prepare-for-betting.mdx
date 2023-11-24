@@ -21,11 +21,16 @@ or just search for `mumbai testnet faucet`.
 
 ### Claim test tokens
 
-Bets are placed in tokens, currently we support custom `USDT` in Polygon Mumbai testnet.
+Bets are placed in ERC20 tokens, currently we support custom `USDT` in Polygon Mumbai testnet.
 The contract address of this token is [`0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4`](https://mumbai.polygonscan.com/address/0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4).
 
 Before a user can start betting, he needs to mint some amount of this token by calling `mint` write method.
 We recommend you as a frontend operator to create a convenient interface to do that in 1 click and mint `1000 USDT` to the user's wallet.
+
+<Callout type="warning">
+  This token soon will be replaced with a new one called `AZUSD`, that implements a new logic.
+  We'll update this guide as soon as we deployed it with a new test stand.
+</Callout>
 
 ### Give a spending approval
 
