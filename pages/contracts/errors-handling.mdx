@@ -252,7 +252,7 @@ Raised when attempting to view or withdraw payout of a bet for a **Condition** t
 
 ### [0x95c1a60f] `ConditionNotRunning()`
 Occurs when trying to place a bet on a **Condition** that:
-- Has been resolved or canceled.
+- Has been resolved, canceled or paused.
 - The **Game** associated with it is already started.
 - The **Game** associated with it has been canceled.
 
@@ -416,7 +416,7 @@ Occurs when trying to place a combo bet with a **Condition** that is marked as f
 
 ### [0xec8043e0] `ConditionNotRunning(uint256 conditionId)`
 Occurs when trying to place a combo bet with a **Condition** with ID `conditionId` that:
-- Has been resolved or canceled.
+- Has been resolved, canceled or paused.
 - The **Game** associated with it is already started.
 - The **Game** associated with it has been canceled.
 -
