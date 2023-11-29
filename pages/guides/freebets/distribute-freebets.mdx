@@ -70,13 +70,19 @@ and the safe balance for your new campaign.
 />
 
 ### 3. Create a New Freebets Campaign
-To create a new Freebets campaign, provide the following details:
-   - Contract address
-   - Expiration date
-   - Amount for each Freebet
-   - Minimum odds for a bet
+**To create a new Freebets campaign, provide the following details:**
+- Campaign title
+- Network
+- Expiration date
+- List of freebets data: address, amount, min odds for each freebet.
 
-Additionally, please provide a list of the addresses for distribution.
+You can provide freebet data by direct input, or by parsing a "csv" file (click button "Open CSV file" or just drag-n-drop it).
+
+Please keep the format: `address, amount, min.odds` (the data for each address must start with a new line).
+
+<Callout type="warning">
+  Please don't put more than 1000 addresses to a campaign.
+</Callout>
 
 <Callout type="info">
   Distribution of freebets doesn't lock any liquidity before claim. You can create as much freebets as you want (even if available balance doesn't cover total amount).
@@ -84,18 +90,24 @@ Additionally, please provide a list of the addresses for distribution.
 </Callout>
 
 <Image
-  src="/images/freebets/admin/03.png"
-  width={2024}
-  height={1596}
+  src="/images/freebets/admin/03-1.png"
+  width={1858}
+  height={1900}
 />
 
-**Successful Campaign Creation**: After successfully creating your Freebets campaign,
-you will see a confirmation message.
+If you have duplicated addresses, all rows with duplicates will be highlighted as a warning (yellow).
+It's up to you whether to submit duplicates (in that case user will receive 2 freebets) or remove them.
+
+If you have invalid rows, all of them will be highlighted in red. Fix them before submitting the form.
+
 <Image
-  src="/images/freebets/admin/04.png"
-  width={1496}
-  height={292}
+  className="md:w-1/2"
+  src="/images/freebets/admin/04-1.png"
+  width={1202}
+  height={702}
 />
+
+After submitting, you will see a success or error notification.
 
 ### Check Active Campaigns
 To review your active Freebets campaigns, click on the "Details" button.
