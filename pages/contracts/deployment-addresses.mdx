@@ -2,53 +2,6 @@ import { ContractsAddresses } from 'components'
 
 # Deployment Addresses
 
-### Beacons
-
-<ContractsAddresses
-  tabs={[
-    {
-      chain: 'Gnosis',
-      addresses: {
-        lp: '0x68762711E7Bea5716c715A9bb3978e56A842043A',
-        access: '0x043a704a3dc7F1d1a5e3071a7A02cc88625F8448',
-        prematchCore: '0x319c3936043611C6a47f997F14B9C91a455Ea8f4',
-        expressCore: '0xB2EEA98e98eAC6A6D0A2af3d36c5C809DeD2FdA2',
-        azuroBet: '0xbDBF716cb5F39AFF6135E12AE4D7134746823fC0',
-      },
-    },
-    {
-      chain: 'Polygon',
-      addresses: {
-        lp: '0x795b48F8beFAF911548D978E8a2D4E182D6dCe92',
-        access: '0x19373B1244FF562a41AdEb3d72C377Bf01B0A125',
-        prematchCore: '0x6A5410cBccf9a85F5814871d35d2DAab9054fE9f',
-        expressCore: '0x3A3470AE06880D8486fFa6335e03EB4fbBAeAbd9',
-        azuroBet: '0x97d26F857891F51855Cc207e694F99DA03DeA178',
-      },
-    },
-    {
-      chain: 'Arbitrum',
-      addresses: {
-        lp: '0x57C7628F0325981e5CD43C157dbb8Daee75E9470',
-        access: '0xE40FdeB78BD64E7ab4BB12FA8C4046c85642eD6f',
-        prematchCore: '0xA938ffD7440E7C74A950688Ab81c352B75c9B498',
-        expressCore: '0x0a6294755Bcb649bc9d418a57CcC5AaDC11dCE12',
-        azuroBet: '0xA35aD8c68c1a53ab8B9212750759E82e63c05027',
-      },
-    },
-    {
-      chain: 'Linea',
-      addresses: {
-        lp: '0x19373B1244FF562a41AdEb3d72C377Bf01B0A125',
-        access: '0xE810AF657ACA3f922dad6bb1613599EDe2dDdD8A',
-        prematchCore: '0x3E00faFFFC6Ee5984952151Aa6713b95594dC9de',
-        expressCore: '0x4D19C91112f5Fea8D1254F623c7df95B7184Ae9B',
-        azuroBet: '0xC2f78997A6D4b0c6C93Af449889a50641Cf363B2',
-      },
-    },
-  ]}
-/>
-
 ### Contracts (Production)
 
 <ContractsAddresses
@@ -105,6 +58,22 @@ import { ContractsAddresses } from 'components'
         azuroBet: '0xB9E4CB7Dcfb418aa2a7Cd5FE8194597791097f09',
       },
     },
+    {
+      chain: 'Polygon Mumbai (AZUSD) v2.10.3',
+      addresses: {
+        factory: '0x0CE975Db02edf2388607BB5C379Ee64253e2088d',
+        lp: '0xA39e988b357122D9ba75C0038E625a5ab9363F54',
+        prematchCore: '0x33742d3D8bE5A7F47D2eC1fA39fDa9FCB5288727',
+        expressCore: '0xb7f1B3dA0eECf0a084cdd16Df917216BB72b42f5',
+        proxyFront: '0x545715348d9ba42Bf8Cc907Be323283EF616E807',
+        betToken: '0x37B9324f3Aa84DE6D062DC18C0539D5440Dca3FF',
+        access: '0x2BC5886AaAe527dd808B8Ec665312617288e73C9',
+        azuroBet: '0x20218e184aBcE5EB77f79621ED471BD03f6be8fE',
+        hostCore: '0xBb35f2490B050538FCeDD6d708a37CC922973483',
+        clientCore: '0xCAbD3786AD8EBD3806ab4A325127E38ADEa7745e',
+        relayer: '0xB054cC71D75feB23b6E148F5872Ef07de3D1e50D',
+      },
+    },
   ]}
 />
 
@@ -159,6 +128,65 @@ import { ContractsAddresses } from 'components'
         proxyFront: '0x6a8988Ba9CF63C6AbBa1D389220B1e804297bce4',
         betToken: '0xa07e6dA79723961a7a933566c42D3Cf1dbE5B19c',
         azuroBet: '0xB9E4CB7Dcfb418aa2a7Cd5FE8194597791097f09',
+      },
+    },
+  ]}
+/>
+
+
+### Beacons
+
+<ContractsAddresses
+  tabs={[
+    {
+      chain: 'Gnosis',
+      addresses: {
+        lp: '0x68762711E7Bea5716c715A9bb3978e56A842043A',
+        access: '0x043a704a3dc7F1d1a5e3071a7A02cc88625F8448',
+        prematchCore: '0x319c3936043611C6a47f997F14B9C91a455Ea8f4',
+        expressCore: '0xB2EEA98e98eAC6A6D0A2af3d36c5C809DeD2FdA2',
+        azuroBet: '0xbDBF716cb5F39AFF6135E12AE4D7134746823fC0',
+      },
+    },
+    {
+      chain: 'Polygon',
+      addresses: {
+        lp: '0x795b48F8beFAF911548D978E8a2D4E182D6dCe92',
+        access: '0x19373B1244FF562a41AdEb3d72C377Bf01B0A125',
+        prematchCore: '0x6A5410cBccf9a85F5814871d35d2DAab9054fE9f',
+        expressCore: '0x3A3470AE06880D8486fFa6335e03EB4fbBAeAbd9',
+        azuroBet: '0x97d26F857891F51855Cc207e694F99DA03DeA178',
+      },
+    },
+    {
+      chain: 'Arbitrum',
+      addresses: {
+        lp: '0x57C7628F0325981e5CD43C157dbb8Daee75E9470',
+        access: '0xE40FdeB78BD64E7ab4BB12FA8C4046c85642eD6f',
+        prematchCore: '0xA938ffD7440E7C74A950688Ab81c352B75c9B498',
+        expressCore: '0x0a6294755Bcb649bc9d418a57CcC5AaDC11dCE12',
+        azuroBet: '0xA35aD8c68c1a53ab8B9212750759E82e63c05027',
+      },
+    },
+    {
+      chain: 'Linea',
+      addresses: {
+        lp: '0x19373B1244FF562a41AdEb3d72C377Bf01B0A125',
+        access: '0xE810AF657ACA3f922dad6bb1613599EDe2dDdD8A',
+        prematchCore: '0x3E00faFFFC6Ee5984952151Aa6713b95594dC9de',
+        expressCore: '0x4D19C91112f5Fea8D1254F623c7df95B7184Ae9B',
+        azuroBet: '0xC2f78997A6D4b0c6C93Af449889a50641Cf363B2',
+      },
+    },
+    {
+      chain: 'Polygon Mumbai (AZUSD)',
+      addresses: {
+        lp: '0x493AeBfCf682e338C664c126C96901cFC8956CaE',
+        access: '0x540Ab5e52d8B75B2E8a6a575431050cbDB27504E',
+        prematchCore: '0x549CD7BC89819228D53645558744605144b6c4aA',
+        expressCore: '0xF5Cd9824EB748A9b0FeB81841b79Ec52302EC9CA',
+        azuroBet: '0x8DEb193991aAA60D2EC770D5ea0dDED44368BA56',
+        clientCore: '0xCCA405c99F576fE58DAD5a937e0bAA9c3e93F338',
       },
     },
   ]}
