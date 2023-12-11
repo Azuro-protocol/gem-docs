@@ -1,0 +1,95 @@
+import { Callout } from 'components'
+
+# Order errors
+
+You may get an error when placing an order, so the order object will look like:
+
+```ts
+{
+  id: 'order id',
+  state: OrderState.Rejected, // Order state will be 'Rejected'
+  error: OrderError.*, // here instead of * you'll get enum value
+  errorMessage: '(optional) error description',
+}
+```
+
+Below we will explain all the possible errors and suggest you how to deal with them.
+
+### `OrderError.TokenAllowance`
+
+User must give an allowance to spend his betting token in amount that greater or equal than the bet size plus max relayer fee.
+So you must ensure that allowance is given to our [Relayer](/contracts/live-relayer) smart contract,
+otherwise ask user to give it before sending an order request.
+
+We recommend you to ask the user to provide an allowance to spend more tokens than needed just for the bet for his own convenience.
+For example, you can ask him to give an infinite allowance or an allowance to spend all the tokens he is currently holding in his wallet.
+
+### `OrderError.MessageNotVerified`
+
+This error means that the message has been signed by user can't be verified.
+Please, refer to [`Sign a message`](/guides/live/place-a-bet#step-2-sign-a-message-and-send-the-order) guide section
+and ensure you build up the message correctly.
+
+If you are using another web 3 library than used in the code example, please, reach out to its documentation
+to find out how to implement the same behaviour.
+
+### `OrderError.BadData`
+
+Most probably, you have provided an incorrect `conditionId` or `outcomeId` so the system can't find them in our database.
+
+<Callout type="warning">
+  In some rare cases we have an internal problems with provided market,
+  in this case you will receive an additional description in the `errorMessage` field.
+  You can't fix it on your side. If the issue persists for some period of time, you can reach out to Azuro support.
+</Callout>
+
+### `OrderError.TooHighMinPrice`
+
+The final bet price is calculated using slippage mechanism
+(read more [here](/guides/prematch/place-a-bet#rawminodds) and [here](/concepts/protocol/odds)).
+If the final calculated bet price is lower than `minPrice` value in signed message, the order will be rejected.
+
+To resolve this error, you can do the following:
+- increase a slippage to lower the `minPrice` value;
+- decrease the bet amount.
+
+<Callout type="warning">
+  In rare cases you may find that the condition's odds are not actual in the datafeed graph
+  (for example, if we encounter a network congestion or the nodes errors).
+  Unfortunately, currently you can't do anything here and you need to wait until we resolve the issue.
+</Callout>
+
+### `OrderError.PayoutNotGuaranteed`
+
+This rare error means that if we accept the bet and the outcome will win,
+then we couldn't pay the winnings for all the bettors who placed bet on that outcome.
+
+This error shouldn't happen because of our math model that increases the slippage in case of skewed market's money flow,
+but anyway it's not guaranteed that you will never face it.
+In case of this error suggest the user to decrease the bet amount.
+
+### `OrderError.RiskExceeded`
+
+It's our inner type of error that means that our risk-management system identified this bet as too risky for us to accept.
+It can be, for example, if several consecutive bets were quickly placed on the same outcome in a row.
+
+You can't do anything with that. After some cooldown period, most probably, new bets on that outcome will be accepted.
+
+### `OrderError.TooSmallFee`
+
+This error is triggered by Relayer when the `maxFee` value is lower than the gas value needed for transaction execution.
+Increase the `maxFee` (notifying the user about it) value and resend the order placement request.
+
+### `OrderError.TransactionFailed`
+
+The bet transaction may fail for some reason. Usually we get the fail code and include it in the `errorMessage` field.
+Usually the best option here is just to resend the request.
+
+### `OrderError.Other`
+
+This error code is reserved for all the other potential errors that may happen.
+While we are trying to cover all the error cases and provide you with a relevant error code mentioned above,
+currently we don't guarantee that you will never see this error.
+
+Usually we will include the `errorMessage` field to describe the error, so you can reach out to our support
+to notify us about this case and we will find a way to handle this error.
