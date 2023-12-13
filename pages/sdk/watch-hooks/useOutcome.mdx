@@ -77,6 +77,9 @@ export function OutcomeButton(props: OutcomeProps) {
   initialStatus?: ConditionStatus
 }
 ```
+<Callout type="info">
+  The `initialOdds` and `initialStatus` fields are both optional. If either is not provided, the `useOutcome` hook will automatically retrieve the initial values. The boolean flags `isOddsFetching` and `isStatusFetching` indicate whether the initial values are being fetched.
+</Callout>
 
 ```ts
 type Selection = {
@@ -97,6 +100,8 @@ enum ConditionStatus {
 ```ts
 {
   odds: string, // outcome's odds
-  isLocked: boolean // flag indicates whether placing a bet on this outcome is currently possible or not
+  isLocked: boolean, // flag indicates whether placing a bet on this outcome is currently possible or not
+  isOddsFetching, // flag indicates initial odds fetching
+  isStatusFetching // flag indicates initial status fetching
 }
 ```

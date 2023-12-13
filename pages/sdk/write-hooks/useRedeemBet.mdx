@@ -1,4 +1,4 @@
-Hook is used for redeem a winning bet or refund a canceled one.
+Hook is used for redeem a winning bets or refund a canceled. 
 
 #### Usage
 
@@ -8,14 +8,20 @@ import { useRedeemBet } from '@azuro-org/sdk'
 
 const { submit, isPending, isProcessing } = useRedeemBet()
 
-submit()
+// redeem single bet
+submit({ bets: [ bet ] })
+
+// redeem multiple bets
+submit({ bets: [ bet1, bet2 ] })
 ```
 
 #### Return Value
 ```ts
 type SubmitProps = {
-  tokenId: string | bigint // id of the bet's NFT
-  coreAddress: Address // core contract address
+  bets: Array<{
+    tokenId: string | bigint // id of the bet's NFT
+    coreAddress: Address // core contract address
+  }>
 }
 ```
 ```ts
