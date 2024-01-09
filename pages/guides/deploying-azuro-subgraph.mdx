@@ -1,0 +1,136 @@
+# Deploying Azuro Subgraph
+
+## Introduction
+
+The Azuro Protocol provides a versatile API, allowing developers to access data on various networks such as Gnosis, Polygon, Arbitrum, and Linea.
+
+Moreover, we provide the source code for our subgraphs API under the GNU GPL v2 license. You can find the code repository at [https://github.com/Azuro-protocol/azuro-subgraphs](https://github.com/Azuro-protocol/azuro-subgraphs). This licensing freedom allows you to fork, customize, and deploy your own subgraph, enabling you to add more features to your frontend.
+
+When deploying your own subgraph with Azuro, it's crucial to understand the available options for indexers and hosting services. In this guide, we'll explore the deployment process and discuss key considerations for choosing the right indexer and hosting solution for your specific needs.
+
+## Indexer Options
+
+Before diving into deployment, it's essential to choose the appropriate indexer for your subgraph. Azuro Protocol supports different indexer options, each catering to different preferences and requirements:
+
+1. **The Graph Hosted Service:** The Graph service refers specifically to the hosted service provided by The Graph. This option strikes a balance between convenience and customization. It allows you to deploy and manage your subgraph while leveraging the infrastructure provided by The Graph.
+
+2. **SaaS Indexer:** Several providers can offer SaaS Indexer services. Providers like [Alchemy](https://www.alchemy.com/subgraphs), [Chainstack](https://chainstack.com/subgraphs/) and [Chainbase](https://docs.chainbase.com/docs/host-subgraph) are among the options available. Choosing a Software as a Service (SaaS) Indexer can simplify the deployment process, allowing you to focus more on development and less on operational overhead. However, it's important to note that SaaS Indexers typically come with associated costs.
+
+3. **Self-Hosted:** For maximum control and customization, you can opt for a self-hosted service. This involves setting up and managing your own Graph Node infrastructure, providing complete autonomy over the deployment and maintenance of your subgraph. For more detailed instructions, please refer to [graph-node repository](https://github.com/graphprotocol/graph-node/).
+
+4. **Decentralized Network Option:** While not currently supported due to the use of IPFS for game information storage, future releases of Azuro Protocol are expected to eliminate this dependency and incorporate support for decentralized networks. Keep an eye on updates for this decentralized option in upcoming releases.
+
+## Prerequisites
+
+Before deploying your subgraph, ensure that you have the following tools and dependencies installed:
+
+- [Node.js](https://nodejs.org/)
+- [npm](https://www.npmjs.com/) (Node.js package manager)
+- [graph-cli](https://thegraph.com/docs/developer/cli)
+
+## Steps to Deploy a Subgraph
+
+### 1. Install the graph-cli
+
+```bash
+npm install -g @graphprotocol/graph-cli
+```
+
+### 2. Install Required Packages
+
+```bash
+npm ci
+```
+
+### 3. Configure Your Subgraph
+
+Edit the configuration file `config/<NETWORK>.js` to support your smart contracts. This file contains pre-configured addresses and start blocks of Azuro Protocol contracts.
+
+### 4. Generate Subgraph Configuration
+
+Run the following command to create the `subgraph.yaml` file and perform code generation:
+
+```bash
+CONFIG=<NETWORK> npm run generate
+```
+
+Alternatively, you can use predefined tasks from the `package.json` file.
+
+### 5. Initialize the Subgraph
+
+Run the following command to initialize the subgraph:
+
+```bash
+graph create <SUBGRAPH_NAME> --node <NODE_URL> --deploy-key <DEPLOY_KEY>
+```
+
+### 6. Deploy the Subgraph
+
+Run the following command to deploy the subgraph:
+
+```bash
+graph deploy <SUBGRAPH_NAME> --version-label <VERSION_NAME> --node <NODE_URL> --ipfs <IPFS_NODE_URL> --deploy-key <DEPLOY_KEY>
+```
+
+## Checking the Health of Your Subgraph
+
+The success of a subgraph is closely tied to its synchronization status and overall health. Regularly checking the health of your subgraph ensures that it stays in optimal condition. The following steps guide you through querying a GraphQL endpoint to assess the status of your deployed subgraph.
+
+### GraphQL Endpoint
+
+If you are using The Graph's hosted service, the GraphQL endpoint is available at:
+
+- **Endpoint:** https://api.thegraph.com/index-node/graphql
+
+Usually, other SaaS providers has their own endpoint for healthcheck
+
+### Sample Query
+
+To check the status of the current version of your subgraph, you can use the following sample query:
+
+```graphql
+indexingStatusForCurrentVersion(subgraphName: "org/subgraph") {
+  synced
+  health
+  fatalError {
+    message
+    block {
+      number
+      hash
+    }
+    handler
+  }
+  chains {
+    chainHeadBlock {
+      number
+    }
+    latestBlock {
+      number
+    }
+  }
+}
+```
+
+### Query Outputs
+
+The sample query provides several outputs that give insights into the health and synchronization status of your subgraph:
+
+- **`synced`**: Indicates whether the subgraph is synchronized with the blockchain.
+- **`health`**: Represents the overall health status of the subgraph.
+- **`fatalError`**: If there are critical errors, this field provides details about the error message, block number, block hash, and the handler causing the error.
+- **`chains`**: Contains information about the current block on the blockchain, including `chainHeadBlock` and `latestBlock` details.
+
+### Interpretation
+
+- Compare `chainHeadBlock` with `latestBlock` to assess the synchronization status.
+- `synced` confirms if the subgraph is up-to-date.
+- `health` provides an overall health assessment.
+- Any issues or errors will be detailed in the `fatalError` field.
+
+Regularly running this query allows you to proactively identify and address any issues with your subgraph, ensuring its continued smooth operation.
+
+## Conclusion
+
+Deploying a subgraph with Azuro Protocol empowers developers to customize their API access and enhance the capabilities of their smart contracts. By following these steps, you can seamlessly integrate your contracts with Azuro's decentralized network.
+
+For more detailed instructions, please refer to [The Graph documentation](https://thegraph.com/docs/en/deploying/deploying-a-subgraph-to-hosted/).

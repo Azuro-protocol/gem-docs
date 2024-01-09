@@ -7,5 +7,6 @@
   },
   "handle-contract-errors": "Handle Contract Errors",
   "affiliate-ggr": "Get bets made on specific Front(Affiliate)",
-  "azuro-score": "Azuro Score leaderboard"
+  "azuro-score": "Azuro Score leaderboard",
+  "deploying-azuro-subgraph": "Deploying Azuro Subgraph"
 }
