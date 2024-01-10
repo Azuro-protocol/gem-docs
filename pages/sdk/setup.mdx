@@ -1,4 +1,4 @@
-import { Callout } from 'components'
+import { Callout, Image } from 'components'
 
 Here, we'll configure the essential components of the SDK to enable proper functionality for the hooks.
 
@@ -88,3 +88,16 @@ export function Watchers() {
 ```
 
 After completing the watchers setup, you can begin using the [Watch Hooks](/sdk/watch-hooks/useOutcome).
+
+
+## NB: Don't forget to tweak the following to customize AzuroSDK
+
+1. **Chain ID**: Ensure you are using the correct chainId for the chain you intend to interact with.
+2. **Project ID**: For wallet connections, such as WalletConnect, replace the placeholder with your actual project ID from walletconnect.com.
+3. **RPC URLs**: In the `rpcUrls` object, provide the actual RPC URLs for the chains you're using.
+
+<Image
+  src="/images/sdk/Providers.png"
+  width={2010}
+  height={1846}
+/>
