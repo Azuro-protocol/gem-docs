@@ -6,6 +6,8 @@ The Azuro Protocol provides a versatile API, allowing developers to access data 
 
 Moreover, we provide the source code for our subgraphs API under the GNU GPL v2 license. You can find the code repository at [https://github.com/Azuro-protocol/azuro-subgraphs](https://github.com/Azuro-protocol/azuro-subgraphs). This licensing freedom allows you to fork, customize, and deploy your own subgraph, enabling you to add more features to your frontend.
 
+We're continuously improving and updating our systems to enhance performance. While we work on these enhancements, there might be occasional delays in response. For those who need consistent, always-on data access, we recommend creating your own subgraph.
+
 When deploying your own subgraph with Azuro, it's crucial to understand the available options for indexers and hosting services. In this guide, we'll explore the deployment process and discuss key considerations for choosing the right indexer and hosting solution for your specific needs.
 
 ## Indexer Options
@@ -26,7 +28,7 @@ Before deploying your subgraph, ensure that you have the following tools and dep
 
 - [Node.js](https://nodejs.org/)
 - [npm](https://www.npmjs.com/) (Node.js package manager)
-- [graph-cli](https://thegraph.com/docs/developer/cli)
+- [graph-cli](https://thegraph.com/docs/en/quick-start/#2-install-the-graph-cli)
 
 ## Steps to Deploy a Subgraph
 
@@ -42,11 +44,7 @@ npm install -g @graphprotocol/graph-cli
 npm ci
 ```
 
-### 3. Configure Your Subgraph
-
-Edit the configuration file `config/<NETWORK>.js` to support your smart contracts. This file contains pre-configured addresses and start blocks of Azuro Protocol contracts.
-
-### 4. Generate Subgraph Configuration
+### 3. Generate Subgraph Configuration
 
 Run the following command to create the `subgraph.yaml` file and perform code generation:
 
@@ -56,7 +54,7 @@ CONFIG=<NETWORK> npm run generate
 
 Alternatively, you can use predefined tasks from the `package.json` file.
 
-### 5. Initialize the Subgraph
+### 4. Initialize the Subgraph
 
 Run the following command to initialize the subgraph:
 
@@ -64,7 +62,7 @@ Run the following command to initialize the subgraph:
 graph create <SUBGRAPH_NAME> --node <NODE_URL> --deploy-key <DEPLOY_KEY>
 ```
 
-### 6. Deploy the Subgraph
+### 5. Deploy the Subgraph
 
 Run the following command to deploy the subgraph:
 
