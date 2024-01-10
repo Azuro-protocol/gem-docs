@@ -1,8 +1,16 @@
-import { Image } from 'components'
+import { Callout, Image } from 'components'
 
 # Installation
 
-## Step-by-step guide:
+<Callout type="info">
+There're two ways to use AzuroSDK: 
+1. The first is for those who want to take a sample dApp we created and build on top of it.
+2. The second is for those who don't need an example project and can make a dApp from ground up that interact with Azuro protocol as easily as our pre-built example.
+
+Below, you'll find guides to install AzuroSDK for each of these cases.
+</Callout>
+
+## 1. To build on top of our sample dApp
 
 1. **Clone the Azuro SDK**: Use Git to clone the repository from GitHub with `git clone https://github.com/Azuro-protocol/sdk.git` in your terminal.
 2. **Go to the Example Directory**: Navigate into the example directory with `cd sdk/examples/nextjs`.
@@ -16,10 +24,10 @@ import { Image } from 'components'
   height={648}
 />
 
+## 2. To use SDK in your original progect
 
-## Peer Dependencies
-
-You don't need to install these separately.
+1. **Install the SDK Package**:  `npm install @azuro-org/sdk`.
+2. **Install Peer Dependencies**:
 
 ```
 @apollo/client^3.8.0-beta.3 
