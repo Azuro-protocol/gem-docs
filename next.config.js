@@ -10,13 +10,23 @@ const nextConfig = {
     return [
       {
         source: '/build-own-app',
-        destination: '/tutorial',
-        permanent: false,
+        destination: '/guides/tutorial',
+        permanent: true,
       },
       {
         source: '/concepts/basic/fees-and-rewards',
         destination: '/concepts/basic/rewards',
         permanent: false,
+      },
+      {
+        source: '/sdk/:path*',
+        destination: '/guides/sdk/:path*',
+        permanent: true,
+      },
+      {
+        source: '/tutorial/:path*',
+        destination: '/guides/tutorial/:path*',
+        permanent: true,
       },
     ]
   },

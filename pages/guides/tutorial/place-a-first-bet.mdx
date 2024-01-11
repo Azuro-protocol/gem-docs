@@ -1,0 +1,391 @@
+import { Callout } from 'components'
+import { Image } from 'components/Image'
+
+# Place First Bet
+
+In order to place a bet, the user needs to select the outcome of a sporting event and input the amount they want to bet.
+To facilitate this process in the UI, we will use a modal. When the user clicks on an outcome button, a modal will open.
+The user can then enter the amount they want to bet, view a summary of their bet, and submit the transaction.
+
+## Create the Modal
+
+Create folder `PlaceBetModal` in `src/components`.
+
+### AmountInput
+
+Here we will show user's balance of betting token and handle amount input for bet.
+
+Create file `AmountInput.tsx` in the `src/components/PlaceBetModal` folder with the following content
+
+```tsx filename="src/components/PlaceBetModal/AmountInput.tsx" copy
+import React from 'react'
+import { useChain, useBetTokenBalance } from '@azuro-org/sdk'
+
+
+type Props = {
+  amount: string
+  onChange(value: string): void
+}
+
+export const AmountInput: React.FC<Props> = (props) => {
+  const { amount, onChange } = props
+
+  const { betToken } = useChain()
+  const { loading: isBalanceFetching, balance } = useBetTokenBalance()
+
+  return (
+    <div className="mt-4 pt-4 border-t border-zinc-300 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-md text-zinc-400">Wallet balance</span>
+        <span className="text-md font-semibold">
+          {
+            isBalanceFetching ? (
+              <>Loading...</>
+            ) : (
+              balance !== undefined ? (
+                <>{(+balance).toFixed(2)} {betToken.symbol}</>
+              ) : (
+                <>-</>
+              )
+            )
+          }
+        </span>
+      </div>
+      <label className="flex items-center justify-between">
+        <span className="text-md text-zinc-400">Bet amount</span>
+        <input
+          className="w-[140px] py-2 px-4 border border-zinc-400 text-md text-right font-semibold rounded-md"
+          type="number"
+          inputMode="decimal"
+          placeholder="Bet amount"
+          value={amount}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    </div>
+  )
+}
+```
+
+### SubmitButton
+
+To submit a bet we will create a button, which will prepare betting transaction and handle all the business logic.
+
+Let's create `SubmitButton.tsx` in the `src/components/PlaceBetModal` folder:
+
+```tsx copy filename="src/components/PlaceBetModal/SubmitButton.tsx"
+import React from 'react'
+import { useAccount } from 'wagmi'
+import { useChain, useBetTokenBalance } from '@azuro-org/sdk'
+import cx from 'clsx'
+
+
+type Props = {
+  amount: string
+  isAllowanceLoading: boolean
+  isApproveRequired: boolean
+  isPending: boolean
+  isProcessing: boolean
+  onClick(): void
+}
+
+export const SubmitButton: React.FC<Props> = (props) => {
+  const { amount, isAllowanceLoading, isApproveRequired, isPending, isProcessing, onClick } = props
+
+  const account = useAccount()
+  const { appChain, isRightNetwork } = useChain()
+  const { loading: isBalanceFetching, balance } = useBetTokenBalance()
+
+  if (!account.address) {
+    return (
+      <div className="mt-6 py-3.5 text-center bg-red-200 rounded-2xl">
+        Connect your wallet
+      </div>
+    )
+  }
+
+  if (!isRightNetwork) {
+    return (
+      <div className="mt-6 py-3.5 text-center bg-red-200 rounded-2xl">
+        Switch network to <b>{appChain.name}</b> in your wallet
+      </div>
+    )
+  }
+
+  const isEnoughBalance = Boolean(+amount && balance && +balance > +amount)
+
+  const isDisabled = (
+    isBalanceFetching
+    || !isEnoughBalance
+    || isAllowanceLoading
+    || isPending
+    || isProcessing
+    || !+amount
+  )
+
+  let title
+
+  if (isPending) {
+    title = 'Waiting for approval'
+  }
+  else if (isProcessing) {
+    title = 'Processing...'
+  }
+  else if (isApproveRequired) {
+    title = 'Approve'
+  }
+  else {
+    title = 'Place Bet'
+  }
+
+  return (
+    <div className="mt-6">
+      {
+        Boolean(+amount && !isEnoughBalance) && (
+          <div className="mb-1 text-red-500 text-center font-semibold">
+            Not enough balance.
+          </div>
+        )
+      }
+      <button
+        className={cx('w-full py-3.5 text-white font-semibold text-center rounded-xl', {
+          'bg-blue-500 hover:bg-blue-600 transition shadow-md': !isDisabled,
+          'bg-zinc-300 cursor-not-allowed': isDisabled,
+        })}
+        disabled={isDisabled}
+        onClick={onClick}
+      >
+        {title}
+      </button>
+    </div>
+  )
+}
+```
+
+### PlaceBetModal itself
+
+Now we have components to create a modal to place a bet. Here we'll need your **affiliate address**, which we described in the [Introduction section](/guides#affiliate-parameter-address).
+
+Before first bet each user must approve token spending by Azuro Liquidity Pool contract. It's already handled by `usePrepareBet` hook from Azuro SDK, so we need just use it.
+
+Create file `PlaceBetModal.tsx` in the `src/components/PlaceBetModal` folder:
+
+```tsx filename="src/components" copy
+'use client'
+import { useState } from 'react'
+import { useGame, usePrepareBet, MarketOutcome } from '@azuro-org/sdk'
+import { getMarketName } from '@azuro-org/dictionaries'
+import { GameInfo } from '@/components'
+import { AmountInput } from './AmountInput'
+import { SubmitButton } from './SubmitButton'
+
+
+function CheckBadgeIcon(props: { className?: string }) {
+  return (
+    <svg className={props.className} aria-hidden="true" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+        stroke-linecap="round"
+        stroke-linejoin="round"></path>
+    </svg>
+  )
+}
+
+type Props = {
+  gameId: string
+  outcome: MarketOutcome
+  closeModal: any
+}
+
+export function PlaceBetModal(props: Props) {
+  const { gameId, outcome, closeModal } = props
+
+  const { data } = useGame({ gameId })
+  const [ amount, setAmount ] = useState('')
+  const [ isSuccess, setSuccess ] = useState(false)
+
+  const {
+    isOddsLoading,
+    totalOdds,
+    isAllowanceLoading,
+    isApproveRequired,
+    submit,
+    approveTx,
+    betTx,
+  } = usePrepareBet({
+    amount,
+    slippage: 5,
+    affiliate: '0x0000000000000000000000000000000000000000', // Your wallet address to earn rewards
+    selections: [ outcome ],
+    onSuccess: () => {
+      setSuccess(true)
+    },
+  })
+
+  const marketName = getMarketName({ outcomeId: String(outcome.outcomeId) })
+  const isPending = approveTx.isPending || betTx.isPending
+  const isProcessing = approveTx.isProcessing  || betTx.isProcessing
+
+  return (
+    <div
+      className="fixed top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-20"
+      onClick={closeModal}
+    >
+      <div
+        className="w-[480px] bg-white max-h-[calc(100vh-40px)] overflow-y-auto no-scrollbar rounded-[40px] shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {
+          isSuccess ? (
+            <div className="flex flex-col items-center justify-center h-[400px]">
+              <CheckBadgeIcon className="w-28 h-28 text-purple-500" />
+              <div className="mt-5 text-2xl font-semibold">Success!</div>
+            </div>
+          ) : (
+            <>
+              <GameInfo game={data!} />
+              <div className="pt-4 px-6 pb-6">
+                <div className="grid grid-cols-[auto_1fr] gap-y-3 mt-2 text-md">
+                  <span className="text-zinc-400">Market</span>
+                  <span className="text-right font-semibold">{marketName}</span>
+                  <span className="text-zinc-400">Selection</span>
+                  <span className="text-right font-semibold">{outcome.selectionName}</span>
+                  <span className="text-zinc-400">Odds</span>
+                  <span className="text-right font-semibold">
+                    {isOddsLoading ? 'Loading...' : (
+                      totalOdds !== undefined ? (
+                        <>{(+totalOdds).toFixed(3)}</>
+                      ) : (
+                        <>-</>
+                      )
+                    )}
+                  </span>
+                </div>
+                <AmountInput
+                  amount={amount}
+                  onChange={setAmount}
+                />
+                <SubmitButton
+                  amount={amount}
+                  isAllowanceLoading={isAllowanceLoading}
+                  isApproveRequired={isApproveRequired}
+                  isPending={isPending}
+                  isProcessing={isProcessing}
+                  onClick={submit}
+                />
+              </div>
+            </>
+          )
+        }
+      </div>
+    </div>
+  )
+}
+```
+
+Add export to `src/components/index.ts`, so final code will be:
+
+```ts {10} copy filename="src/components/index.ts"
+export * from './Providers'
+export * from './Header'
+export * from './Watchers'
+export * from './GameCard'
+export * from './ActiveLink'
+export * from './SportsNavigation'
+export * from './GameInfo'
+export * from './OutcomeButton'
+export * from './GameMarkets'
+export * from './PlaceBetModal/PlaceBetModal'
+```
+## Add the Modal to UI
+
+Update `src/components/GameMarkets.tsx`:
+
+```tsx copy {4,21-23,57-65} filename="src/components/GameMarkets.tsx"
+'use client'
+import { useState } from 'react'
+import type { GameMarkets, MarketOutcome } from '@azuro-org/sdk'
+import { OutcomeButton, PlaceBetModal } from '@/components'
+
+
+type GameMarketsProps = {
+  gameId: string
+  markets: GameMarkets
+}
+
+export function GameMarkets(props: GameMarketsProps) {
+  const { gameId, markets } = props
+
+  const [ selectedOutcome, setSelectedOutcome ] = useState<MarketOutcome>()
+
+  const handleOutcomeClick = (outcome: any) => {
+    setSelectedOutcome(outcome)
+  }
+
+  const handleModalClose = () => {
+    setSelectedOutcome(undefined)
+  }
+
+  return (
+    <>
+      <div className="max-w-[600px] mx-auto mt-12 space-y-6">
+        {
+          markets?.map(({ name, description, outcomeRows }) => (
+            <div key={name} className="">
+              <div className="mb-0.5 text-lg font-semibold">{name}</div>
+              <div className="mb-2 text-md text-zinc-500">{description}</div>
+              <div className="space-y-1">
+                {
+                  outcomeRows.map((outcomes, index) => (
+                    <div key={index} className="flex justify-between">
+                      <div className="flex gap-2 w-full">
+                        {
+                          outcomes.map((outcome) => (
+                            <OutcomeButton
+                              key={outcome.selectionName}
+                              className={selectedOutcome === outcome ? 'bg-purple-200' : ''}
+                              outcome={outcome}
+                              onClick={() => handleOutcomeClick(outcome)}
+                            />
+                          ))
+                        }
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+          ))
+        }
+      </div>
+      {
+        Boolean(selectedOutcome) && (
+          <PlaceBetModal
+            gameId={gameId}
+            outcome={selectedOutcome!}
+            closeModal={handleModalClose}
+          />
+        )
+      }
+    </>
+  )
+}
+```
+
+Now click on any outcome button should open the modal
+
+<Image src="/images/sections/place-bet-modal-connected.png" width={1952} height={1414} />
+
+<Callout type="info">
+  Because we're developing in Polygon Mumbai testnet, Azuro uses own "USDT" contract for betting here. Anyone can
+  [mint some value directly from the contract](https://mumbai.polygonscan.com/address/0xe656De3EC9eFf1B851e0b39AFFaa1478353885a4#writeContract#F9).
+</Callout>
+
+
+## Learn more
+
+In our tutorial we're building simple betting app. If you're ready to go deeper, learn things from SDK that we used in this section:
+useChain, useBetTokenBalance
+- [useGame](/guides/sdk/data-hooks/useGame)
+- [useChain](/guides/sdk/providers/chain)
+- [useBetTokenBalance](/guides/sdk/hooks/useBetTokenBalance)
+- [usePrepareBet](/guides/sdk/write-hooks/usePrepareBet)

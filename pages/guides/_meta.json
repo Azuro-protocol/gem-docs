@@ -1,8 +1,16 @@
 {
-  "prematch": "Prematch",
-  "live": "Live betting",
-  "freebets": "Freebets",
+  "index": "Introduction",
+  "tutorial": "Tutorial",
   "---": {
+    "type": "separator"
+  },
+  "sdk": "SDK",
+  "advanced": "Advanced (manual)",
+  "---1": {
+    "type": "separator"
+  },
+  "freebets": "Freebets",
+  "---2": {
     "type": "separator"
   },
   "handle-contract-errors": "Handle Contract Errors",

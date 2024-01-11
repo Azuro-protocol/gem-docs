@@ -1,4 +1,6 @@
-import { ThemeSwitch } from 'nextra-theme-docs'
+import { ThemeSwitch, FileTree } from 'nextra-theme-docs'
+import { useRouter } from 'next/router'
+import meta from './pages/_meta.json'
 import Footer from './components/Footer'
 
 export default {
@@ -11,7 +13,7 @@ export default {
   //   text: <a href="/tutorial">💎 Tutorial: Build your own betting dApp. Read more →</a>,
   // },
   sidebar: {
-    defaultMenuCollapseLevel: 0,
+    defaultMenuCollapseLevel: 1,
   },
   head: (
     <>
@@ -95,11 +97,25 @@ export default {
     ),
   },
   useNextSeoProps() {
+    const { asPath } = useRouter()
+    const defaultTitle = 'Azuro Gem'
+
+    if (asPath === '/') {
+      return {
+        title: defaultTitle,
+      }
+    }
+
+    const [ , level1, level2 ] = asPath.split('/')
+
+    const level1Title = meta[level1]?.title
+    const titleTemplate = level1Title
+      ? level2 ? `%s - ${level1Title} - ${defaultTitle}` : `${level1Title} - ${defaultTitle}`
+      : `%s - ${defaultTitle}`
+
     return {
-      titleTemplate: '%s – Azuro'
+      titleTemplate,
+      defaultTitle,
     }
   },
-  safelist: [
-    'ml-2',
-  ]
 }

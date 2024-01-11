@@ -25,12 +25,8 @@
     "title": "Subgraph",
     "type": "page"
   },
-  "sdk": {
-    "title": "SDK",
-    "type": "page"
-  },
   "guides": {
-    "title": "Guides",
+    "title": "Developer Guides",
     "type": "page"
   },
   "releases": {

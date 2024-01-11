@@ -6,7 +6,7 @@ Here, we'll configure the essential components of the SDK to enable proper funct
 
 To start, the initial step involves setting up a Chain Provider with the network configuration. This provider informs other sections of the SDK about the current chain being used and also enables network change functionality.
 
-For further details, refer to the [Chain](/sdk/providers/chain) section.
+For further details, refer to the [Chain](/guides/sdk/providers/chain) section.
 
 ```ts {1, 13, 15}
 import { ChainProvider } from '@azuro-org/sdk'
@@ -36,7 +36,7 @@ function Providers(props: { children: React.ReactNode }) {
 
 Within the SDK, we utilize Data Hooks to fetch data from the subgraph. For this purpose, initializing the ApolloProvider is necessary.
 
-For further details, refer to the [Apollo](/sdk/providers/apollo) section.
+For further details, refer to the [Apollo](/guides/sdk/providers/apollo) section.
 
 ```ts {1-5, 20, 22}
 // For Next.js application
@@ -71,7 +71,7 @@ function Providers(props: { children: React.ReactNode }) {
   The ApolloProvider requires access to the chain context.
 </Callout>
 
-After completing the providers setup, you can begin using the [Data Hooks](/sdk/data-hooks/useGames) and  the [Write Hooks](/sdk/write-hooks/usePrepareBet).
+After completing the providers setup, you can begin using the [Data Hooks](/guides/sdk/data-hooks/useGames) and  the [Write Hooks](/guides/sdk/write-hooks/usePrepareBet).
 
 ## Watchers
 
@@ -87,7 +87,7 @@ export function Watchers() {
 }
 ```
 
-After completing the watchers setup, you can begin using the [Watch Hooks](/sdk/watch-hooks/useOutcome).
+After completing the watchers setup, you can begin using the [Watch Hooks](/guides/sdk/watch-hooks/useOutcome).
 
 
 ## NB: Don't forget to tweak the following to customize AzuroSDK
