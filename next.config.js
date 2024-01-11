@@ -24,6 +24,16 @@ const nextConfig = {
         permanent: true,
       },
       {
+        source: '/guides/prematch/:path*',
+        destination: '/guides/advanced/prematch/:path*',
+        permanent: false,
+      },
+      {
+        source: '/guides/live/:path*',
+        destination: '/guides/advanced/live/:path*',
+        permanent: false,
+      },
+      {
         source: '/tutorial/:path*',
         destination: '/guides/tutorial/:path*',
         permanent: true,
