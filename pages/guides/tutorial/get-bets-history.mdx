@@ -309,7 +309,7 @@ export function BetCard(props: Props) {
             isRedeemed ? (
               <p>Redeemed</p>
             ) : (
-              Boolean(payout || (isCanceled && !freebetId) || isRedeemed) && (
+              Boolean(payout || (isCanceled && !freebetId)) && (
                 <button
                   className={cx('md:w-[200px] py-3.5 text-white font-semibold text-center rounded-xl', {
                     'bg-blue-500 hover:bg-blue-600 transition shadow-md': !isDisabled,
