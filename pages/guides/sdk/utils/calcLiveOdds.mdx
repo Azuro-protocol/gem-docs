@@ -3,9 +3,9 @@ Calculates the live odds value for specific outcome at which the bet can be plac
 #### Usage
 
 ```ts
-import { calcLivedOdds } from '@azuro-org/sdk'
+import { calcLiveOdds } from '@azuro-org/sdk'
 
-const liveOdds = calcLivedOdds({
+const liveOdds = calcLiveOdds({
   selection,
   betAmount,
   oddsData,
@@ -35,8 +35,8 @@ type SocketData = {
   winningOutcomesCount: number
   outcomes: Array<{
     id: number // outcome id
-    price: number
-    clearPrice: number
+    price: number // current odds
+    clearPrice: number // current odds without marginality
   }>
 }
 ```

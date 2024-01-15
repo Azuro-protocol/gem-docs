@@ -48,17 +48,17 @@ const order: OrderSpec = {
 ```
 
 <Callout type="info">
-To obtain the `minPrise`, utilize the [`calcLivedOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
+To obtain the `minPrice`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
 
 ```ts
-import { calcLivedOdds } from '@azuro-org/sdk'
+import { calcLiveOdds } from '@azuro-org/sdk'
 
 socket.onmessage = (message) => {
   const data = JSON.parse(message.data.toString())
 
   data.forEach(data => {
     if (data.outcomes) { // new odds received
-      const minPrice = calcLivedOdds({
+      const minPrice = calcLiveOdds({
         selection: { conditionId, outcomeId },
         betAmount: '10', // 10 USDT
         oddsData: data,
