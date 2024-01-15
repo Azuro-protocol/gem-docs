@@ -76,9 +76,78 @@ As for prematch games, live game's markets are constantly updated:
 - Market can be stopped and unstopped.
 - Outcomes odds can be changed.
 
-For market stop/unstop action you need to listen to new `ConditionStopped` events in `LiveDataFeed` subgraph and then request the actual condition's state.
+To receive updates, utilize the Socket API. Begin by creating a new socket instance.
 
-For odds changes you need to listen to our `HostCore` smart contract event `OddsChanged` (the same way as described in [Real-time Odds Updates](/guides/prematch/real-time-odds-updates) section for prematch, just use the `HostCore` contract).
+```ts
+// For development
+const socketUrl = wss://dev-streams.azuro.org/v1/streams/conditions
+// For production
+const socketUrl = wss://streams.azuro.org/v1/streams/conditions
+
+const socket = new WebSocket(socketUrl)
+```
+
+You can now subscribe to updates by passing condition IDs to listen.
+
+```ts
+socket.send(JSON.stringify({
+  action: 'subscribe',
+  conditionIds: [ '123456789' ],
+}))
+```
+
+<Callout type="warning">
+  Ensure to unsubscribe from updates for conditions that are not in use.
+  ```ts
+    socket.send(JSON.stringify({
+      action: 'unsubscribe',
+      conditionIds: [ '123456789' ],
+    }))
+  ```
+</Callout>
+
+Afterward, you should listen for new data messages. The `message.data ` object holds the updated condition status and odds. Additionally, other data is utilized to calculate the minPrice for live betting.
+
+To handle market stop/unstop actions, monitor the `state` field. If it is present, update the condition status in your UI.
+
+For changes in odds, examine the `outcomes` field. If it is present, update the odds for the corresponding outcome in your UI.
+<Callout type="info">
+  Upon making a subscription request, you will receive all data associated with the subscribed conditions.
+</Callout>
+
+```ts
+enum ConditionStatus {
+  Created = 'Created',
+  Resolved = 'Resolved',
+  Canceled = 'Canceled',
+  Paused = 'Paused'
+}
+
+type SocketData = {
+  id: string // condition id
+  state?: ConditionStatus // condition status
+  margin: number
+  reinforcement: number
+  winningOutcomesCount: number
+  outcomes?: Array<{
+    id: number // outcome id
+    price: number // current odds
+    clearPrice: number
+  }>
+}[]
+
+socket.onmessage = (message: MessageEvent<SocketData>) => {
+  const data = JSON.parse(message.data.toString())
+
+  data.forEach(data => {
+    if (data.outcomes) { // new odds received
+    }
+
+    if (data.state) { // new condition status received
+    }
+  });
+}
+```
 
 ### Finish a game
 
