@@ -1,5 +1,6 @@
 {
   "calcMinOdds": "calcMinOdds",
+  "calcLiveOdds": "calcLiveOdds",
   "getGameStatus": "getGameStatus",
   "getBetStatus": "getBetStatus"
 }
