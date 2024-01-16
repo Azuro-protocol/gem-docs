@@ -4,29 +4,23 @@ import { PageHeadline } from 'components'
 
 <PageHeadline
   title="Developer guides"
-  subTitle="Building your own Frontend with Azuro and earn"
+  subTitle="Building Your Own Frontend with Azuro"
 />
 
-Welcome to the section of our Azuro documentation where we guide you on creating and customizing your very own frontend.
-Harness the power of the Azuro Protocol, create a new betting interface or enhance an existing one.
+Welcome to the Azuro guide on creating your custom frontend. This guide will help you leverage the Azuro Protocol for building a new betting interface or enhancing an existing one. We'll provide detailed instructions and real-world examples to streamline your development process.
 
-As we move forward, we'll cover specific aspects of frontend development in detail, offering step-by-step instructions, and providing real-world examples to make your journey smoother.
+### Prerequisites
 
-Embrace the opportunity to innovate and create a meaningful impact in the betting industry with Azuro!
-
-## Before we start
-
-### Base knowledge
+Before starting, ensure you have a basic understanding of:
 - JavaScript;
 - Web3 ([wagmi](https://wagmi.sh/), [ethers](https://docs.ethers.org/v6/single-page/#getting-started), or other similar lib);
 - GraphQL\
-If you want to do manual requests instead of SDK.\
-See [specificities of the subgraph and Azuro protocol entities here](/subgraph/highlights).
+If you want to make manual requests instead of using the SDK.\
+Learn about [the subgraph and Azuro protocol entities here](/subgraph/highlights).
 
-### `affiliate` parameter (address)
+### Getting Rewards (Affiliate Wallet)
 
-This is the wallet address where the rewards will be distributed. Please be aware that the accumulation of rewards is predicated on them being associated with this specific wallet. Use the wallet address as the **`affiliate`** parameter in placing bet transactions. [Read about rewards distribution here](/concepts/basic/rewards).
-
+To direct rewards to your wallet, include your wallet address as the `affiliate` parameter in bet transactions. [Read about rewards distribution here](/concepts/basic/rewards).
 
 ```js {1, 8}
   const AFFILIATE_ADDRESS = '0x...' // Your wallet address to earn rewards
@@ -43,10 +37,17 @@ This is the wallet address where the rewards will be distributed. Please be awar
   )
 ```
 
-### Build own app
+### Building Your Application
 
-Developing your own betting application using our guides and documentation often involves about a week's worth of effort due to the complexity of the logic involved. To streamline this process, we developed an SDK for quicker application development.
+#### Effort Estimate
+Approximately one week, considering the complexity of the logic involved.
 
-SDK provides a comprehensive collection of useful React hooks and utilities for creating your own betting application, eliminating the need to worry about the tedious setup details.
+#### SDK
+We offer an SDK to expedite development. It includes React hooks and utilities, reducing setup complexities.
 
-If you want to use it, complete our step-by-step [Tutorial](/guides/tutorial) to know it better.
+#### Tutorial
+For SDK usage, follow our step-by-step [Tutorial](/guides/tutorial).
+
+### Conclusion
+This guide is your starting point for innovating in the betting industry using Azuro. Stay tuned for more detailed aspects of frontend development in subsequent sections. Happy coding! 🚀👨‍💻👩‍💻
+
