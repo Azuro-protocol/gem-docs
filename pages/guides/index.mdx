@@ -1,4 +1,4 @@
-import { PageHeadline } from 'components'
+import { PageHeadline, Callout } from 'components'
 
 
 
@@ -7,15 +7,24 @@ import { PageHeadline } from 'components'
   subTitle="Building Your Own Frontend with Azuro"
 />
 
-Welcome to the Azuro guide on creating your custom frontend. This guide will help you leverage the Azuro Protocol for building a new betting interface or enhancing an existing one. We'll provide detailed instructions and real-world examples to streamline your development process.
+## Getting Started
+
+Welcome to the Azuro guide on creating your custom frontend. This guide will show you how to make a new betting interface or enhance an existing one. 
+
+**To start building with Azuro:**
+
+- Go to our [Tutorial](/tutorial/index). It will guide you through the necessary steps to create your betting dApp on Azuro Protocol.
+
+- Then, to get your betting dApp up and running, you'll also need to go through the [SDK: making it work](sdk/overview) section and tweak all the necessary components to activate the hooks.
+
+**NB:** for instructions on manual data access, see the [Advanced (manual)](advanced) section where we explain how to use different GraphQL queries.
 
 ### Prerequisites
 
 Before starting, ensure you have a basic understanding of:
 - JavaScript;
 - Web3 ([wagmi](https://wagmi.sh/), [ethers](https://docs.ethers.org/v6/single-page/#getting-started), or other similar lib);
-- GraphQL\
-If you want to make manual requests instead of using the SDK.\
+- GraphQL\If you want to make manual requests instead of using the SDK.\
 Learn about [the subgraph and Azuro protocol entities here](/subgraph/highlights).
 
 ### Getting Rewards (Affiliate Wallet)
@@ -37,16 +46,10 @@ To direct rewards to your wallet, include your wallet address as the `affiliate`
   )
 ```
 
-### Building Your Application
+### Effort Estimate
 
-#### Effort Estimate
-Approximately one week, considering the complexity of the logic involved.
+Building a dApp on Azuro takes approximately one week, considering the complexity of the logic involved. Remember that the AzuroSDK is your friend in making this process faster and easier because it contains all the hooks and utilities to connect your dApp to our smart contracts and betting data.
 
-#### SDK
-We offer an SDK to expedite development. It includes React hooks and utilities, reducing setup complexities.
-
-#### Tutorial
-For SDK usage, follow our step-by-step [Tutorial](/guides/tutorial).
 
 ### Conclusion
 This guide is your starting point for innovating in the betting industry using Azuro. Stay tuned for more detailed aspects of frontend development in subsequent sections. Happy coding! 🚀👨‍💻👩‍💻
