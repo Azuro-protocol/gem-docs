@@ -1,9 +1,9 @@
 {
-  "index": "Getting Started",
-  "setup-a-project": "Setup a Project",
-  "prepare-to-connect-user-wallets": "Prepare to Connect User Wallets",
-  "get-games": "Get Games",
-  "get-game-details": "Get Game Details",
-  "place-a-first-bet": "Place a First Bet",
-  "get-bets-history": "Get Bets History"
+  "index": "Overview",
+  "setup-a-project": "Step 1: Setup your project",
+  "prepare-to-connect-user-wallets": "Step 2: Prepare to Connect User Wallets",
+  "get-games": "Step 3: Create a Page With Sport Events",
+  "get-game-details": "Step 4: Get and Display Game Info",
+  "place-a-first-bet": "Step 5: Allow Users to Place Bets",
+  "get-bets-history": "Step 6: Allow Users to View and Redeem Bets"
 }

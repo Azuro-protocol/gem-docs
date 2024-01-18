@@ -1,10 +1,10 @@
 {
-  "index": "Introduction",
-  "tutorial": "Tutorial",
+  "index": "Getting Started",
+  "tutorial": "Tutorial: build your dApp",
   "---": {
     "type": "separator"
   },
-  "sdk": "SDK",
+  "sdk": "SDK: make it work",
   "advanced": "Advanced (manual)",
   "---1": {
     "type": "separator"
