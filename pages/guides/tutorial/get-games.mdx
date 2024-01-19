@@ -6,7 +6,7 @@ Azuro stores data from the blockchain in the Subgraph (GraphQL). You don't need 
 
 ## Setup Watchers
 
-Odds always change, and some games or markets may be pauses for some reason. To keep actual data in the UI, we need to setup watchers.
+Odds frequently fluctuate, and certain games or markets might temporarily pause for various reasons. To keep actual data in the UI, we need to setup watchers.
 They keep all the data up-to-date.
 
 Create small component `src/components/Watchers.tsx`
@@ -21,7 +21,7 @@ export function Watchers() {
   return null
 }
 ```
-Yes, that's simple. We created component, because hook must have access to Providers contexts.
+Yes, it’s that simple. We created component, because hook must have access to Providers contexts.
 Then add export to `src/components/index.ts` and use it in `src/app/layout.tsx`:
 
 ```tsx {5,27} filename="src/app/layout.tsx" copy
