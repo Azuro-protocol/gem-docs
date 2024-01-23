@@ -2,14 +2,17 @@ import { Callout } from 'components'
 
 # Get Games
 
+<Callout type="advice">
+  Before you begin working with GraphQL queries, please read the [Highlights](/subgraph/highlights) and [Request Optimizations](/subgraph/request-optimizations) articles.
+</Callout>
+
 ## Fetch games
 
 To fetch data you should use [Azuro Subgraph](/subgraph/overview). The following query represents main fields required
 to present a game info and its markets with outcomes.
 
-If you only need to display games that are currently in progress or scheduled to start in the future, you can use the
-`startsAt` field in the query to filter out games that have already ended. For example, you could modify the query to
-only retrieve games that are scheduled to start in the future:
+Use the `startsAt` field in your query to filter and display only ongoing or future games.
+For example, you could modify the query to only retrieve games that are scheduled to start in the future:
 
 ```graphql
 query Games($where: Game_filter!) {
@@ -18,6 +21,7 @@ query Games($where: Game_filter!) {
     where: $where
     subgraphError: allow
   ) {
+    id
     gameId
     slug
     startsAt
@@ -37,20 +41,12 @@ query Games($where: Game_filter!) {
       image
       name
     }
-    conditions {
-      conditionId
-      isExpressForbidden
-      status
-      outcomes {
-        currentOdds
-        outcomeId
-      }
-    }
   }
 }
 ```
+
 ```ts
-useQuery(QUERY, {
+useQuery(GAMES_QUERY, {
   variables: {
     where: {
       startsAt_gt: Math.floor(Date.now() / 1000),
@@ -73,7 +69,7 @@ query Games($where: Game_filter!) {
     where: $where
     subgraphError: allow
   ) {
-    ...
+    ...GameFields
   }
 ```
 
@@ -91,7 +87,7 @@ query Games($where: Game_filter!) {
 
 There is most required filters to show list of active games:
 ```ts {4-6}
-useQuery(QUERY, {
+useQuery(GAMES_QUERY, {
   variables: {
     where: {
       startsAt_gt: Math.floor(Date.now() / 1000),
@@ -146,7 +142,7 @@ query Games($where: Game_filter!) {
     orderBy: startsAt
     orderDirection: asc
   ) {
-    ...
+    ...GameFields
   }
 ```
 #### `orderBy`
