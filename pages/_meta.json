@@ -33,6 +33,10 @@
     "title": "Releases",
     "type": "page"
   },
+  "community": {
+    "title": "Community Updates",
+    "type": "page"
+  },
   "privacy-policy": {
     "display": "hidden",
     "theme": {
