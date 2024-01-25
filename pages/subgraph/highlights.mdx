@@ -22,8 +22,8 @@ queries, it's important to convert the transmitted value to lowercase, or use th
 When working with TheGraph, efficiency matters. The secret sauce lies in their unique `id: ID!` (TheGraph IDs) for @entity directives in schemas.
 These IDs, when used in queries, speed up request execution time.
 
-To avoid mess with TheGraph ID, Azuro entities use prefixes in their IDs (Azuro IDs), e.g. `sportId` for sports and `gameId` for games.
-To craft TheGraph `ID`, Azuro combining entity parameters which make it unique.
+To maintain clarity and distinction from TheGraph IDs, Azuro assigns specific prefixes to its entity IDs, such as **`sportId`** for sports and **`gameId`** for games.
+To construct a unique TheGraph **`ID`**, Azuro merges various entity parameters, ensuring each ID is one of a kind.
 
 Want to use, for example, Game or Condition TheGraph IDs in your code? It's as easy as this:
 
@@ -33,7 +33,7 @@ const conditionEntityID = `${coreAddress.toLowerCase()}_${conditionId}`
 ```
 
 [Check out the full list of TheGraph ID getters](https://github.com/Azuro-protocol/Azuro-subgraphs/blob/main/api/src/utils/schema.ts)\
-_And, if you're copying these getters, remember to toss in addresses in lowercase._
+*Remember, when using these getters, ensure that addresses are converted to lowercase.*
 
 ### Entity Duplications
 
