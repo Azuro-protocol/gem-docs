@@ -12,16 +12,28 @@ limit in mind when building your queries. [Read how to paginate](https://thegrap
 In rare cases indexing errors of new data may occur in subgraph nodes. In that case queries will throw an error with no data by default.
 We're reacting fast on such accidents. But while it isn't fixed, you can add param `subgraphError: allow` to your queries to ignore these errors and work with existing data.
 
-### IDs
-
-TheGraph uses a unique `id: ID!` (TheGraph Ids) for @entity directives in schemas. These ids are technical and do not
-correspond to Azuro entities. Azuro entities use prefixes in their ids (Azuro Ids), such as `sportId` for sports
-and `gameId` for games. Avoid using `id` if it is not necessary.
-
 ### Addresses
 
-When working with Subgraphs, all address values are stored in lowercase. This means that when passing variables to
+When working with TheGraph, all address values are stored in lowercase. This means that when passing variables to
 queries, it's important to convert the transmitted value to lowercase, or use the `_contains_nocase` postfix.
+
+### IDs
+
+When working with TheGraph, efficiency matters. The secret sauce lies in their unique `id: ID!` (TheGraph IDs) for @entity directives in schemas.
+These IDs, when used in queries, speed up request execution time.
+
+To maintain clarity and distinction from TheGraph IDs, Azuro assigns specific prefixes to its entity IDs, such as **`sportId`** for sports and **`gameId`** for games.
+To construct a unique TheGraph **`ID`**, Azuro merges various entity parameters, ensuring each ID is one of a kind.
+
+Want to use, for example, Game or Condition TheGraph IDs in your code? It's as easy as this:
+
+```ts
+const gameEntityID = `${liquidityPoolAddress.toLowerCase()}_${gameId}`
+const conditionEntityID = `${coreAddress.toLowerCase()}_${conditionId}`
+```
+
+[Check out the full list of TheGraph ID getters](https://github.com/Azuro-protocol/Azuro-subgraphs/blob/main/api/src/utils/schema.ts)\
+*Remember, when using these getters, ensure that addresses are converted to lowercase.*
 
 ### Entity Duplications
 
@@ -32,8 +44,8 @@ Each `LP` contract can contain multiple `Core` contracts, with each `Core` contr
 used for different casino games or pre-match/live betting. For example, the logic for pre-match/live betting may
 differ from that used for other casino games.
 
-<Callout type="warning" emoji="⚠️">
-  The presence of multiple identical contracts in the Azuro Protocol can lead to entities with the same IDs. This is
+<Callout type="warning">
+  The presence of multiple identical contracts in the Azuro Protocol can lead to entities with the same Azuro IDs (e.g. `gameId`, `conditionId`). This is
   because entities created on different contracts may share the same ID, which can make it difficult to distinguish between them.
 
   For example, different `LP`s may have the same games with the same `gameId`, while conditions created on `Core` contracts
