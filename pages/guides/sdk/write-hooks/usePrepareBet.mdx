@@ -1,3 +1,5 @@
+import { Callout } from 'components';
+
 Hook is used for place a bet and approve tokens spending if necessary.
 
 #### Usage
@@ -27,6 +29,27 @@ const {
 
 submit()
 ```
+
+<Callout type="info">
+To place an express bet, you can pass multiple selections.
+```ts
+const {...} = usePrepareBet({
+  amount: '10',
+  slippage: 5,
+  affiliate: '0x0000000000000000000000000000000000000000',
+  selections: [
+    {
+      conditionId: '486903008559711340',
+      outcomeId: '29',
+    },
+    {
+      conditionId: '486903008559711341',
+      outcomeId: '30',
+    },  
+  ],
+})
+```
+</Callout>
 
 #### Props
 
