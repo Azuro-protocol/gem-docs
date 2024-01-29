@@ -1,6 +1,6 @@
 import { Callout } from 'components';
 
-Hook is used for place a bet and approve tokens spending if necessary.
+This hook is used for users to place bets and approve the use tokens for payment when needed.
 
 #### Usage
 
@@ -31,7 +31,8 @@ submit()
 ```
 
 <Callout type="info">
-To place an express bet, you can pass multiple selections.
+When allowing users to place express (or combo) bets, you can pass multiple selections, each for different outcomes across various events, and combine them into one larger bet.
+
 ```ts
 const {...} = usePrepareBet({
   amount: '10',
