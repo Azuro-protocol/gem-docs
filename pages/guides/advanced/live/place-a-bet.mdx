@@ -53,6 +53,15 @@ const order: OrderSpec = {
 };
 ```
 
+<Callout type="warning">
+  Please ensure that the order amount should contain maximum 2 decimal signs, otherwise our backend will reject the order.
+  Examples:
+  - 15 USDT - valid &#9989;
+  - 15.2 USDT - valid &#9989;
+  - 15.25 USDT - valid &#9989;
+  - 15.125 USDT - invalid &#10060;
+</Callout>
+
 <Callout type="info">
 To obtain the `minPrice`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
 
