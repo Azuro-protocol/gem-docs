@@ -24,28 +24,43 @@ const deadline = 30; // bet deadline in seconds
 
 interface OrderSpec {
   affiliate: string;
-  amount: string;
-  chainId: number;
-  conditionId: string;
-  outcomeId: number;
-  minPrice: string;
-  nonce: string;
-  expiresAt: number;
-  maxFee: string;
+  bet: {
+    core: string;
+    amount: string;
+    chainId: number;
+    conditionId: string;
+    outcomeId: number;
+    minPrice: string;
+    nonce: string;
+    expiresAt: number;
+    maxFee: string;
+  }
 }
 
 const order: OrderSpec = {
   affiliate: '0x...', // Your wallet address to earn rewards
-  amount: '15000000', // 15 USDT with 6 decimals
-  chainId: 80001, // Polygon Mumbai testnet chain id
-  conditionId: '123456789',
-  outcomeId: 29,
-  minPrice: '1980000000000', // Min odds, 1.98 with 12 decimals
-  nonce: String(now), // Unique (for the bettor wallet) increase-only integer
-  expiresAt: Math.round(now / 1000 + deadline), // Timestamp in seconds
-  maxFee: '100000', // 0.1 USDT with 6 decimals
+  bet: {
+    core: '0x...', // Address of LiveCore smart contract
+    amount: '15000000', // 15 USDT with 6 decimals
+    chainId: 80001, // Polygon Mumbai testnet chain id
+    conditionId: '123456789',
+    outcomeId: 29,
+    minPrice: '1980000000000', // Min odds, 1.98 with 12 decimals
+    nonce: String(now), // Unique (for the bettor wallet) increase-only integer
+    expiresAt: Math.round(now / 1000 + deadline), // Timestamp in seconds
+    maxFee: '100000', // 0.1 USDT with 6 decimals
+  }
 };
 ```
+
+<Callout type="warning">
+  Please ensure that the order amount contains maximum 2 decimal signs, otherwise our backend will reject the order.
+  Examples:
+  - 15 USDT - valid &#9989;
+  - 15.2 USDT - valid &#9989;
+  - 15.25 USDT - valid &#9989;
+  - 15.125 USDT - invalid &#10060;
+</Callout>
 
 <Callout type="info">
 To obtain the `minPrice`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
@@ -104,19 +119,22 @@ First you need to prepare a message:
 ```ts
 import { AbiCoder, getBytes, keccak256 } from 'ethers';
 
-const orderDataAbi = ['address', 'uint128', 'uint256', 'uint256', 'uint64', 'uint64', 'uint256', 'uint256', 'uint256'];
+const orderDataAbi = 'tuple(address affiliate, tuple(address core, uint128 amount, uint256 nonce, uint256 conditionId, uint64 outcomeId, uint64 minOdds, uint256 expiredAt, uint256 chainId, uint256 relayerFeeAmount) clientBetData)';
 
 const createSignMessage = (abi: string[], order: OrderSpec): Uint8Array => {
   const data = [
     order.affiliate,
-    order.amount,
-    order.chainId,
-    order.conditionId,
-    order.outcomeId,
-    order.minPrice,
-    order.nonce,
-    order.expiresAt,
-    order.maxFee,
+    [
+      order.bet.core,
+      order.bet.amount,
+      order.bet.nonce,
+      order.bet.conditionId,
+      order.bet.outcomeId,
+      order.bet.minPrice,
+      order.bet.expiresAt,
+      order.bet.chainId,
+      order.bet.maxFee,
+    ]
   ];
 
   const abiCoder = AbiCoder.defaultAbiCoder();
@@ -181,17 +199,19 @@ enum OrderState {
 }
 
 enum OrderError {
-  TokenAllowance = 'TokenAllowance',
-  ChecksFailed = 'ChecksFailed',
-  TooHighMinPrice = 'TooHighMinPrice',
-  PayoutNotGuaranteed = 'PayoutNotGuaranteed',
-  MessageNotVerified = 'MessageNotVerified',
   BadData = 'BadData',
-  RejectedByProvider = 'RejectedByProvider',
+  ChecksFailed = 'ChecksFailed',
+  MessageNotVerified = 'MessageNotVerified',
+  Other = 'Other',
+  PayoutNotGuaranteed = 'PayoutNotGuaranteed',
   ProviderError = 'ProviderError',
+  RejectedByProvider = 'RejectedByProvider',
+  RiskExceeded = 'RiskExceeded',
+  TokenAllowance = 'TokenAllowance',
+  TooHighMinPrice = 'TooHighMinPrice',
+  TooHighStake = 'TooHighStake',
   TooSmallFee = 'TooSmallFee',
   TransactionFailed = 'TransactionFailed',
-  Other = 'Other',
 }
 
 interface OrderResponseSpec {
