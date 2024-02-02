@@ -18,7 +18,7 @@ import { useOdds } from '@azuro-org/sdk'
 
 const [ betAmount, setBetAmount ] = useState()
 const items = [...]
-const { odds, totalOdds } = useDetailedBetslip()
+const { odds, totalOdds } = useOdds({ betAmount, selections })
 
 const {
   isAllowanceLoading,
