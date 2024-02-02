@@ -1,0 +1,110 @@
+import { Callout } from 'components'
+
+Hook is used for calculate the total odds before placing a bet. This is the odds on which the bet will be made without considering slippage. The total odds depend on the bet amount and the provided selections since each selection may have its individual settings for reinforcement and margin.
+
+#### Usage
+
+<Callout type="warning">
+  Before utilizing `useOdds`, it is essential to initialize event watchers and the `SocketProvider`:
+
+  ```tsx
+    import { ChainProvider, SocketProvider, useWatchers } from '@azuro-org/sdk'
+
+    export function Watchers() {
+      useWatchers()
+
+      return null
+    }
+
+    function Providers(props: { children: React.ReactNode }) {
+      const { children } = props
+
+      return (
+        <ChainProvider>
+          <SocketProvider>
+            {children}
+          </SocketProvider>
+          <Watchers />
+        </ChainProvider>
+      )
+    }
+  ```
+</Callout>
+
+Provide selections and bet amount for calculating.
+
+```ts
+import { useOdds } from '@azuro-org/sdk'
+
+const { odds, totalOdds, maxBet, loading } = useOdds({
+  betAmount: '10',
+  selections: [
+    {
+      conditionId: '486903008559711340',
+      outcomeId: '29',
+    },  
+  ],
+})
+```
+
+<Callout type="info">
+The `odds` is an object where the key combination is determined by the concatenation of `conditionId` and `outcomeId`:
+```ts
+odds[`${conditionId}-${outcomeId}`]
+```
+</Callout>
+
+<Callout type="info">
+Example of usage: Obtain the total odds for the provided selections.
+
+```tsx
+import { type MarketOutcome, useOdds } from '@azuro-org/sdk'
+
+
+type TotalOddsProps = {
+  outcomes: MarketOutcome[]
+  betAmount: string
+}
+
+function TotalOdds(props: TotalOddsProps) {
+  const { outcomes, betAmount } = props
+
+  const { totalOdds } = useOdds({
+    betAmount,
+    selections: outcomes,
+  })
+
+  return (
+    <span>{totalOdds}</span>
+  )
+}
+```
+</Callout>
+
+#### Props
+
+```ts
+{
+  selections: Selection[]
+  betAmount: string
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
+}
+```
+
+#### Return Value
+
+```ts
+{
+  loading: boolean
+  odds: Record<string, number>
+  totalOdds: number
+  maxBet?: number
+}
+```

@@ -34,9 +34,8 @@ const { status, startsAt } = game // game's data from subgraph
 const gameStatus = getGameStatus({ 
   graphStatus: status,
   startsAt,
+  isGameInLive: true
 })
-
-const isGameInLive = gameStatus === GameStatus.Live
 ```
 
 #### Props
@@ -45,6 +44,7 @@ const isGameInLive = gameStatus === GameStatus.Live
 {
   graphStatus: GameStatus // game's status from subgraph
   startsAt: number
+  isGameInLive: boolean // should evaluate to `true` if the game from live graph
 }
 ```
 
@@ -52,11 +52,11 @@ const isGameInLive = gameStatus === GameStatus.Live
 
 ```ts
 enum GameStatus {
-  Preparing,
+  Created,
   Live,
-  PendingResolution,
   Resolved,
   Canceled,
   Paused,
+  PendingResolution,
 }
 ```

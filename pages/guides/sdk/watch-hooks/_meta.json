@@ -1,4 +1,5 @@
 {
-  "useOutcome": "useOutcome",
-  "useCalcOdds": "useCalcOdds"
+  "useSelection": "useSelection",
+  "useOdds": "useOdds",
+  "useStatuses": "useStatuses"
 }
