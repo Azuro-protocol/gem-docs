@@ -58,10 +58,29 @@ socket.onmessage = (message) => {
 
   data.forEach(data => {
     if (data.outcomes) { // new odds received
+      const { id: conditionId, reinforcement, margin, winningOutcomesCount } = data
+
+      const oddsData = {
+        conditionId: conditionId,
+        reinforcement: +reinforcement,
+        margin: +margin,
+        winningOutcomesCount: +winningOutcomesCount,
+        outcomes: {},
+      }
+
+      oddsData.outcomes = data.outcomes.reduce((acc, { id, price, clearPrice, maxStake }) => {
+        acc[id] = {
+          odds: price,
+          clearOdds: clearPrice,
+        }
+
+        return acc
+      }, {})
+
       const minPrice = calcLiveOdds({
-        selection: { conditionId, outcomeId },
+        selection: { conditionId, outcomeId, coreAddress },
         betAmount: '10', // 10 USDT
-        oddsData: data,
+        oddsData,
       })
     }
   });

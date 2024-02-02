@@ -1,12 +1,12 @@
 import { Callout } from 'components'
 
-ChainProvider is used for storing information about application chain as well as to provide network change functionality.
+`ChainProvider` is used for storing information about application chain as well as to provide network change functionality.
 
 #### Usage
 
-Wrap your application in ChainProvider.
+Wrap your application in `ChainProvider`.
 
-```ts {1, 13, 15}
+```tsx {1, 13, 15}
 import { ChainProvider } from '@azuro-org/sdk'
 import { WagmiConfig, createConfig } from 'wagmi'
 import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
@@ -28,7 +28,7 @@ function Providers(props: { children: React.ReactNode }) {
 ```
 
 <Callout type="warning">
-  The ChainProvider requires access to the Wagmi context.
+  The `ChainProvider` requires access to the Wagmi context.
 </Callout>
 
 Get stored context data.
@@ -38,6 +38,38 @@ import { useChain } from '@azuro-org/sdk'
 
 const { appChain, walletChain, contracts, betToken, isRightNetwork, setAppChainId } = useChain()
 ```
+
+<Callout type="info">
+The `ChainProvider` stores the current chain ID in a cookie under the key `appChainId` to restore `appChain`, for example, after page refresh.
+
+```tsx {10, 16}
+// Next.js example for app/layout.tsx
+import { ChainProvider } from '@azuro-org/sdk'
+import { cookies } from 'next/headers'
+
+
+export default function RootLayout(props: { children: React.ReactNode }) {
+  const { children } = props
+  const cookieStore = cookies()
+
+  const initialChainId = cookieStore.get('appChainId')?.value
+
+  return (
+    <html lang="en">
+      <body>
+        <WagmiConfig config={...}>
+          <ChainProvider initialChainId={initialChainId}>
+            <main>
+              {children}
+            </main>
+          </ChainProvider>
+        </WagmiConfig>
+      </body>
+    </html>
+  )
+}
+```
+</Callout>
 
 #### Props
 
@@ -49,27 +81,26 @@ const { appChain, walletChain, contracts, betToken, isRightNetwork, setAppChainI
 ```
 
 ```ts
-type ChainId =  100 | 137 | 42161 | 80001 | 421613
+type ChainId =  100 | 137 | 80001
 ```
 
 #### Return Value
-
 
 ```ts
 import { type Chain } from 'wagmi'
 
 {
   appChain: Omit<Chain, 'id'> & { id: ChainId } // represents chain in whitch your application sends requests and receives data
+  walletChain: Chain | undefined // user's wallet chain
   contracts: Contracts // contracts data based on appChain
   betToken: BetToken // bet token based on appChain
-  walletChain: Chain | undefined // user's wallet chain
   isRightNetwork: boolean // true if appChain equeal to walletChain
   setAppChainId: (chainId: ChainId) => void // function for change appChain
 }
 ```
 
 ```ts
-type ChainId =  100 | 137 | 42161 | 80001 | 421613
+type ChainId =  100 | 137 | 80001
 
 type Contracts = {
   lp: {
@@ -87,6 +118,9 @@ type Contracts = {
   proxyFront: {
     address: `0x${string}`
     abi: typeof proxyFrontAbi
+  }
+  liveRelayer?: {
+    address: `0x${string}`
   }
 }
 

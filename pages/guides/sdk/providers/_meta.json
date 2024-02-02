@@ -1,4 +1,8 @@
 {
+  "sdk": "AzuroSDK",
   "chain": "Chain",
-  "apollo": "Apollo"
+  "live": "Live",
+  "apollo": "Apollo",
+  "socket": "Socket",
+  "betslip": "Betslip"
 }

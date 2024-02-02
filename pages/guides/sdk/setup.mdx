@@ -1,15 +1,13 @@
 import { Callout, Image } from 'components'
 
-Here, we'll configure the essential components of the SDK to enable proper functionality for the hooks.
+Here, we'll configure the essential component of the SDK to enable proper functionality for the hooks.
 
-## Providers
+## AzuroSDKProvider
 
-To start, the initial step involves setting up a Chain Provider with the network configuration. This provider informs other sections of the SDK about the current chain being used and also enables network change functionality.
+The initial step involves setting up a `AzuroSDKProvider` with the configurations. This setup is all that is required to initiate the use of SDK Hooks.
 
-For further details, refer to the [Chain](/guides/sdk/providers/chain) section.
-
-```ts {1, 13, 15}
-import { ChainProvider } from '@azuro-org/sdk'
+```tsx {1, 13, 15}
+import { AzuroSDKProvider } from '@azuro-org/sdk'
 import { WagmiConfig, createConfig } from 'wagmi'
 import { polygonMumbai } from 'viem/chains'
 
@@ -21,75 +19,21 @@ function Providers(props: { children: React.ReactNode }) {
 
   return (
     <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
+      <AzuroSDKProvider initialChainId={polygonMumbai.id}>
         {children}
-      </ChainProvider>
+      </AzuroSDKProvider>
     </WagmiConfig>
   )
 }
 ```
 
-<Callout type="warning">
-  The ChainProvider requires access to the Wagmi context.
-</Callout>
-
-
-Within the SDK, we utilize Data Hooks to fetch data from the subgraph. For this purpose, initializing the ApolloProvider is necessary.
-
-For further details, refer to the [Apollo](/guides/sdk/providers/apollo) section.
-
-```ts {1-5, 20, 22}
-// For Next.js application
-import { ApolloProvider } from '@azuro-org/sdk/nextjs/apollo'
-
-// For React application
-import { ApolloProvider } from '@azuro-org/sdk/react/apollo'
-
-import { ChainProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
-import { polygonMumbai } from 'viem/chains'
-
-
-const wagmiConfig = createConfig(config)
-
-function Providers(props: { children: React.ReactNode }) {
-  const { children } = props
-
-  return (
-    <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
-        <ApolloProvider>
-          {children}
-        </ApolloProvider>
-      </ChainProvider>
-    </WagmiConfig>
-  )
-}
-```
+For further details, refer to the [AzuroSDKProvider](/guides/sdk/providers/sdk) section.
 
 <Callout type="warning">
-  The ApolloProvider requires access to the chain context.
+  The AzuroSDKProvider requires access to the Wagmi context.
 </Callout>
 
-After completing the providers setup, you can begin using the [Data Hooks](/guides/sdk/data-hooks/useGames) and  the [Write Hooks](/guides/sdk/write-hooks/usePrepareBet).
-
-## Watchers
-
-In your application, it's important to respond to changes in odds and condition statuses. Watchers play a key role in this process by subscribing to new contract events and signaling dependent hooks.
-
-```ts
-import { useWatchers } from '@azuro-org/sdk'
-
-export function Watchers() {
-  useWatchers()
-
-  return null
-}
-```
-
-After completing the watchers setup, you can begin using the [Watch Hooks](/guides/sdk/watch-hooks/useOutcome).
-
-
+// ATTN: need to rewrite @Avvrik
 ## NB: Don't forget to tweak the following to customize AzuroSDK
 
 1. **Chain ID**: Ensure you are using the correct chainId for the chain you intend to interact with.

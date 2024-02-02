@@ -1,0 +1,37 @@
+Calculates the prematch odds value for specific selections at which the bet can be placed on. If the current odds value is lower than the specified value, the bet cannot be placed and will be rejected by the contract.
+
+#### Usage
+
+```ts
+import { calcPrematchOdds } from '@azuro-org/sdk'
+
+const prematchOdds = await calcPrematchOdds({
+  betAmount: '1' // 1 USDT
+  selections: [ { conditionId, outcomeId, coreAddress } ],
+  chainId: 80001,
+})
+```
+
+#### Props
+
+```ts
+{
+  betAmount: string
+  selections: Selection[]
+  chainId: ChainId
+}
+```
+
+```ts
+type ChainId =  100 | 137 | 80001
+
+type Selection = {
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
+}
+```
+
+#### Return Value
+
+`Promise<number>`
