@@ -59,6 +59,12 @@ To resolve this error, you can do the following:
   Unfortunately, currently you can't do anything here and you need to wait until we resolve the issue.
 </Callout>
 
+### `OrderError.TooHighStake`
+
+We have a hard limit for a stake size that we can accept on each market.
+You can obtain its value from our [WebSocket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
+If you try to place more funds than this limit, you will get this error, and you'll need to decrease the amount.
+
 ### `OrderError.PayoutNotGuaranteed`
 
 This rare error means that if we accept the bet and the outcome will win,
