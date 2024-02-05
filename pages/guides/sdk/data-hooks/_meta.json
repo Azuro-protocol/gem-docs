@@ -4,5 +4,6 @@
   "useGame": "useGame",
   "useConditions": "useConditions",
   "useGameMarkets": "useGameMarkets",
-  "useBets": "useBets"
+  "usePrematchBets": "usePrematchBets",
+  "useLiveBets": "useLiveBets"
 }

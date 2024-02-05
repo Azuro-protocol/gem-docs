@@ -15,9 +15,19 @@ const { loading, data: markets } = useGameMarkets(props)
 ```ts
 {
   gameId: string | bigint
+  gameStatus: GameStatus // game status from `useGameStatus` hook or 'getGameStatus' function
   filter?: {
     outcomeIds?: string[]
   }
+}
+
+enum GameStatus {
+  Created,
+  Live,
+  Resolved,
+  Canceled,
+  Paused,
+  PendingResolution,
 }
 ```
 

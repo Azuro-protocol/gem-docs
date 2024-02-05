@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-Hook is used for fetch the [`Conditions`](/concepts/glossary#condition) of specific game.
+Hook is used for fetch pre-match and live [`Conditions`](/concepts/glossary#condition) of specific game.
 
 Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
 
@@ -22,6 +22,8 @@ const conditions = data?.conditions
 ```ts
 {
   gameId: string | bigint
+  isLive: boolean // if the flag is set to true, useConditions will retrieve live conditions.
+  livePollInterval?: number // live conditions can be created at any time, and here, you can specify how frequently to check for new live conditions **measured in miliseconds**
   filter?: {
     outcomeIds?: string[]
   }

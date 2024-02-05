@@ -15,9 +15,9 @@ Thus, we've introduced additional statuses:
 
 ```ts {2-4}
 enum GameStatus {
-  Preparing, // status before the game starts
-  Live, // game was started
-  PendingResolution, // game status 100 minutes after the start
+  Created, // same as GraphGameStatus.Created
+  Live, // game in live
+  PendingResolution, // pre-match game status holds for 100 minutes after the start if the game doesn't exist in the live
   Resolved, // same as GraphGameStatus.Resolved
   Canceled, // same as GraphGameStatus.Canceled
   Paused, // same as GraphGameStatus.Paused
