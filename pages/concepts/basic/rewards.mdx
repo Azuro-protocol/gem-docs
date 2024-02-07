@@ -7,11 +7,19 @@ The term "reward" within Azuro protocol refers to the percentage of the [Pool](/
 
 Currently, there are 4 types of contributors in the Pool, each with a corresponding reward: [Liquidity Providers](/contracts/lp) reward, [Data Providers](/concepts/basic/data-providers) reward, [Affiliates](/concepts/basic/affiliates) reward, [Azuro DAO](/concepts/azuro-dao/overview) reward.
 
+### Liquidity and Data Providers
+
 For LPs and Data Providers, after the completion of each [Condition](/concepts/protocol/conditions), the profit or loss of the pool is multiplied by the reward rate (25% and 10% respectively) and added to the contributor reward balance.
 
-For Affiliates (Frontends) the reward is calculated monthly, using the following formula, separately for each chain:
+### Affiliates (Frontends)
 
-> **Affiliate Reward = (0.5 × Spread) × Bet Size**
+For Affiliates, the reward is calculated monthly, using the following formula, separately for each chain:
+
+<Formula>
+$$
+  \text{Affiliate reward} = 50\text{(% of Spread)} * \text{( Bet Size) for all bets associated with the affiliate address, resolved in the calendar month}
+$$
+</Formula>
 
 This reward is for all bets associated with the affiliate address, resolved in the calendar month.
 
@@ -19,9 +27,12 @@ This reward is for all bets associated with the affiliate address, resolved in t
 - **Bet Size**: The value of the bet placed.
 - **Affiliate Revenue**: Monthly Pool Revenue (bets placed minus winnings) via the Affiliate address.
 
-### Note:
-
-- Affiliate reward is capped at 70% of Affiliate Revenue.
-- LPs’, Data Providers’, and the DAO’s rewards can happen to be negative. Affiliates’ rewards can be only positive or 0.
+### DAO
 
 The DAO reward is calculated by deducting all other rewards from the total monthly Pool Revenue.
+
+<Callout type="info">
+- Affiliate reward is capped at 70% of Affiliate Revenue.
+- LPs’, Data Providers’, and the DAO’s rewards can happen to be negative. 
+Affiliates’ rewards can be only positive or 0.
+</Callout>
