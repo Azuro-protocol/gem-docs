@@ -7,30 +7,22 @@ The term "reward" within Azuro protocol refers to the percentage of the [Pool](/
 
 Currently, there are 4 types of contributors in the Pool, each with a corresponding reward: [Liquidity Providers](/contracts/lp) reward, [Data Providers](/concepts/basic/data-providers) reward, [Affiliates](/concepts/basic/affiliates) reward, [Azuro DAO](/concepts/azuro-dao/overview) reward.
 
-For LPs and Data Providers, after the completion of each [Condition](/concepts/protocol/conditions), the profit or loss of the pool is multiplied by the reward rate (25% and 10% respectively) and added to the contributor reward balance.  For Affiliates (Frontends) the reward is calculated monthly, using the following formula, separately for each chain:
+For LPs and Data Providers, after the completion of each [Condition](/concepts/protocol/conditions), the profit or loss of the pool is multiplied by the reward rate (25% and 10% respectively) and added to the contributor reward balance.
+For Affiliates (Frontends) the reward is calculated monthly, using the following formula, separately for each chain:
  
-Affiliate reward* = (50% of Spread)*(Bet Size) for all bets associated with the affiliate address, resolved in the calendar month.
+`Affiliate Reward = (50% of Spread) * (Bet Size)`
 
-| Contributor | Reward | Address |
-|---|---|---|
-| [Frontends (Affiliates)](/concepts/basic/affiliates) | (50% of Spread)*(Bet Size) for all bets associated with the affiliate address, resolved in the calendar month | multiple |
-| [Liquidity Providers](/contracts/lp) | 25% of Pool’s profit | multiple |
-| [Data Providers](/concepts/basic/data-providers) | 10% of Pool’s profit | `0x77e803ad3a4a52d5ab609451b8ba60cea7a5bea6` |
-| [Azuro DAO](/concepts/azuro-dao/overview) | variable** | `0xef18f2f054a7ad2909333051aa42d5c0bb3f92f6` |
+This reward is for all bets associated with the affiliate address, resolved in the calendar month.
 
-LPs’, DataProvider’s and the DAO’s rewards can happen to be negative. Affiliates’ rewards can be only positive or 0.
+### Definitions
 
-<Callout icon="*" type="reference">
-Affiliate reward is capped at 70% of Affiliate Revenue.
+- **Spread**: The spread (aka vig, aka margin) for each particular bet.
+- **Bet Size**: The value of the bet placed.
+- **Affiliate Revenue**: Monthly Pool Revenue (bets placed minus winnings) via the Affiliate address.
 
-Spread = The spread (aka vig, aka margin) for each particular bet.
+### Note:
 
-Bet size = The value of the bet placed.
+- Affiliate reward is capped at 70% of Affiliate Revenue.
+- LPs’, Data Providers’, and the DAO’s rewards can happen to be negative. Affiliates’ rewards can be only positive or 0.
 
-Affiliate Revenue = Monthly Pool Revenue (bets placed minus winnings) via the Affiliate address.
-
-</Callout>
-
-<Callout icon="**" type="reference">
 The DAO reward is calculated by deducting all other rewards from the total monthly Pool Revenue.
-</Callout>
