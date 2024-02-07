@@ -1,4 +1,4 @@
-import { Callout } from 'components'
+import { Callout, Formula } from 'components'
 
 # Rewards
 
@@ -17,22 +17,24 @@ For Affiliates, the reward is calculated monthly, using the following formula, s
 
 <Formula>
 $$
-  \text{Affiliate reward} = 50\text{(% of Spread)} * \text{( Bet Size) for all bets associated with the affiliate address, resolved in the calendar month}
+\text{Affiliate Reward} = (\text{50\% of Spread}) \times (\text{Bet Size})
 $$
 </Formula>
 
+Affiliate reward is capped at 70% of Affiliate Revenue.
 This reward is for all bets associated with the affiliate address, resolved in the calendar month.
 
 - **Spread**: The spread (aka vig, aka margin) for each particular bet.
 - **Bet Size**: The value of the bet placed.
 - **Affiliate Revenue**: Monthly Pool Revenue (bets placed minus winnings) via the Affiliate address.
 
+
+
 ### DAO
 
 The DAO reward is calculated by deducting all other rewards from the total monthly Pool Revenue.
 
 <Callout type="info">
-- Affiliate reward is capped at 70% of Affiliate Revenue.
-- LPs’, Data Providers’, and the DAO’s rewards can happen to be negative. 
+LPs’, Data Providers’, and the DAO’s rewards can happen to be negative. 
 Affiliates’ rewards can be only positive or 0.
 </Callout>
