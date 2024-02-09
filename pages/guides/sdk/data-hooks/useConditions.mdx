@@ -12,9 +12,7 @@ The Hook should be used if [`useGameMarkets`](/guides/sdk/data-hooks/useGameMark
 
 ```ts
 import { useConditions } from '@azuro-org/data'
-const { loading, error, data } = useConditions(props)
-
-const conditions = data?.conditions
+const { loading, error, conditions } = useConditions(props)
 ```
 
 #### Props
@@ -50,22 +48,20 @@ const conditions = data?.conditions
 {
   loading: boolean
   error: Error | null
-  data: {
-    conditions: Array<{
-      id: string
-      conditionId: string
-      status
-      core: {
+  conditions: Array<{
+    id: string
+    conditionId: string
+    status
+    core: {
+      address: string
+      liquidityPool: {
         address: string
-        liquidityPool: {
-          address: string
-        }
       }
-      outcomes: Array<{
-        outcomeId: string
-        odds: string
-      }>
+    }
+    outcomes: Array<{
+      outcomeId: string
+      odds: string
     }>
-  }
+  }>
 }
 ```

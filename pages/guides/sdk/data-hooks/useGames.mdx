@@ -9,11 +9,9 @@ You can find the list of available sports [here](https://thegraph.azuro.org/subg
 #### Usage
 
 ```ts
-import { useGames, Game_OrderBy, OrderDirection } from '@azuro-org/sdk'
+import { useGames } from '@azuro-org/sdk'
 
-const { loading, error, data } = useGames(props)
-
-const games = data?.games
+const { loading, error, games } = useGames(props)
 ```
 
 <Callout type="info">
@@ -27,10 +25,17 @@ const games = data?.games
   filter?: {
     limit?: number // limit the number of rows returned from a query
     offset?: number // omit a specified number of rows before the beginning of the result set
+    sportHub?: SportHub // returns games from specific hub
     sportSlug?: string // returns games from specific sport
+    leaglueSlug?: string // returns games from specific league
   }
   orderBy?: Game_OrderBy // default: Game_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
+}
+
+enum SportHub {
+  Sports = 'sports',
+  Esports = 'esports'
 }
 ```
 
@@ -57,32 +62,30 @@ const { loading, error, data } = useQuery<GamesQueryResult, GamesQueryVariables>
 {
   loading: boolean
   error: Error | null
-  data: { 
-    games: Array<{ 
-      id: string
-      gameId: any
-      title?: string | null
-      startsAt: any
-      status: GraphGameStatus
-      sport: {
-        sportId: string
+  games: Array<{
+    id: string
+    gameId: string
+    title?: string | null
+    startsAt: string
+    status: GraphGameStatus
+    sport: {
+      sportId: string
+      slug: string
+      name: string 
+    }
+    league: {
+      slug: string
+      name: string
+      country: { 
         slug: string
         name: string 
-      }
-      league: {
-        slug: string
-        name: string
-        country: { 
-          slug: string
-          name: string 
-        } 
-      }
-      participants: Array<{ 
-        image?: string | null
-        name: string 
-      }>
-    }> 
-  }
+      } 
+    }
+    participants: Array<{ 
+      image?: string | null
+      name: string 
+    }>
+  }> 
 }
 
 enum GraphGameStatus {

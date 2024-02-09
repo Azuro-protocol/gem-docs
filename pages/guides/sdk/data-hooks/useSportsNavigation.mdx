@@ -12,7 +12,7 @@ You can find the list of available sports [here](https://thegraph.azuro.org/subg
 import { useSportsNavigation } from '@azuro-org/sdk'
 
 
-const { loading, data } = useSportsNavigation(props)
+const { loading, sports } = useSportsNavigation(props)
 ```
 
 <Callout type="info">
@@ -32,15 +32,13 @@ const { loading, data } = useSportsNavigation(props)
 { 
   loading: boolean
   error: Error | null
-  data: { 
-    sports {
+  sports {
+    id
+    slug
+    name
+    // if `withGameCount` props is true includes games data
+    games {
       id
-      slug
-      name
-      // if `withGameCount` props is true includes games data
-      games {
-        id
-      }
     }
   }
 }

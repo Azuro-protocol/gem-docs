@@ -30,11 +30,11 @@ const { loading, error, data: game } = useGame(props)
   ```ts
   import { useGame } from '@azuro-org/data'
 
-  const { loading, error, data } = useGames()
+  const { loading, error, games } = useGames()
 
-  const gameId = data?.games[0]?.gameId
+  const gameId = games?.[0]?.gameId
 
-  const { loading, error, data } = useGame({ gameId })
+  const { loading, error, game } = useGame({ gameId })
   ```
 </Callout>
 
@@ -44,7 +44,7 @@ const { loading, error, data: game } = useGame(props)
   loading: boolean
   error: Error | null
   isGameInLive: boolean // true if the game exists in the live.
-  data: { 
+  game: { 
     id: string
     gameId: number
     title?: string | null
