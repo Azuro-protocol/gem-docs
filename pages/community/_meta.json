@@ -1,10 +1,8 @@
 {
   "live-betting-test-challenge": {
-    "title": "Live Betting Incentivized Testnet",
-    "display": "hidden"
+    "title": "Live Betting Incentivized Testnet"
   },
   "stress-testing-schedule": {
-    "title": "Stress Testing Schedule",
-    "display": "hidden"
+    "title": "Stress Testing Schedule"
   }
 }
