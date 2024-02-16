@@ -1,0 +1,76 @@
+# Developer Grant for a Multi-Chain Indexer
+
+Azuro and Envio are teaming up and we're thrilled to extend an invitation to all blockchain enthusiasts out there. Ready for a challenge that's both fun and rewarding? Read on! 🌟
+
+### **Here's the Deal:**
+
+Azuro and Envio are offering a fantastic opportunity for developers to earn a grant of **$1500 USDC** 💰. Your mission, should you choose to accept it, is to create an open-source multi-chain indexer for the Azuro Protocol using the Envio SDK. Sounds cool, right?
+
+### **What's the Catch?**
+
+Azuro uses subgraphs that sort and organize data from its smart contracts. Your task? Shift this indexing logic over to the Envio SDK. The goal? Your Envio indexer should match the existing Azuro’s GraphQL APIs. 
+
+### **Why It's a Big Deal:**
+
+Azuro uses a separate subgraph for each blockchain. This means there is an individual GraphQL API for each chain deployment to query Azuro data. Envio's multi-chain indexing is here to save the day, making it super easy to pull together data from multiple blockchains using a single indexer. It's all about making things simple and efficient.
+
+### **Tech Scope:**
+
+- The scope of the multi-chain indexer is limited to Gnosis and Polygon production contract deployments.
+- The event handlers of the Envio indexer should be written in Typescript.
+- The indexer involves configuring schema.graphql, config.yaml, and handlers.ts files
+- Envio SDK version for the indexer should be version 0.0.29 or higher.
+
+### **Want to Jump In?**
+
+If you're eager to get started, fill out this [Google Form](https://forms.gle/F4FCSiTbrYAgnqsn9). Just remember, wait for the green light before diving in! Once you apply, give us a couple of days to review your application. We'll reach out with the next steps.
+
+**Please do not start the grant without approval.**
+
+Upon acceptance:
+
+- You will have up to 4 weeks to complete the grant.
+- You will be added to a dedicated private support channel in the Envio Discord for support, questions, and communication with the Envio and Azuro team during the duration of the grant.
+- You can fork this [starter kit boilerplate](https://github.com/enviodev/azuro-envio-indexer-boilerplate) to start the grant
+
+**Please note:**
+
+Developers with prior subgraph/indexer development experience will be given priority.
+
+### **What We're Looking For:**
+
+- The resulting code should build and run correctly
+- The resulting code should have high code quality (readability, simplicity, comments where necessary)
+- The resulting code should have basic tests in place to validate events are being processed correctly
+- The resulting code should be accompanied by sample GraphQL queries that touch on every schema entity, which can be listed in [README.md](http://readme.md/)
+- The resulting code should be in a public GitHub repository with a suitable open-source license recognized by the OSI
+- The indexer should be deployed to Envio’s hosted service
+
+### **After You Submit:**
+
+We'll take up to 3 days to review your work. Need tweaks? We'll figure out the timeline together. Oh, and there's more - you'll get a chance to be featured in a case study and maybe even present at a community call!
+
+### **Need Some Guidance?**
+
+Azuro’s Production Subgraphs
+
+- Gnosis: [https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-v3](https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-v3)
+- Polygon: [https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3](https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3)
+
+Azuro’s Subgraphs Repository:
+
+- [https://github.com/Azuro-protocol/Azuro-subgraphs/tree/main/api](https://github.com/Azuro-protocol/Azuro-subgraphs/tree/main/api)
+
+Azuro’s Smart Contract Overview:
+
+- [https://gem.azuro.org/contracts/overview](https://gem.azuro.org/contracts/overview)
+- [https://gem.azuro.org/contracts/deployment-addresses](https://gem.azuro.org/contracts/deployment-addresses)
+
+Envio’s Developer Docs:
+
+- Envio Installation: [https://docs.envio.dev/docs/installation](https://docs.envio.dev/docs/installation)
+- Envio Multi-chain indexing: [https://docs.envio.dev/docs/multichain-indexing](https://docs.envio.dev/docs/multichain-indexing)
+- Envio Factory Contracts: [https://docs.envio.dev/docs/dynamic-contracts](https://docs.envio.dev/docs/dynamic-contracts)
+- Envio’s Hosted Service: [https://docs.envio.dev/docs/hosted-service](https://docs.envio.dev/docs/hosted-service)
+
+The grantee will be added to a dedicated private support channel in the Envio Discord for support, questions, and communication with the Envio and Azuro team during the duration of the grant.

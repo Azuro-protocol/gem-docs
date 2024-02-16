@@ -1,4 +1,8 @@
 {
   "overview": "Overview",
-  "highlights": "Highlights"
+  "highlights": "Highlights",
+  "queries": "GraphQL Queries",
+  "---": {
+    "type": "separator"
+  }
 }
