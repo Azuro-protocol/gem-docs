@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev -p 5009",
     "start": "next start",
-    "build": "next build && next export",
+    "build": "next build",
     "deploy:review": "rimraf .next && npm run build && surge out azuro-docs-for-review.surge.sh",
     "deploy": "rimraf .next && npm run build && surge out gem.azuro.org"
   },

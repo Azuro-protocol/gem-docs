@@ -6,31 +6,35 @@ The `BetslipProvider` serves the purpose of storing a user's bet before its exec
 
 Wrap your application in `BetslipProvider`.
 
-```tsx {1, 17, 19}
+```tsx {1, 20, 22}
 import { ChainProvider, LiveProvider, ApolloProvider, SocketProvider, BetslipProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
-        <LiveProvider initialLiveState={initialLiveState}>
-          <ApolloProvider>
-            <SocketProvider>
-              <BetslipProvider>
-                {children}
-              </BetslipProvider>
-            </SocketProvider>
-          </ApolloProvider>
-        </LiveProvider>
-      </ChainProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          <LiveProvider initialLiveState={initialLiveState}>
+            <ApolloProvider>
+              <SocketProvider>
+                <BetslipProvider>
+                  {children}
+                </BetslipProvider>
+              </SocketProvider>
+            </ApolloProvider>
+          </LiveProvider>
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```

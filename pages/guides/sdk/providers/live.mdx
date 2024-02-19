@@ -7,9 +7,10 @@ The `LiveProvider` is employed to store the live state and subsequently distribu
 
 Wrap your application in `LiveProvider`.
 
-```tsx {1, 14, 16}
+```tsx {1, 16, 18}
 import { LiveProvider, ChainProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
+import { WagmiProvider } from 'wagmi'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
 
 
@@ -19,13 +20,15 @@ function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
-        <LiveProvider initialLiveState={false}>
-          {children}
-        </LiveProvider>
-      </ChainProvider>
-    </WagmiConfig>
+    <WagmiProvider config={...}>
+      <QueryClientProvider client={...}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          <LiveProvider initialLiveState={false}>
+            {children}
+          </LiveProvider>
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```
@@ -49,7 +52,7 @@ const { isLive, changeLive } = useLive()
 <Callout type="info">
 The `LiveProvider` stores the current state in a cookie under the key `live` to restore `isLive` state, for example, after a page refresh.
 
-```tsx {11, 18}
+```tsx {11, 19}
 // Next.js example for app/layout.tsx
 import { ChainProvider, LiveProvider } from '@azuro-org/sdk'
 import { cookies } from 'next/headers'
@@ -65,15 +68,17 @@ export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <WagmiConfig config={...}>
-          <ChainProvider initialChainId={initialChainId}>
-            <LiveProvider initialLiveState={initialLiveState}>
-              <main>
-                {children}
-              </main>
-            </LiveProvider>
-          </ChainProvider>
-        </WagmiConfig>
+        <WagmiProvider config={...}>
+          <QueryClientProvider client={...}> 
+            <ChainProvider initialChainId={initialChainId}>
+              <LiveProvider initialLiveState={initialLiveState}>
+                <main>
+                  {children}
+                </main>
+              </LiveProvider>
+            </ChainProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
       </body>
     </html>
   )

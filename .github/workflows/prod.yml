@@ -6,23 +6,32 @@ on:
       - main
 
 jobs:
-  deploy:
+  trigger:
     runs-on: ubuntu-latest
+    timeout-minutes: 1
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - name: Set short git commit SHA
+        id: vars
+        run: |
+          calculatedSha=$(git rev-parse --short ${{ github.sha }})
+          echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          cache: 'npm'
-
-      - name: Install packages
-        run: npm ci && npm i -g surge
-
-      - name: Build
-        run: npm run build
-
-      - name: Publish
-        run: surge ./out gem.azuro.org --token ${{ secrets.SURGE_TOKEN }}
+      - name: Trigger Workflow
+        run: |
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.ACCESS_TOKEN }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ secrets.TARGET_REPO_OWNER }}/${{ secrets.TARGET_REPO_NAME }}/dispatches \
+            -d '{
+              "event_type":"trigger-workflow",
+              "client_payload":{
+                "unit":false,
+                "integration":true,
+                "branch":"${{ github.ref_name }}",
+                "env":"prod",
+                "hash":"${{ env.COMMIT_SHORT_SHA }}"
+                }
+              }'

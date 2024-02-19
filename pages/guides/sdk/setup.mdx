@@ -6,23 +6,27 @@ Here, we'll configure the essential component of the SDK to enable proper functi
 
 The initial step involves setting up a `AzuroSDKProvider` with the configurations. This setup is all that is required to initiate the use of SDK Hooks.
 
-```tsx {1, 13, 15}
+```tsx {1, 16, 18}
 import { AzuroSDKProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <AzuroSDKProvider initialChainId={polygonMumbai.id}>
-        {children}
-      </AzuroSDKProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <AzuroSDKProvider initialChainId={polygonMumbai.id}>
+          {children}
+        </AzuroSDKProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```

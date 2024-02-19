@@ -6,25 +6,29 @@ It responds to network changes by automatically initiating a re-fetch of all the
 
 #### Usage
 
-```tsx {1, 14}
+```tsx {1, 17, 19}
 import { ApolloProvider, ChainProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
-        <ApolloProvider>
-          {children}
-        </ApolloProvider>
-      </ChainProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          <ApolloProvider>
+            {children}
+          </ApolloProvider>
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```

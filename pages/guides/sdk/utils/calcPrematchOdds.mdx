@@ -15,7 +15,10 @@ const prematchOdds = await calcPrematchOdds({
 #### Props
 
 ```ts
+import { type Config } from 'wagmi'
+
 {
+  config: Config
   betAmount: string
   selections: Selection[]
   chainId: ChainId
