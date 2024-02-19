@@ -8,23 +8,27 @@ To start, the initial step involves setting up a Chain Provider with the network
 
 For further details, refer to the [Chain](/guides/sdk/providers/chain) section.
 
-```ts {1, 13, 15}
+```ts {1, 16, 18}
 import { ChainProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
-        {children}
-      </ChainProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          {children}
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```
@@ -38,7 +42,7 @@ Within the SDK, we utilize Data Hooks to fetch data from the subgraph. For this 
 
 For further details, refer to the [Apollo](/guides/sdk/providers/apollo) section.
 
-```ts {1-5, 20, 22}
+```ts {1-5, 23, 25}
 // For Next.js application
 import { ApolloProvider } from '@azuro-org/sdk/nextjs/apollo'
 
@@ -46,23 +50,27 @@ import { ApolloProvider } from '@azuro-org/sdk/nextjs/apollo'
 import { ApolloProvider } from '@azuro-org/sdk/react/apollo'
 
 import { ChainProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
-        <ApolloProvider>
-          {children}
-        </ApolloProvider>
-      </ChainProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          <ApolloProvider>
+            {children}
+          </ApolloProvider>
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```
@@ -88,16 +96,3 @@ export function Watchers() {
 ```
 
 After completing the watchers setup, you can begin using the [Watch Hooks](/guides/sdk/watch-hooks/useOutcome).
-
-
-## NB: Don't forget to tweak the following to customize AzuroSDK
-
-1. **Chain ID**: Ensure you are using the correct chainId for the chain you intend to interact with.
-2. **Project ID**: For wallet connections, such as WalletConnect, replace the placeholder with your actual project ID from walletconnect.com.
-3. **RPC URLs**: In the `rpcUrls` object, provide the actual RPC URLs for the chains you're using.
-
-<Image
-  src="/images/sdk/Providers.png"
-  width={2010}
-  height={1846}
-/>
