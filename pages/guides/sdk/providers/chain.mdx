@@ -6,23 +6,27 @@ ChainProvider is used for storing information about application chain as well as
 
 Wrap your application in ChainProvider.
 
-```ts {1, 13, 15}
+```ts {1, 16, 18}
 import { ChainProvider } from '@azuro-org/sdk'
-import { WagmiConfig, createConfig } from 'wagmi'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <ChainProvider initialChainId={polygonMumbai.id}>
-        {children}
-      </ChainProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          {children}
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```
