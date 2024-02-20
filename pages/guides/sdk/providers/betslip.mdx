@@ -1,0 +1,144 @@
+import { Callout } from 'components'
+
+The `BetslipProvider` serves the purpose of storing a user's bet before its execution, while additionally furnishing information regarding odds and statuses.
+
+#### Usage
+
+Wrap your application in `BetslipProvider`.
+
+```tsx {1, 20, 22}
+import { ChainProvider, LiveProvider, ApolloProvider, SocketProvider, BetslipProvider } from '@azuro-org/sdk'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
+
+
+const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          <LiveProvider initialLiveState={initialLiveState}>
+            <ApolloProvider>
+              <SocketProvider>
+                <BetslipProvider>
+                  {children}
+                </BetslipProvider>
+              </SocketProvider>
+            </ApolloProvider>
+          </LiveProvider>
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+<Callout type="info">
+  The [AzuroSDKProvider](/guides/sdk/providers/sdk) incorporates the `BetslipProvider` along with all associated providers.
+</Callout>
+
+<Callout type="warning">
+  The `BetslipProvider` necessitates access to the `ChainProvider`, `LiveProvider`, `ApolloProvider`, and `SocketProvider`.
+</Callout>
+
+Get stored context data.
+
+```ts
+import { useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
+
+const { items, addItem, removeItem, clear } = useBaseBetslip()
+const { 
+  betAmount, odds, totalOdds, maxBet, statuses, disableReason, changeBetAmount, 
+  isStatusesFetching, isOddsFetching, isBetAllowed 
+} = useDetailedBetslip()
+```
+
+<Callout type="info">
+The `useBaseBetslip` hook is employed to gain access to items and facilitate their modification, while the `useDetailedBetslip` hook is utilized for obtaining additional information such as odds and statuses.
+</Callout>
+
+<Callout type="info">
+The `odds` is an object where the key combination is determined by the concatenation of `conditionId` and `outcomeId`:
+```ts
+odds[`${conditionId}-${outcomeId}`]
+```
+</Callout>
+
+<Callout type="info">
+The `statuses` is an object where the key combination corresponds to `conditionId`:
+```ts
+statuses[conditionId]
+```
+</Callout>
+
+#### Return Value
+
+```ts
+type BaseBetslipContextValue = {
+  items: BetslipItem[] // betslip items
+  addItem: (itemProps: ItemProps) => void // function for adding new items
+  removeItem: (gameId: string) => void // function for removing item from betslip
+  clear: () => void // function for clearing betslip
+}
+
+type DetailedBetslipContextValue = {
+  betAmount: string // bet amount
+  odds: Record<string, number> // odds for each item
+  totalOdds: number // total bet odds
+  maxBet?: number // maximum bet amount
+  statuses: Record<string, ConditionStatus> // status for each item
+  disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
+  changeBetAmount: (value: string) => void // function for changing bet amount
+  isStatusesFetching: boolean // indicates statuses fetching
+  isOddsFetching: boolean // indicates odds fetching
+  isBetAllowed: boolean // true if bet can be placed
+}
+
+enum BetslipDisableReason {
+  ConditionStatus = 'ConditionStatus', // one or more outcomes have been removed or suspended
+  BetAmountGreaterThanMaxBet = 'BetAmountGreaterThanMaxBet', // bet amount exceeds max bet
+  ComboWithLive = 'ComboWithLive', // live outcome can't be used in combo
+  ComboWithForbiddenItem = 'ComboWithForbiddenItem', // one or more conditions can't be used in combo
+  PrematchConditionInStartedGame = 'PrematchConditionInStartedGame', // pre-match item in started game
+}
+
+type Game = {
+  gameId: string
+  countryName: string
+  countrySlug: string
+  leagueName: string
+  leagueSlug: string
+  participants: Array<{
+    name: string
+    image?: string
+  }>
+  startsAt: number
+  sportId: number
+  sportSlug: string
+  sportName: string
+}
+
+type Selection = {
+  outcomeId: string
+  conditionId: string
+  coreAddress: string
+}
+
+type BetslipItem = {
+  lpAddress: string
+  game: Game
+  isExpressForbidden: boolean
+} & Selection
+
+type ItemProps = {
+  gameId: string
+  lpAddress: string
+  isExpressForbidden: boolean
+} & Selection
+```

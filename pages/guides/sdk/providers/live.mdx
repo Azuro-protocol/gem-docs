@@ -1,0 +1,106 @@
+import { Callout } from 'components'
+
+The `LiveProvider` is employed to store the live state and subsequently distribute this state to other components within the application.
+
+
+#### Usage
+
+Wrap your application in `LiveProvider`.
+
+```tsx {1, 16, 18}
+import { LiveProvider, ChainProvider } from '@azuro-org/sdk'
+import { WagmiProvider } from 'wagmi'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
+
+
+const wagmiConfig = createConfig(config)
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <WagmiProvider config={...}>
+      <QueryClientProvider client={...}> 
+        <ChainProvider initialChainId={polygonMumbai.id}>
+          <LiveProvider initialLiveState={false}>
+            {children}
+          </LiveProvider>
+        </ChainProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+<Callout type="warning">
+  The `LiveProvider` requires access to the ChainProvider context.
+</Callout>
+
+Get stored context data.
+
+```ts
+import { useLive } from '@azuro-org/sdk'
+
+const { isLive, changeLive } = useLive()
+```
+
+<Callout type="info">
+  The `isLive` state can only be `true` when you're using the `Polygon Mumbai Testnet`. If you change the `appChain` to a different chain, `isLive` will automatically become `false`. Also, if you set the state of `isLive` to `true`, it will automatically switch the appChain to `Polygon Mumbai Testnet`.
+</Callout>
+
+<Callout type="info">
+The `LiveProvider` stores the current state in a cookie under the key `live` to restore `isLive` state, for example, after a page refresh.
+
+```tsx {11, 19}
+// Next.js example for app/layout.tsx
+import { ChainProvider, LiveProvider } from '@azuro-org/sdk'
+import { cookies } from 'next/headers'
+
+
+export default function RootLayout(props: { children: React.ReactNode }) {
+  const { children } = props
+  const cookieStore = cookies()
+
+  const initialChainId = cookieStore.get('appChainId')?.value
+  const initialLiveState = JSON.parse(cookieStore.get('live')?.value || '')
+
+  return (
+    <html lang="en">
+      <body>
+        <WagmiProvider config={...}>
+          <QueryClientProvider client={...}> 
+            <ChainProvider initialChainId={initialChainId}>
+              <LiveProvider initialLiveState={initialLiveState}>
+                <main>
+                  {children}
+                </main>
+              </LiveProvider>
+            </ChainProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      </body>
+    </html>
+  )
+}
+```
+</Callout>
+
+#### Props
+
+```ts
+{
+  children: React.ReactNode
+  initialLiveState?: boolean // your initial state
+}
+```
+
+#### Return Value
+
+
+```ts
+{
+  isLive: boolean
+  changeLive: (value: boolean) => void
+}
+```

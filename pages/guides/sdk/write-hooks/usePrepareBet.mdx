@@ -7,24 +7,35 @@ This hook is used for users to place bets and approve the use tokens for payment
 ```ts
 import { usePrepareBet } from '@azuro-org/sdk'
 
+// using BetslipProvider
+import { useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
+
+const { items, clear } = useBaseBetslip()
+const { betAmount, odds, totalOdds } = useDetailedBetslip()
+
+// using useOdds
+import { useOdds } from '@azuro-org/sdk'
+
+const [ betAmount, setBetAmount ] = useState()
+const items = [...]
+const { odds, totalOdds } = useOdds({ betAmount, selections })
+
 const {
-  totalOdds,
+  isAllowanceLoading,
+  isApproveRequired,
+  submit,
   approveTx,
   betTx,
-  submit,
-  isApproveRequired,
-  isOddsLoading,
-  isAllowanceLoading,
 } = usePrepareBet({
-  amount: '10',
-  slippage: 5,
-  affiliate: '0x0000000000000000000000000000000000000000',
-  selections: [
-    {
-      conditionId: '486903008559711340',
-      outcomeId: '29',
-    },  
-  ],
+  betAmount,
+  slippage: 10, // 10%
+  affiliate: '0x68E0C1dBF926cDa7A65ef2722e046746EB0f816f', // your affiliate address
+  selections: items,
+  odds,
+  totalOdds,
+  onSuccess: () => {
+    clear()
+  },
 })
 
 submit()
@@ -35,19 +46,23 @@ When allowing users to place express (or combo) bets, you can pass multiple sele
 
 ```ts
 const {...} = usePrepareBet({
-  amount: '10',
+  betAmount: '10',
   slippage: 5,
   affiliate: '0x0000000000000000000000000000000000000000',
   selections: [
     {
       conditionId: '486903008559711340',
       outcomeId: '29',
+      coreAddress: '0x34nsf41f...',
     },
     {
       conditionId: '486903008559711341',
       outcomeId: '30',
+      coreAddress: '0x34nsf41f...',
     },  
   ],
+  odds,
+  totalOdds,
 })
 ```
 </Callout>
@@ -56,9 +71,11 @@ const {...} = usePrepareBet({
 
 ```ts
 {
-  amount: string // bet amount
-  slippage: number // 5%
+  betAmount: string // bet amount
+  slippage: number // in percent
   affiliate: Address // your affiliate address
+  odds: Record<string, number>, // odds
+  totalOdds: number, // total odds
   selections: Selection[] // user's choise for bet
   deadline?: number // duration after which the bet will be canceled if it does not get included in a block
   onSuccess?(receipt: TransactionReceipt): void // callback function triggered after a successful bet
@@ -68,8 +85,9 @@ const {...} = usePrepareBet({
 
 ```ts
 type Selection = {
-  conditionId: string | bigint
-  outcomeId: string | bigint
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
 }
 ```
 
@@ -79,21 +97,14 @@ type Selection = {
 {
   isAllowanceLoading: boolean // flag indicates the fetching of allowance
   isApproveRequired: boolean // flag indicates the necessity for token spending approval
-  isOddsLoading: boolean // flag indicates the fetching of selection's odds
-  selectionsOdds: string[] // array containing odds for the provided selections
-  totalOdds: string // tatal odds for the provided selections
   submit: () => Promise<TransactionReceipt> // function used to trigger the bet action or token spending approval
-  approveTx: { // approve transaction data
+  approveTx: { // approve transaction state
     isPending: boolean
     isProcessing: boolean
-    data: WriteContractResult | null
-    error: Error | null
   }
-  betTx: { // bet transaction data
+  betTx: { // bet transaction state
     isPending: boolean
     isProcessing: boolean
-    data: WriteContractResult | null
-    error: Error | null
   }
 }
 ```

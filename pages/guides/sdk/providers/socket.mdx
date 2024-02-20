@@ -1,0 +1,25 @@
+The `SocketProvider` is designed to help the subscription functionality keep track of market changes in real-time during live games, a feature particularly useful for Watch Hooks.
+
+For both pre-match and live games, the market updates include:
+
+- Stopping and unstopping the market.
+- Adjusting the odds for different outcomes.
+
+#### Usage
+
+Wrap your application in `SocketProvider`.
+
+```tsx {1, 8, 10}
+import { SocketProvider } from '@azuro-org/sdk'
+
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <SocketProvider>
+      {children}
+    </SocketProvider>
+  )
+}
+```

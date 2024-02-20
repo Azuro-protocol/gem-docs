@@ -1,0 +1,67 @@
+import { Callout } from 'components'
+
+The `AzuroSDKProvider` serves as the central component that encompasses all providers:
+- [ChainProvider](/guides/sdk/providers/chain)
+- [LiveProvider](/guides/sdk/providers/live)
+- [ApolloProvider](/guides/sdk/providers/apollo)
+- [SocketProvider](/guides/sdk/providers/socket)
+- [BetslipProvider](/guides/sdk/providers/betslip)
+
+#### Usage
+
+Wrap your application in `AzuroSDKProvider`.
+
+```tsx {1, 16, 18}
+import { AzuroSDKProvider } from '@azuro-org/sdk'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { polygonMumbai } from 'viem/chains'
+
+
+const wagmiConfig = createConfig(config)
+const queryClient = new QueryClient() 
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}> 
+        <AzuroSDKProvider initialChainId={polygonMumbai.id} initialLiveState={true}>
+          {children}
+        </AzuroSDKProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
+  )
+}
+```
+
+<Callout type="warning">
+  The `AzuroSDKProvider` requires access to the Wagmi context.
+</Callout>
+
+Following the setup, you gain access to all the data provided by the providers:
+```ts
+import { useChain, useLive, useApolloClients, useSocket, useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
+
+const { ... } = useChain()
+const { ... } = useLive()
+const { ... } = useApolloClients()
+const { ... } = useSocket()
+const { ... } = useBaseBetslip()
+const { ... } = useDetailedBetslip()
+```
+
+#### Props
+
+```ts
+{
+  children: React.ReactNode
+  initialChainId: ChainId // your initial chain id
+  initialLiveState?: boolean // enable/disable live by default
+}
+```
+
+```ts
+type ChainId =  100 | 137 | 80001
+```

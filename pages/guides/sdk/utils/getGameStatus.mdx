@@ -15,9 +15,9 @@ Thus, we've introduced additional statuses:
 
 ```ts {2-4}
 enum GameStatus {
-  Preparing, // status before the game starts
-  Live, // game was started
-  PendingResolution, // game status 100 minutes after the start
+  Created, // same as GraphGameStatus.Created
+  Live, // game in live
+  PendingResolution, // pre-match game status holds for 100 minutes after the start if the game doesn't exist in the live
   Resolved, // same as GraphGameStatus.Resolved
   Canceled, // same as GraphGameStatus.Canceled
   Paused, // same as GraphGameStatus.Paused
@@ -34,9 +34,8 @@ const { status, startsAt } = game // game's data from subgraph
 const gameStatus = getGameStatus({ 
   graphStatus: status,
   startsAt,
+  isGameInLive: true
 })
-
-const isGameInLive = gameStatus === GameStatus.Live
 ```
 
 #### Props
@@ -45,6 +44,7 @@ const isGameInLive = gameStatus === GameStatus.Live
 {
   graphStatus: GameStatus // game's status from subgraph
   startsAt: number
+  isGameInLive: boolean // should evaluate to `true` if the game from live graph
 }
 ```
 
@@ -52,11 +52,11 @@ const isGameInLive = gameStatus === GameStatus.Live
 
 ```ts
 enum GameStatus {
-  Preparing,
+  Created,
   Live,
-  PendingResolution,
   Resolved,
   Canceled,
   Paused,
+  PendingResolution,
 }
 ```

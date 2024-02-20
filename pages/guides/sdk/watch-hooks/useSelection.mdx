@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-Hook is used for maintain updated odds for a selection and also monitors the suspension of bets for that selection.
+The `useSelection` is used for maintain updated odds for a selection and also monitors the suspension of bets for that selection.
 
 Whenever a bet is placed on the Azuro protocol, the system updates the odds related to the outcomes influenced by this bet. Utilize this hook to subscribe to the updated odds for the outcomes displayed in your UI. This ensures that bettors can observe the current changes and make informed betting decisions.
 
@@ -8,26 +8,41 @@ Whenever a bet is placed on the Azuro protocol, the system updates the odds rela
 
 #### Usage
 
-Initialize watchers in the root of your app.
+<Callout type="warning">
+  Before utilizing `useSelection`, it is essential to initialize event watchers and the `SocketProvider`:
 
-```ts
-import { useWatchers } from '@azuro-org/sdk'
+  ```tsx
+    import { ChainProvider, SocketProvider, useWatchers } from '@azuro-org/sdk'
 
-export function Watchers() {
-  useWatchers()
+    export function Watchers() {
+      useWatchers()
 
-  return null
-}
-```
+      return null
+    }
+
+    function Providers(props: { children: React.ReactNode }) {
+      const { children } = props
+
+      return (
+        <ChainProvider>
+          <SocketProvider>
+            {children}
+          </SocketProvider>
+          <Watchers />
+        </ChainProvider>
+      )
+    }
+  ```
+</Callout>
 
 Subscribe to changes in your outcome.
 
 ```ts
-import { type MarketOutcome, useOutcome } from '@azuro-org/sdk'
+import { type MarketOutcome, useSelection } from '@azuro-org/sdk'
 
 const outcome: MarketOutcome = {...}
 
-const { odds, isLocked } = useOutcome({
+const { odds, isLocked, isOddsFetching, isStatusFetching } = useSelection({
   selection: outcome,
   initialOdds: outcome.odds,
   initialStatus: outcome.status,
@@ -37,10 +52,10 @@ const { odds, isLocked } = useOutcome({
 <Callout type="info">
 Example of usage: Outcome button.<br/>
 
-We've retrieved markets with outcomes and rendered a button for each outcome. The useOutcome hook offers a method to maintain updated odds for the outcome button and react to changes in the condition status. [Full Example](https://github.com/Azuro-protocol/sdk/blob/main/examples/nextjs/src/components/OutcomeButton.tsx)
+We've retrieved markets with outcomes and rendered a button for each outcome. The useSelection hook offers a method to maintain updated odds for the outcome button and react to changes in the condition status. [Full Example](https://github.com/Azuro-protocol/sdk/blob/main/examples/nextjs/src/components/OutcomeButton.tsx)
 
 ```ts
-import { type MarketOutcome, useOutcome } from '@azuro-org/sdk'
+import { type MarketOutcome, useSelection } from '@azuro-org/sdk'
 
 type OutcomeProps = {
   outcome: MarketOutcome
@@ -49,7 +64,7 @@ type OutcomeProps = {
 export function OutcomeButton(props: OutcomeProps) {
   const { outcome } = props
 
-  const { odds, isLocked } = useOutcome({
+  const { odds, isLocked } = useSelection({
     selection: outcome,
     initialOdds: outcome.odds,
     initialStatus: outcome.status,
@@ -78,13 +93,14 @@ export function OutcomeButton(props: OutcomeProps) {
 }
 ```
 <Callout type="info">
-  The `initialOdds` and `initialStatus` fields are both optional. If either is not provided, the `useOutcome` hook will automatically retrieve the initial values. The boolean flags `isOddsFetching` and `isStatusFetching` indicate whether the initial values are being fetched.
+  The `initialOdds` and `initialStatus` fields are both optional. If either is not provided, the `useSelection` hook will automatically retrieve the initial values. The boolean flags `isOddsFetching` and `isStatusFetching` indicate whether the initial values are being fetched.
 </Callout>
 
 ```ts
 type Selection = {
-  conditionId: string | bigint
-  outcomeId: string | bigint
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
 }
 
 enum ConditionStatus {
@@ -99,7 +115,7 @@ enum ConditionStatus {
 
 ```ts
 {
-  odds: string, // outcome's odds
+  odds: number, // outcome's odds
   isLocked: boolean, // flag indicates whether placing a bet on this outcome is currently possible or not
   isOddsFetching, // flag indicates initial odds fetching
   isStatusFetching // flag indicates initial status fetching

@@ -1,19 +1,13 @@
 import { Callout } from 'components'
 
-ApolloProvider is used to setup Apollo provider for your React or Next.js application.
+`ApolloProvider` is used to setup Apollo clients for your application.
 
 It responds to network changes by automatically initiating a re-fetch of all the data, removing the necessity for a manual trigger of the re-fetch.
 
 #### Usage
 
-```ts {1-5, 20, 22}
-// For Next.js application
-import { ApolloProvider } from '@azuro-org/sdk/nextjs/apollo'
-
-// For React application
-import { ApolloProvider } from '@azuro-org/sdk/react/apollo'
-
-import { ChainProvider } from '@azuro-org/sdk'
+```tsx {1, 17, 19}
+import { ApolloProvider, ChainProvider } from '@azuro-org/sdk'
 import { WagmiProvider, createConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
@@ -40,5 +34,33 @@ function Providers(props: { children: React.ReactNode }) {
 ```
 
 <Callout type="warning">
-  The ApolloProvider requires access to the chain context.
+  The `ApolloProvider` requires access to the `ChainProvider` context.
 </Callout>
+
+Get Apollo clients and make request.
+
+```ts {1, 5}
+import { useApolloClients } from '@azuro-org/sdk'
+import { useQuery, type QueryHookOptions } from '@apollo/client'
+
+const Qeury = () => {
+  const { prematchClient, liveClient } = useApolloClients()
+
+  const options = {
+    ...
+    client: prematchClient,
+  }
+  const { ... } = useQuery(options)
+}
+```
+
+#### Return Value
+
+```ts
+import { ApolloClient, type NormalizedCacheObject } from '@apollo/client'
+
+{
+  prematchClient: ApolloClient<NormalizedCacheObject> | null // used for getting pre-match data
+  liveClient: ApolloClient<NormalizedCacheObject> | null // used for getting live data
+}
+```

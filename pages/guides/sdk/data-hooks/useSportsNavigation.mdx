@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 Hook is used for fetch lightweight sports data for navigation.
 
 Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
@@ -10,8 +12,12 @@ You can find the list of available sports [here](https://thegraph.azuro.org/subg
 import { useSportsNavigation } from '@azuro-org/sdk'
 
 
-const { loading, data } = useSportsNavigation(props)
+const { loading, sports } = useSportsNavigation(props)
 ```
+
+<Callout type="info">
+  If the `isLive` state of the `LiveProvider` is `true`, the `useGames` hook will retrieve live games.
+</Callout>
 
 #### Props
 
@@ -26,15 +32,13 @@ const { loading, data } = useSportsNavigation(props)
 { 
   loading: boolean
   error: Error | null
-  data: { 
-    sports {
+  sports {
+    id
+    slug
+    name
+    // if `withGameCount` props is true includes games data
+    games {
       id
-      slug
-      name
-      // if `withGameCount` props is true includes games data
-      games {
-        id
-      }
     }
   }
 }

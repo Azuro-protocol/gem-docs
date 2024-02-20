@@ -5,8 +5,41 @@ const withNextra = require('nextra')({
 })
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {  
-  output: 'export',
+const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: '/build-own-app',
+        destination: '/guides/tutorial',
+        permanent: true,
+      },
+      {
+        source: '/concepts/basic/fees-and-rewards',
+        destination: '/concepts/basic/rewards',
+        permanent: false,
+      },
+      {
+        source: '/sdk/:path*',
+        destination: '/guides/sdk/:path*',
+        permanent: true,
+      },
+      {
+        source: '/guides/prematch/:path*',
+        destination: '/guides/advanced/prematch/:path*',
+        permanent: false,
+      },
+      {
+        source: '/guides/live/:path*',
+        destination: '/guides/advanced/live/:path*',
+        permanent: false,
+      },
+      {
+        source: '/tutorial/:path*',
+        destination: '/guides/tutorial/:path*',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     unoptimized: true
   },

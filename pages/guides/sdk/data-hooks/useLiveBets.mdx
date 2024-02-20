@@ -1,15 +1,15 @@
 import { Callout } from 'components'
 
-Hook is used for fetch bets history for specific bettor.
+This hook is used to fetch live betting history of a specific bettor.
 
 Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
 
 #### Usage
 
 ```ts
-import { useBets } from '@azuro-org/data'
+import { useLiveBets } from '@azuro-org/data'
 
-const { loading, error, data: bets } = useBets(props)
+const { loading, error, bets } = useLiveBets(props)
 ```
 
 <Callout type="warning">
@@ -36,13 +36,16 @@ To accommodate additional arguments within your GraphQL query, the optimal appro
 
 ```ts
 import { useQuery } from '@apollo/client'
-import { BetsDocument, BetsQueryResult, BetsQueryVariables } from '@azuro-org/sdk'
+import { LiveBetsDocument, LiveBetsQueryResult, LiveBetsQueryVariables, useApolloClients } from '@azuro-org/sdk'
+
+const { prematchClient } = useApolloClients()
 
 const options = {
   // your options
+  client: prematchClient
 }
 
-const { loading, error, data } = useQuery<BetsQueryResult, BetsQueryVariables>(BetsDocument, options)
+const { loading, error, data } = useQuery<LiveBetsQueryResult, LiveBetsQueryVariables>(LiveBetsDocument, options)
 ```
 
 #### Return Value
@@ -51,14 +54,15 @@ const { loading, error, data } = useQuery<BetsQueryResult, BetsQueryVariables>(B
 {
   loading: boolean
   error: Error | null
-  data: Bet[]
+  bets: Bet[]
 }
 ```
 
 ```ts
 type Selection = {
-  conditionId: string | bigint
-  outcomeId: string | bigint
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
 }
 
 type BetOutcome = {
@@ -73,7 +77,7 @@ type BetOutcome = {
 
 type Bet = {
   tokenId: string // id of the bet's NFT
-  freebetId: string | null // id of the freebet's NFT
+  freebetId?: string | null // id of the freebet's NFT
   freebetContractAddress?: Address // freebet contract address
   totalOdds: number // total odds of the bet
   coreAddress: Address // core contract address
@@ -83,7 +87,7 @@ type Bet = {
   status: BetStatus // subgraph bet status
   amount: string // bet's amount in USDT
   possibleWin: number // possible win amount in USDT
-  payout: number // actual payout amount in USDT
+  payout: number | null // actual payout amount in USDT
   createdAt: number // created date
   isWin: boolean // flag indicates the bet's win
   isLose: boolean // flag indicates the bet's lose

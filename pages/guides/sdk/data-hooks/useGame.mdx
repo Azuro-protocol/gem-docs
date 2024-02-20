@@ -12,6 +12,10 @@ import { useGame } from '@azuro-org/data'
 const { loading, error, data: game } = useGame(props)
 ```
 
+<Callout type="info">
+  The `useGame` hook automatically fetches a live game and returns it, otherwise, it returns the pre-match game.
+</Callout>
+
 #### Props
 
 ```ts
@@ -26,11 +30,11 @@ const { loading, error, data: game } = useGame(props)
   ```ts
   import { useGame } from '@azuro-org/data'
 
-  const { loading, error, data } = useGames()
+  const { loading, error, games } = useGames()
 
-  const gameId = data?.games[0]?.gameId
+  const gameId = games?.[0]?.gameId
 
-  const { loading, error, data } = useGame({ gameId })
+  const { loading, error, game } = useGame({ gameId })
   ```
 </Callout>
 
@@ -39,12 +43,15 @@ const { loading, error, data: game } = useGame(props)
 { 
   loading: boolean
   error: Error | null
-  data: { 
+  isGameInLive: boolean // true if the game exists in the live.
+  game: { 
     id: string
     gameId: number
     title?: string | null
     startsAt: number
+    status: GraphGameStatus
     sport: { 
+      sportId: string
       slug: string
       name: string 
     }
@@ -61,5 +68,12 @@ const { loading, error, data: game } = useGame(props)
       name: string 
     }>
   } 
+}
+
+enum GraphGameStatus {
+  Canceled = 'Canceled',
+  Created = 'Created',
+  Paused = 'Paused',
+  Resolved = 'Resolved'
 }
 ```

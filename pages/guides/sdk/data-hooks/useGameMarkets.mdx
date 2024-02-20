@@ -7,17 +7,27 @@ Wrapper over [`useConditions`](/guides/sdk/data-hooks/useConditions) for grouppi
 ```ts
 import { useGameMarkets } from '@azuro-org/data'
 
-const { loading, data: markets } = useGameMarkets(props)
+const { loading, error, markets } = useGameMarkets(props)
 ```
 
 #### Props
 
 ```ts
 {
-  gameId: string | bigint
+  gameId: string
+  gameStatus: GameStatus // game status from `useGameStatus` hook or 'getGameStatus' function
   filter?: {
     outcomeIds?: string[]
   }
+}
+
+enum GameStatus {
+  Created,
+  Live,
+  Resolved,
+  Canceled,
+  Paused,
+  PendingResolution,
 }
 ```
 
@@ -27,11 +37,9 @@ const { loading, data: markets } = useGameMarkets(props)
   ```ts
   import { useGame } from '@azuro-org/data'
 
-  const { loading, error, data } = useGames()
+  const { loading, error, games } = useGames()
 
-  const gameId = data?.games[0]?.gameId
-
-  const { loading, error, data } = useGame({ gameId })
+  const gameId = games?.[0]?.gameId
   ```
 </Callout>
 
@@ -42,7 +50,7 @@ const { loading, data: markets } = useGameMarkets(props)
 {
   loading: boolean
   error: Error | null
-  data: Market[]
+  markets: Market[]
 }
 ```
 

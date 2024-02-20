@@ -18,25 +18,25 @@ const liveOdds = calcLiveOdds({
 {
   selection: Selection
   betAmount: string
-  oddsData: SocketData
+  oddsData: OddsData
 }
 ```
 
 ```ts
 type Selection = {
-  conditionId: string | bigint
-  outcomeId: string | bigint
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
 }
 
 type SocketData = {
-  id: string // condition id
+  conditionId: string
   margin: number // marginality
   reinforcement: number
   winningOutcomesCount: number
-  outcomes: Array<{
-    id: number // outcome id
-    price: number // current odds
-    clearPrice: number // current odds without marginality
+  outcomes: Record<string, { // key is outcomeId
+    odds: number // current odds
+    clearOdds: number // current odds without marginality
   }>
 }
 ```

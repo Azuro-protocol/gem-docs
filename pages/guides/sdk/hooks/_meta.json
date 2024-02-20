@@ -1,4 +1,5 @@
 {
+  "useGameStatus": "useGameStatus",
   "useBetTokenBalance": "useBetTokenBalance",
   "useNativeBalance": "useNativeBalance"
 }

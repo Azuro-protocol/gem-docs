@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-Hook is used for fetch the [`Conditions`](/concepts/glossary#condition) of specific game.
+This hook is used to fetch pre-match and live [`Conditions`](/concepts/glossary#condition) of a specific game.
 
 Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
 
@@ -12,9 +12,7 @@ The Hook should be used if [`useGameMarkets`](/guides/sdk/data-hooks/useGameMark
 
 ```ts
 import { useConditions } from '@azuro-org/data'
-const { loading, error, data } = useConditions(props)
-
-const conditions = data?.conditions
+const { loading, error, conditions } = useConditions(props)
 ```
 
 #### Props
@@ -22,6 +20,8 @@ const conditions = data?.conditions
 ```ts
 {
   gameId: string | bigint
+  isLive: boolean // if the flag is set to true, useConditions will retrieve live conditions.
+  livePollInterval?: number // live conditions can be created at any time, and here, you can specify how frequently to check for new live conditions **measured in miliseconds**
   filter?: {
     outcomeIds?: string[]
   }
@@ -48,22 +48,20 @@ const conditions = data?.conditions
 {
   loading: boolean
   error: Error | null
-  data: {
-    conditions: Array<{
-      id: string
-      conditionId: string
-      status
-      core: {
+  conditions: Array<{
+    id: string
+    conditionId: string
+    status
+    core: {
+      address: string
+      liquidityPool: {
         address: string
-        liquidityPool: {
-          address: string
-        }
       }
-      outcomes: Array<{
-        outcomeId: string
-        odds: string
-      }>
+    }
+    outcomes: Array<{
+      outcomeId: string
+      odds: string
     }>
-  }
+  }>
 }
 ```
