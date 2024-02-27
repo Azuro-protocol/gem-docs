@@ -39,8 +39,9 @@ interface OrderSpec {
 }
 
 const order: OrderSpec = {
-  affiliate: '0x...', // Your wallet address to earn rewards
   bet: {
+    attention: 'By signing this transaction, I agree to place a bet…', // A text to capture user consent (up to 160 chars)
+    affiliate: '0x...', // Your wallet address to earn rewards
     core: '0x...', // Address of LiveCore smart contract
     amount: '15000000', // 15 USDT with 6 decimals
     chainId: 80001, // Polygon Mumbai testnet chain id
