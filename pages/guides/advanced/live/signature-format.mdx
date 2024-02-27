@@ -16,7 +16,7 @@ The new format offers enhanced security and improved user experience as it allow
         - **`name`**: "Live Betting"
         - **`version`**: "1.0.0"
         - **`chainId`**: [Your Chain ID]
-        - **`verifyingContract`**: [Live Core Address]
+        - **`verifyingContract`**: [Live Core Address](/contracts/deployment-addresses)
     - **Primary Type**: "ClientBetData"
     - **Types**:
         - **`ClientBetData`** includes:
@@ -47,9 +47,9 @@ The new format offers enhanced security and improved user experience as it allow
         message: {
           attention: "User Consent Text",
           affiliate: "0x...", // Affiliate Address
-          core: "0x...", // Core Contract Address
+          core: "0x...", // LiveCore Contract Address
           amount: "1000000000000000000", // Bet Amount
-          nonce: "1", // Unique identifier
+          nonce: "1", // Unique identifier, get it from String(Date.now())
           conditionId: "123",
           outcomeId: 1,
           minOdds: "150",
