@@ -77,6 +77,7 @@ const {...} = usePrepareBet({
   odds: Record<string, number>, // odds
   totalOdds: number, // total odds
   selections: Selection[] // user's choise for bet
+  liveEIP712Attention?: string // attention text for eip-712 sign (up to 160 chars)
   deadline?: number // duration after which the bet will be canceled if it does not get included in a block
   onSuccess?(receipt: TransactionReceipt): void // callback function triggered after a successful bet
   onError?(err?: Error): void // callback function triggered upon encountering an error
