@@ -31,10 +31,10 @@ interface OrderSpec {
     chainId: number;
     conditionId: string;
     outcomeId: number;
-    minPrice: string;
+    minOdds: string;
     nonce: string;
     expiresAt: number;
-    maxFee: string;
+    relayerFeeAmount: string;
   }
 }
 
@@ -47,10 +47,10 @@ const order: OrderSpec = {
     chainId: 80001, // Polygon Mumbai testnet chain id
     conditionId: '123456789',
     outcomeId: 29,
-    minPrice: '1980000000000', // Min odds, 1.98 with 12 decimals
+    minOdds: '1980000000000', // Min odds, 1.98 with 12 decimals
     nonce: String(now), // Unique (for the bettor wallet) increase-only integer
     expiresAt: Math.round(now / 1000 + deadline), // Timestamp in seconds
-    maxFee: '100000', // 0.1 USDT with 6 decimals
+    relayerFeeAmount: '100000', // 0.1 USDT with 6 decimals
   }
 };
 ```
@@ -65,7 +65,7 @@ const order: OrderSpec = {
 </Callout>
 
 <Callout type="info">
-To obtain the `minPrice`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
+To obtain the `minOdds`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
 
 ```ts
 import { calcLiveOdds } from '@azuro-org/sdk'
@@ -94,7 +94,7 @@ socket.onmessage = (message) => {
         return acc
       }, {})
 
-      const minPrice = calcLiveOdds({
+      const minOdds = calcLiveOdds({
         selection: { conditionId, outcomeId, coreAddress },
         betAmount: '10', // 10 USDT
         oddsData,
@@ -116,7 +116,7 @@ socket.onmessage = (message) => {
 </Callout>
 
 <Callout type="info">
-  Please check a [highlights for prematch betting](/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minPrice / deadline`.
+  Please check a [highlights for prematch betting](/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minOdds / deadline`.
 </Callout>
 
 <Callout type="info">
@@ -125,7 +125,7 @@ socket.onmessage = (message) => {
 
 <Callout type="warning">
   Consider that before each order request you'll need to ensure that the user has approved enough tokens for bet itself and a fee for relayer that will compensate his native currency spending.
-  So the spending limit should be equal or higher than `order.amount + order.maxFee`.
+  So the spending limit should be equal or higher than `order.amount + order.relayerFeeAmount`.
 </Callout>
 
 ### Step 2: sign a message and send the order
@@ -144,7 +144,7 @@ const clientBetDataTypes = {
     { name: 'conditionId', type: 'uint256' },
     { name: 'outcomeId', type: 'uint64' },
     { name: 'minOdds', type: 'uint64' },
-    { name: 'expiredAt', type: 'uint256' },
+    { name: 'expiresAt', type: 'uint256' },
     { name: 'chainId', type: 'uint256' },
     { name: 'relayerFeeAmount', type: 'uint256' },
   ],
@@ -165,10 +165,10 @@ const values = {
   nonce: order.bet.nonce,
   conditionId: order.bet.conditionId,
   outcomeId: order.bet.outcomeId,
-  minOdds: order.bet.minPrice,
-  expiredAt: order.bet.expiresAt,
+  minOdds: order.bet.minOdds,
+  expiresAt: order.bet.expiresAt,
   chainId: order.bet.chainId,
-  relayerFeeAmount: order.bet.maxFee,
+  relayerFeeAmount: order.bet.relayerFeeAmount,
 }
 
 const bettorSignature = await wallet._signTypedData(domain, clientBetDataTypes, values);
