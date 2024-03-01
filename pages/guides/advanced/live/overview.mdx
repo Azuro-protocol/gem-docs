@@ -42,7 +42,7 @@ Make sure your UI reflects this. For example, it might be preferable to display 
 We suggest you make a disclaimer about Relayer fees to communicate to your users that neither your frontend, nor Azuro benefit from the Relayer fas fees.
 
 <Callout type="info">
-Consider that before each order request you'll need to ensure that the user has approved enough tokens for bet itself and a fee for relayer that will compensate his native currency spending. So the spending limit should be equal or higher than `order.amount + order.maxFee`.
+Consider that before each order request you'll need to ensure that the user has approved enough tokens for bet itself and a fee for relayer that will compensate his native currency spending. So the spending limit should be equal or higher than `order.amount + order.relayerFeeAmount`.
 </Callout>
 
 
