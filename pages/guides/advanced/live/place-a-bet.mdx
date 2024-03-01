@@ -85,10 +85,10 @@ socket.onmessage = (message) => {
         outcomes: {},
       }
 
-      oddsData.outcomes = data.outcomes.reduce((acc, { id, price, clearPrice, maxStake }) => {
+      oddsData.outcomes = data.outcomes.reduce((acc, { id, odds, clearOdds, maxStake }) => {
         acc[id] = {
-          odds: price,
-          clearOdds: clearPrice,
+          odds,
+          clearOdds,
         }
 
         return acc
