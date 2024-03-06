@@ -15,19 +15,6 @@ export default {
   sidebar: {
     defaultMenuCollapseLevel: 2,
     toggleButton: false,
-    titleComponent({ title, type, route }) {
-      const isTopLevel = /^(\/[a-z0-9-_%]+){1,2}$/i.test(route)
-
-      if (type === 'separator') {
-        return (
-          <div style={{ background: 'cyan', textAlign: 'center' }}>{title}</div>
-        )
-      }
-      if (isTopLevel) {
-        return <span className="nx-font-semibold">{title}</span>
-      }
-      return <>{title}</>
-    }
   },
   head: (
     <>

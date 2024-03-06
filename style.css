@@ -63,6 +63,14 @@
   display: none !important;
 }
 
+.nextra-menu-desktop > li > button {
+  font-weight: 600;
+}
+
+.nextra-menu-desktop button svg {
+  opacity: 0.5;
+}
+
 /* Hide "Tutorial" from menu */
 .nextra-nav-container nav a:nth-child(2) {
   display: none !important;
