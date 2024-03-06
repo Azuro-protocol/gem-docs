@@ -31,7 +31,7 @@ export default function Footer() {
           <div className="flex space-x-2">
             <NavItem to="/terms-of-use">Terms of Use</NavItem>
             <NavItem to="/privacy-policy">Privacy Policy</NavItem>
-            <NavItem to="https://azuro-protocol.notion.site/Media-Kit-84d14f69ef154c8bbc272bc0e82df16f">Media Kit</NavItem>
+            <NavItem toTab="https://azuro-protocol.notion.site/Azuro-Media-Kit-7278f3666bf448488441b178ed68256f">Media Kit</NavItem>
           </div>
         </div>
       </div>

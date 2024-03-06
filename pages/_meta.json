@@ -25,12 +25,12 @@
     "title": "Subgraph",
     "type": "page"
   },
-  "guides": {
-    "title": "Developer Guides",
+  "hub": {
+    "title": "Developer Hub",
     "type": "page"
   },
-  "releases": {
-    "title": "Releases",
+  "cases": {
+    "title": "Case Studies",
     "type": "page"
   },
   "community": {

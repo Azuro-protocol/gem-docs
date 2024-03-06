@@ -1,0 +1,26 @@
+{
+  "tutorial": {
+    "title": "Tutorial: build your dApp"
+  },
+  "advanced": {
+    "title": "Advanced integration"
+  },
+  "freebets": {
+    "title": "Freebets"
+  },
+  "---": {
+    "type": "separator"
+  },
+  "deploying-azuro-subgraph": {
+    "title": "How to deploy Azuro subgraph"
+  },
+  "affiliate-ggr": {
+    "title": "How to calculate affiliate's gaming revenue"
+  },
+  "azuro-score": {
+    "title": "How to get Azuro score leaderboard"
+  },
+  "handle-contract-errors": {
+    "title": "How to handle contract errors"
+  }
+}
