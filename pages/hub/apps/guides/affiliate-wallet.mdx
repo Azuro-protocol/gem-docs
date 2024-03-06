@@ -1,0 +1,30 @@
+import { Callout } from 'components'
+
+## Getting Rewards to your Affiliate wallet
+
+To direct rewards to your wallet address, include it as the `affiliate` parameter in bet transactions. [Read about rewards distribution here](https://gem.azuro.org/concepts/basic/rewards).
+
+```
+const AFFILIATE_ADDRESS = '0x...' // Your wallet address to earn rewards
+
+lp.bet(
+  core,
+  amount,
+  deadline,
+  {
+    affiliate: AFFILIATE_ADDRESS,
+    data,
+    minOdds
+  }
+)
+
+```
+
+<Callout type="warning">
+**Please exercise caution when entering your affiliate address in the production environment.
+If you give the wrong address, we can't fix or move associated bets and rewards to a different address.**
+Double-check your affiliate address before proceeding. It's crucial to ensure accuracy.
+
+Being diligent will help prevent problems with bet calculations and reward distribution.
+If you have any uncertainties or need help, feel free to reach out to our support team.
+</Callout>
