@@ -107,7 +107,7 @@ socket.send(JSON.stringify({
   ```
 </Callout>
 
-Afterward, you should listen for new data messages. The `message.data ` object holds the updated condition status and odds. Additionally, other data is utilized to calculate the minPrice for live betting.
+Afterward, you should listen for new data messages. The `message.data ` object holds the updated condition status and odds. Additionally, other data is utilized to calculate the minOdds for live betting.
 
 To handle market stop/unstop actions, monitor the `state` field. If it is present, update the condition status in your UI.
 
@@ -132,8 +132,8 @@ type SocketData = {
   winningOutcomesCount: number
   outcomes?: Array<{
     id: number // outcome id
-    price: number // current odds
-    clearPrice: number // current odds without marginality
+    odds: number // current odds
+    clearOdds: number // current odds without marginality
   }>
 }[]
 

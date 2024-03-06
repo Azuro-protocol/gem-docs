@@ -23,32 +23,34 @@ const now = Date.now();
 const deadline = 30; // bet deadline in seconds
 
 interface OrderSpec {
-  affiliate: string;
   bet: {
+    attention: string;
+    affiliate: string;
     core: string;
     amount: string;
     chainId: number;
     conditionId: string;
     outcomeId: number;
-    minPrice: string;
+    minOdds: string;
     nonce: string;
     expiresAt: number;
-    maxFee: string;
+    relayerFeeAmount: string;
   }
 }
 
 const order: OrderSpec = {
-  affiliate: '0x...', // Your wallet address to earn rewards
   bet: {
+    attention: 'By signing this transaction, I agree to place a bet…', // A text to capture user consent (up to 160 chars)
+    affiliate: '0x...', // Your wallet address to earn rewards
     core: '0x...', // Address of LiveCore smart contract
     amount: '15000000', // 15 USDT with 6 decimals
     chainId: 80001, // Polygon Mumbai testnet chain id
     conditionId: '123456789',
     outcomeId: 29,
-    minPrice: '1980000000000', // Min odds, 1.98 with 12 decimals
+    minOdds: '1980000000000', // Min odds, 1.98 with 12 decimals
     nonce: String(now), // Unique (for the bettor wallet) increase-only integer
     expiresAt: Math.round(now / 1000 + deadline), // Timestamp in seconds
-    maxFee: '100000', // 0.1 USDT with 6 decimals
+    relayerFeeAmount: '100000', // 0.1 USDT with 6 decimals
   }
 };
 ```
@@ -63,7 +65,7 @@ const order: OrderSpec = {
 </Callout>
 
 <Callout type="info">
-To obtain the `minPrice`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
+To obtain the `minOdds`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
 
 ```ts
 import { calcLiveOdds } from '@azuro-org/sdk'
@@ -83,16 +85,16 @@ socket.onmessage = (message) => {
         outcomes: {},
       }
 
-      oddsData.outcomes = data.outcomes.reduce((acc, { id, price, clearPrice, maxStake }) => {
+      oddsData.outcomes = data.outcomes.reduce((acc, { id, odds, clearOdds, maxStake }) => {
         acc[id] = {
-          odds: price,
-          clearOdds: clearPrice,
+          odds,
+          clearOdds,
         }
 
         return acc
       }, {})
 
-      const minPrice = calcLiveOdds({
+      const minOdds = calcLiveOdds({
         selection: { conditionId, outcomeId, coreAddress },
         betAmount: '10', // 10 USDT
         oddsData,
@@ -114,7 +116,7 @@ socket.onmessage = (message) => {
 </Callout>
 
 <Callout type="info">
-  Please check a [highlights for prematch betting](/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minPrice / deadline`.
+  Please check a [highlights for prematch betting](/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minOdds / deadline`.
 </Callout>
 
 <Callout type="info">
@@ -123,7 +125,7 @@ socket.onmessage = (message) => {
 
 <Callout type="warning">
   Consider that before each order request you'll need to ensure that the user has approved enough tokens for bet itself and a fee for relayer that will compensate his native currency spending.
-  So the spending limit should be equal or higher than `order.amount + order.maxFee`.
+  So the spending limit should be equal or higher than `order.amount + order.relayerFeeAmount`.
 </Callout>
 
 ### Step 2: sign a message and send the order
@@ -131,49 +133,48 @@ socket.onmessage = (message) => {
 After order object has been prepared, user must sign a corresponding message
 to give an allowance to a Relayer contract to place the bet.
 
-First you need to prepare a message:
-
-<Tabs items={[ 'Ethers v6' ]}>
-  <Tab>
 ```ts
-import { AbiCoder, getBytes, keccak256 } from 'ethers';
+const clientBetDataTypes = {
+  ClientBetData: [
+    { name: 'attention', type: 'string' },
+    { name: 'affiliate', type: 'address' },
+    { name: 'core', type: 'address' },
+    { name: 'amount', type: 'uint128' },
+    { name: 'nonce', type: 'uint256' },
+    { name: 'conditionId', type: 'uint256' },
+    { name: 'outcomeId', type: 'uint64' },
+    { name: 'minOdds', type: 'uint64' },
+    { name: 'expiresAt', type: 'uint256' },
+    { name: 'chainId', type: 'uint256' },
+    { name: 'relayerFeeAmount', type: 'uint256' },
+  ],
+} as const
 
-const orderDataAbi = 'tuple(address affiliate, tuple(address core, uint128 amount, uint256 nonce, uint256 conditionId, uint64 outcomeId, uint64 minOdds, uint256 expiredAt, uint256 chainId, uint256 relayerFeeAmount) clientBetData)';
+const domain = {
+  name: "Live Betting",
+  version: "v1.0.0"
+  chainId: order.bet.chainId,
+  verifyingContract: order.bet.core,
+}
 
-const createSignMessage = (abi: string[], order: OrderSpec): Uint8Array => {
-  const data = [
-    order.affiliate,
-    [
-      order.bet.core,
-      order.bet.amount,
-      order.bet.nonce,
-      order.bet.conditionId,
-      order.bet.outcomeId,
-      order.bet.minPrice,
-      order.bet.expiresAt,
-      order.bet.chainId,
-      order.bet.maxFee,
-    ]
-  ];
+const values = {
+  attention: order.bet.attention,
+  affiliate: order.bet.affiliate,
+  core: order.bet.core,
+  amount: order.bet.amount,
+  nonce: order.bet.nonce,
+  conditionId: order.bet.conditionId,
+  outcomeId: order.bet.outcomeId,
+  minOdds: order.bet.minOdds,
+  expiresAt: order.bet.expiresAt,
+  chainId: order.bet.chainId,
+  relayerFeeAmount: order.bet.relayerFeeAmount,
+}
 
-  const abiCoder = AbiCoder.defaultAbiCoder();
-  const encoded = abiCoder.encode(abi, data);
-
-  return getBytes(keccak256(encoded));
-};
-
-const message = createSignMessage(order);
+const bettorSignature = await wallet._signTypedData(domain, clientBetDataTypes, values);
 ```
-  </Tab>
-</Tabs>
 
-Then the user must sign this message with his Web3 wallet:
-
-```ts
-const bettorSignature = await wallet.signMessage(message);
-```
-
-Finally, you can build the signed order object and send it to Azuro Live Betting API:
+Finally, you can send the order to Azuro Live Betting API:
 
 ```ts
 enum Environment {

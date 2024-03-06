@@ -47,10 +47,10 @@ Most probably, you have provided an incorrect `conditionId` or `outcomeId` so th
 
 The final bet price is calculated using slippage mechanism
 (read more [here](/guides/advanced/prematch/place-a-bet#rawminodds) and [here](/concepts/protocol/odds)).
-If the final calculated bet price is lower than `minPrice` value in signed message, the order will be rejected.
+If the final calculated bet price is lower than `minOdds` value in signed message, the order will be rejected.
 
 To resolve this error, you can do the following:
-- increase a slippage to lower the `minPrice` value;
+- increase a slippage to lower the `minOdds` value;
 - decrease the bet amount.
 
 <Callout type="warning">
@@ -83,8 +83,8 @@ You can't do anything with that. After some cooldown period, most probably, new 
 
 ### `OrderError.TooSmallFee`
 
-This error is triggered by Relayer when the `maxFee` value is lower than the gas value needed for transaction execution.
-Increase the `maxFee` (notifying the user about it) value and resend the order placement request.
+This error is triggered by Relayer when the `relayerFeeAmount` value is lower than the gas value needed for transaction execution.
+Increase the `relayerFeeAmount` (notifying the user about it) value and resend the order placement request.
 
 ### `OrderError.TransactionFailed`
 
