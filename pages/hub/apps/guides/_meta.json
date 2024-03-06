@@ -11,6 +11,9 @@
   "---": {
     "type": "separator"
   },
+  "daffiliate-wallet": {
+    "title": "How to get rewards: affiliate wallet"
+  },
   "deploying-azuro-subgraph": {
     "title": "How to deploy Azuro subgraph"
   },
