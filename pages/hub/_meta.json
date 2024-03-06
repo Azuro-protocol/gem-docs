@@ -1,0 +1,12 @@
+{
+  "index": "🚀 Developer Hub",
+  "blockchains": "🧩 For blockchains",
+  "---": {
+    "type": "separator"
+  },
+  "apps": "🔮 For applications",
+  "---1": {
+    "type": "separator"
+  },
+  "releases": "📦 Releases"
+}
