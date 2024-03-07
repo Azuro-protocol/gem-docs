@@ -36,7 +36,7 @@ Supposed that you already have a frontend with setup prematch games.
 When game goes live, it saves its id (so the same game in prematch and live subgraphs have the same `gameId` value),
 but it's stored in another smart contract, and you should load its info from another subgraph called [`LiveDataFeed`](/subgraph/overview#live-endpoints).
 
-We recommend you to call a snapshot of live games almost the same way you did it for prematch games (see [Get Games](/guides/advanced/prematch/get-games) section),
+We recommend you to call a snapshot of live games almost the same way you did it for prematch games (see [Get Games](/hub/apps/guides/advanced/prematch/get-games) section),
 but you need to filter them by `Created` status:
 
 ```ts
@@ -62,7 +62,7 @@ useQuery(QUERY, {
 
 ### Load markets
 
-For each live game you can request its markets (called `conditions`) the same way you do this for prematch games (see [Prepare game markets](/guides/advanced/prematch/markets-and-outcomes) section).
+For each live game you can request its markets (called `conditions`) the same way you do this for prematch games (see [Prepare game markets](/hub/apps/guides/advanced/prematch/markets-and-outcomes) section).
 
 <Callout type="warning">
   Take into consideration that markets appear after the game created in the `HostCore` smart contract.
