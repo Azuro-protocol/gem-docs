@@ -65,7 +65,7 @@ const order: OrderSpec = {
 </Callout>
 
 <Callout type="info">
-To obtain the `minOdds`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
+To obtain the `minOdds`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/hub/apps/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
 
 ```ts
 import { calcLiveOdds } from '@azuro-org/sdk'
@@ -116,7 +116,7 @@ socket.onmessage = (message) => {
 </Callout>
 
 <Callout type="info">
-  Please check a [highlights for prematch betting](/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minOdds / deadline`.
+  Please check a [highlights for prematch betting](/hub/apps/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minOdds / deadline`.
 </Callout>
 
 <Callout type="info">
@@ -244,7 +244,7 @@ interface OrderResponseSpec {
 
 If no error has occurred, order will have `Created` state.
 Otherwise, it will have `Rejected` state and filled `error` and (optionally) `errorMessage` fields
-(see [Order errors](/guides/advanced/live/errors) page).
+(see [Order errors](/hub/apps/guides/advanced/live/errors) page).
 
 At this point you should show a user the actual order status and, if the order has been created, proceed with the following steps.
 
@@ -295,4 +295,4 @@ When you've got a bet id, you can work with it like with prematch bets, just tak
 - All live bets and their related entities have their own entities: `liveBet`, `liveCondition`, `liveOutcome`, `liveSelection`.
 - There's no `liveGame` entity that you can relate on for displaying its data. You need to retrieve game data from the `LiveDataFeed` subgraph by `gameId` value.
 
-All the other logic is the same as for prematch bets, you can find some guides here: [Get bets history](/guides/advanced/prematch/get-bets-history), [Redeem bets](/guides/prematch/redeem-bets).
+All the other logic is the same as for prematch bets, you can find some guides here: [Get bets history](/hub/apps/guides/advanced/prematch/get-bets-history), [Redeem bets](/hub/apps/guides/advanced/prematch/redeem-bets).

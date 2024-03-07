@@ -4,8 +4,8 @@ import { Callout, Image, Button } from 'components'
 A tool that enables granting freebets to any user.
 
 - [Contract details](/contracts/free-bet)
-- [Distribution guide](/guides/freebets/distribute-freebets)
-- [Using freebets in the UI guide](/guides/freebets/use-freebets)
+- [Distribution guide](/hub/apps/guides/advanced/freebets/distribute-freebets)
+- [Using freebets in the UI guide](/hub/apps/guides/advanced/freebets/use-freebets)
 
 The Freebet contract enables users to place freebets on any [PrematchCore](/contracts/prematch-core) contract.
 Each freebet has specific attributes, including a denomination, expiration time, and minimum betting odds requirement.
@@ -15,12 +15,12 @@ Each freebet has specific attributes, including a denomination, expiration time,
 Let's consider the life cycle of a free bet, omitting technical details:
 
 1. You issue a freebet for a certain amount and with a specific deadline in the admin panel from yours freebet contract to the user's address.
-_How-to in [Distribution guide](/guides/freebets/distribute-freebets) section._
+_How-to in [Distribution guide](/hub/apps/guides/advanced/freebets/distribute-freebets) section._
 2. The user accesses your application's UI, sees a notification that a freebet is available to them until a certain date.
-_How-to in [Use freebets](/guides/freebets/use-freebets) section._
-3. The user places a bet using the provided freebet*. _(How-to in [Place a bet](/guides/advanced/prematch/place-a-bet#place-a-freebet) section)_
+_How-to in [Use freebets](/hub/apps/guides/advanced/freebets/use-freebets) section._
+3. The user places a bet using the provided freebet*. _(How-to in [Place a bet](/hub/apps/guides/advanced/prematch/place-a-bet#place-a-freebet) section)_
 4. After the event is resolved:
-* If the bet wins, when the user claims their winnings (_how-to in [Redeem bets](/guides/advanced/prematch/redeem-bets#freebet-redeem) section_), they receive a profit from the win (payout - freebet amount),
+* If the bet wins, when the user claims their winnings (_how-to in [Redeem bets](/hub/apps/guides/advanced/prematch/redeem-bets#freebet-redeem) section_), they receive a profit from the win (payout - freebet amount),
 and the amount of the issued freebet is returned to the freebet contract balance.
 * If the bet loses, the freebet amount contributes to the revenue of the LP with your affiliate address.
 
@@ -50,7 +50,7 @@ But we do not recommend abusing this feature: when trying to use the freebet, th
 costs associated with distributing freebets.
 - When a freebet is used by the customer, the amount of the freebet is transferred from contract balance to LP.
 - If freebet isn't claimed before expiration time, it just becomes expired, doesn't require any actions and disappears from available freebets list for the customer in rest api.
-[Read how to use freebets in UI](/guides/freebets/use-freebets).
+[Read how to use freebets in UI](/hub/apps/guides/advanced/freebets/use-freebets).
 - **When a freebet wins, the bettor receives only the difference between the winnings
 and the original bet amount.** The amount of the freebet will be returned to your contract balance.
 - If a freebet looses, it's accounted as a regular bet - the amount remains in the liquidity pool as a revenue.
@@ -87,4 +87,4 @@ for your affiliate address, ensuring that your funds are allocated solely to you
 contract or use UI of Freebets admin panel. You can top up your contract by simply sending tokens to your contract address, just as you would with
 a regular ERC-20 transfer.
 
-3. [Distribute freebets with admin panel](/guides/freebets/distribute-freebets#distribute-freebets-with-azuro-admin-panel).
+3. [Distribute freebets with admin panel](/hub/apps/guides/advanced/freebets/distribute-freebets#distribute-freebets-with-azuro-admin-panel).
