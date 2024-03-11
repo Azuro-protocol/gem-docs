@@ -1,0 +1,23 @@
+# 02/20 SDK v3
+[Live Betting](/hub/apps/guides/advanced/live/overview) in the Mumbai Testnet.
+
+## New Providers
+- [AzuroSDKProvider](/hub/apps/sdk/providers/sdk) serves as the central root provider, encompassing all components of the SDK.
+- [Betslip](/hub/apps/sdk/providers/betslip) with all necessary functionalities for storing outcomes, including support for both single and combo bets.
+- [LiveProvider](/hub/apps/sdk/providers/live) is designed to store real-time state updates and efficiently disseminate this information to other components throughout the application.
+- [SocketProvider](/hub/apps/sdk/providers/socket) continuously monitors and updates live odds.
+
+## New Hooks
+- [`useSports`](/hub/apps/sdk/data-hooks/useSports)
+- [`useStatuses`](/hub/apps/sdk/watch-hooks/useStatuses)
+- [`useGameStatus`](/hub/apps/sdk/hooks/useGameStatus)
+- [`useLiveBets`](/hub/apps/sdk/data-hooks/useLiveBets)
+- [`usePrematchBets`](/hub/apps/sdk/data-hooks/usePrematchBets)
+
+## New utils
+- [`calcPrematchOdds`](/hub/apps/sdk/utils/calcPrematchOdds)
+- [`calcLiveOdds`](/hub/apps/sdk/utils/calcLiveOdds)
+
+## Renamed Hooks
+- `useCalcOdds` => [`useOdds`](/hub/apps/sdk/watch-hooks/useOdds)
+- `useOutcome` => [`useSelection`](/hub/apps/sdk/watch-hooks/useSelection)
