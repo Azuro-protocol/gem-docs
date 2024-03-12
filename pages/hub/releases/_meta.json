@@ -1,9 +1,8 @@
 {
-  "12-sdk-v2.0.0": "02/19 SDK v2.0.0",
+  "13-sdk-v3": "02/20 SDK v3",
+  "12-sdk-v2": "02/19 SDK v2",
   "11-live-testnet-updates": "01/25 Live Testnet Updates",
-  "10-sdk-v1.0.0": {
-    "title": "12/13 SDK v1.0.0"
-  },
+  "10-sdk-v1": "12/13 SDK v1",
   "9-live-betting-in-testnet": {
     "title": "11/20 Live betting in Polygon Mumbai testnet"
   },
