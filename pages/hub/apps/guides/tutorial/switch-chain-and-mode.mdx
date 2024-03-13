@@ -1,0 +1,127 @@
+import { Image } from 'components/Image'
+import { Callout } from 'components'
+
+# Switch Network and Change Mode
+The SDK offers functionality to switch between different networks and transition between pre-match and live modes.
+
+Let's add a component dedicated to network switching.
+Create component `src/components/SelectAppChain.tsx`:
+
+```tsx filename="src/components/SelectAppChain.tsx" copy
+'use client'
+import { useChain, type ChainId } from '@azuro-org/sdk';
+import { polygonMumbai, gnosis } from 'viem/chains';
+
+export function SelectAppChain() {
+  const { appChain, setAppChainId } = useChain()
+
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setAppChainId(+event.target.value as ChainId)
+  }
+
+  return (
+    <select className='mr-4 cursor-pointer' value={appChain.id} onChange={handleChange}>
+      <option value={polygonMumbai.id}>{polygonMumbai.name}</option>
+      <option value={gnosis.id}>{gnosis.name}</option>
+    </select>
+  )
+}
+```
+
+<Callout type="warning">
+Don't forget to add export to `src/components/index.ts`.
+</Callout>
+
+
+The next step is to create a component for switching between application modes.
+Create component `src/components/LiveSwitcher.tsx`:
+
+```tsx filename="src/components/LiveSwitcher.tsx" copy
+'use client'
+import { useLive } from "@azuro-org/sdk"
+
+
+export function LiveSwitcher() {
+  const { isLive, changeLive } = useLive()
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    changeLive(event.target.checked)
+  }
+
+  return (
+    <div className="flex items-center mr-4">
+      <label className="mr-2" htmlFor="live">Live</label>
+      <input id="live" type="checkbox" checked={isLive} onChange={handleChange} />
+    </div>
+    
+  )
+}
+```
+
+<Callout type="warning">
+Don't forget to add export to `src/components/index.ts`.
+</Callout>
+
+Now, let's add components to our Header, so final code for `src/components/Header.tsx` is:
+
+```tsx {3, 42, 43} filename="src/components/Header.tsx" copy
+'use client'
+import React, { useEffect } from 'react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { ActiveLink, SelectAppChain, LiveSwitcher } from '@/components'
+import { reconnect } from '@wagmi/core'
+import { useConfig } from 'wagmi'
+
+export function Header() {
+  const config = useConfig()
+
+  useEffect(() => {
+    ;(async () => {
+      try {
+        await reconnect(config)
+      }
+      catch {}
+    })()
+  }, [])
+
+  return (
+    <header className="flex items-center py-3.5 border-b border-zinc-200">
+      <div className="text-xl font-semibold">Azuro Betting</div>
+      <div className="flex ml-10">
+        <ActiveLink
+          className="text-zinc-500 hover:text-black transition"
+          activeClassName="!text-black font-semibold !cursor-default"
+          href="/events/top"
+          regex="^\/events\/[^/]+?$"
+        >
+          Events
+        </ActiveLink>
+        <ActiveLink
+          className="text-zinc-500 hover:text-black transition ml-4"
+          activeClassName="!text-black font-semibold !cursor-default"
+          href="/bets"
+          regex="^\/bets"
+        >
+          Bets
+        </ActiveLink>
+      </div>
+      <div className="ml-auto flex items-center">
+        <LiveSwitcher />
+        <SelectAppChain />
+        <ConnectButton chainStatus="none" />
+      </div>
+    </header>
+  )
+}
+```
+
+The resulting output should be:
+
+<Image src="/images/sections/switch-network.png" width={1952} height={105} />
+
+## Learn more
+
+In our tutorial we're building simple betting app. If you're ready to go deeper, learn things from SDK that we used in this section:
+
+- [useChain](/hub/apps/sdk/providers/chain)
+- [useLive](/hub/apps/sdk/providers/live)

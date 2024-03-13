@@ -1,4 +1,5 @@
 import { Image } from 'components/Image'
+import { Callout } from 'components'
 
 # Get and Display Game Info
 
@@ -19,7 +20,7 @@ type ParticipantLogoProps = {
   name: string
 }
 
-function ParticipantLogo(props: ParticipantLogoProps) {
+export function ParticipantLogo(props: ParticipantLogoProps) {
   const { image, name } = props
 
   return (
@@ -54,50 +55,11 @@ export function GameInfo(props: Props) {
       <div className="mt-5 grid grid-cols-[1fr_auto_1fr]">
         <ParticipantLogo {...participants[0]} />
         <div className="mx-5 pt-7 text-md text-zinc-500">
-          {dayjs(startsAt * 1000).format('DD MMM HH:mm')}
+          {dayjs(+startsAt * 1000).format('DD MMM HH:mm')}
         </div>
         <ParticipantLogo {...participants[1]} />
       </div>
     </div>
-  )
-}
-```
-
-### OutcomeButton
-
-This component will be used to render all the outcomes with live-update of odds and status. There is a hook in SDK to make it easy.
-Create `src/components/OutcomeButton.tsx`.
-
-```tsx filename="src/components/OutcomeButton.tsx" copy
-'use client'
-import { type MarketOutcome, useOutcome } from '@azuro-org/sdk'
-
-type OutcomeProps = {
-  className?: string
-  outcome: MarketOutcome
-  onClick: (outcome: MarketOutcome) => void
-}
-
-export function OutcomeButton(props: OutcomeProps) {
-  const { className = '', outcome, onClick } = props
-
-  const { odds, isLocked, isOddsFetching } = useOutcome({
-    selection: outcome,
-    initialOdds: outcome.odds,
-    initialStatus: outcome.status,
-  })
-
-  const buttonClassName = `flex justify-between p-5 bg-zinc-50 hover:bg-zinc-100 transition rounded-2xl cursor-pointer w-full disabled:cursor-not-allowed ${className}`
-
-  return (
-    <button
-      className={buttonClassName}
-      onClick={() => onClick(outcome)}
-      disabled={isLocked}
-    >
-      <span className="text-zinc-500">{outcome.selectionName}</span>
-      <span className="font-medium">{isOddsFetching ? '--' : parseFloat(odds).toFixed(2)}</span>
-    </button>
   )
 }
 ```
@@ -112,133 +74,140 @@ Create `src/components/GameMarkets.tsx`:
 
 ```tsx filename="src/components/GameMarkets.tsx" copy
 'use client'
-import { useState } from 'react'
 import type { GameMarkets, MarketOutcome } from '@azuro-org/sdk'
 import { OutcomeButton } from '@/components'
 
 
 type GameMarketsProps = {
-  gameId: string
   markets: GameMarkets
 }
 
 export function GameMarkets(props: GameMarketsProps) {
-  const { gameId, markets } = props
-
-  const [ selectedOutcome, setSelectedOutcome ] = useState<MarketOutcome>()
-
-  const handleOutcomeClick = (outcome: any) => {
-    setSelectedOutcome(outcome)
-  }
+  const { markets } = props
 
   return (
-    <>
-      <div className="max-w-[600px] mx-auto mt-12 space-y-6">
-        {
-          markets?.map(({ name, description, outcomeRows }) => (
-            <div key={name}>
-              <div className="mb-0.5 text-lg font-semibold">{name}</div>
-              <div className="mb-2 text-md text-zinc-500">{description}</div>
-              <div className="space-y-1">
-                {
-                  outcomeRows.map((outcomes, index) => (
-                    <div key={index} className="flex justify-between">
-                      <div className="flex gap-2 w-full">
-                        {
-                          outcomes.map((outcome) => (
-                            <OutcomeButton
-                              key={outcome.selectionName}
-                              className={selectedOutcome === outcome ? 'bg-purple-200' : ''}
-                              outcome={outcome}
-                              onClick={() => handleOutcomeClick(outcome)}
-                            />
-                          ))
-                        }
-                      </div>
+    <div className="max-w-[600px] mx-auto mt-12 space-y-6">
+      {
+        markets.map(({ name, description, outcomeRows }) => (
+          <div key={name} className="">
+            <div className="mb-2 text-lg font-semibold">{name}</div>
+            <div className="space-y-1">
+              {
+                outcomeRows.map((outcomes, index) => (
+                  <div key={index} className="flex justify-between">
+                    <div className="flex gap-2 w-full">
+                      {
+                        outcomes.map((outcome) => (
+                          <OutcomeButton
+                            key={outcome.selectionName}
+                            outcome={outcome}
+                          />
+                        ))
+                      }
                     </div>
-                  ))
-                }
-              </div>
+                  </div>
+                ))
+              }
             </div>
-          ))
-        }
-      </div>
-    </>
+          </div>
+        ))
+      }
+    </div>
   )
 }
 ```
 
+<Callout type="warning">
 As always, don't forget to add all components export to `src/components/index.ts`.
+</Callout>
 
 ## Render game details
 
 After creating helping components, let's use them together and render game details page.
 
-We already have routing structure for sports page (`src/app/events/[sport]`), add new folder here, call it `[id]`, and create file `page.tsx` inside,
-so final path will be `src/app/events/[sport]/[id]/page.tsx`:
-
-<Image className="w-[288px]" src="/images/sections/game-page-structure.png" width={576} height={412} />
+Create folders for the page (`src/app/event/[id]`) and create `page.tsx` inside.
 
 Here we'll use 2 hooks from Azuro SDK.
-- `useGame` - to fetch base game info
+- `useGame` - to fetch game data.
+- `useGameStatus` - to keep track of game status.
 - `useGameMarkets` - to fetch game markets and conditions. "Conditions" represents the data from the smart contracts with the same name.
 Each contract contains a set of outcomes, and there is no direct relationship between outcomes and markets in conditions. But it's mapped under the hood of SDK.
 If you are interested, you can check out [the code](https://github.com/Azuro-protocol/toolkit/blob/main/src/aggregateOutcomesByMarkets.ts) of helpers.
 
-```tsx copy filename="src/app/events/[sport]/[id]/page.tsx"
+```tsx copy filename="src/app/event/[id]/page.tsx"
 'use client'
 import { useParams } from 'next/navigation'
-import { useGame, useGameMarkets } from '@azuro-org/sdk'
+import { useGame, useGameMarkets, type GameQuery, useGameStatus, GameStatus } from '@azuro-org/sdk'
 import { GameInfo, GameMarkets } from '@/components'
 
 
-const Info = () => {
-  const params = useParams<{ id: string }>()
+type MarketsProps = {
+  gameId: string
+  gameStatus: GameStatus
+}
 
-  const { loading, data } = useGame({
-    gameId: params.id,
+const Markets: React.FC<MarketsProps> = ({ gameId, gameStatus }) => {
+  const { loading, markets } = useGameMarkets({
+    gameId,
+    gameStatus,
   })
 
   if (loading) {
     return <div>Loading...</div>
   }
 
-  if (!data) {
+  if (!markets) {
+    return null
+  }
+
+  return <GameMarkets markets={markets} />
+}
+
+type ContentProps = {
+  game: GameQuery['games'][0]
+  isGameInLive: boolean
+}
+
+const Content: React.FC<ContentProps> = ({ game, isGameInLive }) => {
+  const { status: gameStatus } = useGameStatus({
+    startsAt: +game.startsAt,
+    graphStatus: game.status,
+    isGameExistInLive: isGameInLive,
+  })
+
+  return (
+    <>
+      <GameInfo game={game} />
+      <Markets
+        gameId={game.gameId}
+        gameStatus={gameStatus}
+      />
+    </>
+  )
+}
+
+export default function Game() {
+  const params = useParams()
+
+  const { loading, game, isGameInLive } = useGame({
+    gameId: params.id as string,
+  })
+
+  if (loading) {
+    return <div>Loading...</div>
+  }
+
+  if (!game) {
     return (
       <div>Game info not found</div>
     )
   }
 
-  return <GameInfo game={data} />
-}
-
-const Markets = () => {
-  const params = useParams<{ id: string }>()
-
-  const { loading, data } = useGameMarkets({
-    gameId: params.id,
-  })
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  if (!data) {
-    return null
-  }
-
-  return <GameMarkets gameId={params.id} markets={data!} />
-}
-
-export default function Game() {
-
   return (
-    <>
-      <Info />
-      <Markets />
-    </>
+    <Content game={game} isGameInLive={isGameInLive} />
   )
 }
+
 ```
 
 Great job! Now we can click on game cards on events page and see the result:
@@ -252,6 +221,6 @@ Now we're ready to place first bet.
 
 In our tutorial we're building simple betting app. If you're ready to go deeper, learn things from SDK that we used in this section:
 
-- [useGame](/guides/sdk/data-hooks/useGame)
-- [useGameMarkets](/guides/sdk/data-hooks/useGameMarkets)
-- [useOutcome](/guides/sdk/watch-hooks/useOutcome)
+- [useGame](/hub/apps/sdk/data-hooks/useGame)
+- [useGameMarkets](/hub/apps/sdk/data-hooks/useGameMarkets)
+- [useGameStatus](/hub/apps/sdk/hooks/useGameStatus)
