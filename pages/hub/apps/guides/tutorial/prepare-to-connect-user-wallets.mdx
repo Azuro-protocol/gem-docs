@@ -34,55 +34,39 @@ Let's create new component `src/components/Providers.tsx` and add required impor
 ```tsx filename="src/components/Providers.tsx" copy
 'use client'
 import React from 'react'
-import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit'
-import { WagmiConfig, configureChains, createConfig } from 'wagmi'
-import { polygonMumbai } from 'viem/chains'
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { publicProvider } from 'wagmi/providers/public'
+import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { polygonMumbai, gnosis } from 'viem/chains'
 
-// In this example app we'll use free publicnode.com RPC urls,
-// you can change it on your own or continue using public.
-// Also, we'll use polygon mumbai for DEV.
-// To launch in prod, you must change it to one of the prod chains (Polygon, Gnosis, etc.)
-const rpcUrls: Record<number, string> = {
-  [polygonMumbai.id]: 'https://polygon-mumbai-bor.publicnode.com',
-}
 
-// base chain config
-const { chains, publicClient } = configureChains(
-  [ polygonMumbai ],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: rpcUrls[chain.id],
-      }),
-    }),
-    publicProvider(),
-  ]
-)
+const { wallets } = getDefaultWallets()
 
-// rainbowkit connector config
-const { connectors } = getDefaultWallets({
+const chains = [
+  polygonMumbai,
+  gnosis,
+] as const
+
+const wagmiConfig = getDefaultConfig({
   appName: 'Azuro',
-  projectId: '2f82a1608c73932cfc64ff51aa38a87b', // get your own project ID - https://cloud.walletconnect.com
+  projectId: '2f82a1608c73932cfc64ff51aa38a87b', // get your own project ID - https://cloud.walletconnect.com/sign-in
+  wallets,
   chains,
 })
 
-// final wagmi config
-const wagmiConfig = createConfig({
-  connectors,
-  publicClient,
-})
+const queryClient = new QueryClient()
 
 export function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
-        {children}
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider chains={chains}>
+          {children}
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```
@@ -91,70 +75,58 @@ Great. Now your app can handle web3 connections. We’ll see how to add a “Con
 
 ### Azuro providers setup
 
-After base web3 connect setup, let's add azuro SDK providers:
-- `ChainProvider` - Azuro works on several chains, so we must narrow down which one to use in the app.\
-Also this provider adds a possibility to switch chain in the UI and create multichain betting app.
-- `ApolloProvider` - handles requests to Azuro graphql endpoints to receive all required data.
+After base web3 connect setup, let's add azuro SDK provider.
 
 Let's add them, so final code of `Providers` component will be:
-```tsx {3,4,51,52,54,55} filename="src/components/Providers.tsx" copy
+```tsx {3,43,45} filename="src/components/Providers.tsx" copy
 'use client'
 import React from 'react'
-import { ChainProvider } from '@azuro-org/sdk'
-import { ApolloProvider } from '@azuro-org/sdk/nextjs/apollo'
-import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit'
-import { WagmiConfig, configureChains, createConfig } from 'wagmi'
-import { polygonMumbai } from 'viem/chains'
-import { jsonRpcProvider } from 'wagmi/providers/jsonRpc'
-import { publicProvider } from 'wagmi/providers/public'
+import { AzuroSDKProvider } from '@azuro-org/sdk'
+import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { polygonMumbai, gnosis } from 'viem/chains'
 
-// In this example app we'll use free publicnode.com RPC urls,
-// you can change it on your own or continue using public.
-// Also, we'll use polygon mumbai for DEV.
-// To launch in prod, you must change it to one of the prod chains (Polygon, Gnosis, etc.)
-const rpcUrls: Record<number, string> = {
-  [polygonMumbai.id]: 'https://polygon-mumbai-bor.publicnode.com',
-}
 
-// base chain config
-const { chains, publicClient } = configureChains(
-  [ polygonMumbai ],
-  [
-    jsonRpcProvider({
-      rpc: (chain) => ({
-        http: rpcUrls[chain.id],
-      }),
-    }),
-    publicProvider(),
-  ]
-)
+const { wallets } = getDefaultWallets()
 
-// rainbowkit connector config
-const { connectors } = getDefaultWallets({
+const chains = [
+  polygonMumbai,
+  gnosis,
+] as const
+
+const wagmiConfig = getDefaultConfig({
   appName: 'Azuro',
-  projectId: '2f82a1608c73932cfc64ff51aa38a87b', // get your own project ID - https://cloud.walletconnect.com
+  projectId: '2f82a1608c73932cfc64ff51aa38a87b', // get your own project ID - https://cloud.walletconnect.com/sign-in
+  wallets,
   chains,
 })
 
-// final wagmi config
-const wagmiConfig = createConfig({
-  connectors,
-  publicClient,
-})
+const queryClient = new QueryClient()
 
-export function Providers(props: { children: React.ReactNode }) {
-  const { children } = props
+type ProvidersProps = {
+  children: React.ReactNode
+  initialChainId?: string
+  initialLiveState?: boolean
+}
+
+export function Providers(props: ProvidersProps) {
+  const { children, initialChainId, initialLiveState } = props
+
+  const chainId = initialChainId && (
+    chains.find(chain => chain.id === +initialChainId) ? +initialChainId as ChainId : polygonMumbai.id
+  )
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
-        <ChainProvider initialChainId={polygonMumbai.id}>
-          <ApolloProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <RainbowKitProvider chains={chains}>
+          <AzuroSDKProvider initialChainId={chainId} initialLiveState={initialLiveState}>
             {children}
-          </ApolloProvider>
-        </ChainProvider>
-      </RainbowKitProvider>
-    </WagmiConfig>
+          </AzuroSDKProvider>
+        </RainbowKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   )
 }
 ```
@@ -170,16 +142,18 @@ export * from './Providers'
 
 Now, edit file `src/app/layout.tsx`:
 - add rainbowkit css `import '@rainbow-me/rainbowkit/styles.css'`
-- add created `Providers` component
+- get stored values for `initialChainId` and `initialLiveState` from cookies
+- add created `Providers` component and provide initial values
 
 So code will be:
 
-```tsx {4,5,10,11,21-25}  filename="src/app/layout.tsx" copy
+```tsx {4, 5, 11, 19-22, 27, 33}  filename="src/app/layout.tsx" copy
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import { Providers } from '@/components'
+import { cookies } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -192,13 +166,20 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const cookieStore = cookies()
+
+  const initialChainId = cookieStore.get('appChainId')?.value
+  const initialLiveState = JSON.parse(cookieStore.get('live')?.value || 'false')
+
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Providers>
-          <main className="container pt-5 pb-10">
-            {children}
-          </main>
+        <Providers initialChainId={initialChainId} initialLiveState={initialLiveState}>
+          <div className="md:max-w-[1040px] mx-auto">
+            <main className="container pt-5 pb-10">
+              {children}
+            </main>
+          </div>
         </Providers>
       </body>
     </html>
@@ -213,43 +194,48 @@ Create component `src/components/Header.tsx`:
 
 ```tsx filename="src/components/Header.tsx" copy
 'use client'
-import Link from 'next/link'
 import React, { useEffect } from 'react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { ActiveLink, SelectAppChain, LiveSwitcher } from '@/components'
+import { reconnect } from '@wagmi/core'
 import { useConfig } from 'wagmi'
-
 
 export function Header() {
   const config = useConfig()
 
-  // re-connect to user wallet after page reload
   useEffect(() => {
     ;(async () => {
       try {
-        await config.autoConnect()
+        await reconnect(config)
       }
       catch {}
     })()
   }, [])
 
   return (
-    <header className="container flex items-center py-3.5 border-b border-zinc-200">
-      <div className="text-xl font-semibold">Azuro Betting App</div>
+    <header className="flex items-center py-3.5 border-b border-zinc-200">
+      <div className="text-xl font-semibold">Azuro Betting</div>
       <div className="flex ml-10">
-        <Link
+        <ActiveLink
           className="text-zinc-500 hover:text-black transition"
+          activeClassName="!text-black font-semibold !cursor-default"
           href="/events/top"
+          regex="^\/events\/[^/]+?$"
         >
           Events
-        </Link>
-        <Link
+        </ActiveLink>
+        <ActiveLink
           className="text-zinc-500 hover:text-black transition ml-4"
+          activeClassName="!text-black font-semibold !cursor-default"
           href="/bets"
+          regex="^\/bets"
         >
-          Bets History
-        </Link>
+          Bets
+        </ActiveLink>
       </div>
       <div className="ml-auto flex items-center">
+        <LiveSwitcher />
+        <SelectAppChain />
         <ConnectButton chainStatus="none" />
       </div>
     </header>
@@ -266,12 +252,13 @@ export * from './Header'
 
 And use in global layout - `src/app/layout.tsx`:
 
-```tsx {5,22} filename="src/app/layout.tsx" copy
+```ts {5, 29} filename="src/components/index.ts" copy
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import { Providers, Header } from '@/components'
+import { cookies } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -284,15 +271,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  const cookieStore = cookies()
+
+  const initialChainId = cookieStore.get('appChainId')?.value
+  const initialLiveState = JSON.parse(cookieStore.get('live')?.value || 'false')
+
   return (
     <html lang="en">
       <body className={inter.className}>
-      <Providers>
-        <Header />
-        <main className="container pt-5 pb-10">
-          {children}
-        </main>
-      </Providers>
+        <Providers initialChainId={initialChainId} initialLiveState={initialLiveState}>
+          <div className="md:max-w-[1040px] mx-auto">
+            <Header />
+            <main className="container pt-5 pb-10">
+              {children}
+            </main>
+          </div>
+        </Providers>
       </body>
     </html>
   )
@@ -315,5 +309,4 @@ And visit [localhost:3000](http://localhost:3000) and ensure that the Connect Bu
 
 In this tutorial, we're crafting a simple betting app. Are you eager to explore more? Then delve deeper into some key elements of the SDK used in this section:
 
-- **[ChainProvider](/hub/apps/sdk/providers/chain)**: Understand its role in the app's blockchain interactions.
-- **[ApolloProvider](/hub/apps/sdk/providers/apollo)**: Learn how it manages data queries and integrates with our app.
+- **[AzuroSDKProvider](/hub/apps/sdk/providers/sdk)**: Understand its role in the app.
