@@ -6,7 +6,11 @@ module.exports = {
     './theme.config.js'
   ],
   theme: {
-    extend: {}
+    extend: {
+      colors: {
+        'azuro-ocean': '#3D67FF',
+      }
+    }
   },
   plugins: [],
   darkMode: 'class'

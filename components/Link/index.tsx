@@ -16,7 +16,7 @@ export function Link(props: Props) {
   const { children, className, href, to, toTab, customColor } = props
 
   const nodeProps: any = {
-    className: cx('nx-underline nx-decoration-from-font [text-underline-position:under]', {
+    className: cx('nx-underline nx-decoration-from-font [text-underline-position:under] text-azuro-ocean', {
       'text-primary-600': !customColor,
     }, className),
     href: href || to || toTab,
