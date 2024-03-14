@@ -42,6 +42,20 @@
   }
 }
 
+@font-face {
+  font-weight: 300;
+  font-family: 'Poppins';
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/poppins/poppins-light.woff2') format('woff2'),
+    url('/fonts/poppins/poppins-light.woff') format('woff');
+}
+
+body {
+  font-family: 'Poppins';
+}
+
+
 @media (max-width: 568px) {
   .nextra-nav-container nav a:first-child {
     margin-right: auto !important;

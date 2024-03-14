@@ -38,7 +38,7 @@ export default {
     </>
   ),
   logo: (
-    <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" id="Layer_1" x="0" y="0" style={{width: '190px'}} version="1.1" viewBox="0 0 725 145" fill="currentColor" >
+    <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" id="Layer_1" x="0" y="0" style={{width: '180px'}} version="1.1" viewBox="0 0 725 145" fill="currentColor" >
       <linearGradient id="SVGID_1_" x1="1.426" x2="142.929" y1="88.159" y2="58.294" gradientTransform="matrix(1 0 0 -1 0 146)" gradientUnits="userSpaceOnUse"><stop offset=".4" style={{stopColor: "#3d67ff"}} />
         <stop offset="1" style={{stopColor: "#2241a9"}} />
       </linearGradient><path d="M134.5 100.2c-2.1-4.4-4-8.8-6.3-13.1-2.3-4.2-5.9-7.5-7.9-11.8-2-4.2-3-8.8-5.5-12.8-2.6-4.2-6.3-7.5-9.2-11.5-2.9-4-4.8-8.5-6.7-13-1.9-4.4-4.2-8-7.3-11.5C84.5 18.6 79 9.7 74.5.1 54.2.7 36.6 7.8 22.3 21.2 7.5 35.1 0 52.4 0 72.5S7.5 110 22.3 124l.1.1C37.3 138 55.9 145 77.4 145s40.1-7 55.1-20.9c3.8-3.6 7.2-7.4 10.1-11.4-3.2-3.9-6-8-8.1-12.5zm-38.2-9.5c-5.1 4.7-11.2 7-18.9 7-7.6 0-13.8-2.3-18.8-7-4.9-4.7-7.3-10.7-7.3-18.2s2.4-13.5 7.3-18.2c5.1-4.7 11.2-7 18.8-7 7.6 0 13.8 2.3 18.9 7 5.1 4.7 7.5 10.7 7.5 18.2s-2.4 13.5-7.5 18.2z" style={{fill: "url(#SVGID_1_)"}} />
