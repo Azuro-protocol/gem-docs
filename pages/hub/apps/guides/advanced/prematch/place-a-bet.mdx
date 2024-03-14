@@ -104,7 +104,7 @@ sendTransaction(txDto)
 To send a batch of single bets you should use [ProxyFront](/contracts/proxy-front) contract.
 
 <Callout type="info">
-  Note that data structure differs from the structure of [placing single bet on LP contract](/guides/advanced/prematch/place-a-bet#place-a-single-bet).
+  Note that data structure differs from the structure of [placing single bet on LP contract](/hub/apps/guides/advanced/prematch/place-a-bet#place-a-single-bet).
 </Callout>
 
 <Tabs items={[ 'Ethers', 'Wagmi' ]}>
@@ -416,11 +416,11 @@ This is the wallet address where the rewards will be distributed. Please be awar
 
 ## Recommendations
 
-It's important to ensure that the user has sufficient funds in their account before placing a bet, and to [handle errors from contracts](/guides/handle-contract-errors)
+It's important to ensure that the user has sufficient funds in their account before placing a bet, and to [handle errors from contracts](/hub/apps/guides/handle-contract-errors)
 gracefully if the bet cannot be placed due to insufficient funds or other reasons.
 
 Keeping the odds updated is essential for providing the best user experience to your customers. By
-[subscribing to odds updates](/guides/advanced/prematch/real-time-odds-updates), you can keep the odds values up-to-date in real-time,
+[subscribing to odds updates](/hub/apps/guides/advanced/prematch/real-time-odds-updates), you can keep the odds values up-to-date in real-time,
 which can help reduce the risk of user frustration or missed betting opportunities. Alternatively, you can
-[fetch the odds values](/guides/advanced/prematch/get-odds-values) before a user submits a bet to ensure that the odds values are current
+[fetch the odds values](/hub/apps/guides/advanced/prematch/get-odds-values) before a user submits a bet to ensure that the odds values are current
 at the time of the bet placement.

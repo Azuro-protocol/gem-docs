@@ -70,7 +70,7 @@ Api returns all available to claim freebets for specified bettor (status: `New` 
 
 ### Use freebet to place a bet
 
-If you're not familiar with generic logic around placing a bet, please read [Guides section](/guides/prematch/place-a-bet) first.
+If you're not familiar with generic logic around placing a bet, please read [Guides section](/hub/apps/guides/advanced/prematch/place-a-bet) first.
 
 <Callout type="warning">
   To apply freebet, `outcome.rawMinOdds` should be greater than `freebet.minOdds`. The bet should be single - freebets aren't applicable to combo bets.
@@ -174,4 +174,4 @@ const tx = await freebetContract.connect(signer).withdrawPayout(bet.freebet.free
 ```
 
 All details about bet history and base logic of redeem, please read in Guides section:
-[Bet history](/guides/prematch/get-bets-history) & [Redeem Bets](/guides/prematch/redeem-bets)
+[Bet history](/hub/apps/guides/advanced/prematch/get-bets-history) & [Redeem Bets](/hub/apps/guides/advanced/prematch/redeem-bets)
