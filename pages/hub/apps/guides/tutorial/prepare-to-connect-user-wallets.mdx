@@ -81,7 +81,7 @@ Let's add them, so final code of `Providers` component will be:
 ```tsx {3,43,45} filename="src/components/Providers.tsx" copy
 'use client'
 import React from 'react'
-import { AzuroSDKProvider } from '@azuro-org/sdk'
+import { AzuroSDKProvider, ChainId } from '@azuro-org/sdk'
 import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
