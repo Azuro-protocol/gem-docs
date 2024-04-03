@@ -195,7 +195,12 @@ const signedOrder: SignedByBettorOrderSpec = {
   bettorSignature: bettorSignature, // Signed message
 };
 
-const response = await fetch(`https://preprod-api.azuro.org/api/v1/public/orders`, {
+// For pre-production
+const apiUrl = 'https://preprod-api.azuro.org/api/v1/public/orders'
+// For production
+const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
+
+const response = await fetch(apiUrl, {
   method: 'POST',
   body: JSON.stringify(signedOrder)
 });
@@ -269,7 +274,12 @@ export interface UpdatedOrderSpec extends OrderResponseSpec {
   betId?: number;
 }
 
-const response = await fetch(`https://preprod-api.azuro.org/api/v1/public/orders/${orderId}`);
+// For pre-production
+const apiUrl = 'https://preprod-api.azuro.org/api/v1/public/orders'
+// For production
+const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
+
+const response = await fetch(`${apiUrl}/${orderId}`);
 
 const data = await response.json();
 
