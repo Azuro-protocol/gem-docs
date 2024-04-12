@@ -1,0 +1,37 @@
+Returns array of supported tokens for [`deBridge`](https://docs.dln.trade/).
+
+#### Usage
+
+```ts
+import { useDeBridgeSupportedTokens } from '@azuro-org/sdk'
+
+const { supportedTokens, supportedTokenAddresses, loading } = useDeBridgeSupportedTokens({
+  chainId: 42161 // Arbitrum
+})
+```
+
+#### Props
+```ts
+{
+  chainId: number
+  enabled?: boolean // default value is true
+}
+```
+
+#### Return Value
+
+```ts
+{
+  supportedTokens: Array<{
+    address: string
+    symbol: string,
+    decimals: number,
+    name: string,
+    logoURI: string,
+    tags: Array<string>
+  }>
+  supportedChainIds: Array<string>
+  refetch: (options?: RefetchOptions | undefined) => Promise
+  loading: boolean
+}
+```
