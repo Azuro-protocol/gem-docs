@@ -39,6 +39,7 @@ const {
   fromTokenAddress,
   betAmount,
   slippage: 10, // 10%
+  referralCode: 0000,
   affiliate: '0x68E0C1dBF926cDa7A65ef2722e046746EB0f816f', // your affiliate address
   selections: items,
   odds,
@@ -55,11 +56,12 @@ submit()
 When allowing users to place express (or combo) bets, you can pass multiple selections, each for different outcomes across various events, and combine them into one larger bet.
 
 ```ts
-const {...} = usePrepareBet({
+const {...} = useDeBridgeBet({
   fromChainId,
   fromTokenAddress,
   betAmount,
   slippage: 5,
+  referralCode: 0000,
   affiliate: '0x0000000000000000000000000000000000000000',
   selections: [
     {
@@ -87,6 +89,7 @@ const {...} = usePrepareBet({
   fromTokenAddress: string // token address
   betAmount: string // bet amount
   slippage: number // in percent
+  referralCode: number // your deBridge referral code
   affiliate: Address // your affiliate address
   odds: Record<string, number>, // odds
   totalOdds: number, // total odds
@@ -109,6 +112,7 @@ type Selection = {
 
 ```ts
 {
+  orderId: string | undefined // deBridge order id
   submit: () => Promise<void> // function used to trigger the bet action or token spending approval
   estimation: Estimation | undefined, // transaction costs
   fixFee: string | undefined // deBridge fee in native tokens
