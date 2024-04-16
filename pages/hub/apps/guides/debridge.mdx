@@ -164,6 +164,27 @@ const {
 
 ## Send transaction and order checking
 
+<Callout type="warning">
+  Don't forget to approve tokens spending:
+  ```ts
+  import { useWriteContract } from 'wagmi'
+  import { erc20Abi, maxUint256 } from 'viem'
+
+
+  const approveTx = useWriteContract()
+  const hash = await approveTx.writeContract({
+    address: estimation?.srcChainTokenIn.address!,
+    abi: erc20Abi,
+    chainId: fromChainId,
+    functionName: 'approve',
+    args: [
+      tx?.to as Address,
+      maxUint256,
+    ],
+  })
+  ```
+</Callout>
+
 Send transaction from another step and checking order fulfilment in interval:
 
 ```ts
