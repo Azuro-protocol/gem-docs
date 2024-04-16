@@ -25,5 +25,8 @@
   },
   "handle-contract-errors": {
     "title": "How to handle contract errors"
+  },
+  "debridge": {
+    "title": "deBridge cross-chain bets"
   }
 }
