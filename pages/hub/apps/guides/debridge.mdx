@@ -149,8 +149,18 @@ const params = new URLSearchParams({
   referralCode: String(referralCode), // your referral code
 })
 const deBridgeCreateTxResponse = await fetch(`https://api.dln.trade/v1.0/dln/order/create-tx?${params}`)
-const { orderId, estimation, tx, fixFee }: DeBridgeCreateTxResponse = await deBridgeCreateTxResponse.json()
+const { 
+  orderId, // deBridge order id
+  estimation, // information about gas expense, etc.
+  tx, // transaction data
+  fixFee // deBridge fixed fee in native tokens
+}: DeBridgeCreateTxResponse = await deBridgeCreateTxResponse.json()
 ```
+
+<Callout type="warning">
+  It is required to use the `betFor` function instead of the `bet` otherwise bettor couldn redeem his bet.
+</Callout>
+
 
 ## Send transaction and order checking
 
@@ -243,3 +253,7 @@ const txHash = await new Promise<Hex>((res, rej) => {
   }, 5000)
 })
 ```
+
+<Callout type="info">
+More api information you can find in [deBridge Swagger](https://api.dln.trade/v1.0)
+</Callout>
