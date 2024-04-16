@@ -189,7 +189,7 @@ const {
 
   const isApproveRequired = Boolean(
     allowanceTx.data !== undefined
-    && allowanceTx.data < (BigInt(estimation?.srcChainTokenIn?.amount || 0) * 4n / 3n)
+    && allowanceTx.data < BigInt(estimation?.srcChainTokenIn?.amount || 0)
   )
 
   const approveTx = useWriteContract()
