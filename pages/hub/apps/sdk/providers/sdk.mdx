@@ -15,7 +15,7 @@ Wrap your application in `AzuroSDKProvider`.
 import { AzuroSDKProvider } from '@azuro-org/sdk'
 import { WagmiProvider, createConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { polygonMumbai } from 'viem/chains'
+import { polygonAmoy } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
@@ -27,7 +27,7 @@ function Providers(props: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}> 
-        <AzuroSDKProvider initialChainId={polygonMumbai.id} initialLiveState={true}>
+        <AzuroSDKProvider initialChainId={polygonAmoy.id} initialLiveState={true}>
           {children}
         </AzuroSDKProvider>
       </QueryClientProvider>

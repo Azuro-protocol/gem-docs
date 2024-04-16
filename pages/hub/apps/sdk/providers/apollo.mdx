@@ -10,7 +10,7 @@ It responds to network changes by automatically initiating a re-fetch of all the
 import { ApolloProvider, ChainProvider } from '@azuro-org/sdk'
 import { WagmiProvider, createConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
+import { polygonAmoy, arbitrumGoerli } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
@@ -22,7 +22,7 @@ function Providers(props: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}> 
-        <ChainProvider initialChainId={polygonMumbai.id}>
+        <ChainProvider initialChainId={polygonAmoy.id}>
           <ApolloProvider>
             {children}
           </ApolloProvider>
