@@ -165,14 +165,35 @@ const {
 ## Send transaction and order checking
 
 <Callout type="warning">
-  Don't forget to approve tokens spending:
+  Don't forget allowance checks and tokens spending approve:
   ```ts
-  import { useWriteContract } from 'wagmi'
-  import { erc20Abi, maxUint256 } from 'viem'
+  import { useWriteContract, useReadContract } from 'wagmi'
+  import { erc20Abi, maxUint256, zeroAddress } from 'viem'
 
+  const isNative = estimation?.srcChainTokenIn?.address === zeroAddress
+
+  const allowanceTx = useReadContract({
+    chainId: fromChainId,
+    address: estimation?.srcChainTokenIn.address,
+    abi: erc20Abi,
+    functionName: 'allowance',
+    args: [
+      bettorAddress!,
+      tx?.to as Address,
+    ],
+    query: {
+      enabled: !isNative && Boolean(bettorAddress),
+      refetchOnWindowFocus: false,
+    },
+  })
+
+  const isApproveRequired = Boolean(
+    allowanceTx.data !== undefined
+    && allowanceTx.data < (BigInt(estimation?.srcChainTokenIn?.amount || 0) * 4n / 3n)
+  )
 
   const approveTx = useWriteContract()
-  const hash = await approveTx.writeContract({
+  approveTx.writeContract({
     address: estimation?.srcChainTokenIn.address!,
     abi: erc20Abi,
     chainId: fromChainId,
