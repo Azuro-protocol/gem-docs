@@ -1,0 +1,30 @@
+import { Callout } from 'components'
+
+# Adding Live. Step 3: Prepare the betslip
+
+## Update Live **odds**, **condition status** and **maxBet** amount (maxStake) in the Betslip
+
+Live outcomes are individually limited by the `maxStake` value (renamed to `maxBet` in the SDK), which means users cannot bet more than this amount.
+You'll receive this information in a websocket message. Additionally, the websocket provides up-to-date `odds` and `status` of the market (condition).
+
+To operate with live bets in your betslip, you need to:
+- Subscribe to the websocket for live bets to receive `odds`, `statuses`, and `maxStake` information.
+- Calculate live odds using the `calcLiveOdds` utility ([source code](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/utils/calcOdds.ts#L94)).
+- Format the user input for the bet amount to a maximum of 2 fractional digits (`15`, `15.1`, `15.12` - OK ✅; `15.254` - ERROR ❌).
+- Validate the live condition status.
+- Validate the bet amount against the `maxStake`.
+
+In the SDK, we've implemented the betslip logic ([source code](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/contexts/betslip.tsx#L93-L94)),
+which manages all cases involving prematch and live events.
+
+- It utilizes the `useOdds` hook ([source code](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useOdds.ts), [docs](/hub/apps/sdk/watch-hooks/useOdds))
+to calculate and maintain up-to-date odds and maxBet values.
+- It leverages the `useStatuses` hook ([source code](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useOdds.ts), [docs](/hub/apps/sdk/watch-hooks/useSelection))
+to ensure condition statuses remain current.
+- It manages all the validations.
+
+These hooks handle user selections by fetching prematch odds and statuses from the prematch contract
+or live odds and statuses via subscription to `oddsWatcher`, `conditionStatusWatcher`, and `websocket`,
+as described in the previous step.
+
+**You can use the SDK as is, fork it, or develop your own based on this logic.**

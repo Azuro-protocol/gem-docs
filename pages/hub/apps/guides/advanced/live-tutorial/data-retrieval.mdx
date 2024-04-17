@@ -1,0 +1,313 @@
+import { Callout } from 'components';
+import { Tabs } from 'nextra-theme-docs'
+
+# Adding Live. Step 2: Live Data Retrieval
+
+Here, we'll explain how to display live games and their markets.
+You can find more undercover details in the related documentation: [Live Data Retrieval](../live/data-retrieval).
+
+The data structure is nearly identical to the one used in the main Subgraph for prematch core contracts.
+
+<Callout type="info">
+  Key differences in the entities structure comparing to prematch subgraphs:
+
+  - Removed all entities and events related to bets (bets, freebets, expresses) and contracts (cores, liquidity pools).
+  - Removed `selection` entity and its relations.
+  - Entity `condition` doesn't have an `isExpressForbidden` field.
+  - Event `GameShifted` changed to `GameUpdated` (triggers by changing game status and/or start time).
+  - Event `ConditionShifted` completely removed.
+</Callout>
+
+## Load live games
+
+If you've utilized fields excluded from the Live subgraph, we recommend splitting data fetching into `games` and `conditions`.
+This allows you to reuse game/sport queries for both Prematch and Live requests.
+
+Here's an example of a universal hook to retrieve events from both Prematch and Live feeds:
+
+<Tabs items={[ 'useSportsAndEvents.ts', 'query.ts' ]}>
+<Tabs.Tab>
+```ts {6,11,17-19,22-23,29} copy
+import { universalGamesQuery } from './query'
+
+const useSportsAndEvents = (props) => {
+  const {
+    startsAt,
+    isLive,
+    ...yourRestVariablesLikeSportSlug,
+  } = props
+
+  const { prematchClient, liveClient } = useApolloClients()
+  const client = isLive ? liveClient! : prematchClient!
+
+  const variables = {
+    ...yourRestVariablesLikeSportSlug,
+  }
+
+  if (isLive) {
+    // LIVE: _lt suffix
+    variables.where.startsAt_lt = startsAt
+  }
+  else {
+    // PREMATCH: _gt suffix + LP filter
+    variables.where.startsAt_gt = startsAt
+    variables.where.liquidityPool = _lp_contract_address.toLowerCase()
+  }
+
+  return useQuery(universalGamesQuery, {
+    variables,
+    client,
+  })
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```ts copy
+export const universalGamesQuery = gql`
+  query Games(
+    $first: Int,
+    $skip: Int,
+    $where: Game_filter!,
+    $orderBy: Game_orderBy,
+    $orderDirection: OrderDirection,
+  ) {
+    games(first: $first, skip: $skip, where: $where, orderBy: $orderBy, orderDirection: $orderDirection, subgraphError: allow) {
+      id
+      gameId
+      title
+      startsAt
+      status
+      sport {
+        sportId
+        slug
+        name
+      }
+      league {
+        slug
+        name
+        country {
+          slug
+          name
+        }
+      }
+      participants {
+        image
+        name
+      }
+    }
+  }
+`;
+```
+</Tabs.Tab>
+</Tabs>
+
+Apply this condition tweak to every fetching event data query.
+
+<Callout type="advice">
+  Check out the SDK implementation of event fetching hooks for both Prematch and Live feeds:
+
+  - Sports navigation: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useSportsNavigation.ts
+  - Events: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useSports.ts
+  - Games: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useGames.ts
+  - Game: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useGame.ts
+</Callout>
+
+## Load markets
+
+Because of the difference between Live and Prematch `condition` entities,
+it's not possible to reuse the Prematch query. You'll need to create a new one.
+
+Take a look at the source code of the SDK's [useGameMarkets](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useGameMarkets.ts) hook.
+It fetches conditions from the Live feed when the game is live, and Prematch conditions when the game hasn't started yet.
+To streamline the handling of both prematch and live conditions in the SDK, we're modifying these entities to have the same fields.
+
+Let's examine the key changes in the SDK hooks for fetching prematch and live conditions:
+
+<Tabs items={[ 'useGameMarkets.ts', 'useConditions.ts', 'queries.ts' ]}>
+<Tabs.Tab>
+See full code: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useGameMarkets.ts
+
+```ts {9,10,14,35,38-40,55,56} copy filename="useGameMarkets.ts"
+/* ... */
+const groupMarkets = (conditions: ConditionsQuery['conditions'], gameId: string, lpAddress: Address): GameMarkets => {
+  const outcomesByMarkets: OutcomesByMarkets = {}
+  const result: OutcomeRowsByMarket = {}
+  const sportId = conditions[0]!.game.sport.sportId
+
+  conditions.forEach((condition) => {
+    const { conditionId, outcomes: rawOutcomes, status } = condition
+    const coreAddress = (condition as PrematchConditionsQuery['conditions'][0]).core?.address || liveHostAddress
+    const isExpressForbidden = (condition as PrematchConditionsQuery['conditions'][0]).isExpressForbidden ?? true
+
+    rawOutcomes.forEach((rawOutcome) => {
+      const { outcomeId } = rawOutcome
+      const odds = (rawOutcome as PrematchConditionsQuery['conditions'][0]['outcomes'][0]).odds
+      const betTypeOdd = dictionaries.outcomes[outcomeId]
+
+      if (!betTypeOdd) {
+        console.warn(`betTypeOdd not found for "outcomeId: ${outcomeId}"`)
+
+        return
+      }
+      const marketKey = getMarketKey(outcomeId)
+      const marketName = getMarketName({ outcomeId })
+      const marketDescription = getMarketDescription({ outcomeId })
+      const selectionName = getSelectionName({ outcomeId, withPoint: true })
+
+      const outcome: MarketOutcome = {
+        coreAddress: coreAddress,
+        lpAddress: lpAddress,
+        conditionId,
+        outcomeId,
+        selectionName,
+        status,
+        gameId,
+        isExpressForbidden,
+      }
+
+      if (odds) {
+        outcome.odds = +odds
+      }
+
+      /* ... */
+    })
+  })
+  /* ... */
+}
+
+export const useGameMarkets = (props: Props) => {
+  const { gameId, gameStatus, filter } = props
+
+  const { contracts } = useChain()
+  const { loading, conditions, error } = useConditions({
+    gameId,
+    filter,
+    isLive: gameStatus === GameStatus.Live,
+    livePollInterval: 2000,
+  })
+  /* ... */
+}
+/* see full code: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useGameMarkets.ts */
+```
+</Tabs.Tab>
+<Tabs.Tab>
+See full code: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useConditions.ts
+
+```ts {4,5,8,34,35,39-51,55,56} copy filename="useConditions.ts"
+export const useConditions = (props: UseConditionsProps) => {
+  const {
+    gameId,
+    isLive,
+    livePollInterval,
+    filter
+  } = props
+  const { prematchClient, liveClient } = useApolloClients()
+  const { appChain } = useChain()
+
+  const variables = useMemo<PrematchConditionsQueryVariables | LiveConditionsQueryVariables>(() => {
+    const vars: PrematchConditionsQueryVariables | LiveConditionsQueryVariables = {
+      where: {
+        game_: {
+          gameId,
+        },
+      },
+    }
+
+    if (filter?.outcomeIds) {
+      vars.where.outcomesIds_contains = filter.outcomeIds
+    }
+
+    return vars
+  }, [ gameId, filter?.outcomeIds?.join(',') ])
+
+  const {
+    data: prematchData,
+    loading: isPrematchLoading,
+    error: prematchError,
+  } = useQuery<PrematchConditionsQuery, PrematchConditionsQueryVariables>(PrematchConditionsDocument, {
+    variables: variables as PrematchConditionsQueryVariables,
+    ssr: false,
+    client: prematchClient!,
+    skip: isLive,
+    notifyOnNetworkStatusChange: true,
+  })
+
+  const {
+    data: liveData,
+    loading: isLiveLoading,
+    error: liveError,
+  } = useQuery<LiveConditionsQuery, LiveConditionsQueryVariables>(LiveConditionsDocument, {
+    variables: variables as LiveConditionsQueryVariables,
+    ssr: false,
+    client: liveClient!,
+    skip: !isLive || !liveSupportedChains.includes(appChain.id),
+    pollInterval: livePollInterval,
+  })
+
+  const data = (isLive ? liveData : prematchData) || {} as ConditionsQuery
+
+  return {
+    conditions: data?.conditions,
+    loading: isPrematchLoading || isLiveLoading,
+    error: prematchError || liveError,
+  }
+}
+```
+</Tabs.Tab>
+<Tabs.Tab>
+```ts copy filename="queries.ts"
+export const prematchConditionQuery = gql`
+  query Conditions($where: Condition_filter!) {
+    conditions(where: $where, first: 1000, subgraphError: allow) {
+      id
+      conditionId
+      status
+      isExpressForbidden
+      outcomes {
+        outcomeId
+        odds: currentOdds
+      }
+      core {
+        address
+        liquidityPool {
+          address
+        }
+      }
+      game {
+        gameId
+        sport {
+          sportId
+        }
+      }
+    }
+  }
+`;
+
+export const liveConditionsQuery = gql`
+  query Conditions($where: Condition_filter!) {
+    conditions(where: $where, first: 1000, subgraphError: allow) {
+      id
+      conditionId
+      status
+      outcomes {
+        outcomeId
+      }
+      game {
+        gameId
+        sport {
+          sportId
+        }
+      }
+    }
+  }
+`;
+```
+</Tabs.Tab>
+</Tabs>
+
+<Callout type="advice">
+  Check out the SDK's implementation of the game markets fetching hook for both Prematch and Live feeds:
+
+  - useGameMarkets: https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useGameMarkets.ts
+  - useConditions (used inside useGameMarkets): https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useConditions.ts
+</Callout>

@@ -1,0 +1,172 @@
+import { Callout } from 'components'
+
+# Adding Live. Step 1: Config
+
+## Live Constants
+
+Before you start implementing Live logic, make sure to update your app configuration with all the necessary constants:
+
+```ts copy filename="liveConstants.ts"
+/**
+ * For any production chain, liveHostCoreAddress used to detect that condition is from Live event
+ */
+export const liveHostCoreAddress = '0x67Fca88E2f5F2C33b86bFa4EccfCb8dCD6a56D17'
+export const liveGraphqlEndpoint = 'https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-live-data-feed'
+export const liveWSStreamEndpoint = 'wss://streams.azuro.org/v1/streams/conditions'
+export const azuroApiPublicEndpoint = 'https://api.azuro.org/api/v1/public'
+
+/** If you want to add testnet env in Polygon Amoy */
+export const testnetLiveHostCoreAddress = '0x24b4b4ECde26B89E295d986bd5d7aF1bdCcfAa3A'
+export const testnetLiveGraphqlEndpoint = 'https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-live-data-feed-preprod'
+export const testnetLiveWSStreamEndpoint = 'wss://preprod-streams.azuro.org/v1/streams/conditions'
+export const testnetAzuroApiPublicEndpoint = 'https://preprod-api.azuro.org/api/v1/public'
+
+/**
+ * Live Betting in beta, only 1 WXDAI possible
+ */
+export const liveBetBetaAmount = '1'
+
+/**
+ * Used in placing live bet logic
+ */
+export const environmentByChainId = {
+  100: 'GnosisXDAI',
+  137: 'PolygonUSDT',
+  /** Uncomment, if you want to add testnet env in Polygon Amoy */
+  80002: 'PolygonAmoyAZUSD',
+} as const
+
+/**
+ * Core address which will be associated with placed bet
+ */
+export const liveCoreAddressByChainId = {
+  100: '0x0223ff7efca5aec919c471fa2eb44cda466f1500',
+  137: '', // stay tuned
+  /** If you want to add testnet env in Polygon Amoy */
+  80002: '0xEeC45059b34BF76174C4d5E495BB380F4A810F58',
+} as const
+
+/**
+ * All Live bets are executed by relayer deployed in each chain
+ */
+export const liveRelayerByChainId = {
+  100: '0x936c02503A32aA23BCF7CFaF5c29100b0F93FCfe',
+  137: '', // stay tuned
+  80002: '0x2d14b12e08ED8599E020fdBC867B604Ad58F192c',
+} as const
+
+
+type EntityWithCoreAddress = { coreAddress: string }
+
+/**
+* A helper method which may be useful if you would like to unify work with conditions/entities from prematch and live
+* Checks if passed entity relates to Live or Prematch
+* @returns {boolean}
+*/
+export const isLiveEntity = <T extends EntityWithCoreAddress>(item: string | T, chainId: 100 | 137) => {
+  const coreAddress = (typeof item === 'string' ? item : item.coreAddress).toLowerCase()
+
+  return (
+    // before bet, events taken from graphql
+    coreAddress === liveHostCoreAddress.toLowerCase()
+    // for placed bets
+    || liveCoreAddressByChainId[chainId] && coreAddress === liveCoreAddressByChainId[chainId].toLowerCase()
+  )
+}
+
+export const getApiUrl = (chainId: number) => {
+  if (chainId === polygonAmoy.id) {
+    return testnetAzuroApiPublicEndpoint
+  }
+
+  return azuroApiPublicEndpoint
+}
+```
+
+## Apollo
+
+If you're using Apollo to interact with GraphQL and "codegen" to create useQuery hooks,
+you need to store several clients (for prematch and live queries cache) in the Apollo context and provide which client to use in each query.
+
+If you're not using Apollo, you can skip this section and [go to the next one](data-retrieval),
+just remember to execute live queries on `liveGraphqlEndpoint` from constants above.
+
+<Callout type="advice">
+  See SDK implementation of ApolloProvider which includes all the features: SSR, multiple chains, prematch & live:
+
+  https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/contexts/apollo.tsx
+</Callout>
+
+
+```tsx copy filename="apolloContext.tsx"
+import { createContext, useContext, useRef } from 'react'
+import { ApolloClient, HttpLink, InMemoryCache, type NormalizedCacheObject } from '@apollo/client'
+
+import { liveGraphqlEndpoint } from '@/config'
+
+
+const getLiveLink = () => {
+  return new HttpLink({
+    uri: ({ operationName }) => `${liveGraphqlEndpoint}?op=${operationName}`,
+  })
+}
+
+const getLiveApolloClient = () => {
+  const link = getLiveLink()
+
+  return new ApolloClient({
+    link,
+    ssrMode: typeof window === 'undefined',
+    cache: new InMemoryCache(),
+    connectToDevTools: true,
+    assumeImmutableResults: true,
+  })
+}
+
+export type ApolloClients = {
+  prematchClient: ApolloClient<NormalizedCacheObject>
+  liveClient: ApolloClient<NormalizedCacheObject>
+}
+
+const apolloClients: ApolloClients = {
+  prematchClient: null as any,
+  liveClient: null as any,
+}
+
+export const getApolloClients = (): ApolloClients => {
+  // return new clients for SSR on each session
+  if (typeof window === 'undefined') {
+    return {
+      prematchClient: getYourExistingPrematchApolloClient(),
+      liveClient: getLiveApolloClient(),
+    }
+  }
+
+  if (!apolloClients.prematchClient) {
+    apolloClients.prematchClient = getYourExistingPrematchApolloClient()
+    apolloClients.liveClient = getLiveApolloClient()
+  }
+
+  return apolloClients
+}
+
+const Context = createContext<ApolloClients>(null as any)
+
+export const useApolloClients = (): ApolloClients => {
+  return useContext(Context) as ApolloClients
+}
+
+type Props = {
+  children: any
+}
+
+export const ApolloProvider = ({ children }: Props) => {
+  const apolloClientsRef = useRef<ApolloClients>(getApolloClients())
+
+  return (
+    <Context.Provider value={apolloClientsRef.current}>
+      {children}
+    </Context.Provider>
+  )
+}
+```
