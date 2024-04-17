@@ -2,13 +2,13 @@ import { Callout } from 'components'
 
 # deBridge cross-chain bets
 
-The [deBridge](https://docs.dln.trade/dln-api/quick-start-guide) provides the way to execute user's bet transaction in `Polygon` from another blockchain, for example `Arbitrum`.
+The [deBridge API](https://docs.dln.trade/dln-api/quick-start-guide) allows to execute bets on Polygon originating from different blockchains, such as `Arbitrum`.
 
 <Callout type="warning">
   This feature works only for `Prematch Bets` in [`Supported Blockchains`](https://docs.dln.trade/the-core-protocol/fees-and-supported-chains)
 </Callout>
 
-First of all, you need list of supported blockchains and tokens
+First of all, you need to get a list of supported blockchains and tokens.
 
 ## Get supported blockchains
 
@@ -105,7 +105,7 @@ type DeBridgeCreateTxResponse = {
 
 const fromChainId = 42161 // Arbitrum for example
 const fromTokenAddress = '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9' // USDT
-const referralCode = '' // your deBridge refferal code
+const referralCode = '' // your deBridge referral code
 
 const selections = [{...}] 
 const rawAmount = '...'
@@ -158,7 +158,8 @@ const {
 ```
 
 <Callout type="warning">
-  It is required to use the `betFor` function instead of the `bet` otherwise bettor couldn redeem his bet.
+  It's necessary to use the `betFor` function rather than the `bet` function to ensure that the bettor can redeem their bet.
+
 </Callout>
 
 
