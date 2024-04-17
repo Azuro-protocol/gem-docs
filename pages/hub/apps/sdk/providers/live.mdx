@@ -11,7 +11,7 @@ Wrap your application in `LiveProvider`.
 import { LiveProvider, ChainProvider } from '@azuro-org/sdk'
 import { WagmiProvider } from 'wagmi'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { polygonMumbai, arbitrumGoerli } from 'viem/chains'
+import { polygonAmoy, arbitrumGoerli } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
@@ -22,7 +22,7 @@ function Providers(props: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={...}>
       <QueryClientProvider client={...}> 
-        <ChainProvider initialChainId={polygonMumbai.id}>
+        <ChainProvider initialChainId={polygonAmoy.id}>
           <LiveProvider initialLiveState={false}>
             {children}
           </LiveProvider>
@@ -46,7 +46,7 @@ const { isLive, changeLive } = useLive()
 ```
 
 <Callout type="info">
-  The `isLive` state can only be `true` when you're using the `Gnosis Mainnet` or the `Polygon Mumbai Testnet`. If you change the `appChain` to a different chain, `isLive` will automatically become `false`. Also, if you set the state of `isLive` to `true`, it will automatically switch the appChain to applicable network.
+  The `isLive` state can only be `true` when you're using the `Gnosis Mainnet` or the `Polygon Amoy Testnet`. If you change the `appChain` to a different chain, `isLive` will automatically become `false`. Also, if you set the state of `isLive` to `true`, it will automatically switch the appChain to applicable network.
 </Callout>
 
 <Callout type="info">

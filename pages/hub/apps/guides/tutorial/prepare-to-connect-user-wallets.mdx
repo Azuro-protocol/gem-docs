@@ -37,13 +37,13 @@ import React from 'react'
 import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { polygonMumbai, gnosis } from 'viem/chains'
+import { polygonAmoy, gnosis } from 'viem/chains'
 
 
 const { wallets } = getDefaultWallets()
 
 const chains = [
-  polygonMumbai,
+  polygonAmoy,
   gnosis,
 ] as const
 
@@ -85,13 +85,13 @@ import { AzuroSDKProvider, ChainId } from '@azuro-org/sdk'
 import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { polygonMumbai, gnosis } from 'viem/chains'
+import { polygonAmoy, gnosis } from 'viem/chains'
 
 
 const { wallets } = getDefaultWallets()
 
 const chains = [
-  polygonMumbai,
+  polygonAmoy,
   gnosis,
 ] as const
 
@@ -114,7 +114,7 @@ export function Providers(props: ProvidersProps) {
   const { children, initialChainId, initialLiveState } = props
 
   const chainId = initialChainId && (
-    chains.find(chain => chain.id === +initialChainId) ? +initialChainId as ChainId : polygonMumbai.id
+    chains.find(chain => chain.id === +initialChainId) ? +initialChainId as ChainId : polygonAmoy.id
   )
 
   return (
