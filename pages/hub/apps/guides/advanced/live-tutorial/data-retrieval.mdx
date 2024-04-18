@@ -118,7 +118,8 @@ Because of the difference between Live and Prematch `condition` entities,
 it's not possible to reuse the Prematch query. You'll need to create a new one.
 
 Take a look at the source code of the SDK's [useGameMarkets](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useGameMarkets.ts) hook.
-It utilizes useConditions hook to fetch conditions from the Live or Prematch feed depending on a game status, and then combines them in markets.
+It utilizes [useConditions](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useConditions.ts) hook to fetch conditions
+from the Live or Prematch feed depending on a game status, and then combines them in markets.
 To streamline the handling of both Prematch and Live conditions in the SDK, we're modifying these entities to have the same fields.
 
 Let's examine the key changes in the SDK hooks for fetching prematch and live conditions:
