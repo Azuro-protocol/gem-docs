@@ -203,6 +203,10 @@ const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
 
 const response = await fetch(apiUrl, {
   method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  },
   body: JSON.stringify(signedOrder)
 });
 
