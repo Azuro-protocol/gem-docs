@@ -87,7 +87,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 ```
 
 ```ts
-type ChainId =  100 | 137 | 80001
+type ChainId =  100 | 137 | 80002
 ```
 
 #### Return Value
@@ -97,6 +97,7 @@ import { type Chain } from 'wagmi'
 
 {
   appChain: Omit<Chain, 'id'> & { id: ChainId } // represents chain in whitch your application sends requests and receives data
+  type: 'mainnet' | 'testnet' // chain type
   walletChain: Chain | undefined // user's wallet chain
   contracts: Contracts // contracts data based on appChain
   betToken: BetToken // bet token based on appChain
@@ -106,7 +107,7 @@ import { type Chain } from 'wagmi'
 ```
 
 ```ts
-type ChainId =  100 | 137 | 80001
+type ChainId =  100 | 137 | 80002
 
 type Contracts = {
   lp: {

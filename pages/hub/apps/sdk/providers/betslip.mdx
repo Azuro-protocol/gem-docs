@@ -54,7 +54,7 @@ import { useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
 
 const { items, addItem, removeItem, clear } = useBaseBetslip()
 const { 
-  betAmount, odds, totalOdds, maxBet, statuses, disableReason, changeBetAmount, 
+  betAmount, odds, totalOdds, maxBet, minBet, statuses, disableReason, changeBetAmount, 
   isStatusesFetching, isOddsFetching, isBetAllowed 
 } = useDetailedBetslip()
 ```
@@ -91,7 +91,8 @@ type DetailedBetslipContextValue = {
   betAmount: string // bet amount
   odds: Record<string, number> // odds for each item
   totalOdds: number // total bet odds
-  maxBet?: number // maximum bet amount
+  maxBet: number | undefined // maximum bet amount
+  minBet: number | undefined // minimum bet amount
   statuses: Record<string, ConditionStatus> // status for each item
   disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
   changeBetAmount: (value: string) => void // function for changing bet amount
@@ -103,6 +104,7 @@ type DetailedBetslipContextValue = {
 enum BetslipDisableReason {
   ConditionStatus = 'ConditionStatus', // one or more outcomes have been removed or suspended
   BetAmountGreaterThanMaxBet = 'BetAmountGreaterThanMaxBet', // bet amount exceeds max bet
+  BetAmountLowerThanMinBet = 'BetAmountLowerThanMinBet', // bet amount lower than min bet
   ComboWithLive = 'ComboWithLive', // live outcome can't be used in combo
   ComboWithForbiddenItem = 'ComboWithForbiddenItem', // one or more conditions can't be used in combo
   PrematchConditionInStartedGame = 'PrematchConditionInStartedGame', // pre-match item in started game
