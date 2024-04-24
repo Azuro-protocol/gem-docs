@@ -46,7 +46,13 @@ const { isLive, changeLive } = useLive()
 ```
 
 <Callout type="info">
-  The `isLive` state can only be `true` when you're using the `Gnosis Mainnet` or the `Polygon Amoy Testnet`. If you change the `appChain` to a different chain, `isLive` will automatically become `false`. Also, if you set the state of `isLive` to `true`, it will automatically switch the appChain to applicable network.
+  The `isLive` state can only be `true` in supported chains. If you change the `appChain` to a different chain, `isLive` will automatically become `false`. Also, if you set the state of `isLive` to `true`, it will automatically switch the appChain to applicable network.
+</Callout>
+<Callout type="info">
+  Supported chains: 
+  - `Gnosis Mainnet`
+  - `Polygon Mainnet`
+  - `Polygon Amoy Testnet`
 </Callout>
 
 <Callout type="info">
