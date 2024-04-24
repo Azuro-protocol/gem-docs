@@ -1,4 +1,4 @@
-# 04/23 SDK v3.3
+# 04/24 SDK v3.3
 
 [Live Betting](/hub/apps/guides/advanced/live/overview) in the `Polygon Mainnet`.
 
@@ -6,4 +6,4 @@ You can now switch the application mode to "live" for the Polygon network. [Read
 
 ## Updates
 - `minBet` info and new disableReason `BetslipDisableReason.BetAmountLowerThanMinBet` in [BetslipProvider](/hub/apps/sdk/providers/betslip)
-- `liveBetAmount` => `minLiveBetAmount`
+- const `liveBetAmount` marked as deprecated, because live bets are not strictly limited to "1" anymore (use `minBet` + `maxBet` from `useDetailedBetslip()` for live bet value validation).
