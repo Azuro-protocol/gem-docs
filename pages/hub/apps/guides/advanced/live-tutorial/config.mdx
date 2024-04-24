@@ -21,10 +21,7 @@ export const testnetLiveGraphqlEndpoint = 'https://thegraph.azuro.org/subgraphs/
 export const testnetLiveWSStreamEndpoint = 'wss://preprod-streams.azuro.org/v1/streams/conditions'
 export const testnetAzuroApiPublicEndpoint = 'https://preprod-api.azuro.org/api/v1/public'
 
-/**
- * Live Betting in beta, only 1 WXDAI possible
- */
-export const liveBetBetaAmount = '1'
+export const minLiveBetAmount = '1'
 
 /**
  * Used in placing live bet logic
@@ -41,7 +38,7 @@ export const environmentByChainId = {
  */
 export const liveCoreAddressByChainId = {
   100: '0x0223ff7efca5aec919c471fa2eb44cda466f1500',
-  137: '', // stay tuned
+  137: '0xc389558Faca41bC747F763cf8616704187CDcD04',
   /** If you want to add testnet env in Polygon Amoy */
   80002: '0xEeC45059b34BF76174C4d5E495BB380F4A810F58',
 } as const
@@ -51,7 +48,7 @@ export const liveCoreAddressByChainId = {
  */
 export const liveRelayerByChainId = {
   100: '0x936c02503A32aA23BCF7CFaF5c29100b0F93FCfe',
-  137: '', // stay tuned
+  137: '0xC6BB817a7f02874F360d135D880200A2E440207D',
   80002: '0x2d14b12e08ED8599E020fdBC867B604Ad58F192c',
 } as const
 
