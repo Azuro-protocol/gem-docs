@@ -98,7 +98,9 @@ type Selection = {
 {
   isAllowanceLoading: boolean // flag indicates the fetching of allowance
   isApproveRequired: boolean // flag indicates the necessity for token spending approval
+  isRelayerFeeLoading: boolean // flag indicates the fetching of relayer fee for live bet
   submit: () => Promise<TransactionReceipt> // function used to trigger the bet action or token spending approval
+  relayerFeeAmount: string | undefined // relayer fee amount for live bet
   approveTx: { // approve transaction state
     isPending: boolean
     isProcessing: boolean

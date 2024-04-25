@@ -29,14 +29,56 @@ if they cannot.
 We recommend you as a frontend operator to create a convenient interface to do that in 1 click and claim
 `1000 AZUSD` to the user's wallet.
 
-### Give a spending approval
+### Relayer fee
 
 In our live betting architecture users don't make transactions, they just sign a message that contains all the bet information and place an order.
-This order then been executed by a [Relayer](/contracts/live-relayer) - special backend service for transactions broadcasting.
+This order then been executed by a [Relayer](/contracts/live-relayer) - special backend service for transactions broadcasting. 
 
-<Callout type="feature">
-  While we work in a testnet, you can ask users to give an approval to spend an unlimited amount of tokens.
-</Callout>
+Instead of charging a fee in native tokens when a user sends a transaction, the `Relayer` uses bet tokens as a fee.
+
+We've Implemented API for retrieval `Relayer` fee amount:
+
+```ts
+// For pre-production
+const apiUrl = 'https://dev-api.azuro.org/api/v1/public/orders'
+// For production
+const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
+
+const environment = Environment.PolygonAmoyAZUSD
+
+const response = await fetch(`${apiUrl}/orders/gas?environment=${environment}`)
+const { relayerFeeAmount, beautyRelayerFeeAmount }: LiveBetFeeResponse = await response.json()
+
+enum Environment {
+  GnosisXDAI = 'GnosisXDAI',
+  PolygonUSDT = 'PolygonUSDT',
+  PolygonAmoyAZUSD = 'PolygonAmoyAZUSD',
+  ChilizWCHZ = 'ChilizWCHZ',
+  ChilizSpicyWCHZ = 'ChilizSpicyWCHZ'
+}
+
+type LiveBetFeeResponse = {
+  gasLimit: number,
+  gasPrice: number,
+  betTokenRate: number,
+  gasPriceInBetToken: number,
+  slippage: number,
+  gasAmount: number,
+  relayerFeeAmount: string,
+  beautyRelayerFeeAmount: string,
+  symbol: string,
+  decimals: number
+}
+```
+
+### Give a spending approval
+
+The `Relayer` uses bet tokens as a fee then spending amount for approval is:
+```ts
+const spendingAmount = relayerFeeAmount + betAmount
+```
+
+That `spendingAmount` you should to use for spending approval.
 
 ### Summary
 

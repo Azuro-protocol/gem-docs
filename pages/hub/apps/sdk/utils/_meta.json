@@ -3,5 +3,6 @@
   "calcPrematchOdds": "calcPrematchOdds",
   "calcLiveOdds": "calcLiveOdds",
   "getGameStatus": "getGameStatus",
-  "getBetStatus": "getBetStatus"
+  "getBetStatus": "getBetStatus",
+  "getLiveBetFee": "getLiveBetFee"
 }

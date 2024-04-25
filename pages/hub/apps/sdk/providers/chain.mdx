@@ -99,6 +99,8 @@ import { type Chain } from 'wagmi'
   appChain: Omit<Chain, 'id'> & { id: ChainId } // represents chain in whitch your application sends requests and receives data
   walletChain: Chain | undefined // user's wallet chain
   contracts: Contracts // contracts data based on appChain
+  api: string // azuro api url
+  environment: Environment // current appChain environment for azuro api
   betToken: BetToken // bet token based on appChain
   isRightNetwork: boolean // true if appChain equeal to walletChain
   setAppChainId: (chainId: ChainId) => void // function for change appChain
@@ -106,6 +108,14 @@ import { type Chain } from 'wagmi'
 ```
 
 ```ts
+enum Environment {
+  GnosisXDAI = 'GnosisXDAI',
+  PolygonUSDT = 'PolygonUSDT',
+  PolygonAmoyAZUSD = 'PolygonAmoyAZUSD',
+  ChilizWCHZ = 'ChilizWCHZ',
+  ChilizSpicyWCHZ = 'ChilizSpicyWCHZ'
+}
+
 type Contracts = {
   lp: {
     address: `0x${string}`
