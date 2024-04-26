@@ -8,7 +8,7 @@ import { calcPrematchOdds } from '@azuro-org/sdk'
 const prematchOdds = await calcPrematchOdds({
   betAmount: '1' // 1 USDT
   selections: [ { conditionId, outcomeId, coreAddress } ],
-  chainId: 80001,
+  chainId: 80002,
 })
 ```
 
@@ -26,7 +26,7 @@ import { type Config } from 'wagmi'
 ```
 
 ```ts
-type ChainId =  100 | 137 | 80001
+type ChainId = 100 | 137 | 80002 | 88888 | 88882
 
 type Selection = {
   conditionId: string
