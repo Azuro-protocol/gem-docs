@@ -32,9 +32,9 @@ We recommend you as a frontend operator to create a convenient interface to do t
 ### Relayer fee
 
 In our live betting architecture users don't make transactions, they just sign a message that contains all the bet information and place an order.
-This order then been executed by a [Relayer](/contracts/live-relayer) - special backend service for transactions broadcasting. 
+This order is then being executed by a [Relayer](/contracts/live-relayer) - special backend service for transactions broadcasting. 
 
-Instead of charging a fee in native tokens when a user sends a transaction, the `Relayer` uses bet tokens as a fee.
+Instead of charging a fee in native tokens when a user sends a transaction, the `Relayer` uses the same tokens as the ones in which the bet is placed.
 
 We've Implemented API for retrieval `Relayer` fee amount:
 
@@ -78,7 +78,7 @@ The `Relayer` uses bet tokens as a fee then spending amount for approval is:
 const spendingAmount = relayerFeeAmount + betAmount
 ```
 
-That `spendingAmount` you should to use for spending approval.
+This `spendingAmount` should be used for spending approval.
 
 ### Summary
 
