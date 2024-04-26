@@ -1,0 +1,69 @@
+# Grant to support the development of Real-time Statistical Tracking: API & Widget
+
+## 🌟 Overview
+
+This grant supports builders to develop the API and the API-based customizable widget for real-time statistical tracking of live game progress. This API, together with the customizable widget, will remain under your control and will be promoted by Azuro to be integrated into betting apps built on Azuro. This means that you will be able to sell it as a service to anyone else, and Azuro will integrate it into its SDK for the cost of the grant.
+
+The API should provide real-time updates on various statistics during sporting events to help users make informed decisions when placing live bets. This feature should include API and a customizable widget to include into AzuroSDK.
+
+### Scenario
+
+Consider a live football game where users can bet on different outcomes. The feature should dynamically display stats such as possession percentages, shots on target, and player performance metrics, allowing bettors to make informed decisions in real-time about the potential outcomes of the game.
+
+## 🎯 Key Tasks
+
+This feature can be broken down into two tasks: 
+1) Create live sports data API; 
+2) Create a customizable API-based widget that will display live-game data and game stats for live events. The customizable design will allow to seamlessly blend the widget with any web-based dApp’s UI.
+
+1. **The API should include:**
+- Game schedules, live scores, and results
+- Comprehensive game stats (that are relevant for each sport): number of corners, possession, first serve %, number of points, winnings, clock, down & distance, who's on base, goals, free kicks, cards, fouls, etc.
+- API should rely on multiple sources assuring high availability for the service
+
+2. **Widget’s requirements:**
+- Optimized for both desktop and mobile
+- Easy customization of the widget interface
+- Real-time visualization of game stats
+
+**All in all, the task will come down to the following steps:**
+
+1. Get Azuro games from the LiveDataFeed subgraph (link below)
+2. Map Azuro games to a live sports statistics service (preferably a free one, if available)
+3. Parse the data from this service and create a customizable widget
+
+### Materials
+
+- Azuro live events can be accessed via the subgraph: LiveDataFeed: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-live-data-feed
+- As a reference for this task, feel free to use Betradar:  https://st-cdn001.akamaized.net/fp/en/1/season/105353/headtohead/3/42/match/41763583
+
+## 💰 Grant Amount
+
+15,000 USDT
+
+## 🤝 Participation
+
+1. Express you interest in competing for this grant in the builder-forum Discord channel ([link](https://discord.gg/azuro)). 
+2. Let us know about your background and share your GitHub link or other past project links, so that we can evaluate your background and give you a green light to start working on the bounty project. 
+3. We will organize an intro call with you to make a final decision whether you will be assigned to start working on this task. 
+
+**Please do not start working on the tasks without prior approval.**
+
+Please note:
+
+- Developers with prior API development experience will be given priority.
+
+**Upon acceptance:**
+
+- You will have up to 6 weeks to complete the tasks and develop the solution.
+- We will keep in touch with you on Discord, where you’ll be able to ask questions about the project and we’ll be able to track your progress.
+- When you complete the development, we will evaluate the result and might request some improvements.
+- You will receive the grant upon successful completion of the tasks.
+
+### Submission Criteria
+
+- The resulting code should build and run correctly
+- Prioritize the accuracy and timeliness of the statistical data
+- The API should offer low latency in data delivery and reliability
+- Demonstrate live data integration with at least one sport
+- Ensure the interface is easily customizable
