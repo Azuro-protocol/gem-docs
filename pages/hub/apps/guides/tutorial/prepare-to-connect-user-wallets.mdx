@@ -85,7 +85,7 @@ Great. Now your app can handle web3 connections. We’ll see how to add a “Con
 After base web3 connect setup, let's add azuro SDK provider.
 
 Let's add them, so final code of `Providers` component will be:
-```tsx {3,29,30,34,36-38,44,46} filename="src/components/Providers.tsx" copy
+```tsx {4,30,31,35,37-39,45,47} filename="src/components/Providers.tsx" copy
 'use client'
 
 import React from 'react'
@@ -105,6 +105,7 @@ const chains = [
 
 const wagmiConfig = getDefaultConfig({
   appName: 'Azuro',
+  appIcon: 'https://path-to-your-icon.com/icon.png',
   projectId: '2f82a1608c73932cfc64ff51aa38a87b', // get your own project ID - https://cloud.walletconnect.com/sign-in
   wallets,
   chains,
@@ -155,13 +156,13 @@ Now, edit file `src/app/layout.tsx`:
 
 So code will be:
 
-```tsx {4, 5, 11, 16-19, 24, 30}  filename="src/app/layout.tsx" copy
+```tsx {2,5, 6, 11, 16-19, 24, 28}  filename="src/app/layout.tsx" copy
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import { Providers } from '@/components'
-import { cookies } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -301,7 +302,7 @@ export * from './Header'
 
 And use in global layout - `src/app/layout.tsx`:
 
-```ts {5, 26} filename="src/components/index.ts" copy
+```ts {6, 25} filename="src/components/index.ts" copy
 import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
 import { Inter } from 'next/font/google'

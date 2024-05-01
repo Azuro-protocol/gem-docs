@@ -57,7 +57,7 @@ export const BetslipProvider: React.FC<Props> = ({ children }) => {
 
 And add this Context to `Providers` component:
 
-```tsx {10, 47, 49} copy filename="src/components/Providers.tsx"
+```tsx {10, 48, 50} copy filename="src/components/Providers.tsx"
 'use client'
 
 import React from 'react'
@@ -79,6 +79,7 @@ const chains = [
 
 const wagmiConfig = getDefaultConfig({
   appName: 'Azuro',
+  appIcon: 'https://path-to-your-icon.com/icon.png',
   projectId: '2f82a1608c73932cfc64ff51aa38a87b', // get your own project ID - https://cloud.walletconnect.com/sign-in
   wallets,
   chains,
