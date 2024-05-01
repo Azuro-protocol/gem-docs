@@ -1,3 +1,4 @@
+import { Callout } from 'components'
 import { Image } from 'components/Image'
 
 # Prepare to Connect User Wallets
@@ -27,28 +28,30 @@ Remember, connecting your wallet to dApps is crucial for secure and efficient in
 ## Setup
 
 ### Web3 connect configs
-The first thing you need to do is set up **WagmiConfig** provider and wrap your whole App.
+The first thing you need to do is set up **Wagmi** providers and wrap your whole App.
 Here we'll set up working chains and connecting lib.
 Let's create new component `src/components/Providers.tsx` and add required imports and config for wagmi:
 
 ```tsx filename="src/components/Providers.tsx" copy
 'use client'
+
 import React from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { polygonAmoy, gnosis } from 'viem/chains'
+import { polygon, gnosis } from 'viem/chains'
 
 
 const { wallets } = getDefaultWallets()
 
 const chains = [
-  polygonAmoy,
+  polygon,
   gnosis,
 ] as const
 
 const wagmiConfig = getDefaultConfig({
   appName: 'Azuro',
+  appIcon: 'https://path-to-your-icon.com/icon.png',
   projectId: '2f82a1608c73932cfc64ff51aa38a87b', // get your own project ID - https://cloud.walletconnect.com/sign-in
   wallets,
   chains,
@@ -56,13 +59,17 @@ const wagmiConfig = getDefaultConfig({
 
 const queryClient = new QueryClient()
 
-export function Providers(props: { children: React.ReactNode }) {
+type ProvidersProps = {
+  children: React.ReactNode
+}
+
+export function Providers(props: ProvidersProps) {
   const { children } = props
 
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider chains={chains}>
+        <RainbowKitProvider>
           {children}
         </RainbowKitProvider>
       </QueryClientProvider>
@@ -78,20 +85,21 @@ Great. Now your app can handle web3 connections. We’ll see how to add a “Con
 After base web3 connect setup, let's add azuro SDK provider.
 
 Let's add them, so final code of `Providers` component will be:
-```tsx {3,43,45} filename="src/components/Providers.tsx" copy
+```tsx {3,29,30,34,36-38,44,46} filename="src/components/Providers.tsx" copy
 'use client'
+
 import React from 'react'
 import { AzuroSDKProvider, ChainId } from '@azuro-org/sdk'
 import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { polygonAmoy, gnosis } from 'viem/chains'
+import { polygon, gnosis } from 'viem/chains'
 
 
 const { wallets } = getDefaultWallets()
 
 const chains = [
-  polygonAmoy,
+  polygon,
   gnosis,
 ] as const
 
@@ -113,14 +121,14 @@ type ProvidersProps = {
 export function Providers(props: ProvidersProps) {
   const { children, initialChainId, initialLiveState } = props
 
-  const chainId = initialChainId && (
-    chains.find(chain => chain.id === +initialChainId) ? +initialChainId as ChainId : polygonAmoy.id
-  )
+  const chainId = initialChainId
+    ? chains.find(chain => chain.id === +initialChainId) ? +initialChainId as ChainId : polygon.id
+    : polygon.id
 
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider chains={chains}>
+        <RainbowKitProvider>
           <AzuroSDKProvider initialChainId={chainId} initialLiveState={initialLiveState}>
             {children}
           </AzuroSDKProvider>
@@ -147,7 +155,7 @@ Now, edit file `src/app/layout.tsx`:
 
 So code will be:
 
-```tsx {4, 5, 11, 19-22, 27, 33}  filename="src/app/layout.tsx" copy
+```tsx {4, 5, 11, 16-19, 24, 30}  filename="src/app/layout.tsx" copy
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -161,11 +169,8 @@ export const metadata: Metadata = {
   title: 'Azuro Betting App',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout(props: { children: React.ReactNode }) {
+  const { children } = props
   const cookieStore = cookies()
 
   const initialChainId = cookieStore.get('appChainId')?.value
@@ -175,11 +180,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers initialChainId={initialChainId} initialLiveState={initialLiveState}>
-          <div className="md:max-w-[1040px] mx-auto">
-            <main className="container pt-5 pb-10">
-              {children}
-            </main>
-          </div>
+          <main className="container pt-5 pb-10">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>
@@ -189,28 +192,76 @@ export default function RootLayout({
 
 ## Page Layout
 
+To show active link in navigation, let's add small helping component "ActiveLink". It's just a wrapper of Next.JS Link but handles active state.
+Create component `src/components/ActiveLink.tsx`
+
+```tsx filename="src/components/ActiveLink.tsx" copy
+'use client'
+import React, { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
+import Link, { LinkProps } from 'next/link'
+
+
+type ActiveLinkProps = LinkProps & {
+  className?: string
+  activeClassName: string
+  regex?: string
+}
+
+export const ActiveLink: React.FC<React.PropsWithChildren<ActiveLinkProps>> = (props) => {
+  const { children, className, activeClassName, regex, ...rest } = props
+
+  const activePathname = usePathname()
+  const [ computedClassName, setComputedClassName ] = useState(className)
+
+  useEffect(() => {
+    // Dynamic route will be matched via props.as
+    // Static route will be matched via props.href
+    const linkPathname = new URL(
+      (rest.as || rest.href) as string,
+      location.href
+    ).pathname
+
+    const isMatch = regex ? new RegExp(regex).test(activePathname) : activePathname === linkPathname
+
+    const newClassName = isMatch
+      ? `${className} ${activeClassName}`.trim()
+      : className
+
+    if (newClassName !== computedClassName) {
+      setComputedClassName(newClassName)
+    }
+  }, [
+    activePathname,
+    rest.as,
+    rest.href,
+    activeClassName,
+    className,
+  ])
+
+  return (
+    <Link className={computedClassName} {...rest}>
+      {children}
+    </Link>
+  )
+}
+```
+
+<Callout type="warning">
+  Don't forget to add export to `src/components/index.ts`.
+</Callout>
+
 Let's add a header with top-level navigation, "Connect" button and auto-reconnect (to keep connection after page reload).
 Create component `src/components/Header.tsx`:
 
 ```tsx filename="src/components/Header.tsx" copy
 'use client'
-import React, { useEffect } from 'react'
+
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { ActiveLink } from '@/components'
-import { reconnect } from '@wagmi/core'
-import { useConfig } from 'wagmi'
+
 
 export function Header() {
-  const config = useConfig()
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        await reconnect(config)
-      }
-      catch {}
-    })()
-  }, [])
 
   return (
     <header className="flex items-center py-3.5 border-b border-zinc-200">
@@ -250,13 +301,13 @@ export * from './Header'
 
 And use in global layout - `src/app/layout.tsx`:
 
-```ts {5, 29} filename="src/components/index.ts" copy
+```ts {5, 26} filename="src/components/index.ts" copy
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import { Providers, Header } from '@/components'
-import { cookies } from 'next/headers'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -264,11 +315,8 @@ export const metadata: Metadata = {
   title: 'Azuro Betting App',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout(props: { children: React.ReactNode }) {
+  const { children } = props
   const cookieStore = cookies()
 
   const initialChainId = cookieStore.get('appChainId')?.value
@@ -278,12 +326,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers initialChainId={initialChainId} initialLiveState={initialLiveState}>
-          <div className="md:max-w-[1040px] mx-auto">
-            <Header />
-            <main className="container pt-5 pb-10">
-              {children}
-            </main>
-          </div>
+          <Header />
+          <main className="container pt-5 pb-10">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>

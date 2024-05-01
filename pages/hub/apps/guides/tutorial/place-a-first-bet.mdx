@@ -13,8 +13,8 @@ Implementing `Context` is crucial to enable opening the betslip from any section
 Create filder `src/context` and file `betslip.tsx` inside.
 
 ```tsx copy filename="src/context/betslip.tsx"
-import { useContext, createContext, useState, useEffect } from 'react';
-import { useBaseBetslip } from '@azuro-org/sdk';
+import { useContext, createContext, useState, useEffect } from 'react'
+import { useBaseBetslip } from '@azuro-org/sdk'
 
 
 export type BetslipContextValue = {
@@ -55,16 +55,17 @@ export const BetslipProvider: React.FC<Props> = ({ children }) => {
 }
 ```
 
-And add this Context in Providers component:
+And add this Context to `Providers` component:
 
-```tsx {9, 45, 47} copy filename="src/components/Providers.tsx"
+```tsx {10, 47, 49} copy filename="src/components/Providers.tsx"
 'use client'
+
 import React from 'react'
-import { ChainId, AzuroSDKProvider } from '@azuro-org/sdk'
+import { AzuroSDKProvider, ChainId } from '@azuro-org/sdk'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
-import { polygonAmoy, gnosis } from 'wagmi/chains'
 import { WagmiProvider } from 'wagmi'
+import { polygon, gnosis } from 'viem/chains'
 
 import { BetslipProvider } from '@/context/betslip'
 
@@ -72,7 +73,7 @@ import { BetslipProvider } from '@/context/betslip'
 const { wallets } = getDefaultWallets()
 
 const chains = [
-  polygonAmoy,
+  polygon,
   gnosis,
 ] as const
 
@@ -94,8 +95,9 @@ type ProvidersProps = {
 export function Providers(props: ProvidersProps) {
   const { children, initialChainId, initialLiveState } = props
 
-  const chainId = initialChainId &&
-                  chains.find(chain => chain.id === +initialChainId) ? +initialChainId as ChainId : polygonAmoy.id
+  const chainId = initialChainId
+    ? chains.find(chain => chain.id === +initialChainId) ? +initialChainId as ChainId : polygon.id
+    : polygon.id
 
   return (
     <WagmiProvider config={wagmiConfig}>
@@ -121,7 +123,7 @@ Create file `Betslip.tsx` in `src/components`.
 
 Here we will show user's balance of betting token and handle amount input for bet.
 
-```tsx
+```tsx copy
 function AmountInput() {
   const { betAmount, changeBetAmount} = useDetailedBetslip()
   const { betToken } = useChain()
@@ -164,38 +166,43 @@ function AmountInput() {
 
 To submit a bet we will create a button, which will prepare betting transaction and handle all the business logic.
 
-```tsx
-type SubmitButtonProps = {
-  isAllowanceLoading: boolean
-  isApproveRequired: boolean
-  isPending: boolean
-  isProcessing: boolean
-  onClick(): void
-}
-
+```tsx copy
 const errorPerDisableReason = {
   [BetslipDisableReason.ComboWithForbiddenItem]: 'One or more conditions can\'t be used in combo',
   [BetslipDisableReason.BetAmountGreaterThanMaxBet]: 'Bet amount exceeds max bet',
+  [BetslipDisableReason.BetAmountLowerThanMinBet]: 'Bet amount lower than min bet',
   [BetslipDisableReason.ComboWithLive]: 'Live outcome can\'t be used in combo',
   [BetslipDisableReason.ConditionStatus]: 'One or more outcomes have been removed or suspended. Review your betslip and remove them.',
   [BetslipDisableReason.PrematchConditionInStartedGame]: 'Game has started',
 } as const
 
-export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
-  const { isAllowanceLoading, isApproveRequired, isPending, isProcessing, onClick } = props
-
-  const account = useAccount()
+const SubmitButton: React.FC = () => {
   const { appChain, isRightNetwork } = useChain()
-  const { betAmount, disableReason, isStatusesFetching, isOddsFetching, isBetAllowed } = useDetailedBetslip()
+  const { items, clear } = useBaseBetslip()
+  const { betAmount, odds, totalOdds, isStatusesFetching, isOddsFetching, isBetAllowed } = useDetailedBetslip()
   const { loading: isBalanceFetching, balance } = useBetTokenBalance()
 
-  if (!account.address) {
-    return (
-      <div className="mt-6 py-3.5 text-center bg-red-200 rounded-2xl">
-        Connect your wallet
-      </div>
-    )
-  }
+  const {
+    submit,
+    approveTx,
+    betTx,
+    isRelayerFeeLoading,
+    isAllowanceLoading,
+    isApproveRequired,
+  } = usePrepareBet({
+    betAmount,
+    slippage: 10,
+    affiliate: '0x0000000000000000000000000000000000000000', // your affiliate address
+    selections: items,
+    odds,
+    totalOdds,
+    onSuccess: () => {
+      clear()
+    },
+  })
+
+  const isPending = approveTx.isPending || betTx.isPending
+  const isProcessing = approveTx.isProcessing  || betTx.isProcessing
 
   if (!isRightNetwork) {
     return (
@@ -214,6 +221,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
     || isAllowanceLoading
     || isPending
     || isProcessing
+    || isRelayerFeeLoading
   )
 
   const isDisabled = (
@@ -231,11 +239,11 @@ export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
   else if (isProcessing) {
     title = 'Processing...'
   }
-  else if (isApproveRequired) {
-    title = 'Approve'
-  }
   else if (isLoading) {
     title = 'Loading...'
+  }
+  else if (isApproveRequired) {
+    title = 'Approve'
   }
   else {
     title = 'Place Bet'
@@ -250,20 +258,13 @@ export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
           </div>
         )
       }
-      {
-        Boolean(disableReason) && (
-          <div className="mb-1 text-red-500 text-center font-semibold">
-            {errorPerDisableReason[disableReason!]}
-          </div>
-        )
-      }
       <button
         className={cx('w-full py-3.5 text-white font-semibold text-center rounded-xl', {
           'bg-blue-500 hover:bg-blue-600 transition shadow-md': !isDisabled,
           'bg-zinc-300 cursor-not-allowed': isDisabled,
         })}
         disabled={isDisabled}
-        onClick={onClick}
+        onClick={submit}
       >
         {title}
       </button>
@@ -280,31 +281,15 @@ Before first bet each user must approve token spending by Azuro Liquidity Pool c
 
 ```tsx
 function Content() {
+  const account = useAccount()
   const { items, clear, removeItem } = useBaseBetslip()
-  const { betAmount, odds, totalOdds, statuses, isStatusesFetching, isOddsFetching } = useDetailedBetslip()
-  const {
-    isAllowanceLoading,
-    isApproveRequired,
-    submit,
-    approveTx,
-    betTx,
-  } = usePrepareBet({
-    betAmount,
-    slippage: 10,
-    affiliate: '0x...', // your affiliate address
-    selections: items,
-    odds,
-    totalOdds,
-    onSuccess: () => {
-      clear()
-    },
+  const { betAmount, odds, totalOdds, statuses, disableReason, isStatusesFetching, isOddsFetching, isLiveBet } = useDetailedBetslip()
+  const { formattedRelayerFeeAmount, loading: isRelayerFeeLoading } = useLiveBetFee({
+    enabled: isLiveBet,
   })
 
-  const isPending = approveTx.isPending || betTx.isPending
-  const isProcessing = approveTx.isProcessing  || betTx.isProcessing
-
   return (
-    <div className="bg-zinc-100 p-4 mb-4 rounded-md w-full max-h-[90vh] overflow-hidden border border-solid">
+    <div className="bg-zinc-100 p-4 mb-4 rounded-md w-full max-h-[90vh] overflow-auto border border-solid">
       <div className="flex items-center justify-between mb-2">
         <div className="">Betslip {items.length > 1 ? 'Combo' : 'Single'} {items.length ? `(${items.length})`: ''}</div>
         {
@@ -381,7 +366,7 @@ function Content() {
               }
             </div>
             <div className="flex items-center justify-between mt-4">
-              <span className="text-md text-zinc-400">Total Odds</span>
+              <span className="text-md text-zinc-400">Total Odds:</span>
               <span className="text-md font-semibold">
                 {
                   isOddsFetching ? (
@@ -393,25 +378,50 @@ function Content() {
               </span>
             </div>
             <div className="flex items-center justify-between mt-4">
-              <span className="text-md text-zinc-400">Possible win</span>
+              <span className="text-md text-zinc-400">Possible win:</span>
               <span className="text-md font-semibold">
                 {
                   isOddsFetching ? (
                     <>Loading...</>
                   ) : (
-                    <>{ totalOdds * +betAmount }</>
+                    <>{totalOdds * +betAmount}</>
                   )
                 }
               </span>
             </div>
+            {
+              Boolean(isRelayerFeeLoading || formattedRelayerFeeAmount) && (
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-md text-zinc-400">Relayer fee:</span>
+                  <span className="text-md font-semibold">
+                    {
+                      isRelayerFeeLoading ? (
+                        <>Loading...</>
+                      ) : (
+                        <>{formattedRelayerFeeAmount}</>
+                      )
+                    }
+                  </span>
+                </div>
+              )
+            }
             <AmountInput />
-            <SubmitButton
-              isAllowanceLoading={isAllowanceLoading}
-              isApproveRequired={isApproveRequired}
-              isPending={isPending}
-              isProcessing={isProcessing}
-              onClick={submit}
-            />
+            {
+              Boolean(disableReason) && (
+                <div className="mb-1 text-red-500 text-center font-semibold">
+                  {errorPerDisableReason[disableReason!]}
+                </div>
+              )
+            }
+            {
+              account?.address ? (
+                <SubmitButton />
+              ) : (
+                <div className="mt-6 py-3.5 text-center bg-red-200 rounded-2xl">
+                Connect your wallet
+              </div>
+              )
+            }
           </>
         ) : (
           <div>Empty</div>
@@ -439,7 +449,7 @@ export function Betslip() {
         Betslip {items.length || ''}
       </button>
     </div>
-  );
+  )
 }
 ```
 
@@ -447,25 +457,34 @@ export function Betslip() {
 
 ```tsx copy filename="src/components/Betslip.tsx"
 'use client'
-import React from 'react';
-import { ConditionStatus, useBaseBetslip, useBetTokenBalance, useChain, useDetailedBetslip, usePrepareBet, BetslipDisableReason } from '@azuro-org/sdk';
-import { getMarketName, getSelectionName } from '@azuro-org/dictionaries';
-import { useAccount } from 'wagmi'
-import dayjs from 'dayjs';
+import React from 'react'
 import cx from 'clsx'
+import {
+  ConditionStatus,
+  useBaseBetslip,
+  useBetTokenBalance,
+  useChain,
+  useDetailedBetslip,
+  BetslipDisableReason,
+  useLiveBetFee,
+  usePrepareBet,
+} from '@azuro-org/sdk'
+import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
+import { useAccount } from 'wagmi'
+import dayjs from 'dayjs'
 
-import { useBetslip } from '@/context/betslip';
+import { useBetslip } from '@/context/betslip'
 
 
 function AmountInput() {
-  const { betAmount, changeBetAmount} = useDetailedBetslip()
+  const { betAmount, changeBetAmount, maxBet, minBet } = useDetailedBetslip()
   const { betToken } = useChain()
   const { loading: isBalanceFetching, balance } = useBetTokenBalance()
 
   return (
     <div className="mt-4 pt-4 border-t border-zinc-300 space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-md text-zinc-400">Wallet balance</span>
+        <span className="text-md text-zinc-400">Wallet balance:</span>
         <span className="text-md font-semibold">
           {
             isBalanceFetching ? (
@@ -480,6 +499,18 @@ function AmountInput() {
           }
         </span>
       </div>
+      {
+        Boolean(maxBet) && <div className="flex items-center justify-between">
+          <span className="text-md text-zinc-400">Max bet amount:</span>
+          <span className="text-md font-semibold">{maxBet} {betToken.symbol}</span>
+        </div>
+      }
+      {
+        Boolean(minBet) && <div className="flex items-center justify-between">
+          <span className="text-md text-zinc-400">Min bet amount:</span>
+          <span className="text-md font-semibold">{minBet} {betToken.symbol}</span>
+        </div>
+      }
       <div className="flex items-center justify-between">
         <span className="text-md text-zinc-400">Bet amount</span>
         <input
@@ -494,37 +525,42 @@ function AmountInput() {
   )
 }
 
-type SubmitButtonProps = {
-  isAllowanceLoading: boolean
-  isApproveRequired: boolean
-  isPending: boolean
-  isProcessing: boolean
-  onClick(): void
-}
-
 const errorPerDisableReason = {
   [BetslipDisableReason.ComboWithForbiddenItem]: 'One or more conditions can\'t be used in combo',
   [BetslipDisableReason.BetAmountGreaterThanMaxBet]: 'Bet amount exceeds max bet',
+  [BetslipDisableReason.BetAmountLowerThanMinBet]: 'Bet amount lower than min bet',
   [BetslipDisableReason.ComboWithLive]: 'Live outcome can\'t be used in combo',
   [BetslipDisableReason.ConditionStatus]: 'One or more outcomes have been removed or suspended. Review your betslip and remove them.',
   [BetslipDisableReason.PrematchConditionInStartedGame]: 'Game has started',
 } as const
 
-export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
-  const { isAllowanceLoading, isApproveRequired, isPending, isProcessing, onClick } = props
-
-  const account = useAccount()
+const SubmitButton: React.FC = () => {
   const { appChain, isRightNetwork } = useChain()
-  const { betAmount, disableReason, isStatusesFetching, isOddsFetching, isBetAllowed } = useDetailedBetslip()
+  const { items, clear } = useBaseBetslip()
+  const { betAmount, odds, totalOdds, isStatusesFetching, isOddsFetching, isBetAllowed } = useDetailedBetslip()
   const { loading: isBalanceFetching, balance } = useBetTokenBalance()
 
-  if (!account.address) {
-    return (
-      <div className="mt-6 py-3.5 text-center bg-red-200 rounded-2xl">
-        Connect your wallet
-      </div>
-    )
-  }
+  const {
+    submit,
+    approveTx,
+    betTx,
+    isRelayerFeeLoading,
+    isAllowanceLoading,
+    isApproveRequired,
+  } = usePrepareBet({
+    betAmount,
+    slippage: 10,
+    affiliate: '0x0000000000000000000000000000000000000000', // your affiliate address
+    selections: items,
+    odds,
+    totalOdds,
+    onSuccess: () => {
+      clear()
+    },
+  })
+
+  const isPending = approveTx.isPending || betTx.isPending
+  const isProcessing = approveTx.isProcessing  || betTx.isProcessing
 
   if (!isRightNetwork) {
     return (
@@ -543,6 +579,7 @@ export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
     || isAllowanceLoading
     || isPending
     || isProcessing
+    || isRelayerFeeLoading
   )
 
   const isDisabled = (
@@ -560,11 +597,11 @@ export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
   else if (isProcessing) {
     title = 'Processing...'
   }
-  else if (isApproveRequired) {
-    title = 'Approve'
-  }
   else if (isLoading) {
     title = 'Loading...'
+  }
+  else if (isApproveRequired) {
+    title = 'Approve'
   }
   else {
     title = 'Place Bet'
@@ -579,20 +616,13 @@ export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
           </div>
         )
       }
-      {
-        Boolean(disableReason) && (
-          <div className="mb-1 text-red-500 text-center font-semibold">
-            {errorPerDisableReason[disableReason!]}
-          </div>
-        )
-      }
       <button
         className={cx('w-full py-3.5 text-white font-semibold text-center rounded-xl', {
           'bg-blue-500 hover:bg-blue-600 transition shadow-md': !isDisabled,
           'bg-zinc-300 cursor-not-allowed': isDisabled,
         })}
         disabled={isDisabled}
-        onClick={onClick}
+        onClick={submit}
       >
         {title}
       </button>
@@ -601,31 +631,15 @@ export const SubmitButton: React.FC<SubmitButtonProps> = (props) => {
 }
 
 function Content() {
+  const account = useAccount()
   const { items, clear, removeItem } = useBaseBetslip()
-  const { betAmount, odds, totalOdds, statuses, isStatusesFetching, isOddsFetching } = useDetailedBetslip()
-  const {
-    isAllowanceLoading,
-    isApproveRequired,
-    submit,
-    approveTx,
-    betTx,
-  } = usePrepareBet({
-    betAmount,
-    slippage: 10,
-    affiliate: '0x...', // your affiliate address
-    selections: items,
-    odds,
-    totalOdds,
-    onSuccess: () => {
-      clear()
-    },
+  const { betAmount, odds, totalOdds, statuses, disableReason, isStatusesFetching, isOddsFetching, isLiveBet } = useDetailedBetslip()
+  const { formattedRelayerFeeAmount, loading: isRelayerFeeLoading } = useLiveBetFee({
+    enabled: isLiveBet,
   })
 
-  const isPending = approveTx.isPending || betTx.isPending
-  const isProcessing = approveTx.isProcessing  || betTx.isProcessing
-
   return (
-    <div className="bg-zinc-100 p-4 mb-4 rounded-md w-full max-h-[90vh] overflow-hidden border border-solid">
+    <div className="bg-zinc-100 p-4 mb-4 rounded-md w-full max-h-[90vh] overflow-auto border border-solid">
       <div className="flex items-center justify-between mb-2">
         <div className="">Betslip {items.length > 1 ? 'Combo' : 'Single'} {items.length ? `(${items.length})`: ''}</div>
         {
@@ -702,7 +716,7 @@ function Content() {
               }
             </div>
             <div className="flex items-center justify-between mt-4">
-              <span className="text-md text-zinc-400">Total Odds</span>
+              <span className="text-md text-zinc-400">Total Odds:</span>
               <span className="text-md font-semibold">
                 {
                   isOddsFetching ? (
@@ -714,25 +728,50 @@ function Content() {
               </span>
             </div>
             <div className="flex items-center justify-between mt-4">
-              <span className="text-md text-zinc-400">Possible win</span>
+              <span className="text-md text-zinc-400">Possible win:</span>
               <span className="text-md font-semibold">
                 {
                   isOddsFetching ? (
                     <>Loading...</>
                   ) : (
-                    <>{ totalOdds * +betAmount }</>
+                    <>{totalOdds * +betAmount}</>
                   )
                 }
               </span>
             </div>
+            {
+              Boolean(isRelayerFeeLoading || formattedRelayerFeeAmount) && (
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-md text-zinc-400">Relayer fee:</span>
+                  <span className="text-md font-semibold">
+                    {
+                      isRelayerFeeLoading ? (
+                        <>Loading...</>
+                      ) : (
+                        <>{formattedRelayerFeeAmount}</>
+                      )
+                    }
+                  </span>
+                </div>
+              )
+            }
             <AmountInput />
-            <SubmitButton
-              isAllowanceLoading={isAllowanceLoading}
-              isApproveRequired={isApproveRequired}
-              isPending={isPending}
-              isProcessing={isProcessing}
-              onClick={submit}
-            />
+            {
+              Boolean(disableReason) && (
+                <div className="mb-1 text-red-500 text-center font-semibold">
+                  {errorPerDisableReason[disableReason!]}
+                </div>
+              )
+            }
+            {
+              account?.address ? (
+                <SubmitButton />
+              ) : (
+                <div className="mt-6 py-3.5 text-center bg-red-200 rounded-2xl">
+                Connect your wallet
+              </div>
+              )
+            }
           </>
         ) : (
           <div>Empty</div>
@@ -760,7 +799,7 @@ export function Betslip() {
         Betslip {items.length || ''}
       </button>
     </div>
-  );
+  )
 }
 ```
 
@@ -772,7 +811,7 @@ Don't forget to add export to `src/components/index.ts`.
 
 Update `src/app/layout.tsx`:
 
-```tsx copy {3, 22} filename="src/app/layout.tsx"
+```tsx copy {3, 21} filename="src/app/layout.tsx"
 import '@rainbow-me/rainbowkit/styles.css'
 import './globals.css'
 import { Providers, Header, Betslip } from '@/components'
@@ -790,13 +829,11 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     <html lang="en">
       <body>
         <Providers initialChainId={initialChainId} initialLiveState={initialLiveState}>
-          <div className="md:max-w-[1040px] mx-auto">
-            <Header />
-            <main className="pt-5 pb-10">
-              {children}
-              <Betslip />
-            </main>
-          </div>
+          <Header />
+          <main className="pt-5 pb-10">
+            {children}
+            <Betslip />
+          </main>
         </Providers>
       </body>
     </html>
@@ -808,11 +845,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 Now click on any outcome button should open the Betslip
 
 <Image src="/images/sections/place-bet-modal-connected.png" width={1952} height={1414} />
-
-<Callout type="info">
-  Because we're developing in Polygon Amoy testnet, Azuro uses own "USDT" contract for betting here. Anyone can
-  [mint some value directly from the contract](https://amoy.polygonscan.com/address/0xf028b2dd00e20a8d9db3964a5feb0633d2ee46cd#writeContract#F9).
-</Callout>
 
 
 ## Learn more

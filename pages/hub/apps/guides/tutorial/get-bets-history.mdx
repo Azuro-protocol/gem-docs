@@ -10,16 +10,15 @@ import { Callout } from 'components'
 Let's create bet view to render user bets. Create `BetCard.tsx` in the `src/components` folder.
 
 Because of limitations, graphql data doesn't have full range of statuses (like "Pending resolution"). But SDK has helpers and we will map statuses.
-Each bet may contain more than one selection (combo bets), so we'll made universal view for single and combo bets wil redeeming logic, for that purpose SDK has `useRedeemBet` hook.
+Each bet may contain more than one selection (combo bets), so we'll make universal view for single and combo bets wil redeeming logic, for that purpose SDK has `useRedeemBet` hook.
 
-```tsx {2, 40, 73-77} copy filename="src/components/BetCard.tsx"
+```tsx {2, 39, 70-74} copy filename="src/components/BetCard.tsx"
 'use client'
 import { type Bet, getBetStatus, getGameStatus, BetStatus, GameStatus, useChain, useRedeemBet } from '@azuro-org/sdk'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useMemo } from 'react'
 import cx from 'clsx'
-import { liveCoreAddress } from '@azuro-org/sdk'
 
 
 const BetStatusText = {
@@ -45,22 +44,20 @@ type Props = {
 
 export function BetCard(props: Props) {
   const { bet } = props
-  const { 
-    createdAt, status: graphBetStatus, amount, outcomes, 
-    payout, possibleWin, freebetId,  coreAddress,
-    isWin, isLose, isCanceled, isRedeemed 
+  const {
+    createdAt, status: graphBetStatus, amount, outcomes,
+    payout, possibleWin, freebetId,
+    isWin, isCanceled, isRedeemed, isLive
   } = bet
 
   const { betToken } = useChain()
   const { submit, isPending, isProcessing } = useRedeemBet()
 
-  const isLiveBet = coreAddress.toLowerCase() === liveCoreAddress.toLowerCase()
-
   const betStatus = useMemo(() => {
     return getBetStatus({
       graphStatus: graphBetStatus,
       games: outcomes.map(({ game }) => game),
-      isLiveBet: isLiveBet,
+      isLiveBet: isLive,
     })
   }, [])
 
@@ -99,9 +96,10 @@ export function BetCard(props: Props) {
       </div>
       {
         outcomes.map((outcome) => {
-          const { odds, marketName, game, selectionName, isWin, isLose, game: { status: gameStatus, gameId, participants, startsAt, sport: { slug: sportSlug } } } = outcome
+          const { odds, marketName, game, selectionName, isWin, isLose } = outcome
 
-          const { league: { name: leagueName, country: { name: countryName }} } = game
+          const { status: gameStatus, gameId, participants, startsAt, sport: { slug: sportSlug }, league } = game
+          const { name: leagueName, country: { name: countryName } } = league
 
           const className = cx("mt-4 p-4 rounded-md", {
             'bg-zinc-200': !isWin && !isLose,
@@ -116,25 +114,25 @@ export function BetCard(props: Props) {
                   <p className='mr-4'>{dayjs(+startsAt * 1000).format('DD.MM.YYYY, hh:mm A')}</p>
                   <p>{`${countryName}: ${leagueName}`}</p>
                 </div>
-                <p>{GameStatusText[getGameStatus({ graphStatus: gameStatus, startsAt: +startsAt, isGameInLive: Boolean(isLiveBet) })]}</p>
+                <p>{GameStatusText[getGameStatus({ graphStatus: gameStatus, startsAt: +startsAt, isGameInLive: isLive })]}</p>
               </div>
               <div className="flex items-center">
                 <Link href={`/events/${sportSlug}/${gameId}`} className="flex items-center mr-4">
-                    {
-                      participants.map(({ image, name }) => (
-                        <div key={name} className="flex items-center ml-2 first-of-type:ml-0">
-                          <div className="flex items-center justify-center w-8 h-8 mr-2 border border-zinc-300 rounded-full">
-                            {
-                              Boolean(image) && (
-                                <img className="w-4 h-4" src={image!} alt="" />
-                              )
-                            }
-                          </div>
-                          <span className="text-md">{name}</span>
+                  {
+                    participants.map(({ image, name }) => (
+                      <div key={name} className="flex items-center ml-2 first-of-type:ml-0">
+                        <div className="flex items-center justify-center w-8 h-8 mr-2 border border-zinc-300 rounded-full">
+                          {
+                            Boolean(image) && (
+                              <img className="w-4 h-4" src={image!} alt="" />
+                            )
+                          }
                         </div>
-                      ))
-                    }
-                  </Link>
+                        <span className="text-md">{name}</span>
+                      </div>
+                    ))
+                  }
+                </Link>
               </div>
               <div className="grid md:grid-cols-3 md:gap-16">
                 <div>
@@ -207,8 +205,9 @@ import React from 'react'
 import { type Bet, useRedeemBet } from '@azuro-org/sdk'
 import cx from 'clsx'
 
+
 type Props = {
-  bets: Array<Bet>
+  bets: Bet[]
 }
 
 export function RedeemAll(props: Props) {
@@ -217,7 +216,7 @@ export function RedeemAll(props: Props) {
   const { submit, isPending, isProcessing } = useRedeemBet()
 
   const unredeemedBets = bets?.filter((bet) => (
-    !(bet as Bet).freebetContractAddress
+    !bet.freebetContractAddress
     && bet.isRedeemable
   ))
 
@@ -230,7 +229,7 @@ export function RedeemAll(props: Props) {
   }
 
   let buttonTitle = 'Redeem all'
-  
+
   if (isPending) {
     buttonTitle = 'Waiting for approval'
   }
@@ -249,14 +248,14 @@ export function RedeemAll(props: Props) {
     >
       {buttonTitle}
     </button>
-  );
-};
-
+  )
+}
 ```
 
 <Callout type="warning">
 Don't forget to add export to `src/components/index.ts`.
 </Callout>
+
 Now we're ready to implement bets history page.
 
 ## Bets history page
@@ -267,10 +266,11 @@ Here we'll use `usePrematchBets` and `useLiveBets` hook from the SDK to fetch be
 
 ```tsx copy filename="src/app/bets/page.tsx"
 'use client'
+
+import { useMemo } from 'react'
 import { usePrematchBets, useLiveBets, OrderDirection } from '@azuro-org/sdk'
-import { useAccount } from 'wagmi';
-import { BetCard, RedeemAll } from '@/components';
-import { useMemo } from 'react';
+import { useAccount } from 'wagmi'
+import { BetCard, RedeemAll } from '@/components'
 
 
 export default function Bets() {
@@ -287,14 +287,14 @@ export default function Bets() {
   const { loading: isLiveLoading, bets: liveBets } = useLiveBets(props)
 
   const bets = useMemo(() => {
-    return [...liveBets, ...prematchBets].sort((betA, betB) => betB.createdAt - betA.createdAt)
+    return [ ...liveBets, ...prematchBets ].sort((betA, betB) => betB.createdAt - betA.createdAt)
   }, [ prematchBets, liveBets ])
 
   if (isLiveLoading || isPrematchLoading) {
     return <div>Loading...</div>
   }
 
-  if (!prematchBets?.length && !liveBets?.length) {
+  if (!bets.length) {
     return <div>You don't have bets yet</div>
   }
 
@@ -309,7 +309,6 @@ export default function Bets() {
     </div>
   )
 }
-
 ```
 
 That's all! Let's check how it looks, open [localhost:3000](http://localhost:3000) from your browser. If you already made a bet, you will see something like this:

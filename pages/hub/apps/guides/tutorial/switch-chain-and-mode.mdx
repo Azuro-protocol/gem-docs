@@ -9,11 +9,14 @@ Create component `src/components/SelectAppChain.tsx`:
 
 ```tsx filename="src/components/SelectAppChain.tsx" copy
 'use client'
-import { useChain, type ChainId } from '@azuro-org/sdk';
-import { polygonAmoy, gnosis } from 'viem/chains';
+
+import { useChain, type ChainId } from '@azuro-org/sdk'
+import { useChains } from 'wagmi'
+
 
 export function SelectAppChain() {
   const { appChain, setAppChainId } = useChain()
+  const chains = useChains()
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setAppChainId(+event.target.value as ChainId)
@@ -21,8 +24,11 @@ export function SelectAppChain() {
 
   return (
     <select className='mr-4 cursor-pointer' value={appChain.id} onChange={handleChange}>
-      <option value={polygonAmoy.id}>{polygonAmoy.name}</option>
-      <option value={gnosis.id}>{gnosis.name}</option>
+      {
+        chains.map((chain) => (
+          <option key={chain.id} value={chain.id}>{chain.name}</option>
+        ))
+      }
     </select>
   )
 }
@@ -38,13 +44,15 @@ Create component `src/components/LiveSwitcher.tsx`:
 
 ```tsx filename="src/components/LiveSwitcher.tsx" copy
 'use client'
-import { useLive } from "@azuro-org/sdk"
+
+import type { ChangeEvent } from 'react'
+import { useLive } from '@azuro-org/sdk'
 
 
 export function LiveSwitcher() {
   const { isLive, changeLive } = useLive()
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     changeLive(event.target.checked)
   }
 
@@ -53,57 +61,41 @@ export function LiveSwitcher() {
       <label className="mr-2" htmlFor="live">Live</label>
       <input id="live" type="checkbox" checked={isLive} onChange={handleChange} />
     </div>
-    
   )
 }
-```
 
-<Callout type="warning">
-Don't forget to add export to `src/components/index.ts`.
-</Callout>
+```
 
 Now, let's add components to our Header, so final code for `src/components/Header.tsx` is:
 
-```tsx {3, 42, 43} filename="src/components/Header.tsx" copy
+```tsx {6,7,30,31} filename="src/components/Header.tsx" copy
 'use client'
-import React, { useEffect } from 'react'
+
+import Link from 'next/link'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { ActiveLink, SelectAppChain, LiveSwitcher } from '@/components'
-import { reconnect } from '@wagmi/core'
-import { useConfig } from 'wagmi'
+
+import { SelectAppChain } from './SelectAppChain'
+import { LiveSwitcher } from './LiveSwitcher'
+
 
 export function Header() {
-  const config = useConfig()
-
-  useEffect(() => {
-    ;(async () => {
-      try {
-        await reconnect(config)
-      }
-      catch {}
-    })()
-  }, [])
 
   return (
-    <header className="flex items-center py-3.5 border-b border-zinc-200">
-      <div className="text-xl font-semibold">Azuro Betting</div>
+    <header className="container flex items-center py-3.5 border-b border-zinc-200">
+      <div className="text-xl font-semibold">Azuro Betting App</div>
       <div className="flex ml-10">
-        <ActiveLink
+        <Link
           className="text-zinc-500 hover:text-black transition"
-          activeClassName="!text-black font-semibold !cursor-default"
           href="/events/top"
-          regex="^\/events\/[^/]+?$"
         >
           Events
-        </ActiveLink>
-        <ActiveLink
+        </Link>
+        <Link
           className="text-zinc-500 hover:text-black transition ml-4"
-          activeClassName="!text-black font-semibold !cursor-default"
           href="/bets"
-          regex="^\/bets"
         >
-          Bets
-        </ActiveLink>
+          Bets History
+        </Link>
       </div>
       <div className="ml-auto flex items-center">
         <LiveSwitcher />

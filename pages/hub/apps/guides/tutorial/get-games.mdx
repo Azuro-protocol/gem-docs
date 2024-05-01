@@ -16,8 +16,10 @@ Create `src/components/OutcomeButton.tsx`.
 
 ```tsx filename="src/components/OutcomeButton.tsx" copy
 'use client'
+
 import { type MarketOutcome, useSelection, useBaseBetslip } from '@azuro-org/sdk'
-import cx from 'clsx';
+import cx from 'clsx'
+
 
 type OutcomeProps = {
   className?: string
@@ -84,6 +86,7 @@ The `League` component to render leagues with games and markets.
 
 ```tsx filename="src/components/League.tsx" copy
 'use client'
+
 import { GamesQuery, SportsQuery, useGameStatus, useGameMarkets, useLive } from '@azuro-org/sdk'
 import Link from 'next/link'
 import cx from 'clsx'
@@ -116,8 +119,8 @@ function Game(props: GameProps) {
   return (
     <div className={cx(className, "p-2 bg-zinc-200 rounded-lg flex items-center justify-between")}>
       <div className='max-w-[220px] w-full'>
-        <Link 
-          className="text-sm mb-2 hover:underline block whitespace-nowrap overflow-hidden text-ellipsis w-full" 
+        <Link
+          className="text-sm mb-2 hover:underline block whitespace-nowrap overflow-hidden text-ellipsis w-full"
           href={`/event/${gameId}`}
         >
           {title}
@@ -142,8 +145,8 @@ function Game(props: GameProps) {
           </div>
         )
       }
-      <Link 
-        className="text-md p-2 rounded-lg bg-zinc-100 hover:underline" 
+      <Link
+        className="text-md p-2 rounded-lg bg-zinc-100 hover:underline"
         href={`/event/${gameId}`}
       >
         All Markets =&gt;
@@ -167,7 +170,7 @@ export function League(props: LeagueProps) {
   const params = useParams()
 
   const isLeaguePage = params.league
-  
+
   return (
     <div
       className={cx(className, {
@@ -180,7 +183,7 @@ export function League(props: LeagueProps) {
           {
             isLeaguePage && (
               <>
-                <Link 
+                <Link
                   className="hover:underline w-fit"
                   href={`/events/${sportSlug}/${countrySlug}`}
                 >
@@ -190,7 +193,7 @@ export function League(props: LeagueProps) {
               </>
             )
           }
-          <Link 
+          <Link
             className="hover:underline w-fit"
             href={`/events/${sportSlug}/${countrySlug}/${league.slug}`}
           >
@@ -199,10 +202,10 @@ export function League(props: LeagueProps) {
         </div>
         {
           games.map(game => (
-            <Game 
+            <Game
               key={game.gameId}
               className="mt-2 first-of-type:mt-0"
-              game={game} 
+              game={game}
             />
           ))
         }
@@ -219,12 +222,14 @@ The `Country` component to render countries.
 
 ```tsx filename="src/components/Country.tsx" copy
 'use client'
+
 import { SportsQuery } from '@azuro-org/sdk'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import cx from 'clsx'
 
-import { League } from './Leaglue'
+import { League } from './League'
+
 
 type CountryProps = {
   className?: string
@@ -240,19 +245,19 @@ export function Country(props: CountryProps) {
 
   const isCountryPage = params.country
   const isLeaguePage = params.league
-  
+
   return (
     <div
       className={cx(className, {
-        "p-4 bg-zinc-100 rounded-3xl": !isCountryPage && !isLeaguePage
+        'p-4 bg-zinc-100 rounded-3xl': !isCountryPage && !isLeaguePage
       })}>
         {
           !isLeaguePage && (
-            <Link 
-              className={cx("mb-2 hover:underline", {
-                "text-md font-medium": !isCountryPage,
-                "text-lg font-bold": isCountryPage
-              })} 
+            <Link
+              className={cx('mb-2 hover:underline', {
+                'text-md font-medium': !isCountryPage,
+                'text-lg font-bold': isCountryPage
+              })}
               href={`/events/${sportSlug}/${country.slug}`}
             >
               {country.name}
@@ -261,11 +266,11 @@ export function Country(props: CountryProps) {
         }
         {
           leagues.map(league => (
-            <League 
+            <League
               key={league.slug}
               className="mt-2 first-of-type:mt-0"
-              league={league} 
-              sportSlug={sportSlug} 
+              league={league}
+              sportSlug={sportSlug}
               countryName={country.name}
               countrySlug={country.slug}
             />
@@ -284,6 +289,7 @@ The `Sport` component to render list of sports.
 
 ```tsx filename="src/components/Sport.tsx" copy
 'use client'
+
 import { SportsQuery } from '@azuro-org/sdk'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
@@ -306,13 +312,13 @@ export function Sport(props: SportProps) {
   return (
     <div
       className={cx({
-        "p-4 bg-zinc-50 rounded-3xl mt-2 first-of-type:mt-0": !isSportPage
+        'p-4 bg-zinc-50 rounded-3xl mt-2 first-of-type:mt-0': !isSportPage
       })}
     >
       {
         !isSportPage && (
-          <Link 
-            className="text-lg mb-2 hover:underline font-bold" 
+          <Link
+            className="text-lg mb-2 hover:underline font-bold"
             href={`/events/${sport.slug}`}
           >
             {sport.name}
@@ -321,11 +327,11 @@ export function Sport(props: SportProps) {
       }
       {
         countries.map(country => (
-          <Country 
-            key={country.slug} 
-            className="mt-2 first-of-type:mt-0" 
-            country={country} 
-            sportSlug={sport.slug} 
+          <Country
+            key={country.slug}
+            className="mt-2 first-of-type:mt-0"
+            country={country}
+            sportSlug={sport.slug}
           />
         ))
       }
@@ -341,72 +347,18 @@ Don't forget to add export to `src/components/index.ts`.
 
 ### Sports navigation bar
 
-To show navigation between sports, let's add small helping component "ActiveLink". It's just a wrapper of Next.JS Link but handles active state.
-Create component `src/components/ActiveLink.tsx`
-
-```tsx filename="src/components/ActiveLink.tsx" copy
-'use client'
-import React, { useState, useEffect } from 'react'
-import { usePathname } from 'next/navigation'
-import Link, { LinkProps } from 'next/link'
-
-
-type ActiveLinkProps = LinkProps & {
-  className?: string
-  activeClassName: string
-  regex?: string
-}
-
-export const ActiveLink: React.FC<React.PropsWithChildren<ActiveLinkProps>> = (props) => {
-  const { children, className, activeClassName, regex, ...rest } = props
-
-  const activePathname = usePathname()
-  const [ computedClassName, setComputedClassName ] = useState(className)
-
-  useEffect(() => {
-    // Dynamic route will be matched via props.as
-    // Static route will be matched via props.href
-    const linkPathname = new URL(
-      (rest.as || rest.href) as string,
-      location.href
-    ).pathname
-
-    const isMatch = regex ? new RegExp(regex).test(activePathname) : activePathname === linkPathname
-
-    const newClassName = isMatch
-      ? `${className} ${activeClassName}`.trim()
-      : className
-
-    if (newClassName !== computedClassName) {
-      setComputedClassName(newClassName)
-    }
-  }, [
-    activePathname,
-    rest.as,
-    rest.href,
-    activeClassName,
-    className,
-  ])
-
-  return (
-    <Link className={computedClassName} {...rest}>
-      {children}
-    </Link>
-  )
-}
-```
-
 Now let's create navigation bar component - `src/components/SportsNavigation.tsx`.
 Azuro SDK has special hook to fetch navigation - `useSportsNavigation`.
 
 ```tsx filename="src/components/SportsNavigation.tsx" copy
 'use client'
+
 import { useSportsNavigation } from '@azuro-org/sdk'
 import { ActiveLink } from '@/components'
 
 
 export function SportsNavigation() {
-  const { loading, data } = useSportsNavigation({
+  const { loading, sports } = useSportsNavigation({
     withGameCount: true,
   })
 
@@ -415,7 +367,7 @@ export function SportsNavigation() {
   }
 
   // it's simple sort by games count, you can implement your own
-  const sortedSports = [ ...data?.sports || [] ].sort((a, b) => b.games!.length - a.games!.length)
+  const sortedSports = [ ...sports || [] ].sort((a, b) => b.games!.length - a.games!.length)
 
   return (
     <div className="w-full mb-8 overflow-hidden">
@@ -467,9 +419,11 @@ For top events we'll use different filters - sort games by turnover and limit th
 
 ```tsx {6-31, 34, 38-51} filename="src/app/events/layout.tsx" copy
 'use client'
+
 import { SportsNavigation, Sport } from '@/components'
 import { useParams } from 'next/navigation'
 import { useSports, type UseSportsProps, Game_OrderBy, OrderDirection } from '@azuro-org/sdk'
+
 
 const useData = () => {
   const params = useParams()
@@ -520,6 +474,23 @@ export default function EventsLayout() {
     </>
   )
 }
+```
+
+Next step: add routing structure for correct handling filters by country and league:
+1. in the path `src/app/events/[sport]`, create folder `[country]` (with brackets) with subfolder `[league]`
+2. copy `src/app/events/[sport]/page.tsx` to created subfolders `./[country]`, `./[country]/[league]`.
+
+So final structure for `events` will be:
+```
+app
+  ↳ events
+      ↳ layout.tsx
+      ↳ [sport]
+          ↳ page.tsx
+          ↳ [country]
+              ↳ page.tsx
+              ↳ [league]
+                  ↳ page.tsx
 ```
 
 Well done! Now we have page with active events and navigation between sports.
