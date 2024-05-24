@@ -4,5 +4,6 @@
   "calcLiveOdds": "calcLiveOdds",
   "getGameStatus": "getGameStatus",
   "getBetStatus": "getBetStatus",
-  "getLiveBetFee": "getLiveBetFee"
+  "getLiveBetFee": "getLiveBetFee",
+  "getPrematchBetDataBytes": "getPrematchBetDataBytes"
 }

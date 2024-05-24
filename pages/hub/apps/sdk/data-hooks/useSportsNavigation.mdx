@@ -15,15 +15,12 @@ import { useSportsNavigation } from '@azuro-org/sdk'
 const { loading, sports } = useSportsNavigation(props)
 ```
 
-<Callout type="info">
-  If the `isLive` state of the `LiveProvider` is `true`, the `useGames` hook will retrieve live games.
-</Callout>
-
 #### Props
 
 ```ts
 {
   withGameCount?: boolean // adds the lightweight games data to sport for counting
+  isLive?: boolean // is `true`, the hook will retrieve live navigation
 }
 ```
 

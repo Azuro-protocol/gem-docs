@@ -14,10 +14,6 @@ import { useGames } from '@azuro-org/sdk'
 const { loading, error, games } = useGames(props)
 ```
 
-<Callout type="info">
-  If the `isLive` state of the `LiveProvider` is `true`, the `useGames` hook will retrieve live games.
-</Callout>
-
 #### Props
 
 ```ts
@@ -31,6 +27,7 @@ const { loading, error, games } = useGames(props)
   }
   orderBy?: Game_OrderBy // default: Game_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
+  isLive?: boolean // is `true`, the hook will retrieve live games
 }
 
 enum SportHub {

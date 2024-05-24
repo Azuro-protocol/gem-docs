@@ -1,0 +1,45 @@
+import { Callout } from 'components'
+
+Returns a encoded bytes of selections for Prematch bet.
+
+#### Usage
+
+```ts {5, 17}
+import { type Selection, getPrematchBetDataBytes } from '@azuro-org/sdk'
+
+const selections: Selection = [...]
+
+const selectionsData = await getPrematchBetDataBytes(selections)
+
+const prematchBetArguments = [
+  lpAddress,
+  [
+    {
+      core,
+      amount,
+      expiresAt,
+      extraData: {
+        affiliate,
+        minOdds,
+        data: selectionsData,
+      },
+    },
+  ]
+]
+```
+
+#### Props
+
+`selections: Selection[]`
+
+```ts
+type Selection = {
+  outcomeId: string
+  conditionId: string
+  coreAddress: string
+}
+```
+
+#### Return Value
+
+`Hex`

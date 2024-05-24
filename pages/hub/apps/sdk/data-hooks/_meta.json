@@ -7,5 +7,6 @@
   "useGameMarkets": "useGameMarkets",
   "usePrematchBets": "usePrematchBets",
   "useLiveBets": "useLiveBets",
-  "useLiveBetFee": "useLiveBetFee"
+  "useLiveBetFee": "useLiveBetFee",
+  "useBetsSummary": "useBetsSummary"
 }
