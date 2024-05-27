@@ -44,7 +44,7 @@ function Providers(props: { children: React.ReactNode }) {
 </Callout>
 
 <Callout type="warning">
-  The `BetslipProvider` necessitates access to the `ChainProvider`, `LiveProvider`, `ApolloProvider`, and `SocketProvider`.
+  The `BetslipProvider` necessitates access to the `ChainProvider`, `ApolloProvider`, and `SocketProvider`.
 </Callout>
 
 Get stored context data.
@@ -77,18 +77,37 @@ statuses[conditionId]
 ```
 </Callout>
 
+<Callout type="info">
+Except of Single and Combo bets for Batch bet we use different amount structure `batchBetAmounts`.
+
+The `batchBetAmounts` is an object where the key combination is determined by the concatenation of `conditionId` and `outcomeId`, the value is bet amount for outcome:
+```ts
+const selectionAmount = batchBetAmounts[`${conditionId}-${outcomeId}`]
+```
+</Callout>
+
+#### Props
+
+```ts
+type BetslipProviderProps = {
+  children: React.ReactNode
+  isBatchBetWithSameGameEnabled?: boolean // if value is true betslip will allow to add outcomes from same game for batch bet
+}
+```
+
 #### Return Value
 
 ```ts
 type BaseBetslipContextValue = {
   items: BetslipItem[] // betslip items
-  addItem: (itemProps: ItemProps) => void // function for adding new items
-  removeItem: (gameId: string) => void // function for removing item from betslip
+  addItem: (itemProps: AddItemProps) => void // function for adding new items
+  removeItem: (itemProps: RemoveItemProps) => void // function for removing item from betslip
   clear: () => void // function for clearing betslip
 }
 
 type DetailedBetslipContextValue = {
-  betAmount: string // bet amount
+  betAmount: string // bet amount for single and combo bet
+  batchBetAmounts: Record<string, string> // batch bet amounts
   odds: Record<string, number> // odds for each item
   totalOdds: number // total bet odds
   maxBet: number | undefined // maximum bet amount
@@ -96,6 +115,11 @@ type DetailedBetslipContextValue = {
   statuses: Record<string, ConditionStatus> // status for each item
   disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
   changeBetAmount: (value: string) => void // function for changing bet amount
+  changeBatchBetAmount: (item: changeBatchBetAmountItem, value: string) => void // function for chainging bet amount for batch bet
+  changeBatch: (value: boolean) => void // function for switching between combo and batch
+  isBatch: boolean // true if batch is enabled
+  isLiveBet: boolean // true if live outcome in the betslip
+  isCombo: boolean // true if combo bet
   isStatusesFetching: boolean // indicates statuses fetching
   isOddsFetching: boolean // indicates odds fetching
   isBetAllowed: boolean // true if bet can be placed
@@ -107,7 +131,9 @@ enum BetslipDisableReason {
   BetAmountLowerThanMinBet = 'BetAmountLowerThanMinBet', // bet amount lower than min bet
   ComboWithLive = 'ComboWithLive', // live outcome can't be used in combo
   ComboWithForbiddenItem = 'ComboWithForbiddenItem', // one or more conditions can't be used in combo
+  ComboWithSameGame = 'ComboWithSameGame', // outcomes from same game can't be used in combo
   PrematchConditionInStartedGame = 'PrematchConditionInStartedGame', // pre-match item in started game
+  BatchWithLive = 'BatchWithLive', // live outcome can't be used in batch
 }
 
 type Game = {
@@ -138,9 +164,19 @@ type BetslipItem = {
   isExpressForbidden: boolean
 } & Selection
 
-type ItemProps = {
+type AddItemProps = {
   gameId: string
   lpAddress: string
   isExpressForbidden: boolean
 } & Selection
+
+type RemoveItemProps = {
+  outcomeId: string
+  conditionId: string
+}
+
+type ChangeBatchBetAmountItem = {
+  outcomeId: string
+  conditionId: string
+}
 ```

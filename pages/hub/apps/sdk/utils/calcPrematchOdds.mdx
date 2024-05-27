@@ -19,9 +19,10 @@ import { type Config } from 'wagmi'
 
 {
   config: Config
-  betAmount: string
   selections: Selection[]
   chainId: ChainId
+  betAmount?: string // single and combo bet amount
+  batchBetAmounts?: Record<string, string> // batch bet amounts
 }
 ```
 
