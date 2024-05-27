@@ -1,0 +1,21 @@
+import { Callout } from 'components'
+
+# 05/28 SDK v3.5
+
+Implementation of Batch bets and user's bets info hook [`useBetsSummary`](/hub/apps/sdk/data-hooks/useBetsSummary). [`LiveProvider`](/hub/apps/sdk/providers/live) starts to be optional, now you can create your own source of true and provide `isLive` prop to [`useGames`](/hub/apps/sdk/data-hooks/useGames), [`useSports`](/hub/apps/sdk/data-hooks/useSports) and [`useSportsNavigation`](/hub/apps/sdk/data-hooks/useSportsNavigation).
+
+## New Hooks
+- [`useBetsSummary`](/hub/apps/sdk/data-hooks/useBetsSummary)
+
+## New Utils
+- [`getPrematchBetDataBytes`](/hub/apps/sdk/utils/getPrematchBetDataBytes)
+
+## Updates
+- Batch bets support in [`BetslipProvider`](/hub/apps/sdk/providers/betslip)
+- `betAmount` now is optional and new prop `batchBetAmounts` for [`useOdds`](/hub/apps/sdk/watch-hooks/useOdds)
+- `betAmount` now is optional and new prop `batchBetAmounts` for [`calcPrematchOdds`](/hub/apps/sdk/utils/calcPrematchOdds)
+- `betAmount` now is optional for [`calcLiveOdds`](/hub/apps/sdk/utils/calcLiveOdds)
+- `betAmount` starts to gain object of amounts for batch bet in [`usePrepareBet`](/hub/apps/sdk/write-hooks/usePrepareBet)
+- `livePollInterval` prop for [ChainProvider](/hub/apps/sdk/data-hooks/useGameMarkets)
+- `isLive` prop for [`useGames`](/hub/apps/sdk/data-hooks/useGames), [`useSports`](/hub/apps/sdk/data-hooks/useSports) and [`useSportsNavigation`](/hub/apps/sdk/data-hooks/useSportsNavigation)
+- [`LiveProvider`](/hub/apps/sdk/providers/live) is not a part of [`AzuroSDKProvider`](/hub/apps/sdk/providers/sdk)

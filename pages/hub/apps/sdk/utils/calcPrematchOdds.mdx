@@ -12,6 +12,15 @@ const prematchOdds = await calcPrematchOdds({
 })
 ```
 
+<Callout type="info">
+Except of Single and Combo bets for Batch bet we use different amount structure `batchBetAmounts`.
+
+The `batchBetAmounts` is an object where the key combination is determined by the concatenation of `conditionId` and `outcomeId`, the value is bet amount for outcome:
+```ts
+const selectionAmount = batchBetAmounts[`${conditionId}-${outcomeId}`]
+```
+</Callout>
+
 #### Props
 
 ```ts

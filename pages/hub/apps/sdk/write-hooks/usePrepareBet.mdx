@@ -67,11 +67,40 @@ const {...} = usePrepareBet({
 ```
 </Callout>
 
+<Callout type="info">
+To perform batch bet you need to provide object with amounts for each selection, key is concatenation of `conditionId` and `outcomeId`:
+
+```ts
+const {...} = usePrepareBet({
+  betAmount: {
+    '486903008559711340-29': 1,
+    '486903008559711341-30': 10,
+  },
+  slippage: 5,
+  affiliate: '0x...',
+  selections: [
+    {
+      conditionId: '486903008559711340',
+      outcomeId: '29',
+      coreAddress: '0x34nsf41f...',
+    },
+    {
+      conditionId: '486903008559711341',
+      outcomeId: '30',
+      coreAddress: '0x34nsf41f...',
+    },
+  ],
+  odds,
+  totalOdds,
+})
+```
+</Callout>
+
 #### Props
 
 ```ts
 {
-  betAmount: string // bet amount
+  betAmount: string | Record<string, string> // bet amount
   slippage: number // in percent
   affiliate: Address // your affiliate address
   odds: Record<string, number>, // odds
