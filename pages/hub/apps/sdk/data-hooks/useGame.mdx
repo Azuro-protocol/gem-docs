@@ -7,7 +7,7 @@ Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore 
 #### Usage
 
 ```ts
-import { useGame } from '@azuro-org/data'
+import { useGame } from '@azuro-org/sdk'
 
 const { loading, error, data: game } = useGame(props)
 ```
@@ -28,7 +28,7 @@ const { loading, error, data: game } = useGame(props)
   `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
 
   ```ts
-  import { useGame } from '@azuro-org/data'
+  import { useGame } from '@azuro-org/sdk'
 
   const { loading, error, games } = useGames()
 

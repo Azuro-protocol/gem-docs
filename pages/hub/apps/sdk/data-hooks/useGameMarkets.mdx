@@ -5,7 +5,7 @@ Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions) for groupp
 #### Usage
 
 ```ts
-import { useGameMarkets } from '@azuro-org/data'
+import { useGameMarkets } from '@azuro-org/sdk'
 
 const { loading, error, markets } = useGameMarkets(props)
 ```
@@ -36,7 +36,7 @@ enum GameStatus {
   `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
 
   ```ts
-  import { useGame } from '@azuro-org/data'
+  import { useGame } from '@azuro-org/sdk'
 
   const { loading, error, games } = useGames()
 

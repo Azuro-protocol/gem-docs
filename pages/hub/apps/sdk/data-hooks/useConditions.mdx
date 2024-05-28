@@ -11,7 +11,7 @@ The Hook should be used if [`useGameMarkets`](/guides/sdk/data-hooks/useGameMark
 #### Usage
 
 ```ts
-import { useConditions } from '@azuro-org/data'
+import { useConditions } from '@azuro-org/sdk'
 
 const { loading, error, conditions } = useConditions(props)
 ```
@@ -33,7 +33,7 @@ const { loading, error, conditions } = useConditions(props)
   `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
 
   ```ts
-  import { useGame } from '@azuro-org/data'
+  import { useGame } from '@azuro-org/sdk'
 
   const { loading, error, data } = useGames()
 
