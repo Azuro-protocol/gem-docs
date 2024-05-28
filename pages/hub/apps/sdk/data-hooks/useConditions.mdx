@@ -22,7 +22,7 @@ const { loading, error, conditions } = useConditions(props)
 {
   gameId: string | bigint
   isLive: boolean // if the flag is set to true, useConditions will retrieve live conditions.
-  livePollInterval?: number // live conditions can be created at any time, and here, you can specify how frequently to check for new live conditions **measured in miliseconds**
+  livePollInterval?: number // live conditions can be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
   filter?: {
     outcomeIds?: string[]
   }

@@ -115,7 +115,7 @@ type DetailedBetslipContextValue = {
   statuses: Record<string, ConditionStatus> // status for each item
   disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
   changeBetAmount: (value: string) => void // function for changing bet amount
-  changeBatchBetAmount: (item: changeBatchBetAmountItem, value: string) => void // function for chainging bet amount for batch bet
+  changeBatchBetAmount: (item: changeBatchBetAmountItem, value: string) => void // function for changing bet amount for batch bet
   changeBatch: (value: boolean) => void // function for switching between combo and batch
   isBatch: boolean // true if batch is enabled
   isLiveBet: boolean // true if live outcome in the betslip
