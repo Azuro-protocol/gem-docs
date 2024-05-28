@@ -27,7 +27,7 @@ const { loading, error, sports } = useSports(props)
   }
   gameOrderBy?: Game_OrderBy.Turnover | Game_OrderBy.StartsAt // default: Game_OrderBy.StartsAt`
   orderDir?: OrderDirection // order direction: asc, desc
-  isLive?: boolean // is `true`, the hook will retrieve live sports
+  isLive?: boolean // if `true`, the hook will retrieve live sports
 }
 
 enum SportHub {
