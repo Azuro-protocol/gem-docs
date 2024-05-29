@@ -85,11 +85,11 @@ Great. Now your app can handle web3 connections. We’ll see how to add a “Con
 After base web3 connect setup, let's add azuro SDK provider.
 
 Let's add them, so final code of `Providers` component will be:
-```tsx {4,30,31,35,37-39,45,47} filename="src/components/Providers.tsx" copy
+```tsx {4,30,31,35,37-39,45-46,48-49} filename="src/components/Providers.tsx" copy
 'use client'
 
 import React from 'react'
-import { AzuroSDKProvider, ChainId } from '@azuro-org/sdk'
+import { AzuroSDKProvider, LiveProvider, ChainId } from '@azuro-org/sdk'
 import { RainbowKitProvider, getDefaultWallets, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -130,8 +130,10 @@ export function Providers(props: ProvidersProps) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <AzuroSDKProvider initialChainId={chainId} initialLiveState={initialLiveState}>
-            {children}
+          <AzuroSDKProvider initialChainId={chainId}>
+            <LiveProvider initialLiveState={initialLiveState}>
+              {children}
+            </LiveProvider>
           </AzuroSDKProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
