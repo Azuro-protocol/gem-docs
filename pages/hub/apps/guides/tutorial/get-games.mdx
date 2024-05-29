@@ -353,13 +353,15 @@ Azuro SDK has special hook to fetch navigation - `useSportsNavigation`.
 ```tsx filename="src/components/SportsNavigation.tsx" copy
 'use client'
 
-import { useSportsNavigation } from '@azuro-org/sdk'
+import { useSportsNavigation, useLive } from '@azuro-org/sdk'
 import { ActiveLink } from '@/components'
 
 
 export function SportsNavigation() {
+  const { isLive } = useLive()
   const { loading, sports } = useSportsNavigation({
     withGameCount: true,
+    isLive,
   })
 
   if (loading) {
@@ -427,6 +429,7 @@ import { useSports, type UseSportsProps, Game_OrderBy, OrderDirection } from '@a
 
 const useData = () => {
   const params = useParams()
+  const { isLive } = useLive()
   const isTopPage = params.sport === 'top'
 
   const props: UseSportsProps = isTopPage ? {
@@ -444,7 +447,7 @@ const useData = () => {
     }
   }
 
-  const { loading, sports } = useSports(props)
+  const { loading, sports } = useSports({ ...props, isLive })
 
   return {
     sports,

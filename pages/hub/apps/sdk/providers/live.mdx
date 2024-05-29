@@ -2,6 +2,9 @@ import { Callout } from 'components'
 
 The `LiveProvider` is employed to store the live state and subsequently distribute this state to other components within the application.
 
+<Callout type="info">
+Starting with v4, `LiveProvider` is optional and [`useSports`](/hub/apps/sdk/data-hooks/useSports), [`useGames`](/hub/apps/sdk/data-hooks/useGames) and [`useSportsNavigation`](/hub/apps/sdk/data-hooks/useSportsNavigation) don't use it any more. You can create your own source of truth, such as the URL /live in your application.
+</Callout>
 
 #### Usage
 
