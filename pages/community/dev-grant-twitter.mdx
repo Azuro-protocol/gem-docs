@@ -1,0 +1,65 @@
+import { Image } from 'components'
+
+# Dev Grant to make Twitter Alerts reporting interesting Onchain Events
+
+<Image
+  src="/images/community/twitter.png"
+  width={2000}
+  height={700}
+/>
+
+### 🌟 Overview
+
+This grant supports builders to create an onchain event tracker that will report large and interesting bets or liquidity transactions as they happen and send alerts about them to the Azuro Twitter account. 
+
+### 💰 Grant Amount
+
+1,000 USDT
+
+### 🎯 Key Tasks
+
+1. Fetch data from the Azuro subgraphs, making periodic requests to the endpoints to listen for new events.
+2. Implement logic to filter the fetched data for the interesting bets. Pre-define criteria for what constitutes interesting events: large bet size, unusually high odds, large amount deposited into a liquidity pool, etc.
+3. Integrate Twitter API:
+- Set up a Twitter Developer account and create an app to obtain API keys and projectID.
+- Use the Twitter API to send tweets. Libraries like `tweepy` for Python or `twitter` for Node.js can simplify this process.
+1. Write a script or program that fetches data from the subgraph, filters the events, and posts updates to Twitter.
+
+### 📚 Materials
+
+- **Azuro subgraph endpoints**:
+
+Gnosis: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-v3
+
+Polygon: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3
+
+Chiliz: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-chiliz-v3
+
+LiveDataFeed: https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-live-data-feed
+
+
+- **Reference**: have a look at how Whale Alert reports onchain trading activity featuring the largest and most interesting onchain transfers on Twitter to better understand the final result we’re looking for.
+    
+    https://x.com/whale_alert
+    
+
+### 🤝 Participation
+
+1. Express you interest in competing for this grant in the builder-forum Discord channel ([link](https://discord.gg/azuro)). 
+2. Let us know about your background and share your GitHub link or other past project links, so that we can evaluate your background and give you a green light to start working on the project. 
+3. We will organize an intro call with you to make a final decision whether you will be assigned to start working on this task. 
+
+**Please do not start working on the tasks without prior approval.**
+
+**Upon acceptance:**
+
+- You will have up to 2 weeks to complete the tasks and develop the solution.
+- We will keep in touch with you on Discord, where you’ll be able to ask questions about the project and we’ll be able to track your progress.
+- When you complete the development, we will evaluate the result and might request some improvements.
+- You will receive the grant upon successful completion of the tasks.
+
+### 📘 Submission Criteria
+
+- The resulting code should build and run correctly
+- Prioritize the accuracy and timeliness of the data in the alerts
+- Demonstrate the code in action by sending alerts to the Twitter account you’ve set up for this task
