@@ -13,7 +13,7 @@ export default {
   //   text: <a href="/guides/tutorial">💎 Tutorial: Build your own betting dApp. Read more →</a>,
   // },
   sidebar: {
-    defaultMenuCollapseLevel: 2,
+    defaultMenuCollapseLevel: 1,
     toggleButton: false,
   },
   head: (
