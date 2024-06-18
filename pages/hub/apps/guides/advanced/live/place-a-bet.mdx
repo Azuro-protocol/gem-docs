@@ -1,15 +1,11 @@
-import { Callout, Image } from 'components'
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Callout, Image } from "components";
+import { Tabs, Tab } from "nextra-theme-docs";
 
 # Place a bet
 
 Placing a bet on live games in Azuro is a multistep process that can be described by the next diagram:
 
-<Image
-  src="/images/live/place-a-bet-1.png"
-  width={2010}
-  height={1846}
-/>
+<Image src="/images/live/place-a-bet-1.png" width={2010} height={1846} />
 
 Below we'll describe this process step-by-step.
 
@@ -35,47 +31,45 @@ interface OrderSpec {
     nonce: string;
     expiresAt: number;
     relayerFeeAmount: string;
-  }
+  };
 }
 
 const order: OrderSpec = {
   bet: {
-    attention: 'By signing this transaction, I agree to place a bet…', // A text to capture user consent (up to 160 chars)
-    affiliate: '0x...', // Your wallet address to earn rewards
-    core: '0x...', // Address of LiveCore smart contract
-    amount: '15000000', // 15 USDT with 6 decimals
+    attention: "By signing this transaction, I agree to place a bet…", // A text to capture user consent (up to 160 chars)
+    affiliate: "0x...", // Your wallet address to earn rewards
+    core: "0x...", // Address of LiveCore smart contract
+    amount: "15000000", // 15 USDT with 6 decimals
     chainId: 80002, // Polygon Amoy testnet chain id
-    conditionId: '123456789',
+    conditionId: "123456789",
     outcomeId: 29,
-    minOdds: '1980000000000', // Min odds, 1.98 with 12 decimals
+    minOdds: "1980000000000", // Min odds, 1.98 with 12 decimals
     nonce: String(now), // Unique (for the bettor wallet) increase-only integer
     expiresAt: Math.round(now / 1000 + deadline), // Timestamp in seconds
-    relayerFeeAmount: '100000', // 0.1 USDT with 6 decimals
-  }
+    relayerFeeAmount: "100000", // 0.1 USDT with 6 decimals
+  },
 };
 ```
 
 <Callout type="warning">
-  Please ensure that the order amount contains maximum 2 decimal signs, otherwise our backend will reject the order.
-  Examples:
-  - 15 USDT - valid &#9989;
-  - 15.2 USDT - valid &#9989;
-  - 15.25 USDT - valid &#9989;
-  - 15.125 USDT - invalid &#10060;
+  Please ensure that the order amount contains maximum 2 decimal signs, otherwise our backend will
+  reject the order. Examples: - 15 USDT - valid &#9989; - 15.2 USDT - valid &#9989; - 15.25 USDT -
+  valid &#9989; - 15.125 USDT - invalid &#10060;
 </Callout>
 
 <Callout type="info">
 To obtain the `minOdds`, utilize the [`calcLiveOdds`](/guides/sdk/utils/calcLiveOdds) function from our SDK in conjunction with the odds data retrieved from the [Socket API](/hub/apps/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
 
 ```ts
-import { calcLiveOdds } from '@azuro-org/sdk'
+import { calcLiveOdds } from "@azuro-org/sdk";
 
 socket.onmessage = (message) => {
-  const data = JSON.parse(message.data.toString())
+  const data = JSON.parse(message.data.toString());
 
-  data.forEach(data => {
-    if (data.outcomes) { // new odds received
-      const { id: conditionId, reinforcement, margin, winningOutcomesCount } = data
+  data.forEach((data) => {
+    if (data.outcomes) {
+      // new odds received
+      const { id: conditionId, reinforcement, margin, winningOutcomesCount } = data;
 
       const oddsData = {
         conditionId: conditionId,
@@ -83,53 +77,64 @@ socket.onmessage = (message) => {
         margin: +margin,
         winningOutcomesCount: +winningOutcomesCount,
         outcomes: {},
-      }
+      };
 
       oddsData.outcomes = data.outcomes.reduce((acc, { id, odds, clearOdds, maxStake }) => {
         acc[id] = {
           odds,
           clearOdds,
-        }
+        };
 
-        return acc
-      }, {})
+        return acc;
+      }, {});
 
       const minOdds = calcLiveOdds({
         selection: { conditionId, outcomeId, coreAddress },
-        betAmount: '10', // 10 USDT
+        betAmount: "10", // 10 USDT
         oddsData,
-      })
+      });
     }
   });
-}
+};
 ```
+
 </Callout>
 <Callout type="info">
   `nonce` is an integer number that represents an order identifier and it should:
   1. Be unique for the bettor's wallet address.
   2. Be higher than previous used value.
 
-  So we recommend to use current timestamp (in milliseconds) to prevent any collisions,
-  but you are welcome to come up with your solution.
+So we recommend to use current timestamp (in milliseconds) to prevent any collisions,
+but you are welcome to come up with your solution.
 
-  Like another potentially big integers we pass it as a string for safety.
+Like another potentially big integers we pass it as a string for safety.
+
 </Callout>
 
 <Callout type="info">
-  To obtain the `relayerFeeAmount` check [Relayer fee](/hub/apps/guides/advanced/live/prepare-for-betting#relayer-fee) section.
+  To obtain the `relayerFeeAmount` check [Relayer
+  fee](/hub/apps/guides/advanced/live/prepare-for-betting#relayer-fee) section.
 </Callout>
 
 <Callout type="info">
-  Please check a [highlights for prematch betting](/hub/apps/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with our definitions like `conditionId / outcomeId / minOdds / deadline`.
+  Please check a [highlights for prematch
+  betting](/hub/apps/guides/advanced/prematch/place-a-bet#highlights) if you are not familiar with
+  our definitions like `conditionId / outcomeId / minOdds / deadline`.
 </Callout>
 
 <Callout type="info">
-  If you don't know a `chainId` value for a used chain, you can get it by searching in https://chainlist.org/?testnets=true.
+  If you don't know a `chainId` value for a used chain, you can get it by searching in
+  https://chainlist.org/?testnets=true.
 </Callout>
 
 <Callout type="warning">
-  Consider that before each order request you'll need to ensure that the user has approved enough tokens for bet itself and a fee for relayer that will compensate his native currency spending.
-  So the spending limit should be equal or higher than `order.amount + order.relayerFeeAmount`.
+  Consider that before each order request you'll need to ensure that the user has approved enough
+  tokens for bet itself and a fee for relayer that will compensate his native currency spending. So
+  the spending limit should be equal or higher than `order.amount + order.relayerFeeAmount`.
+</Callout>
+
+<Callout type="warning">
+  Please make sure that `expiresAt` is no larger than the current date + 2 minutes.
 </Callout>
 
 ### Step 2: sign a message and send the order
@@ -182,9 +187,9 @@ Finally, you can send the order to Azuro Live Betting API:
 
 ```ts
 enum Environment {
-  PolygonAmoyAZUSD = 'PolygonAmoyAZUSD',
-  GnosisXDAI = 'GnosisXDAI',
-  PolygonUSDT = 'PolygonUSDT'
+  PolygonAmoyAZUSD = "PolygonAmoyAZUSD",
+  GnosisXDAI = "GnosisXDAI",
+  PolygonUSDT = "PolygonUSDT",
 }
 
 interface SignedByBettorOrderSpec {
@@ -202,17 +207,17 @@ const signedOrder: SignedByBettorOrderSpec = {
 };
 
 // For pre-production
-const apiUrl = 'https://preprod-api.azuro.org/api/v1/public/orders'
+const apiUrl = "https://preprod-api.azuro.org/api/v1/public/orders";
 // For production
-const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
+const apiUrl = "https://api.azuro.org/api/v1/public/orders";
 
 const response = await fetch(apiUrl, {
-  method: 'POST',
+  method: "POST",
   headers: {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json',
+    Accept: "application/json",
+    "Content-Type": "application/json",
   },
-  body: JSON.stringify(signedOrder)
+  body: JSON.stringify(signedOrder),
 });
 
 const data = await response.json(); // Will have OrderResponseSpec interface described below
@@ -226,27 +231,27 @@ The last POST request will return an object that represents the created order (l
 
 ```ts
 enum OrderState {
-  Created = 'Created', // Order has been registered in the system and waits a Relayer to handle it
-  Pending = 'Pending', // Relayer has started handling the order
-  Sent = 'Sent', // Transaction has been sent to a blockchain by a Relayer
-  Accepted = 'Accepted', // Transaction succeeded, order has been accepted by a smart contract
-  Rejected = 'Rejected', // Order has been rejected for some reason, see `error` field for explanation
+  Created = "Created", // Order has been registered in the system and waits a Relayer to handle it
+  Pending = "Pending", // Relayer has started handling the order
+  Sent = "Sent", // Transaction has been sent to a blockchain by a Relayer
+  Accepted = "Accepted", // Transaction succeeded, order has been accepted by a smart contract
+  Rejected = "Rejected", // Order has been rejected for some reason, see `error` field for explanation
 }
 
 enum OrderError {
-  BadData = 'BadData',
-  ChecksFailed = 'ChecksFailed',
-  MessageNotVerified = 'MessageNotVerified',
-  Other = 'Other',
-  PayoutNotGuaranteed = 'PayoutNotGuaranteed',
-  ProviderError = 'ProviderError',
-  RejectedByProvider = 'RejectedByProvider',
-  RiskExceeded = 'RiskExceeded',
-  TokenAllowance = 'TokenAllowance',
-  TooHighMinPrice = 'TooHighMinPrice',
-  TooHighStake = 'TooHighStake',
-  TooSmallFee = 'TooSmallFee',
-  TransactionFailed = 'TransactionFailed',
+  BadData = "BadData",
+  ChecksFailed = "ChecksFailed",
+  MessageNotVerified = "MessageNotVerified",
+  Other = "Other",
+  PayoutNotGuaranteed = "PayoutNotGuaranteed",
+  ProviderError = "ProviderError",
+  RejectedByProvider = "RejectedByProvider",
+  RiskExceeded = "RiskExceeded",
+  TokenAllowance = "TokenAllowance",
+  TooHighMinPrice = "TooHighMinPrice",
+  TooHighStake = "TooHighStake",
+  TooSmallFee = "TooSmallFee",
+  TransactionFailed = "TransactionFailed",
 }
 
 interface OrderResponseSpec {
@@ -267,10 +272,11 @@ At this point you should show a user the actual order status and, if the order h
   You need an `orderId` value to track the order state and you'll get it from the last response.
   But anyway you can create this id by yourself by lower-cased `bettor` wallet address and `nonce` value:
 
-  ```ts
-  export const getOrderId = (data: SignedByBettorOrderSpec): string =>
-    [data.bettor.toLowerCase(), data.data.nonce].join('_');
-  ```
+```ts
+export const getOrderId = (data: SignedByBettorOrderSpec): string =>
+  [data.bettor.toLowerCase(), data.data.nonce].join("_");
+```
+
 </Callout>
 
 ### Step 4: wait until the order state finalized and get a bet id
@@ -285,9 +291,9 @@ export interface UpdatedOrderSpec extends OrderResponseSpec {
 }
 
 // For pre-production
-const apiUrl = 'https://preprod-api.azuro.org/api/v1/public/orders'
+const apiUrl = "https://preprod-api.azuro.org/api/v1/public/orders";
 // For production
-const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
+const apiUrl = "https://api.azuro.org/api/v1/public/orders";
 
 const response = await fetch(`${apiUrl}/${orderId}`);
 
@@ -296,11 +302,11 @@ const data = await response.json();
 switch (data.state) {
   case OrderState.Accepted:
     const betId = data.betId;
-    // Work with the bet
+  // Work with the bet
   case OrderState.Rejected:
-    // Handle order rejection
+  // Handle order rejection
   default:
-    // Continue to poll the state
+  // Continue to poll the state
 }
 ```
 

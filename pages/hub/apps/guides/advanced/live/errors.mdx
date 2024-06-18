@@ -1,4 +1,4 @@
-import { Callout } from 'components'
+import { Callout } from "components";
 
 # Order errors
 
@@ -38,9 +38,9 @@ to find out how to implement the same behaviour.
 Most probably, you have provided an incorrect `conditionId` or `outcomeId` so the system can't find them in our database.
 
 <Callout type="warning">
-  In some rare cases we have an internal problems with provided market,
-  in this case you will receive an additional description in the `errorMessage` field.
-  You can't fix it on your side. If the issue persists for some period of time, you can reach out to Azuro support.
+  In some rare cases we have an internal problems with provided market, in this case you will
+  receive an additional description in the `errorMessage` field. You can't fix it on your side. If
+  the issue persists for some period of time, you can reach out to Azuro support.
 </Callout>
 
 ### `OrderError.TooHighMinPrice`
@@ -50,13 +50,14 @@ The final bet price is calculated using slippage mechanism
 If the final calculated bet price is lower than `minOdds` value in signed message, the order will be rejected.
 
 To resolve this error, you can do the following:
+
 - increase a slippage to lower the `minOdds` value;
 - decrease the bet amount.
 
 <Callout type="warning">
-  In rare cases you may find that the condition's odds are not actual in the datafeed graph
-  (for example, if we encounter a network congestion or the nodes errors).
-  Unfortunately, currently you can't do anything here and you need to wait until we resolve the issue.
+  In rare cases you may find that the condition's odds are not actual in the datafeed graph (for
+  example, if we encounter a network congestion or the nodes errors). Unfortunately, currently you
+  can't do anything here and you need to wait until we resolve the issue.
 </Callout>
 
 ### `OrderError.TooHighStake`
@@ -90,6 +91,16 @@ Increase the `relayerFeeAmount` (notifying the user about it) value and resend t
 
 The bet transaction may fail for some reason. Usually we get the fail code and include it in the `errorMessage` field.
 Usually the best option here is just to resend the request.
+
+### `OrderError.TooLowRelayerFeeAmount`
+
+This error means that the order amount is too small and the cost of gas required for the transaction is greater than the order amount.
+Please increase the order amount.
+
+### `OrderError.ExpiresAtTooLarge`
+
+This error means that the `expiresAt` parameter is too large.
+Please make sure that the `expiresAt` parameter is no larger than the current date + 2 minutes.
 
 ### `OrderError.Other`
 
