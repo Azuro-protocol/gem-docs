@@ -93,12 +93,12 @@ Usually the best option here is just to resend the request.
 
 ### `OrderError.TooLowRelayerFeeAmount`
 
-This error means that the order amount is too small and the cost of gas required for the transaction is greater than the order amount. 
-Please increase the order amount.
+This error means that the relayer fee amount is too small and the cost of gas required for the transaction is greater than the relayer fee amount.
+Please increase the relayer fee amount. Read [Relayer fee](/hub/apps/guides/advanced/live/prepare-for-betting#relayer-fee) section.
 
 ### `OrderError.ExpiresAtTooLarge`
 
-This error means that the `expiresAt` parameter is too large. 
+This error means that the `expiresAt` parameter is too large.
 Please make sure that the `expiresAt` parameter is no larger than the current date + 2 minutes.
 
 ### `OrderError.Other`
