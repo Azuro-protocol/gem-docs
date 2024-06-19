@@ -8,17 +8,17 @@
   "the-azuro-protocol": {
     "title": "The Azuro Protocol"
   },
-  "azur": {
-    "title": "AZUR"
-  },
-  "roadmap": {
-    "title": "Roadmap"
-  },
   "basic": {
     "title": "Basic Concepts"
   },
   "protocol": {
     "title": "Protocol Concepts"
+  },
+  "roadmap": {
+    "title": "Roadmap"
+  },
+  "azur": {
+    "title": "AZUR"
   },
   "azuro-score": {
     "title": "Azuro Score"
