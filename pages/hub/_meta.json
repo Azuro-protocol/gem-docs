@@ -9,10 +9,20 @@
   "---": {
     "type": "separator"
   },
-  "blockchains": "🧩 For blockchains",
+  "blockchains": {
+    "title": "🧩 For blockchains",
+    "theme": {
+      "collapsed": false
+    }
+  },
   "---1": {
     "type": "separator"
   },
-  "releases": "📦 Releases",
+  "releases": {
+    "title": "📦 Releases",
+    "theme": {
+      "collapsed": false
+    }
+  },
   "FAQ": "❓ FAQ"
 }
