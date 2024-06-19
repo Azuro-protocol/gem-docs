@@ -91,6 +91,16 @@ Increase the `relayerFeeAmount` (notifying the user about it) value and resend t
 The bet transaction may fail for some reason. Usually we get the fail code and include it in the `errorMessage` field.
 Usually the best option here is just to resend the request.
 
+### `OrderError.TooLowRelayerFeeAmount`
+
+This error means that the relayer fee amount is too small and the cost of gas required for the transaction is greater than the relayer fee amount.
+Please increase the relayer fee amount. Read [Relayer fee](/hub/apps/guides/advanced/live/prepare-for-betting#relayer-fee) section.
+
+### `OrderError.ExpiresAtTooLarge`
+
+This error means that the `expiresAt` parameter is too large.
+Please make sure that the `expiresAt` parameter is no larger than the current date + 2 minutes.
+
 ### `OrderError.Other`
 
 This error code is reserved for all the other potential errors that may happen.

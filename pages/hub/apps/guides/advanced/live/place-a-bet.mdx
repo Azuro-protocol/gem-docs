@@ -132,6 +132,10 @@ socket.onmessage = (message) => {
   So the spending limit should be equal or higher than `order.amount + order.relayerFeeAmount`.
 </Callout>
 
+<Callout type="warning">
+  Please make sure that `expiresAt` is no larger than the current date + 2 minutes.
+</Callout>
+
 ### Step 2: sign a message and send the order
 
 After order object has been prepared, user must sign a corresponding message
