@@ -1,6 +1,11 @@
 {
   "index": "🚀 Developer Hub",
-  "apps": "🔮 For applications",
+  "apps": {
+    "title":"🔮 For applications",
+    "theme": {
+      "collapsed": false
+    }
+  },
   "---": {
     "type": "separator"
   },
