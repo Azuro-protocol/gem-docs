@@ -1,9 +1,7 @@
 {
-  "index": {
-    "title": "🚀 Developer Hub"
-  },
+  "index": "🚀 Developer Hub",
   "apps": {
-    "title": "🔮 For applications",
+    "title":"🔮 For applications",
     "theme": {
       "collapsed": false
     }
