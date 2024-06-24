@@ -1,0 +1,353 @@
+import { Card } from 'components'
+import { Tabs } from 'nextra-theme-docs'
+
+
+# Get Azuro Waves Leaderboard
+
+If you're not familiar with the basics of Azuro Waves, read about it [here](/concepts/azuro-waves).
+
+## UI Guidelines
+
+Please follow the [Azuro Waves Guidelines](/files/Azuro%20Waves%20Guidelines.pdf) in your UI.
+
+<div className="mt-3 sm:max-w-96">
+  <Card
+    contentIcon="/images/svg/download.svg"
+    title="Azuro Waves Guidelines"
+    text="PDF"
+    toTab="/files/Azuro%20Waves%20Guidelines.pdf"
+  />
+</div>
+
+### Azuro Waves Status Icon
+
+Here's an example of an SVG icon with Waves Level gradient fills from the Guidelines.
+
+<Tabs items={[ 'Code', 'Result' ]}>
+  <Tabs.Tab>
+    ```html copy
+    <svg class="royal" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+      <style>
+        .grey { fill: #C4CFE4; }
+        .mist { fill: #A5D0E6; }
+        .sky { fill: url(#sky); }
+        .blue { fill: url(#blue); }
+        .ultramarine { fill: url(#ultramarine); }
+        .bright { fill: url(#bright); }
+        .brilliant { fill: url(#brilliant); }
+        .royal { fill: url(#royal); }
+      </style>
+      <circle cx="14" cy="14" r="14" fill="#fff"/>
+      <path fill="inherit" fill-rule="evenodd" d="M24.3244 20.596C22.1475 23.9962 18.337 26.25 14 26.25 7.2345 26.25 1.75 20.7655 1.75 14S7.2345 1.75 14 1.75 26.25 7.2345 26.25 14c0 .7921-.0752 1.5667-.2188 2.317-1.4192-.2859-2.7104-1.1436-3.5393-2.3288-.351-.5021-.679-1.0222-1.0072-1.5427-.5745-.911-1.1496-1.8231-1.8501-2.6414-.9351-1.0927-2.1246-1.948-3.5315-2.302-.8169-.2055-1.6484-.2803-2.4889-.2811-2.7992-.0453-4.5898 1.5722-4.9935 1.9567a9.1596 9.1596 0 0 0-.0177.0166c-1.3776 1.2895-2.0763 2.8945-2.0763 4.7707 0 1.8762.6975 3.4857 2.073 4.7897l.0074.007c1.3941 1.2879 3.1177 1.9411 5.1221 1.9411 2.0043 0 3.7275-.6528 5.122-1.9411l.0037-.0037c.3228-.3018.6081-.6206.8568-.9549 1.0504 1.2352 2.3337 2.2916 3.9295 2.6637.227.0529.4548.0955.6832.1292Zm-10.6675-8.9778c.4022.0069.7416.0623 1.0425.1624.2906.1086.5515.2719.786.4914.4713.4411.7008.9951.7008 1.693 0 .6979-.229 1.2519-.7008 1.693h.0004c-.4704.4403-1.0451.6545-1.7566.6545-.7116 0-1.2829-.2129-1.753-.6512-.4577-.4415-.6805-.9964-.6805-1.6963 0-.7.2224-1.2552.6801-1.6964.4541-.4233 1.0046-.6364 1.6811-.6504Z" clip-rule="evenodd"/>
+      <defs>
+        <linearGradient id="sky" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#94D3F3" />
+          <stop stop-color="#83D5FF" offset="100%" />
+        </linearGradient>
+        <linearGradient id="blue" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#83D5FF" />
+          <stop stop-color="#64CAFF" offset="100%" />
+        </linearGradient>
+        <linearGradient id="ultramarine" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#64CAFF" />
+          <stop stop-color="#05AAFF" offset="100%" />
+        </linearGradient>
+        <linearGradient id="bright" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#05AAFF" />
+          <stop stop-color="#3499FE" offset="100%" />
+        </linearGradient>
+        <linearGradient id="brilliant" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#3499FE" />
+          <stop stop-color="#3D67FF" offset="100%" />
+        </linearGradient>
+        <linearGradient id="royal" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#3D67FF" />
+          <stop stop-color="#022E87" offset="100%" />
+        </linearGradient>
+      </defs>
+    </svg>
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    <div className="bg-gray-300 p-4">
+      <svg className="royal size-7" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28">
+        <style>
+          {`
+        .grey { fill: #C4CFE4; }
+        .mist { fill: #A5D0E6; }
+        .sky { fill: url(#sky); }
+        .blue { fill: url(#blue); }
+        .ultramarine { fill: url(#ultramarine); }
+        .bright { fill: url(#bright); }
+        .brilliant { fill: url(#brilliant); }
+        .royal { fill: url(#royal); }
+        `}
+        </style>
+        <circle cx="14" cy="14" r="14" fill="#fff"/>
+        <path fill="inherit" fillRule="evenodd" d="M24.3244 20.596C22.1475 23.9962 18.337 26.25 14 26.25 7.2345 26.25 1.75 20.7655 1.75 14S7.2345 1.75 14 1.75 26.25 7.2345 26.25 14c0 .7921-.0752 1.5667-.2188 2.317-1.4192-.2859-2.7104-1.1436-3.5393-2.3288-.351-.5021-.679-1.0222-1.0072-1.5427-.5745-.911-1.1496-1.8231-1.8501-2.6414-.9351-1.0927-2.1246-1.948-3.5315-2.302-.8169-.2055-1.6484-.2803-2.4889-.2811-2.7992-.0453-4.5898 1.5722-4.9935 1.9567a9.1596 9.1596 0 0 0-.0177.0166c-1.3776 1.2895-2.0763 2.8945-2.0763 4.7707 0 1.8762.6975 3.4857 2.073 4.7897l.0074.007c1.3941 1.2879 3.1177 1.9411 5.1221 1.9411 2.0043 0 3.7275-.6528 5.122-1.9411l.0037-.0037c.3228-.3018.6081-.6206.8568-.9549 1.0504 1.2352 2.3337 2.2916 3.9295 2.6637.227.0529.4548.0955.6832.1292Zm-10.6675-8.9778c.4022.0069.7416.0623 1.0425.1624.2906.1086.5515.2719.786.4914.4713.4411.7008.9951.7008 1.693 0 .6979-.229 1.2519-.7008 1.693h.0004c-.4704.4403-1.0451.6545-1.7566.6545-.7116 0-1.2829-.2129-1.753-.6512-.4577-.4415-.6805-.9964-.6805-1.6963 0-.7.2224-1.2552.6801-1.6964.4541-.4233 1.0046-.6364 1.6811-.6504Z" clip-rule="evenodd"/>
+        <defs>
+          <linearGradient id="sky" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#94D3F3" />
+            <stop stopColor="#83D5FF" offset="100%" />
+          </linearGradient>
+          <linearGradient id="blue" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#83D5FF" />
+            <stop stopColor="#64CAFF" offset="100%" />
+          </linearGradient>
+          <linearGradient id="ultramarine" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#64CAFF" />
+            <stop stopColor="#05AAFF" offset="100%" />
+          </linearGradient>
+          <linearGradient id="bright" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#05AAFF" />
+            <stop stopColor="#3499FE" offset="100%" />
+          </linearGradient>
+          <linearGradient id="brilliant" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#3499FE" />
+            <stop stopColor="#3D67FF" offset="100%" />
+          </linearGradient>
+          <linearGradient id="royal" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#3D67FF" />
+            <stop stopColor="#022E87" offset="100%" />
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </Tabs.Tab>
+</Tabs>
+
+## Common types
+
+There are common types that are reused in the code examples below.
+
+```ts copy
+export enum WavesLevelName {
+  Grey = 'Grey',
+  Mist = 'Mist',
+  Sky = 'Sky',
+  Blue = 'Blue',
+  Ultramarine = 'Ultramarine',
+  Bright = 'Bright',
+  Brilliant = 'Brilliant',
+  Royal = 'Royal',
+}
+
+export type WavesLevelDescription = {
+  level: number
+  name: WavesLevelName
+  /**  e.g. "1.4" */
+  boost: `${number}`
+  /**  e.g. "50000" */
+  pointsNeeded: `${number}`
+  comment: string
+}
+
+export type WavesParticipant = {
+  address: `0x${string}`
+  waveId: number
+  levelActivated: boolean
+  initialLevel: number
+  level: number
+  levelDescription: WavesLevelDescription
+
+  /** "2.100000", total user points without level multiplier */
+  points: `${number}`
+  /** "2.100000", final points with level multiplier ('boost') */
+  multipliedPoints: `${number}`
+}
+```
+
+## Base API URL
+
+For working with Azuro Waves data, we'll utilize the public API. The base URL is:
+
+```ts copy
+const waveId: number | 'active' = 'active'
+const baseUrl = `https://api.azuro.org/api/v1/public/waves/${waveId}`
+
+// waveId
+// e.g.
+// https://api.azuro.org/api/v1/public/waves/1
+// https://api.azuro.org/api/v1/public/waves/active
+```
+
+We recommend using the `active` key for the `waveId` parameter to retrieve current wave data.
+It's important to note that there may be periods between waves, during which the API will return `null`.
+
+## Get User Stats
+
+Please follow the [UI Guidelines](#ui-guidelines) to display a widget with user Waves stats in your UI.
+
+```ts copy
+const fetchAzuroWavesUserStats = async (userAddress: `0x${string}`) => {
+  const url = `https://api.azuro.org/api/v1/public/waves/active/participants/${userAddress.toLowerCase()}/stats`
+  const response = await fetch(url)
+  const result: StatsResponse = await response.json()
+
+  return result
+}
+
+type StatsResponse = WavesParticipant
+```
+
+In `WavesParticipant`, you will see two points fields:
+- `points`: Base ("clear") points used to reach the next level (`WavesLevelDescription['pointsNeeded']`).
+- `multipliedPoints`: Total points shown in the Total Leaderboard.
+
+## Activate User Levels
+
+All users start at the Grey level, even if they have enough points for Royal.
+To activate levels, users must perform an action **once per wave** (in Azuro UI, this is a click on a button titled "Enhance").
+
+This action calls an API endpoint:
+
+```ts copy
+const activateAzuroWavesUser = async (userAddress: `0x${string}`) => {
+  const url = `https://api.azuro.org/api/v1/public/waves/active/participants/${userAddress.toLowerCase()}/activate`
+  // GET method, not POST
+  const response = await fetch(url)
+  const result: ActivateResponse = await response.json()
+
+  return result
+}
+
+enum ParticipantActivationResult {
+  Activated = 'Activated',
+  AlreadyActivated = 'AlreadyActivated',
+  InvalidParticipantAddress = 'InvalidParticipantAddress',
+  ConcurrencyLockFailed = 'ConcurrencyLockFailed',
+  UnknownError = 'UnknownError',
+}
+
+type ActivateResponse = {
+  participant: WavesParticipant
+  result: ParticipantActivationResult
+}
+```
+
+The `WavesParticipant` field `levelActivated` indicates whether the user has activated their levels.
+
+
+## Fetch Total Leaderboard
+
+Please use the color scheme for levels outlined in the [UI Guidelines](#ui-guidelines) in your UI.
+
+```ts copy
+/**
+ * Returns the top 10 Participants, sorted by their position.
+ *
+ * If `userAddress` is provided and the user exists in the leaderboard (has any score)
+ * but their position isn't in the top 10,
+ * they will be added to the end of the list with their actual position.
+ */
+const fetchAzuroWavesTotalLeaderboard = async (userAddress?: `0x${string}`) => {
+  const url = userAddress
+    ? `https://api.azuro.org/api/v1/public/waves/active/leaderboard?address=${userAddress.toLowerCase()}`
+    : 'https://api.azuro.org/api/v1/public/waves/active/leaderboard'
+
+  const response = await fetch(url)
+  const result: WavesTotalResponse = await response.json()
+
+  return result
+}
+
+type WavesTotalItem = WavesParticipant & {
+  position: number
+}
+
+type WavesTotalResponse = WavesTotalItem[]
+```
+
+## Fetch Leaderboard for Specific Period
+
+### Fetch existing periods of a wave
+
+```ts copy
+/**
+  * Returns all periods of the Wave, DESC sorted.
+  */
+const fetchAzuroWavesPeriods = async (waveId: number | 'active' = 'active') => {
+  const url = `https://api.azuro.org/api/v1/public/waves/${waveId}/periods`
+
+  const response = await fetch(url)
+  const result: WavesPeriodsResponse = await response.json()
+
+  return result
+}
+
+type WavesPeriod = {
+  id: number
+  /** ISO String "2024-05-13T00:00:00.000Z" */
+  startsAt: string
+  /** ISO String "2024-05-20T00:00:00.000Z", actually, it's a startsAt of next period */
+  endsAt: string
+  /** "123456.56789" */
+  totalPoints: `${number}`
+  waveId: number
+}
+
+type WavesPeriodsResponse = WavesPeriod[]
+```
+
+### Fetch Specific Peroid Leaderboard
+
+To fetch the leaderboard for a period, you must specify the `periodStartsAt` parameter as a Unix timestamp (**in seconds**).
+
+At the end of a period, users receive additional bonus points (`points * positionMultiplier`), regardless of their level.
+In the API, the position multiplier is represented as `expectedPositionMultiplier`.
+The prefix "expected" is used to emphasize that this value is not final for an active period.
+
+```ts copy
+/**
+ * Returns the top 10 Participants, sorted by their position.
+ *
+ * If `userAddress` is provided and the user exists in the leaderboard (has any score)
+ * but their position isn't in the top 10,
+ * they will be added to the end of the list with their actual position.
+ */
+const fetchAzuroWavesPeriodLeaderboard = async (periodStartsAt: number, userAddress?: `0x${string}`) => {
+  const url = userAddress
+    ? `https://api.azuro.org/api/v1/public/waves/active/periods/${periodStartsAt}/leaderboard?address=${userAddress.toLowerCase()}`
+    : `https://api.azuro.org/api/v1/public/waves/active/periods/${periodStartsAt}/leaderboard`
+
+  const response = await fetch(url)
+  const result: WavesPeriodLeaderboardResponse = await response.json()
+
+  return result
+}
+
+type WavesPeriodLeaderboardItem = {
+  position: number
+  address: `0x${string}`
+  /** e.g. "123456.567892" */
+  points: `${number}`
+  wavePeriodId: number
+  /** e.g. "94.224632" */
+  sharePercent: `${number}`
+  /** e.g. "1.4" */
+  expectedPositionMultiplier: `${number}`
+}
+
+type WavesPeriodLeaderboardResponse = WavesPeriodLeaderboardItem[]
+```
+
+## Additional
+
+### Get Azuro Wave Levels Data
+
+If you intend to display a table listing all existing levels, use this endpoint:
+
+```ts copy
+/**
+  * Returns all Levels sorted from Grey to Royal.
+  */
+const fetchAzuroWavesLevels = async () => {
+  const url = 'https://api.azuro.org/api/v1/public/waves/active/levels'
+  const response = await fetch(url)
+  const result: WavesLevelsResponse = await response.json()
+
+  return result
+}
+
+type WavesLevelsResponse = WavesLevelDescription[]
+```
