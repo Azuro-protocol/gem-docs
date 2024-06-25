@@ -293,7 +293,7 @@ type WavesPeriodsResponse = WavesPeriod[]
 
 To fetch the leaderboard for a period, you must specify the `periodStartsAt` parameter as a Unix timestamp (**in seconds**).
 
-At the end of a period, users receive additional bonus points (`points * positionMultiplier`), regardless of their level.
+At the end of a period, users receive bonus points (`bonus = points * (positionMultiplier - 1)`), regardless of their level.
 In the API, the position multiplier is represented as `expectedPositionMultiplier`.
 The prefix "expected" is used to emphasize that this value is not final for an active period.
 
