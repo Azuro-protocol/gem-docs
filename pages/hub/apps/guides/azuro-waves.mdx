@@ -1,4 +1,4 @@
-import { Card } from 'components'
+import { Callout, Card } from 'components'
 import { Tabs } from 'nextra-theme-docs'
 
 
@@ -6,16 +6,29 @@ import { Tabs } from 'nextra-theme-docs'
 
 If you're not familiar with the basics of Azuro Waves, read about it [here](/concepts/azuro-waves).
 
+## Off-waves periods
+
+<Callout type="advice">
+  There may be periods between waves when one Wave is over and the new one hasn't started yet, so there is no active wave at the moment.
+  These gaps can last for hours, couple of days, or even a week.
+
+  In this case, the API will return:
+  - `wave: null` (`/waves/active`)
+  - `404` status for sub-paths (e.g. `/waves/active/leaderboard`).
+
+  **Account for this in your UI.** The [Guidelines PDF](/files/Azuro_Waves_UI_Guidelines.pdf) includes a recommendation for the User Widget UI in this case.
+</Callout>
+
 ## UI Guidelines
 
-Please follow the [Azuro Waves Guidelines](/files/Azuro_Waves_Guidelines.pdf) in your UI.
+Please follow the [Azuro Waves Guidelines](/files/Azuro_Waves_UI_Guidelines.pdf) in your UI.
 
 <div className="mt-3 sm:max-w-96">
   <Card
     contentIcon="/images/svg/download.svg"
     title="Azuro Waves Guidelines"
     text="PDF"
-    toTab="/files/Azuro_Waves_Guidelines.pdf"
+    toTab="/files/Azuro_Waves_UI_Guidelines.pdf"
   />
 </div>
 
@@ -171,8 +184,7 @@ const baseUrl = `https://api.azuro.org/api/v1/public/waves/${waveId}`
 // https://api.azuro.org/api/v1/public/waves/active
 ```
 
-We recommend using the `active` key for the `waveId` parameter to retrieve current wave data.
-It's important to note that there may be periods between waves, during which the API will return `null`.
+We recommend using the `active` key for the `waveId` parameter to retrieve current wave data and keep it up-to-date always.
 
 ## Get User Stats
 
@@ -182,6 +194,16 @@ Please follow the [UI Guidelines](#ui-guidelines) to display a widget with user 
 const fetchAzuroWavesUserStats = async (userAddress: `0x${string}`) => {
   const url = `https://api.azuro.org/api/v1/public/waves/active/participants/${userAddress.toLowerCase()}/stats`
   const response = await fetch(url)
+
+  // 404 means user not found or there is no active wave at this moment
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error(`Status ${response.status}: ${response.statusText}`)
+  }
+
   const result: StatsResponse = await response.json()
 
   return result
@@ -246,6 +268,16 @@ const fetchAzuroWavesTotalLeaderboard = async (userAddress?: `0x${string}`) => {
     : 'https://api.azuro.org/api/v1/public/waves/active/leaderboard'
 
   const response = await fetch(url)
+
+  // 404 means there is no active wave at this moment
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error(`Status ${response.status}: ${response.statusText}`)
+  }
+
   const result: WavesTotalResponse = await response.json()
 
   return result
@@ -266,10 +298,18 @@ type WavesTotalResponse = WavesTotalItem[]
 /**
   * Returns all periods of the Wave, DESC sorted.
   */
-const fetchAzuroWavesPeriods = async (waveId: number | 'active' = 'active') => {
-  const url = `https://api.azuro.org/api/v1/public/waves/${waveId}/periods`
+const fetchAzuroWavesPeriods = async () => {
+  const response = await fetch('https://api.azuro.org/api/v1/public/waves/active/periods')
 
-  const response = await fetch(url)
+  // 404 means there is no active wave at this moment
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error(`Status ${response.status}: ${response.statusText}`)
+  }
+
   const result: WavesPeriodsResponse = await response.json()
 
   return result
@@ -311,6 +351,16 @@ const fetchAzuroWavesPeriodLeaderboard = async (periodStartsAt: number, userAddr
     : `https://api.azuro.org/api/v1/public/waves/active/periods/${periodStartsAt}/leaderboard`
 
   const response = await fetch(url)
+
+  // 404 means there is no active wave at this moment
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error(`Status ${response.status}: ${response.statusText}`)
+  }
+
   const result: WavesPeriodLeaderboardResponse = await response.json()
 
   return result
@@ -344,6 +394,16 @@ If you intend to display a table listing all existing levels, use this endpoint:
 const fetchAzuroWavesLevels = async () => {
   const url = 'https://api.azuro.org/api/v1/public/waves/active/levels'
   const response = await fetch(url)
+
+  // 404 means there is no active wave at this moment
+  if (response.status === 404) {
+    return null
+  }
+
+  if (!response.ok) {
+    throw new Error(`Status ${response.status}: ${response.statusText}`)
+  }
+
   const result: WavesLevelsResponse = await response.json()
 
   return result
