@@ -23,6 +23,11 @@ const nextConfig = {
       })
     )
 
+    config.module.rules.push({
+      test: /\.(pdf)$/,
+      type: 'asset/resource',
+    });
+
     config.module.rules.push(
       {
         test: /\.svg$/i,
