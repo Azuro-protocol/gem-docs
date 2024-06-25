@@ -28,5 +28,9 @@
   },
   "debridge": {
     "title": "deBridge cross-chain bets"
+  },
+  "azuro-score": {
+    "title": "How to get Azuro Score leaderboard",
+    "display": "hidden"
   }
 }
