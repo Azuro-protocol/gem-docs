@@ -1,0 +1,44 @@
+import { Callout } from 'components'
+
+Hook is used to [Activate User Levels](/hub/apps/guides/azuro-waves#activate-user-levels).
+
+<Callout type="info">
+  This hook is wrapper around [getWaveLevels](/hub/apps/sdk/utils/getWaveLevels) function.
+</Callout>
+
+#### Usage
+
+```ts
+import { useWaveActivation } from '@azuro-org/sdk'
+
+const { activate } = useWaveActivation()
+
+await activate()
+```
+
+#### Props
+
+```ts
+{
+  account: Address
+  waveId?: WaveId
+}
+```
+
+```ts
+type WaveId = number | 'active'
+```
+
+#### Return Value
+
+```ts
+{
+  activate: UseMutateFunction
+  activateAsync: UseMutateAsyncFunction
+  isPending: boolean
+}
+```
+
+```ts
+import { UseMutateFunction, UseMutateAsyncFunction } from '@tanstack/react-query'
+```

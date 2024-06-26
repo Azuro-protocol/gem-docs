@@ -26,9 +26,11 @@ enum BetStatus {
 #### Usage
 
 ```ts
-import { getBetStatus, type Bet, liveCoreAddress } from '@azuro-org/sdk'
+import { type Bet } from '@azuro-org/sdk'
+import { getBetStatus, BetStatus } from '@azuro-org/sdk/utils'
 
 const { outcomes, status, coreAddress } = bet as Bet // bet's data from `usePrematchBets` or `useLiveBets`
+const liveCoreAddress = '0xsdf123...'
 
 const betStatus = getBetStatus({
   graphStatus: status,

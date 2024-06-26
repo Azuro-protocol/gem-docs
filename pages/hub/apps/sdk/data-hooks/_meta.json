@@ -8,5 +8,10 @@
   "usePrematchBets": "usePrematchBets",
   "useLiveBets": "useLiveBets",
   "useLiveBetFee": "useLiveBetFee",
-  "useBetsSummary": "useBetsSummary"
+  "useBetsSummary": "useBetsSummary",
+  "useWaveLevels": "useWaveLevels",
+  "useWavePeriods": "useWavePeriods",
+  "useWaveStats": "useWaveStats",
+  "useWaveLeaderBoard": "useWaveLeaderBoard",
+  "useWaveActivation": "useWaveActivation"
 }
