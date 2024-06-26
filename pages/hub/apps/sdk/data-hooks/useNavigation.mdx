@@ -1,0 +1,52 @@
+import { Callout } from 'components'
+
+Hook is used for fetch full sports navigation data with countries and leagues.
+
+Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+
+You can find the list of available sports [here](https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3/graphql?query=%7B%0A++sports+%7B%0A++++name%0A++%7D%0A%7D).
+
+#### Usage
+
+```ts
+import { useNavigation } from '@azuro-org/sdk'
+
+
+const { loading, sports } = useNavigation(props)
+```
+
+#### Props
+
+```ts
+{
+  withGameCount?: boolean // adds the lightweight games data to sport for counting
+  isLive?: boolean // if `true`, the hook will retrieve live navigation
+}
+```
+
+#### Return Value
+```ts
+{ 
+  loading: boolean
+  error: Error | null
+  sports {
+    id: string
+    slug: string
+    name: string
+    countries {
+      id: string
+      slug: string
+      name: string
+      leagues {
+        id: string
+        slug: string
+        name: string
+        // if `withGameCount` props is true includes games data
+        games {
+          id: string
+        }
+      }
+    }
+  }
+}
+```

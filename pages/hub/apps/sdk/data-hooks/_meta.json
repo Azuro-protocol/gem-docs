@@ -1,6 +1,7 @@
 {
   "useSports": "useSports",
   "useGames": "useGames",
+  "useNavigation": "useNavigation",
   "useSportsNavigation": "useSportsNavigation",
   "useGame": "useGame",
   "useConditions": "useConditions",
