@@ -1,0 +1,60 @@
+import { Callout } from 'components'
+
+Hook is used to get the [Wave User Stats](/hub/apps/guides/azuro-waves#get-user-stats) data.
+
+<Callout type="info">
+  This hook is a wrapper around [getWaveStats](/hub/apps/sdk/utils/getWaveStats) function.
+</Callout>
+
+#### Usage
+
+```ts
+import { useWaveStats } from '@azuro-org/sdk'
+
+const { data } = useWaveStats({
+  account: '0xkn123k...'
+})
+```
+
+#### Props
+
+```ts
+{
+  account: Address
+  waveId?: WaveId
+}
+```
+
+```ts
+type WaveId = number | 'active'
+```
+
+#### Return Value
+
+```ts
+UseQueryResult<WaveStats>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type WaveStats = {
+  waveId: number
+  isActivated: boolean
+  initialLevel: number
+  level: number
+
+  // points by categories
+  betPoints: string
+  dexPoints: string
+  liqudityPoints: string
+  stakingPoints: string
+  leaderboardPoints: string
+  manualPoints: string
+  points: string
+  multipliedPoints: string
+
+  sharePercent: string
+  levelDescription: WaveLevelData
+}
+```

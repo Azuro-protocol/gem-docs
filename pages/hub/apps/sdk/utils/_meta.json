@@ -5,5 +5,10 @@
   "getGameStatus": "getGameStatus",
   "getBetStatus": "getBetStatus",
   "getLiveBetFee": "getLiveBetFee",
-  "getPrematchBetDataBytes": "getPrematchBetDataBytes"
+  "getPrematchBetDataBytes": "getPrematchBetDataBytes",
+  "getWaveLevels": "getWaveLevels",
+  "getWaveStats": "getWaveStats",
+  "getWavePeriods": "getWavePeriods",
+  "getWaveLeaderBoard": "getWaveLeaderBoard",
+  "activateWave": "activateWave"
 }
