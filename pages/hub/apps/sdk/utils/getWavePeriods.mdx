@@ -1,0 +1,36 @@
+Returns the [Wave Periods](/hub/apps/guides/azuro-waves#fetch-existing-periods-of-a-wave) data.
+
+#### Usage
+
+```ts
+import { getWavePeriods } from '@azuro-org/sdk/utils'
+
+const periods = await getWavePeriods()
+```
+
+#### Props
+
+```ts
+{
+  waveId?: WaveId
+  chainId?: ChainId
+}
+```
+
+```ts
+type WaveId = number | 'active'
+
+type ChainId =  100 | 137 | 80002 | 88888 | 88882
+```
+
+#### Return Value
+
+```ts
+Array<{
+  id: number
+  startsAt: string // ISO String "2024-05-13T00:00:00.000Z"
+  endsAt: string // ISO String "2024-05-20T00:00:00.000Z". It's a startsAt of next period
+  totalPoints: string
+  waveId: number
+}> | null
+```
