@@ -1,4 +1,6 @@
 {
+  "setupContracts": "setupContracts",
+  "getEndpoints": "Endpoints",
   "calcMinOdds": "calcMinOdds",
   "calcPrematchOdds": "calcPrematchOdds",
   "calcLiveOdds": "calcLiveOdds",
@@ -6,9 +8,5 @@
   "getBetStatus": "getBetStatus",
   "getLiveBetFee": "getLiveBetFee",
   "getPrematchBetDataBytes": "getPrematchBetDataBytes",
-  "getWaveLevels": "getWaveLevels",
-  "getWaveStats": "getWaveStats",
-  "getWavePeriods": "getWavePeriods",
-  "getWaveLeaderBoard": "getWaveLeaderBoard",
-  "activateWave": "activateWave"
+  "groupConditionsByMarket": "groupConditionsByMarket"
 }

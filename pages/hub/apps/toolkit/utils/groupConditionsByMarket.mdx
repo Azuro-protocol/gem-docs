@@ -1,0 +1,52 @@
+Creates markets from subgraph conditions.
+
+#### Usage
+
+```ts
+import { groupConditionsByMarket, PrematchConditionsQuery } from '@azuro-org/toolkit'
+
+const conditions: PrematchConditionsQuery['conditions'] = [...]
+
+const markets = groupConditionsByMarket(conditions)
+```
+
+#### Props
+```ts
+type ConditionsQuery = (PrematchConditionsQuery | LiveConditionsQuery)['conditions']
+```
+
+```ts
+import { PrematchConditionsQuery, LiveConditionsQuery } from '@azuro-org/toolkit'
+```
+
+#### Return Value
+
+```ts
+type GameMarkets = Market[]
+```
+
+```ts
+type Market = {
+  marketKey: string
+  name: string
+  description: string
+  outcomeRows: MarketOutcome[][]
+}
+
+type MarketOutcome = {
+  selectionName: string
+  odds?: number
+  lpAddress: string
+  coreAddress: string
+  status: ConditionStatus
+  gameId: string
+  isExpressForbidden: boolean
+  isWon?: boolean
+} & Selection
+
+type Selection = {
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
+}
+```

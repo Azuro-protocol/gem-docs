@@ -3,6 +3,9 @@
   "guides": {
     "title": "Guides & Tutorials"
   },
+  "toolkit": {
+    "title": "Toolkit"
+  },
   "sdk": {
     "title": "SDK"
   },

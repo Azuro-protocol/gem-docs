@@ -5,9 +5,6 @@
   "providers": {
     "title": "Providers"
   },
-  "utils": {
-    "title": "Utils"
-  },
   "data-hooks": {
     "title": "Data Hooks"
   },

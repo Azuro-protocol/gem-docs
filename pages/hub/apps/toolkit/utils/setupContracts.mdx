@@ -1,0 +1,60 @@
+Creates contracts object with ABI.
+
+
+#### Usage
+```ts
+import { setupContracts } from '@azuro-org/toolkit'
+
+const contracts = setupContracts({
+  lp: '0x7043E4e1c4045424858ECBCED80989FeAfC11B36',
+  prematchCore: '0xA40F8D69D412b79b49EAbdD5cf1b5706395bfCf7',
+  prematchComboCore: '0x92a4e8Bc6B92a2e1ced411f41013B5FE6BE07613',
+  proxyFront: '0x0DEE52b98ba8326DaD4C346a4F806Fd871360a00',
+  liveRelayer: '0xC6BB817a7f02874F360d135D880200A2E440207D',
+  liveCore: '0xc389558Faca41bC747F763cf8616704187CDcD04',
+})
+```
+
+#### Props
+```ts
+import { type Address } from 'viem'
+
+{
+  lp: Address
+  prematchCore: Address
+  prematchComboCore: Address
+  proxyFront: Address
+  liveRelayer?: Address
+  liveCore?: Address
+}
+```
+
+#### Return Value
+
+```ts
+type Contracts = {
+  lp: {
+    address: Address
+    abi: typeof lpAbi
+  }
+  prematchCore: {
+    address: Address
+    abi: typeof prematchCoreAbi
+  }
+  prematchComboCore: {
+    address: Address
+    abi: typeof prematchComboCoreAbi
+  }
+  proxyFront: {
+    address: Address
+    abi: typeof proxyFrontAbi
+  }
+  liveRelayer?: {
+    address: Address
+  }
+  liveCore?: {
+    address: Address
+    abi: typeof liveCoreAbi
+  }
+}
+```
