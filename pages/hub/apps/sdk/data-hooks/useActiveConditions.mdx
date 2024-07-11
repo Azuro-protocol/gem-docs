@@ -1,0 +1,49 @@
+import { Callout } from 'components'
+
+Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions) for getting active conditions.
+
+#### Usage
+
+```ts
+import { useActiveConditions } from '@azuro-org/sdk'
+
+const { loading, error, conditions } = useActiveConditions(props)
+```
+
+#### Props
+
+```ts
+{
+  gameId: string
+  isLive: boolean // if the flag is set to true, useConditions will retrieve live conditions.
+  filter?: {
+    outcomeIds?: string[]
+  }
+  livePollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
+}
+```
+
+<Callout type="warning">
+  `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
+
+  ```ts
+  import { useGame } from '@azuro-org/sdk'
+
+  const { loading, error, games } = useGames()
+
+  const gameId = games?.[0]?.gameId
+  ```
+</Callout>
+
+
+#### Return Value
+
+```ts
+import { type PrematchConditionsQuery, type LiveConditionsQuery } from '@azuro-org/toolkit'
+
+{
+  loading: boolean
+  error: Error | null
+  conditions: (PrematchConditionsQuery | LiveConditionsQuery)['conditions']
+}
+```

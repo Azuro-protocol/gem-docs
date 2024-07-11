@@ -1,13 +1,13 @@
 import { Callout } from 'components'
 
-Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions) for groupping conditions by market.
+Wrapper over [`useActiveConditions`](hub/apps/sdk/data-hooks/useActiveConditions) for groupping active conditions by market.
 
 #### Usage
 
 ```ts
-import { useGameMarkets } from '@azuro-org/sdk'
+import { useActiveMarkets } from '@azuro-org/sdk'
 
-const { loading, error, markets } = useGameMarkets(props)
+const { loading, error, markets } = useActiveMarkets(props)
 ```
 
 #### Props
@@ -19,7 +19,7 @@ const { loading, error, markets } = useGameMarkets(props)
   filter?: {
     outcomeIds?: string[]
   }
-  livePollInterval?: number // live conditions can be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
+  livePollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
 }
 
 enum GameStatus {
@@ -63,11 +63,12 @@ type Selection = {
 
 type MarketOutcome = {
   selectionName: string
-  odds: string
+  odds?: number
   lpAddress: string
   coreAddress: string
   status: ConditionStatus
-  gameId: string | bigint
+  gameId: string
+  isExpressForbidden: boolean
 } & Selection
 
 type Market = {
