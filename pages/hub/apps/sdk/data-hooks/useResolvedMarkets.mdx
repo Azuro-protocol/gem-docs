@@ -1,5 +1,3 @@
-import { Callout } from 'components'
-
 Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions). It obtains resolved conditions and groups prematch and live markets. Should be used to show game results.
 
 #### Usage
@@ -7,7 +5,7 @@ Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions). It obtain
 ```ts
 import { useResolvedMarkets } from '@azuro-org/sdk'
 
-const { loading, error, groupedMarkets, prematchMarkets, liveMarkets } = useResolvedMarkets(props)
+const { loading, error, groupedMarkets, prematchMarkets, liveMarkets } = useResolvedMarkets({ gameId: '...' })
 ```
 
 #### Props

@@ -13,9 +13,5 @@
   "useLiveBetFee": "useLiveBetFee",
   "useBetsSummary": "useBetsSummary",
   "useBetsSummaryBySelection": "useBetsSummaryBySelection",
-  "useWaveLevels": "useWaveLevels",
-  "useWavePeriods": "useWavePeriods",
-  "useWaveStats": "useWaveStats",
-  "useWaveLeaderBoard": "useWaveLeaderBoard",
-  "useWaveActivation": "useWaveActivation"
+  "useFreeBets": "useFreeBets"
 }

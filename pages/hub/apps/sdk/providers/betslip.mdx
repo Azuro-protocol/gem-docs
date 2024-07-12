@@ -91,6 +91,7 @@ const selectionAmount = batchBetAmounts[`${conditionId}-${outcomeId}`]
 ```ts
 type BetslipProviderProps = {
   children: React.ReactNode
+  affiliate?: Address // only for freeBets fetching
   isBatchBetWithSameGameEnabled?: boolean // if value is true betslip will allow to add outcomes from same game for batch bet
 }
 ```
@@ -112,16 +113,20 @@ type DetailedBetslipContextValue = {
   totalOdds: number // total bet odds
   maxBet: number | undefined // maximum bet amount
   minBet: number | undefined // minimum bet amount
+  selectedFreeBet: FreeBet | undefined // selected freeBet
+  freeBets: FreeBet[] | undefined | null // list of freeBets
   statuses: Record<string, ConditionStatus> // status for each item
   disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
   changeBetAmount: (value: string) => void // function for changing bet amount
   changeBatchBetAmount: (item: changeBatchBetAmountItem, value: string) => void // function for changing bet amount for batch bet
   changeBatch: (value: boolean) => void // function for switching between combo and batch
+  selectFreeBet: (value?: FreeBet) => void // set freeBet as selected
   isBatch: boolean // true if batch is enabled
   isLiveBet: boolean // true if live outcome in the betslip
   isCombo: boolean // true if combo bet
   isStatusesFetching: boolean // indicates statuses fetching
   isOddsFetching: boolean // indicates odds fetching
+  isFreeBetsFetching: boolean // indicates freeBets fetching
   isBetAllowed: boolean // true if bet can be placed
 }
 
@@ -134,6 +139,11 @@ enum BetslipDisableReason {
   ComboWithSameGame = 'ComboWithSameGame', // outcomes from same game can't be used in combo
   PrematchConditionInStartedGame = 'PrematchConditionInStartedGame', // pre-match item in started game
   BatchWithLive = 'BatchWithLive', // live outcome can't be used in batch
+  FreeBetWithLive = 'FreeBetWithLive', // freeBet can't be used in live
+  FreeBetWithCombo = 'FreeBetWithCombo', // freeBet can't be used in combo
+  FreeBetWithBatch = 'FreeBetWithBatch', // freeBet can't be used in batch
+  FreeBetExpired = 'FreeBetExpired', // freeBet is expired
+  FreeBetMinOdds = 'FreeBetMinOdds', // selection's odds is low for freeBet
 }
 
 type Game = {

@@ -8,5 +8,6 @@
   "getBetStatus": "getBetStatus",
   "getLiveBetFee": "getLiveBetFee",
   "getPrematchBetDataBytes": "getPrematchBetDataBytes",
-  "groupConditionsByMarket": "groupConditionsByMarket"
+  "groupConditionsByMarket": "groupConditionsByMarket",
+  "getFreeBets": "getFreeBets"
 }
