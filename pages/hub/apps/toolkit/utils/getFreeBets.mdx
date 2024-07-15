@@ -1,0 +1,57 @@
+Returns the [FreeBets](/contracts/free-bet) list.
+
+#### Usage
+
+```ts
+import { getFreeBets } from '@azuro-org/toolkit'
+
+const freeBets = await getFreeBets()
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  account: Address
+  affiliate: Address
+}
+```
+
+```ts
+type ChainId =  100 | 137 | 80002 | 88888 | 88882
+```
+
+#### Return Value
+
+```ts
+Array<{
+  id: number
+  owner: Address
+  amount: string // raw '10000000'
+  minOdds: string // raw '10000000'
+  contractId: number
+  signature: Hex
+  expiresAt: number // unix timestamp in seconds
+  campaign: string
+  status: RestFreeBetStatus
+  contract: {
+    id: number
+    affiliate: Address
+    chainId: string
+    freebetContractAddress: Address
+    decimals: number
+  }
+}> | null | undefined
+```
+
+```ts
+enum FreeBetStatus {
+  New = 'New',
+  Claimed = 'Claimed',
+  Redeemed = 'Redeemed',
+  Canceled = 'Canceled',
+  Reissued = 'Reissued',
+  Withdrawn = 'Withdrawn',
+}
+```

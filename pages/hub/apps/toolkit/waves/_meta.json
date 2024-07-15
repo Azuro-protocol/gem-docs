@@ -1,0 +1,7 @@
+{
+  "getWaveLevels": "getWaveLevels",
+  "getWaveStats": "getWaveStats",
+  "getWavePeriods": "getWavePeriods",
+  "getWaveLeaderBoard": "getWaveLeaderBoard",
+  "activateWave": "activateWave"
+}

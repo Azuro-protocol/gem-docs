@@ -1,0 +1,55 @@
+Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions). It obtains resolved conditions and groups prematch and live markets. Should be used to show game results.
+
+#### Usage
+
+```ts
+import { useResolvedMarkets } from '@azuro-org/sdk'
+
+const { loading, error, groupedMarkets, prematchMarkets, liveMarkets } = useResolvedMarkets({ gameId: '...' })
+```
+
+#### Props
+
+```ts
+{
+  gameId: string
+}
+```
+
+
+#### Return Value
+
+```ts
+{
+  loading: boolean
+  error: Error | null
+  groupedMarkets: Market[] // grouped prematch and live markets
+  prematchMarkets: Market[]
+  liveMarkets: Market[]
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+  coreAddress: string
+}
+
+type MarketOutcome = {
+  selectionName: string
+  odds?: number
+  lpAddress: string
+  coreAddress: string
+  status: ConditionStatus
+  gameId: string
+  isExpressForbidden: boolean
+  isWon?: boolean
+} & Selection
+
+type Market = {
+  name: string
+  description: string
+  outcomeRows: MarketOutcome[][]
+}
+```

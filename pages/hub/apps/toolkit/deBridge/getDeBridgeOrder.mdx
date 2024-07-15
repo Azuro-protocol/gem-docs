@@ -1,0 +1,59 @@
+Returns deBridge order.
+
+#### Usage
+
+```ts
+import { getDeBridgeOrder } from '@azuro-org/toolkit'
+
+const order = await getDeBridgeOrder('0xlk123kdf...')
+```
+
+#### Props
+```ts
+Hex
+```
+
+#### Return Value
+
+```ts
+Promise<{
+  orderId: {
+    stringValue: Hex
+  }
+  fulfilledDstEventMetadata: {
+    transactionHash: {
+      stringValue: Hex // transaction hash in dstChainId
+    }
+  } | null
+  state: DeBridgeOrderStatus
+  externalCallState: DeBridgeExternalCallStatus
+  takeOfferWithMetadata: {
+    chainId: {
+      bigIntegerValue: number
+    }
+  }
+} | null>
+```
+
+```ts
+enum DeBridgeOrderStatus {
+  None = 'None',
+  Created = 'Created',
+  Fulfilled = 'Fulfilled',
+  SentUnlock = 'SentUnlock',
+  OrderCancelled = 'OrderCancelled',
+  SentOrderCancel = 'SentOrderCancel',
+  ClaimedUnlock = 'ClaimedUnlock',
+  ClaimedOrderCancel = 'ClaimedOrderCancel',
+}
+
+enum DeBridgeExternalCallStatus {
+  NoExtCall = 'NoExtCall',
+  AwaitingOrderFulfillment = 'AwaitingOrderFulfillment',
+  AwaitingExecution = 'AwaitingExecution',
+  Executing = 'Executing',
+  Completed = 'Completed',
+  Failed = 'Failed',
+  Cancelled = 'Cancelled',
+}
+```

@@ -5,14 +5,13 @@
   "useSportsNavigation": "useSportsNavigation",
   "useGame": "useGame",
   "useConditions": "useConditions",
-  "useGameMarkets": "useGameMarkets",
+  "useActiveConditions": "useActiveConditions",
+  "useActiveMarkets": "useActiveMarkets",
+  "useResolvedMarkets": "useResolvedMarkets",
   "usePrematchBets": "usePrematchBets",
   "useLiveBets": "useLiveBets",
   "useLiveBetFee": "useLiveBetFee",
   "useBetsSummary": "useBetsSummary",
-  "useWaveLevels": "useWaveLevels",
-  "useWavePeriods": "useWavePeriods",
-  "useWaveStats": "useWaveStats",
-  "useWaveLeaderBoard": "useWaveLeaderBoard",
-  "useWaveActivation": "useWaveActivation"
+  "useBetsSummaryBySelection": "useBetsSummaryBySelection",
+  "useFreeBets": "useFreeBets"
 }

@@ -1,0 +1,45 @@
+import { Callout } from 'components'
+
+Hook is used to get the [Wave Periods](/hub/apps/guides/azuro-waves#fetch-existing-periods-of-a-wave) data.
+
+<Callout type="info">
+  This hook is a wrapper around [getWavePeriods](/hub/apps/toolkit/waves/getWavePeriods) function.
+</Callout>
+
+#### Usage
+
+```ts
+import { useWavePeriods } from '@azuro-org/sdk'
+
+const { data } = useWavePeriods()
+```
+
+#### Props
+
+```ts
+{
+  waveId?: WaveId
+}
+```
+
+```ts
+type WaveId = number | 'active'
+```
+
+#### Return Value
+
+```ts
+UseQueryResult<WavePeriod[]>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type WavePeriod = {
+  id: number
+  startsAt: number
+  endsAt: number
+  totalPoints: string
+  isBonusPreCalc: boolean
+}
+```

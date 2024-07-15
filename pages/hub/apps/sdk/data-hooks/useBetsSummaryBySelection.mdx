@@ -1,0 +1,39 @@
+import { Callout } from 'components'
+
+This Hook should use if you want to show user's bets results on the game page for resolved markets, check [`useResolvedMarkets`](useResolvedMarkets).
+
+#### Usage
+
+```ts
+import { useBetsSummaryBeSelection } from '@azuro-org/sdk'
+
+const { betsSummary, loading, error } = useBetsSummaryBeSelection({
+  account: '...',
+  gameId: '...',
+  gameStatus: GameStatus.Resolved
+})
+```
+
+#### Props
+```ts
+{
+  account: Address
+  gameId: string
+  gameStatus: GameStatus
+  keyStruct?: 'outcomeId' | 'conditionId-outcomeId' // the key in betsSummary object
+}
+```
+
+<Callout type="info">
+  If you use `groupedMarkets` from [`useResolvedMarkets`](useResolvedMarkets) the `keyStruct` should be `outcomeId` otherwise `conditionId-outcomeId`.
+</Callout>
+
+
+#### Return Value
+```ts
+{
+  loading: boolean
+  error: Error | null
+  betsSummary: Record<string, string>
+}
+```

@@ -1,7 +1,5 @@
 {
   "useGameStatus": "useGameStatus",
   "useBetTokenBalance": "useBetTokenBalance",
-  "useNativeBalance": "useNativeBalance",
-  "useDeBridgeSupportedChains": "useDeBridgeSupportedChains",
-  "useDeBridgeSupportedTokens": "useDeBridgeSupportedTokens"
+  "useNativeBalance": "useNativeBalance"
 }

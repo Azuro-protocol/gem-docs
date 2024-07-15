@@ -1,0 +1,49 @@
+Returns the [Wave Levels](/hub/apps/guides/azuro-waves#get-azuro-wave-levels-data) data.
+
+#### Usage
+
+```ts
+import { getWaveLevels } from '@azuro-org/toolkit'
+
+const levels = await getWaveLevels()
+```
+
+#### Props
+
+```ts
+{
+  waveId?: WaveId
+  chainId?: ChainId
+}
+```
+
+```ts
+type WaveId = number | 'active'
+
+type ChainId =  100 | 137 | 80002 | 88888 | 88882
+```
+
+#### Return Value
+
+```ts
+Array<{
+  level: number
+  name: WaveLevelName
+  boost: string
+  pointsNeeded: string
+  comment: string
+}> | null
+```
+
+```ts
+enum WaveLevelName {
+  Grey = 'Grey',
+  Mist = 'Mist',
+  Sky = 'Sky',
+  Blue = 'Blue',
+  Ultramarine = 'Ultramarine',
+  Bright = 'Bright',
+  Brilliant = 'Brilliant',
+  Royal = 'Royal',
+}
+```

@@ -1,0 +1,13 @@
+{
+  "setupContracts": "setupContracts",
+  "getEndpoints": "Endpoints",
+  "calcMinOdds": "calcMinOdds",
+  "calcPrematchOdds": "calcPrematchOdds",
+  "calcLiveOdds": "calcLiveOdds",
+  "getGameStatus": "getGameStatus",
+  "getBetStatus": "getBetStatus",
+  "getLiveBetFee": "getLiveBetFee",
+  "getPrematchBetDataBytes": "getPrematchBetDataBytes",
+  "groupConditionsByMarket": "groupConditionsByMarket",
+  "getFreeBets": "getFreeBets"
+}

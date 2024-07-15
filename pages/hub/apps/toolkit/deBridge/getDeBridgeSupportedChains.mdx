@@ -1,0 +1,18 @@
+Returns supported chains for deBridge.
+
+#### Usage
+
+```ts
+import { getDeBridgeSupportedChains } from '@azuro-org/toolkit'
+
+const chains = await getDeBridgeSupportedChains()
+```
+
+#### Return Value
+
+```ts
+Promise<{
+    chainId: number
+    chainName: string
+}[] | null>
+```
