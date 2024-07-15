@@ -1,0 +1,79 @@
+import { Callout } from 'components'
+
+Wrapper over [`useActiveConditions`](hub/apps/sdk/data-hooks/useActiveConditions) for groupping active conditions by market.
+
+#### Usage
+
+```ts
+import { useActiveMarkets } from '@azuro-org/sdk'
+
+const { loading, error, markets } = useActiveMarkets(props)
+```
+
+#### Props
+
+```ts
+{
+  gameId: string
+  gameStatus: GameStatus // game status from `useGameStatus` hook or 'getGameStatus' function
+  filter?: {
+    outcomeIds?: string[]
+  }
+  livePollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
+}
+
+enum GameStatus {
+  Created,
+  Live,
+  Resolved,
+  Canceled,
+  Paused,
+  PendingResolution,
+}
+```
+
+<Callout type="warning">
+  `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
+
+  ```ts
+  import { useGame } from '@azuro-org/sdk'
+
+  const { loading, error, games } = useGames()
+
+  const gameId = games?.[0]?.gameId
+  ```
+</Callout>
+
+
+#### Return Value
+
+```ts
+{
+  loading: boolean
+  error: Error | null
+  markets: Market[]
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string | bigint
+  outcomeId: string | bigint
+}
+
+type MarketOutcome = {
+  selectionName: string
+  odds?: number
+  lpAddress: string
+  coreAddress: string
+  status: ConditionStatus
+  gameId: string
+  isExpressForbidden: boolean
+} & Selection
+
+type Market = {
+  name: string
+  description: string
+  outcomeRows: MarketOutcome[][]
+}
+```

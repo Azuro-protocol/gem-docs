@@ -1,0 +1,46 @@
+Calculates the live odds value for specific outcome at which the bet can be placed on. If the current odds value is lower than the specified value, the bet cannot be placed and will be rejected by the contract.
+
+#### Usage
+
+```ts
+import { calcLiveOdds } from '@azuro-org/toolkit'
+
+const liveOdds = calcLiveOdds({
+  selection,
+  betAmount,
+  oddsData,
+})
+```
+
+#### Props
+
+```ts
+{
+  selection: Selection
+  oddsData: OddsData
+  betAmount?: string
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
+}
+
+type SocketData = {
+  conditionId: string
+  margin: number // marginality
+  reinforcement: number
+  winningOutcomesCount: number
+  outcomes: Record<string, { // key is outcomeId
+    odds: number // current odds
+    clearOdds: number // current odds without marginality
+  }>
+}
+```
+
+#### Return Value
+
+`number`

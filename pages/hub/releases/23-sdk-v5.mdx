@@ -1,0 +1,27 @@
+import { Callout } from 'components'
+
+# 07/15 SDK v5 & Toolkit v4
+
+## SDK v5
+
+- Contracts, ABIs, Endpoints, Utils, GraphQL Schemas were moved to [`Toolkit`](/hub/apps/toolkit/overview).
+- [`Toolkit`](/hub/apps/toolkit/overview) added to dependencies.
+- FreeBets implementation
+- Game Results implementation
+
+### New Hooks
+- [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions)
+- [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets)
+- [`useResolvedMarkets`](/hub/apps/sdk/data-hooks/useResolvedMarkets)
+- [`useBetsSummaryBySelection`](/hub/apps/sdk/data-hooks/useBetsSummaryBySelection)
+- [`useFreeBets`](/hub/apps/sdk/data-hooks/useFreeBets)
+
+### Updates
+- [`useConditions`](/hub/apps/sdk/data-hooks/useConditions) now returns `prematchCnditions` and `liveConditions`. Use [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) instead for getting active conditions for a game
+- [`usePrepareBet`](/hub/apps/sdk/write-hooks/usePrepareBet) accepts `freeBet` data prop
+- [`Betslip`](/hub/apps/sdk/providers/betslip) accepts `affiliate` prop to fetching user's freeBets
+
+
+## Toolkit v4
+
+Helpers to develop an betting app without SDK, check [`Toolkit`](/hub/apps/toolkit/overview).

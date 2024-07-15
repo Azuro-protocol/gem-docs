@@ -1,0 +1,6 @@
+{
+  "getDeBridgeSupportedChains": "getDeBridgeSupportedChains",
+  "getDeBridgeSupportedTokens": "getDeBridgeSupportedTokens",
+  "createDeBridgeBet": "createDeBridgeBet",
+  "getDeBridgeOrder": "getDeBridgeOrder"
+}

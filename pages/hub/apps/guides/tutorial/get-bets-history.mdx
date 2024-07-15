@@ -14,7 +14,8 @@ Each bet may contain more than one selection (combo bets), so we'll make univers
 
 ```tsx {2, 39, 70-74} copy filename="src/components/BetCard.tsx"
 'use client'
-import { type Bet, getBetStatus, getGameStatus, BetStatus, GameStatus, useChain, useRedeemBet } from '@azuro-org/sdk'
+import { type Bet, useChain, useRedeemBet } from '@azuro-org/sdk'
+import { getBetStatus, getGameStatus, BetStatus, GameStatus } from '@azuro-org/toolkit'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useMemo } from 'react'

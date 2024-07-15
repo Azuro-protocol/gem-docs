@@ -1,0 +1,25 @@
+Calculates the minimum odds value at which the bet can be placed. If the current odds value is lower than the specified value, the bet cannot be placed and will be rejected by the contract.
+
+#### Usage
+
+```ts
+import { calcMindOdds } from '@azuro-org/toolkit'
+
+const minOdds = calcMindOdds({ 
+  odds: 1.17,
+  slippage: 5, // 5% 
+})
+```
+
+#### Props
+
+```ts
+{
+  odds: number | number[]
+  slippage: number
+}
+```
+
+#### Return Value
+
+`number`

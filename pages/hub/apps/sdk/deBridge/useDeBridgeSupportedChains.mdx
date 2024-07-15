@@ -1,0 +1,36 @@
+import { Callout } from 'components'
+
+Returns supported chains for [`deBridge`](https://docs.dln.trade/the-core-protocol/fees-and-supported-chains).
+
+<Callout type="info">
+  This hook is a wrapper around [getDeBridgeSupportedChains](/hub/apps/toolkit/deBridge/getDeBridgeSupportedChains) function.
+</Callout>
+
+#### Usage
+
+```ts
+import { useDeBridgeSupportedChains } from '@azuro-org/sdk'
+
+const { supportedChains, supportedChainIds, loading } = useDeBridgeSupportedChains()
+```
+
+#### Props
+```ts
+{
+  enabled?: boolean // default value is true
+} | undefined
+```
+
+#### Return Value
+
+```ts
+{
+  supportedChains: Array<{
+    chainId: number
+    chainName: string
+  }>
+  supportedChainIds: Array<number>
+  refetch: (options?: RefetchOptions | undefined) => Promise
+  loading: boolean
+}
+```

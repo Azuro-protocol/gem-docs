@@ -4,16 +4,12 @@ This hook is used to fetch pre-match and live [`Conditions`](/concepts/glossary#
 
 Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
 
-<Callout type="warning">
-The Hook should be used if [`useGameMarkets`](/guides/sdk/data-hooks/useGameMarkets) doesn't suit your needs. [Here](https://github.com/Azuro-protocol/sdk/blob/main/src/hooks/useGameMarkets.ts#L170) is an example demonstrating usage, employing the `useGameMarkets` hook.
-</Callout>
-
 #### Usage
 
 ```ts
 import { useConditions } from '@azuro-org/sdk'
 
-const { loading, error, conditions } = useConditions(props)
+const { loading, error, prematchConditions, liveConditions } = useConditions(props)
 ```
 
 #### Props
@@ -21,11 +17,16 @@ const { loading, error, conditions } = useConditions(props)
 ```ts
 {
   gameId: string | bigint
-  isLive: boolean // if the flag is set to true, useConditions will retrieve live conditions.
-  livePollInterval?: number // live conditions can be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
-  filter?: {
-    outcomeIds?: string[]
-  }
+  livePollInterval?: number
+  filter?: Condition_Filter
+  prematchQuery?: QueryProps
+  liveQuery?: QueryProps
+}
+```
+```ts
+type QueryProps = {
+  pollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
+  skip?: boolean
 }
 ```
 
@@ -39,30 +40,19 @@ const { loading, error, conditions } = useConditions(props)
 
   const gameId = data?.games[0]?.gameId
 
-  const { loading, error, data } = useConditions({ gameId })
+  const {} = useConditions({ gameId })
   ```
 </Callout>
 
 #### Return Value
 
 ```ts
+import { type PrematchConditionsQuery, type LiveConditionsQuery } from '@azuro-org/toolkit'
+
 {
   loading: boolean
   error: Error | null
-  conditions: Array<{
-    id: string
-    conditionId: string
-    status
-    core: {
-      address: string
-      liquidityPool: {
-        address: string
-      }
-    }
-    outcomes: Array<{
-      outcomeId: string
-      odds: string
-    }>
-  }>
+  prematchCnditions: PrematchConditionsQuery['conditions'] | undefined,
+  liveCnditions: LiveConditionsQuery['conditions'] | undefined,
 }
 ```

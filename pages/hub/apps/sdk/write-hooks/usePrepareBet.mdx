@@ -105,6 +105,7 @@ const {...} = usePrepareBet({
   affiliate: Address // your affiliate address
   odds: Record<string, number>, // odds
   totalOdds: number, // total odds
+  freeBet?: FreeBet // freeBet info
   selections: Selection[] // user's choise for bet
   liveEIP712Attention?: string // attention text for eip-712 sign (up to 160 chars)
   deadline?: number // duration after which the bet will be canceled if it does not get included in a block
@@ -118,6 +119,19 @@ type Selection = {
   conditionId: string
   outcomeId: string
   coreAddress: string
+}
+
+type FreeBet = {
+  id: number
+  contractAddress: Address
+  signature: Hex
+  expiresAt: number
+  amount: string
+  rawAmount: bigint
+  minOdds: string
+  rawMinOdds: bigint
+  campaign: string
+  chainId: ChainId
 }
 ```
 

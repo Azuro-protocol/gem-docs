@@ -1,0 +1,62 @@
+Returns detailed game status based on game's status derived from the subgraph and start date.
+
+This helper extends the GameStatus from the subgraph. However, it's noticeable that there might not be sufficient statuses to create a detailed UI representation of the game state. For instance, there might be ambiguity in understanding what occurred with the bet between the 'Created' and 'Resolved' statuses.
+
+```ts
+export enum GraphGameStatus {
+  Created = 'Created', // game was created
+  Resolved = 'Resolved' // game was resolved
+  Paused = 'Paused', // games was paused
+  Canceled = 'Canceled', // game was calnceled
+}
+```
+
+Thus, we've introduced additional statuses:
+
+```ts {2-4}
+enum GameStatus {
+  Created, // same as GraphGameStatus.Created
+  Live, // game in live
+  PendingResolution, // pre-match game status holds for 100 minutes after the start if the game doesn't exist in the live
+  Resolved, // same as GraphGameStatus.Resolved
+  Canceled, // same as GraphGameStatus.Canceled
+  Paused, // same as GraphGameStatus.Paused
+}
+```
+
+#### Usage
+
+```ts
+import { getGameStatus, GameStatus } from '@azuro-org/toolkit'
+
+const { status, startsAt } = game // game's data from subgraph
+
+const gameStatus = getGameStatus({ 
+  graphStatus: status,
+  startsAt,
+  isGameInLive: true
+})
+```
+
+#### Props
+
+```ts
+{
+  graphStatus: GameStatus // game's status from subgraph
+  startsAt: number
+  isGameInLive: boolean // should evaluate to `true` if the game from live graph
+}
+```
+
+#### Return Value
+
+```ts
+enum GameStatus {
+  Created,
+  Live,
+  Resolved,
+  Canceled,
+  Paused,
+  PendingResolution,
+}
+```

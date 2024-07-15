@@ -1,0 +1,33 @@
+Used to [Activate User Levels](/hub/apps/guides/azuro-waves#activate-user-levels).
+
+#### Usage
+
+```ts
+import { activateWave } from '@azuro-org/toolkit'
+
+await activateWave({
+  account: '0xkn123k...'
+})
+```
+
+#### Props
+
+```ts
+{
+  account: Address
+  waveId?: WaveId
+  chainId?: ChainId
+}
+```
+
+```ts
+type WaveId = number | 'active'
+
+type ChainId =  100 | 137 | 80002 | 88888 | 88882
+```
+
+#### Return Value
+
+```ts
+Promise<void>
+```
