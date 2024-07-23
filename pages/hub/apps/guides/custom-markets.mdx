@@ -42,10 +42,10 @@ conditions.forEach((condition) => {
     const customSelectionName = outcome.title
 
     // If customMarketName has a value, then use it as marketName; otherwise, use the getMarketName function.
-    const marketName = customMarketName || getMarketName({ outcome.outcomeId })
+    const marketName = customMarketName || getMarketName({ outcomeId: outcome.outcomeId })
 
     // If customSelectionName has a value, then use it as selectionName; otherwise, use the getSelectionName function.
-    const selectionName = customSelectionName || getSelectionName({ outcome.outcomeId, withPoint: true })
+    const selectionName = customSelectionName || getSelectionName({ outcomeId: outcome.outcomeId, withPoint: true })
   })
 })
 ```
