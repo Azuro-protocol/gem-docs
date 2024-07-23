@@ -32,5 +32,8 @@
   "azuro-score": {
     "title": "How to get Azuro Score leaderboard",
     "display": "hidden"
+  },
+  "custom-markets": {
+    "title": "Custom Markets"
   }
 }
