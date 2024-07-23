@@ -11,6 +11,9 @@
   "---": {
     "type": "separator"
   },
+  "custom-markets": {
+    "title": "How to add political / social markets"
+  },
   "affiliate-wallet": {
     "title": "How to get rewards: affiliate wallet"
   },
@@ -32,8 +35,5 @@
   "azuro-score": {
     "title": "How to get Azuro Score leaderboard",
     "display": "hidden"
-  },
-  "custom-markets": {
-    "title": "Custom Markets"
   }
 }
