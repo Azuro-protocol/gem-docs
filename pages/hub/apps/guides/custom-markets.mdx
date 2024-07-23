@@ -1,12 +1,12 @@
 import { Callout } from 'components'
 
-The Azuro Protocol also offers markets for world events, such as the "2024 Presidential Election USA." 
+Apart from the predominant sports markets, Azuro now allows to integrate political and social markets, starting with the "2024 Presidential Election USA" market.
 
 <Callout type="info">
   If you use our [SDK](/hub/apps/sdk/overview), no additional changes are needed; just ensure you are using version 5.1.0 or above.
 </Callout>
 
-The steps to obtain custom markets are the same as for sports markets, but there is a slight difference in how the names of markets and selections are generated.
+The steps to get custom (i.e. markets other than sport markets) are the same as for sports markets, but there is a slight difference in how the names of markets and selections are generated.
 
 ### GraphQL
 For sports markets, you use the [@azuro-org/dictionaries](https://www.npmjs.com/package/@azuro-org/dictionaries) library to gain names for markets and selections, but for custom markets, you need to use the `title` field from the `Condition` and `Outcome` entities:
