@@ -11,6 +11,9 @@
   "---": {
     "type": "separator"
   },
+  "custom-markets": {
+    "title": "How to add political / social markets"
+  },
   "affiliate-wallet": {
     "title": "How to get rewards: affiliate wallet"
   },
