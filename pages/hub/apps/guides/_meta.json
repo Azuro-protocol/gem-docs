@@ -12,7 +12,8 @@
     "type": "separator"
   },
   "custom-markets": {
-    "title": "How to add political / social markets"
+    "title": "How to add political / social markets",
+    "display": "hidden"
   },
   "affiliate-wallet": {
     "title": "How to get rewards: affiliate wallet"
