@@ -22,6 +22,22 @@ fragment PrematchCondition on Condition {
 }
 ```
 
+Same for prematch bets:
+
+```graphql {4, 6}
+fragment PrematchBet on Bet {
+  selections {
+    outcome {
+      title # it's selection's name
+      condition {
+        title  # it's custom market's name
+      }
+    }
+  }
+}
+
+```
+
 - `title` field in `Condition` entity is custom market's name
 - `title` field in `Outcome` entity is selection's name in custom market
 
