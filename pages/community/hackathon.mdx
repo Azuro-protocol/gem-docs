@@ -1,0 +1,55 @@
+import { Callout, Image } from 'components'
+
+# Azuro UI Builders Hackathon 
+
+This page contains helpful materials to succeed in the tasks. For all information about the hackathon, go to the hack's [website](https://hub.azuro.org/azuro-ui-builders-hackathon).
+
+## Materials
+
+### Tutorials
+
+[How to build an app on Azuro](https://gem.azuro.org/hub/apps/guides/tutorial)
+
+[How to fetch and filter games](https://gem.azuro.org/hub/apps/guides/advanced/prematch/get-games)
+
+[How to group and sort outcomes & markets](https://gem.azuro.org/hub/apps/guides/advanced/prematch/markets-and-outcomes)
+
+[SDK knowledge base](https://gem.azuro.org/hub/apps/sdk/overview)
+
+[Toolkit knowledge base](https://gem.azuro.org/hub/apps/toolkit/overview)
+
+### Templates
+
+[Main Azuro template](https://github.com/Azuro-protocol/example-app) (follow this template's project structure and tech stack even if you take the orderbook template as a basis for your design)
+
+[Orderbook-style template](https://github.com/Azuro-protocol/example-orderbook-app)
+
+### Required features
+
+1. **Historical price chart that reflects the market dynamics for prediction markets**
+
+Fetch historical odds / prices for each pre-match event and display their dynamic change month over month in the form of an interactive diagram. The x-axis should represent time, with a monthly breakdown, and the y-axis should display the price or odds. Allow users to hover over specific points on the chart to see exact odds/price and timestamp for that moment.
+
+Example:
+
+<Image
+  src="/images/community/historical.png"
+  width={2000}
+  height={700}
+/>
+
+2. **Championship bracket for big tournaments**
+
+Find events that are connected to each other as parts of championships and organize them in the form of interactive championship brackets. Allow users to click on each team/matchup to place bets on the match. The bracket should be generated dynamically along with the new events being added to the smart contracts from the data provider.
+
+Example:
+
+<Image
+  src="/images/community/bracket.png"
+  width={2000}
+  height={700}
+/>
+
+### Support
+
+https://discord.com/channels/880927413742219374/1280121816987467880
