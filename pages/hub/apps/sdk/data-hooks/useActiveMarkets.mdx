@@ -18,6 +18,7 @@ const { loading, error, markets } = useActiveMarkets(props)
   gameStatus: GameStatus // game status from `useGameStatus` hook or 'getGameStatus' function
   filter?: {
     outcomeIds?: string[]
+    maxMargin?: number // max marginality
   }
   livePollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
 }

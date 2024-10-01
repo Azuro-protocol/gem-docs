@@ -148,6 +148,7 @@ enum BetslipDisableReason {
 
 type Game = {
   gameId: string
+  title: string
   countryName: string
   countrySlug: string
   leagueName: string
@@ -172,6 +173,8 @@ type BetslipItem = {
   lpAddress: string
   game: Game
   isExpressForbidden: boolean
+  marketName: string
+  selectionName: string
 } & Selection
 
 type AddItemProps = {

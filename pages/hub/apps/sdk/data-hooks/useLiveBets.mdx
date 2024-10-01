@@ -22,11 +22,21 @@ const { loading, error, bets } = useLiveBets(props)
 {
   filter: {
     bettor: string // bettor address
+    affiliate?: string // affiliate address
+    type?: BetType // bet type
     limit?: number // limit the number of rows returned from a query
     offset?: number // omit a specified number of rows before the beginning of the result set
   }
   orderBy?: Bet_OrderBy // default: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
+}
+```
+
+```ts
+enum BetType {
+  Unredeemed = 'unredeemed', // ready to redeem bets
+  Accepted = 'accepted', // not resolved bets
+  Settled = 'settled', // resolved bets
 }
 ```
 
@@ -76,6 +86,7 @@ type BetOutcome = {
 } & Selection
 
 type Bet = {
+  affiliate: string // affiliate address
   tokenId: string // id of the bet's NFT
   freebetId?: string | null // id of the freebet's NFT
   freebetContractAddress?: Address // freebet contract address

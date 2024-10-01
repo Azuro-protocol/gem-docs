@@ -87,19 +87,27 @@ type Contracts = {
 }
 
 enum Environment {
+  GnosisDevXDAI = 'GnosisDevXDAI',
   GnosisXDAI = 'GnosisXDAI',
   PolygonUSDT = 'PolygonUSDT',
   PolygonAmoyAZUSD = 'PolygonAmoyAZUSD',
+  PolygonAmoyUSDT = 'PolygonAmoyUSDT',
   ChilizWCHZ = 'ChilizWCHZ',
   ChilizSpicyWCHZ = 'ChilizSpicyWCHZ'
 }
 ```
 </Callout>
 
+## Development mode
+To enable Development mode set the `AZURO_UNSTABLE_DEV_ENABLED` env variable to `true` it will change `polygonAmoy` and `gnosis` to dev mode:
+- contracts addresses to [dev mode](https://gem.azuro.org/contracts/deployment-addresses#contracts-development)
+- all endpoint getters to [dev mode](https://gem.azuro.org/subgraph/overview#development-30)
+
 ## Constants
 
 ```ts
 import {
+  MARGIN_DECIMALS, // marginality decimals
   ODDS_DECIMALS, // odds decimals
   MIN_LIVE_BET_AMOUNT, // min amount for live bet
 
