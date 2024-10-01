@@ -106,6 +106,7 @@ const {...} = usePrepareBet({
   odds: Record<string, number>, // odds
   totalOdds: number, // total odds
   freeBet?: FreeBet // freeBet info
+  betGas?: Pick<SendTransactionParameters, 'gas' | 'gasPrice' | 'maxFeePerGas' | 'maxFeePerBlobGas' | 'maxPriorityFeePerGas'> // transaction gas parameters, prematch only
   selections: Selection[] // user's choise for bet
   liveEIP712Attention?: string // attention text for eip-712 sign (up to 160 chars)
   deadline?: number // duration after which the bet will be canceled if it does not get included in a block
@@ -115,6 +116,8 @@ const {...} = usePrepareBet({
 ```
 
 ```ts
+import { type SendTransactionParameters } from 'viem'
+
 type Selection = {
   conditionId: string
   outcomeId: string
@@ -149,6 +152,7 @@ type FreeBet = {
     isProcessing: boolean
   }
   betTx: { // bet transaction state
+    data: Hex | undefined
     isPending: boolean
     isProcessing: boolean
   }

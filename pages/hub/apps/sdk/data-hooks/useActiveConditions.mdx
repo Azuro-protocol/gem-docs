@@ -18,6 +18,7 @@ const { loading, error, conditions } = useActiveConditions(props)
   isLive: boolean // if the flag is set to true, useConditions will retrieve live conditions.
   filter?: {
     outcomeIds?: string[]
+    maxMargin?: number // max marginality
   }
   livePollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
 }
