@@ -24,9 +24,15 @@ This page contains helpful materials to succeed in the tasks. For all informatio
 
 [Orderbook-style template](https://github.com/Azuro-protocol/example-orderbook-app)
 
-### Historical price chart that reflects the market dynamics
+## Task clarifications
 
-Fetch historical odds / prices for each pre-match event and display their dynamic change month over month in the form of an interactive diagram. The x-axis should represent time, with a monthly breakdown, and the y-axis should display the price or odds. Allow users to hover over specific points on the chart to see exact odds/price and timestamp for that moment.
+### Bonus feature: Historical price chart that reflects market dynamics
+
+Fetch historical odds / prices for each pre-match event and display their dynamic change over time in the form of an interactive diagram.
+
+- Transform Azuro’s AMM data into a historical line chart format
+- The chart’s x-axis to denote the time period, while the y-axis denotes odds (in form of percentages). Users should be able to select shorter/longer time periods — the chart will zoom in/out (i.e., zooming in to view daily odds and zooming out to view monthly odds).
+- Chart should display the exact percentage odds and timestamp when hovering on a specific point
 
 Example:
 
@@ -36,10 +42,14 @@ Example:
   height={700}
 />
 
+### Motivating your design choices
 
-### User persona map example
+Design choices in your project shouldn't be merely cosmetic; they should be driven by a clear idea. Therefore, we suggest creating a new UI tailored to a specific end-user persona or use case. 
+Who is your potential user? Is he/she a degen who's unfamiliar with prediction markets and wants to earn fast by betting on the best odds? Then organize the data to display the top events with best odds on your home screen. Is your user a sports betting pro? Then organize the data to display events as a series of championship brackets for separate sports events, etc.‍ Feel free to add new elements, such as a placeholder for promotional banners - you can get inspiration in apps built on Azuro.
 
 Here's how you might approach motivating your design choices by a user persona. For example, you might delineate different demographics based on their age, level of betting expertise, crypto use behavior, location, etc.
+
+**User persona map example**
 
 <Image
   src="/images/community/user_persona.jpg"
