@@ -1,0 +1,20 @@
+# AzuroBetContract Entity
+
+## Description
+
+Represents a contract related to an Azuro betting market. This contract facilitates user bets and interacts with the core contract that handles betting logic.
+
+## Usage
+
+This entity helps manage bets linked to specific Azuro contracts. It can be used when building applications to track and display individual bet contracts and their statuses.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Unique identifier for the freebet contract. |
+| `liquidityPool` | `LiquidityPoolContract!` | Reference to the associated liquidity pool. |
+| `address` | `String!` | On-chain address of the freebet contract. |
+| `name` | `String` | Name of the freebet contract. |
+| `affiliate` | `String` | Affiliate information linked to the freebet contract. |
+| `manager` | `String` | Address of the freebet contract manager. |

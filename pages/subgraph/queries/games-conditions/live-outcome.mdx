@@ -1,0 +1,22 @@
+# LiveOutcome Entity
+
+## Description
+
+Represents a live outcome in a betting condition. It tracks bets, selections, and the real-time status of the outcome, allowing the system to calculate live odds and payouts.
+
+## Usage 
+
+Use this entity to track real-time outcomes within a live betting condition and update users on current outcomes and odds shifts during live games.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Unique identifier for the live outcome (Condition entity ID + Outcome ID). |
+| `core` | `CoreContract!` | Reference to the core contract associated with the outcome. |
+| `outcomeId` | `BigInt!` | Numeric identifier for the outcome. |
+| `condition` | `LiveCondition!` | Reference to the condition associated with the outcome. |
+| `sortOrder` | `Int!` | Sorting order for the outcome relative to other outcomes. |
+| `_betsEntityIds` | `[String!]` | List of bet entity IDs associated with this outcome. |
+| `selections` | `[LiveSelection!]! @derivedFrom` | List of selections related to this outcome. |
+| `_updatedAt` | `BigInt!` | Timestamp for the last update to the live outcome. |

@@ -1,0 +1,23 @@
+# Outcome Entity
+
+## Description
+
+Represents an outcome for a specific condition within a game. It stores odds, bets, and the result of the outcome, and is key in determining payouts for users.
+
+## Usage 
+
+Use this entity when you need to track or display odds and outcomes for betting conditions. It is useful for applications that allow users to track historical odds or manage updates of betting markets.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Unique identifier for the outcome (Condition entity ID + Outcome ID). |
+| `core` | `CoreContract!` | Reference to the core contract related to the outcome. |
+| `outcomeId` | `BigInt!` | Numeric identifier for the outcome. |
+| `condition` | `Condition!` | Reference to the condition associated with the outcome. |
+| `fund` | `BigInt!` | Amount of funds backing this outcome. |
+| `rawCurrentOdds` | `BigInt!` | Raw odds value for the outcome. |
+| `currentOdds` | `BigDecimal!` | Formatted odds value for the outcome. |
+| `sortOrder` | `Int!` | Sorting order of the outcome in relation to other outcomes. |
+| `selections` | `[Selection!]! @derivedFrom` | List of selections associated with the outcome. |
