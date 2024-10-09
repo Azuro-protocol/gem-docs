@@ -1,0 +1,21 @@
+# Sport Entity
+
+## Description
+
+Represents a sport within the betting system. It is linked to a SportHub and is used to group related games, countries, and leagues for betting purposes.
+
+## Usage
+
+When building interfaces that organize games by sport, this entity is essential. It helps filter and categorize games by sport, making it ideal for applications that need to create dynamic menus or filters for sports categories.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Unique identifier for the sport. |
+| `sportId` | `BigInt!` | Numeric ID representing the sport. |
+| `name` | `String!` | Name of the sport. |
+| `slug` | `String!` | URL-friendly slug for the sport. |
+| `sporthub` | `SportHub!` | Reference to the associated sport hub. |
+| `countries` | `[Country!]! @derivedFrom` | List of countries participating in this sport. |
+| `games` | `[Game!]! @derivedFrom` | List of games related to this sport. |

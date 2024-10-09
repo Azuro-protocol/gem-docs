@@ -1,0 +1,20 @@
+# LiveSelection Entity
+
+## Description
+
+Represents a selection within a live bet. It is linked to a live outcome and stores odds, results, and other metadata relevant to live betting.
+
+## Usage 
+
+Allows you to display real-time data for specific user selections.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Unique identifier for the live selection. |
+| `bet` | `LiveBet!` | Reference to the live bet associated with this selection. |
+| `rawOdds` | `BigInt!` | Raw odds for the live selection. |
+| `odds` | `BigDecimal!` | Formatted odds for the live selection. |
+| `result` | `SelectionResult` | Result of the selection (`Won` or `Lost`). |
+| `outcome` | `LiveOutcome!` | Reference to the live outcome associated with the selection. |
