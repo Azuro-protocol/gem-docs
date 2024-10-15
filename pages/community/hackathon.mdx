@@ -53,6 +53,46 @@ Example:
   height={700}
 />
 
+### Step-by-step instructions
+
+#### Step 1: **Project setup**
+
+Download the template, this will be the base of your project: https://github.com/Azuro-protocol/example-app
+
+Understand the structure: Look into the `src/components` and `src/pages` folders. These contain various small interface elements (e.g., headers, buttons, betting markets), while  `src/compositions` combines them into bigger UI elements that follow the business logic of the template app (e.g., betslip, games & odds, top events)
+
+#### Step 2: **Design your UI**
+
+**Design with a user persona / use case in mind**
+
+1. Identify your user persona or use case: think about the type of users your app is targeting. 
+For example:
+    - Casual crypto degen: wants simplicity and quick access to best odds and key information.
+    - Advanced sports bettor: prefers detailed markets, sports organized by leagues and tournaments.
+2. Wireframing and design:
+Draw a basic wireframe (you can use tools like Figma) that outlines where your UI elements will go. Create a design for these elements that you can then transfer into your frontend.
+For example:
+- If your target is casual users, design simple and clear UIs. Use groupings of data into such categories as best events by turnover, most popular events, or championship brackets.
+- For advanced users, display complex information, such as historical odds charts, suggestions on winning parlay combinations, or for example, search bar to look for their favourite events.
+
+#### Step 3: Fetching and displaying data in your UI elements
+
+1. Fetch data using React hooks from AzuroSDK and helpers from Azuro Toolkit. They organize GraphQL queries in Typescript utilities that are very helpful to import and reuse. 
+- Descriptions of Azuro custom GraphQL queries:
+https://gem.azuro.org/subgraph/queries/sports/sporthub
+- SDK guides and knowledge base:
+https://gem.azuro.org/hub/apps/sdk/overview
+- Tooklit knowledge base:
+https://gem.azuro.org/hub/apps/toolkit/overview
+
+2. Display fetched data in your components. Remember to keep smaller reusable UI elements in  `src/components` section, and bigger, unique components in `src/compositions` .
+
+#### Step 4: Prepare to submit the project
+
+- Submit the GitHub repository link of your project and a link to the video demo of your result.
+- In your Readme file, mention the design choices you made and highlight any unique features you implemented.
+- Submit it via the form: https://azuro.typeform.com/to/PasYOoNb
+
 ### Motivating your design choices
 
 Design choices in your project shouldn't be merely cosmetic; they should be driven by a clear idea. Therefore, we suggest creating a new UI tailored to a specific end-user persona or use case. 
