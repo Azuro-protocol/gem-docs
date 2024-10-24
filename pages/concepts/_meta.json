@@ -1,29 +1,29 @@
 {
-  "overview": {
-    "title": "What Is Azuro?"
-  },
   "the-azuro-vision": {
-    "title": "The Azuro Vision"
+    "title": "Mission & Vision"
   },
-  "the-azuro-protocol": {
-    "title": "The Azuro Protocol"
+  "foreword": {
+    "title": "Foreword"
   },
-  "basic": {
-    "title": "Basic Concepts"
+  "introduction": {
+    "title": "Introduction"
   },
-  "protocol": {
-    "title": "Protocol Concepts"
+  "how-azuro-works": {
+    "title": "How Azuro Works"
   },
-  "roadmap": {
-    "title": "Roadmap"
+  "azur-token": {
+    "title": "$ AZUR token"
   },
-  "azur": {
-    "title": "AZUR"
+  "additional": {
+    "title": "Additional Info"
+  },
+  "go-defi": {
+    "title": "Go DeFi"
+  },
+  "get-involved": {
+    "title": "Get Involved"
   },
   "airdrops": {
     "title": "Airdrops"
-  },
-  "azuro-dao": {
-    "title": "Azuro DAO"
   }
 }
