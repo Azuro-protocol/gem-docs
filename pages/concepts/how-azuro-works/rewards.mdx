@@ -1,33 +1,38 @@
 import { Callout, Formula } from 'components'
 
-# Rewards
+# Reward Distribution
 
+The term "reward" within Azuro protocol refers to the fee of the Pool's profit that is distributed to those who contribute to its operation.
 
-The term "reward" within Azuro protocol refers to the fee of the [Pool](/concepts/protocol/pools)'s profit that is distributed to those who contribute to its operation.
+Currently, there are 4 types of contributors in the Pool, each entitled to rewards from protocol revenue: Liquidity Providers (LPs), Data Providers, Apps, and AzuroDAO.
 
-Currently, there are 4 types of contributors in the Pool, each with a corresponding reward: [Liquidity Providers](/contracts/lp) reward, [Data Providers](/concepts/basic/data-providers) reward, [Affiliates](/concepts/basic/affiliates) reward, [Azuro DAO](/concepts/azuro-dao/overview) reward.
+## LPs and Data Providers
 
-### Liquidity and Data Providers
+For LPs and Data Providers, after the completion of each [Condition](/concepts/how-azuro-works/components/conditions), the profit or loss of the pool is multiplied by the reward rate (20% and 10% respectively) and added to the contributor reward balance.
 
-For LPs and Data Providers, after the completion of each [Condition](/concepts/protocol/conditions), the profit or loss of the pool is multiplied by the reward rate (20% and 10% respectively) and added to the contributor reward balance.
+## Apps (Frontends)
 
-### Affiliates (Frontends)
-
-Affiliates' (Frontends) reward is paid monthly, separately for each chain.
+Apps' reward is paid monthly, separately for each chain.
 
 <Formula>
 $$
-\begin{array}{r l}
-\text{Affiliate Reward} &= 70\% \times \text{Affiliate Revenue} \\
-&\left(\text{but not higher than the Spread Reward Cap}\right)
+\begin{array}{c}
+\textit{AppReward} = 70\% \times \textit{AppRevenue} \\
+\textit{SpreadRewardCap} = 50\% \times \textit{Spread} \times \textit{BetSize} \\
 \end{array}
 $$
 </Formula>
 
-- **Affiliate Revenue** = Monthly Pool Revenue (preditctions made minus winnings) via the Affiliate address
-- **Spread Reward Cap** = (50% of Spread)*(Prediction Size) for all predictions (aka bets) associated with the affiliate address, resolved in the calendar month
-- **Spread** = The spread (aka vig, aka margin) for each particular bet
-- **Prediction size** = The amount (in respective cryptocurrency) of each particular prediction
+<Formula>
+$$
+\begin{array}{c}
+\text{where} \\
+\textit{AppReward} \text{ is not higher than } \textit{SpreadRewardCap}, \\
+\textit{Spread} \text{ is the vig (aka margin) for each particular bet,} \\
+\textit{BetSize} \text{ is the amount (aka wagered cryptocurrency) of each particular bet.}
+\end{array}
+$$
+</Formula>
 
 
 ### DAO
