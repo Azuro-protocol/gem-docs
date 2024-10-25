@@ -1,9 +1,9 @@
 # Betting Engines
 
-A Betting Engine is a collective term for contracts that encompass the logic of creating [Conditions](/concepts/protocol/conditions),
-accepting bets, computing payouts for bets, and calculating [Affiliate](/concepts/basic/affiliates) [rewards](/concepts/basic/rewards).
+A Betting Engine is a collective term for contracts that encompass the logic of creating [Conditions](/concepts/how-azuro-works/components/conditions),
+accepting bets, computing payouts for bets, and calculating [app rewards](/concepts/how-azuro-works/rewards).
 
-These contracts are plugged into the [Pool](/concepts/protocol/pools) by its owner via the [Factory](/contracts/factory),
+These contracts are plugged into the [Pool](/concepts/how-azuro-works/components/pools) by its owner via the [Factory](/contracts/factory),
 and access to place bets and withdraw payouts is only granted through the [LP](/contracts/lp) contract for which it was deployed.
 
 A Betting Engine can inherit the [CoreBase](/contracts/core-base) contract that contains the fundamental logic to facilitate the betting
