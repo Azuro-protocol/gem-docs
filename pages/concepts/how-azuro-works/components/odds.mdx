@@ -6,16 +6,16 @@ import { PageHeadline, Formula } from 'components'
 />
 
 Odds represent the probability of a particular outcome in a Condition actually happening. The odds for each outcome of
-a [Condition](/concepts/protocol/conditions) are determined as the ratio of the total Condition funds to the funds of
+a [Condition](/concepts/how-azuro-works/components/conditions) are determined as the ratio of the total Condition funds to the funds of
 that particular outcome.
 
 The higher the odds, the lower the chances of the outcome happening and the higher the potential payout for the player
 who placed a bet on that outcome. Betting odds are used by the [Pool](/concepts/protocol/pools) to manage the risk and
 set payout rates for different bets.
 
-The calculation of the odds is based on the [Virtual Funds](/concepts/protocol/virtual-funds) of the Condition and its margin.
+The calculation of the odds is based on the [Virtual Funds](/concepts/how-azuro-works/components/virtual-funds) of the Condition and its margin.
 Once the Condition is created, initial reinforcement is distributed proportionally among the outcome Virtual Funds based
-on their initial odds provided by the [data provider](/concepts/basic/data-providers). When a bettor places a bet,
+on their initial odds provided by the [data provider](/concepts/how-azuro-works/protocol-actors/data-providers). When a bettor places a bet,
 the outcome Virtual Fund on which they bet increases by the amount of the bet, and the net odds are calculated using
 the following formula:
 
