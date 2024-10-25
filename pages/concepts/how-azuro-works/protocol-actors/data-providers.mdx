@@ -2,13 +2,13 @@ import { Callout } from 'components'
 
 # Data Providers
 
-The Data Provider is an entity connected to the protocol with the responsibility to create and cancel events, as well as update (or reprice) sell-side odds. Data Providers ensure that there are Conditions to predict on, and that the probabilities for these conditions are such that the pool generates a profit from the predicting over time.
+The Data Provider is an entity connected to the protocol with the responsibility to create and cancel events, as well as update (or reprice) sell-side odds. Data Providers ensure that there are [Conditions](https://gem.azuro.org/concepts/how-azuro-works/components/conditions) to predict on, and that the probabilities for these conditions are such that the pool generates a profit from the predicting over time.
 
 When creating a new Condition, the Data Provider sets the following:
 
-Total Reinforcements for each condition and the respective outcomes
+Total [Reinforcements](https://gem.azuro.org/concepts/how-azuro-works/components/reinforcement) for each condition and the respective outcomes
 
-Margin for each condition/outcomes, thus setting the odds
+Margin for each condition/outcomes, thus setting the [odds](https://gem.azuro.org/concepts/how-azuro-works/components/odds)
 
 For its services, the Data Provider receives a share of the profit that is due to the Pool. It can be either the Pool owner or any other address, for additional security.
 
