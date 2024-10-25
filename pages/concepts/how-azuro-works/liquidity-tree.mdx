@@ -1,14 +1,20 @@
-import { Callout } from 'components'
+import { Callout, Image } from 'components'
 
 # Liquidity Tree
 
-<Callout type="info">
-  The contracts have a separate open-source project that can be found [here](https://github.com/Azuro-protocol/LiquidityTree).
-</Callout>
+LiquidityTree is a novel data structure based on Segment Tree, tailored to facilitate efficient liquidity provision across multiple active Conditions from a unified singleton liquidity pool.
 
-<Callout type="info">
-  Learn more about the Liquidity Tree Infrastructure on [this](https://medium.com/@frankcc/the-liquidity-tree-a-novel-liquidity-infrastructure-for-on-chain-prediction-markets-294e6e8a5341) Medium article.
-</Callout>
+It is a gas-light mechanism to correctly track the balance changes of individual LPs — float management of active concurrent markets as well as P&L attribution from multiple market resolutions, while at the same time allowing for live deposit and withdrawals.
+
+<Image
+  src="/images/concepts/tree.png"
+  width={2000}
+  height={700}
+/>
+
+Deposits and withdrawals will initialize the next unused sequential leaf node. As this is essentially creating a new onchain entry, these transactions are relatively gas-intensive.
+
+However, deposits and withdrawals happen sporadically — the bulk of LP balance changes come from the Reinforcement and Virtual Fund of each active Condition. To avoid overloading the Azuro LP with transactions on every block (and consuming insane amounts of gas), we follow a deferred lazy update approach — balance changes arising from Conditions are merely annotated on the top/parent node, and is only applied “for real” when an individual LP wants to withdraw (to be executed together with the withdrawal transaction). This saves the need to update individual LP balances on every block from each Condition’s Virtual Fund changes (or its resolution).
 
 ### General Concept
 
@@ -176,3 +182,11 @@ nodeWithdraw(5)
 +----------+----------+----------+----------+
               -190$
 ```
+
+<Callout type="info">
+For further reading on LiquidityTree, visit [this](https://medium.com/@frankcc/the-liquidity-tree-a-novel-liquidity-infrastructure-for-on-chain-prediction-markets-294e6e8a5341) Medium article.
+</Callout>
+
+<Callout type="warning">
+The contracts have a separate open-source project that can be found [here](https://github.com/Azuro-protocol/LiquidityTree).
+</Callout>
