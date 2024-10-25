@@ -1,6 +1,6 @@
 {
-  "airdrop": "Airdrop",
   "overview": "Overview",
-  "historical-settings": "Historical Settings",
-  "drops": "Snapshots & Drops"
+  "historical-settings": "Changelog",
+  "drops": "Phase 1",
+  "airdrop": "Phase 2"
 }
