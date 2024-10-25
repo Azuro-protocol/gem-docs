@@ -1,0 +1,9 @@
+# Pricing Mechanism: Azuro vAMMs
+
+In the context of prediction markets, conventional AMMs used by first-generation protocols require sophisticated entities to hold inventory over its constituent “YES” and “NO” tokens as a byproduct of its initial liquidity bootstrapping process, as well as the active management of said liquidity when the prediction market is live. Azuro vAMMs do not require separate bootstrapping instances: they immediately inherit liquidity from the singleton Azuro LP on market creation.
+
+Counterintuitively, Azuro data providers do not stream odds via decimal points (or percentages) — they do it by specifying the liquidity bands for each outcome within a Condition (aka prediction market). Suppose a Condition ”FullTimeResult” has three outcomes “1X2” — the data provider will first ‘book’ a certain amount of Reinforcement (i.e., \$100k) from the singleton LP, then split it across the three outcomes (i.e.; \$30k on 1; \$50k on X; \$20k on 2). This Reinforcement split is what sets the market’s initial (sell-side) odds: 30%, 50%, and 20%.
+
+Each Condition is represented as an Azuro vAMM. Depending on the number of outcomes in a Condition, the vAMM could be a 2-pool, 3-pool, 4-pool, you name it. When bettors place a bet, they trade one side of the pool, which lowers the odds for the said outcome while increasing the odds of the other outcomes. This self-adjusting price mechanism is similar to conventional AMMs: assuming a 2-pool AMM consisting of \$A and \$B, if a trader buys \$A with \$B, it will push the price of \$A while simultaneously lowering the price of \$B.
+
+Each vAMM maintains its own Virtual Fund, in which its balance fluctuates according to the real-time betting flows of its underlying prediction market.

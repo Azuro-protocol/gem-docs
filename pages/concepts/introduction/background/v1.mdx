@@ -1,0 +1,15 @@
+# Prediction Markets, v1
+
+Pioneered by Augur, refined by Gnosis, and later popularized by Polymarket, first-generation prediction markets are implemented either via AMMs or orderbook.
+
+## AMM
+
+AMMs became prevalent at a time when blockchains haven’t possessed sufficient scaling capacity to facilitate orderbook-based markets. In the case of prediction markets, each event is represented via a simple 2-pool AMM consisting of two tokens: a YES token, and a NO token.
+
+Initial liquidity is seeded to the AMM by an entity (e.g., market makers) — this forms the market’s redeemable collateral base on event resolution. Participants trade YES and NO tokens against the AMM, which moves prices depending on betting flows. Also, the more liquidity the AMM is seeded with, the less sensitive prices will change per dollar of flow.
+
+## CLOB
+
+Advances made in blockchain scalability (and proving capabilities) results in the renaissance of the onchain CLOB model. In the case of prediction markets, each event has their own orderbook where participants may place bid/ask orders to trade YES and NO tokens.
+
+Market makers are employed to make liquidity for each orderbook-based prediction market, and price movements will depend on betting flows with regards to liquidity: the more liquidity market-makers dedicate to the orderbook, the less sensitive prices will change per dollar of flow.

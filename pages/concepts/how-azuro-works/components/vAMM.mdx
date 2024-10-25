@@ -1,0 +1,27 @@
+import { Callout, Formula } from 'components'
+
+# vAMM
+
+The total volume of Virtual Funds does not always match the real fund of the Condition. When a player places a bet, the ratio of Virtual Funds changes. This self-adjusting pricing mechanism is Azuro’s vAMM.
+
+Before calculating the odds on which the bet will be accepted, the Virtual Fund of the outcome i on which the bet is placed increases by the size of the bet:
+
+
+<Formula>
+$$
+F_{i}=F_{i}-a,\text{where } a \text{ is a bet amount. }
+$$
+</Formula>
+
+After the bet on outcome i has been accepted, the Virtual Fund of other outcomes changes as per Azuro’s vAMM formula:
+
+<Formula>
+$$
+F_{j \neq i}\mathrel{{-}{=}}\frac{(payout-a)*F_{j}}{sum(F)},\text{where } a \text{ is a bet amount. }
+$$
+</Formula>
+
+Azuro vAMMs allow independent betting flows to reprice a prediction market’s onchain odds on top of the Data Provider’s pushed sell-side odds, while still adhering to the Data Provider’s Virtual Fund specifications and constraints for that particular Condition (or prediction market).
+
+As such, even with vAMMs, the overall loss for the Condition in the worst-case scenario cannot exceed the size of the Reinforcement allocated by the Data Provider when creating the Condition.
+
