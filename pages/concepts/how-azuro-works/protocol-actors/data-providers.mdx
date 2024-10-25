@@ -1,16 +1,24 @@
+import { Callout } from 'components'
+
 # Data Providers
 
-A Data Provider is an entity connected to the Azuro Protocol to create and cancel events, create, resolve or cancel [Conditions](/concepts/protocol/conditions) and update the odds. Data Providers are the entities ensuring there are Conditions to predict on, and that the probabilities for these conditions are such that the pool generates a profit from the predicting over time.
+The Data Provider is an entity connected to the protocol with the responsibility to create and cancel events, as well as update (or reprice) sell-side odds. Data Providers ensure that there are Conditions to predict on, and that the probabilities for these conditions are such that the pool generates a profit from the predicting over time.
 
-At the time of creation of Conditions the Data Provider sets:
-1. Total virtual [reinforcements](/concepts/protocol/reinforcement) for each condition and the respective outcomes
-2. Margin for each condition/outcomes thus setting the [odds](/concepts/protocol/odds)
+When creating a new Condition, the Data Provider sets the following:
 
-The Data Provider receives a share of the profit that is due to the [Pool](/concepts/protocol/pools). It can be either the Pool owner or any other address, for additional security.
+Total Reinforcements for each condition and the respective outcomes
 
-In contracts infrastructure, the Data Provider is represented as an address to which a part of the profit share
-[is credited](/concepts/basic/rewards) by [LP](/contracts/lp) after the completion of each Condition.
+Margin for each condition/outcomes, thus setting the odds
 
-When it comes to resolving the Conditions, the Data Provider on Azuro follows a certain set of rules, derived from one of the most reputable established sports-betting data sources (https://www.pinnacle.com/en/future/betting-rules).
+For its services, the Data Provider receives a share of the profit that is due to the Pool. It can be either the Pool owner or any other address, for additional security.
 
-It is envisioned that there may be multiple data providers active on Azuro at a later stage, therefore these rules may change, evolve, or vary depending on the data provider in the future.
+In contracts infrastructure, the Data Provider is represented as an address to which a part of the profit share is credited by LP after the completion of each Condition.
+
+Currently, the Data Provider is also responsible for resolving Conditions in good-faith, with AzuroDAO acting as the arbiter of last resort in case of disputes. For instance, Pinnacle (one of Azuro’s Data Providers) has published an extensive document outlining the general rules to which it intends to use as a basis to resolve markets (https://www.pinnacle.com/en/future/betting-rules).
+
+Data Providers are required to put up collateral up to the total Reinforcement amount that they expect to use for the pricing of sell-side odds across involved prediction markets.
+
+
+<Callout type="feature">
+Currently, data providers are still permissioned due to the critical nature of the role. Once the protocol reaches a certain level of maturity, we aim to open up the data provider role to the free market — permissionless data providers elected via AzuroDAO.
+</Callout>

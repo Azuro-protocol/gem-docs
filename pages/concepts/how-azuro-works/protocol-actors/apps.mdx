@@ -1,31 +1,16 @@
-import { Card } from 'components'
+import { Card, Callout } from 'components'
 
 
-# Frontends (Affiliates)
+# Apps (Frontends)
 
-Frontends can be apps, widgets, tools, integrations or even standalone products which use the liquidity provided by liquidity pools created on Azuro solution and deliver a UI for users to interact with. While some frontends can copy exisiting products and create new UIs with localization & specialization, more sophisticated developers can go further and create new products altogether, building new pools and other overlays on top of Azuro's infrastructure and underlying liquidity.
+Apps can be interfaces, widgets, tools, integrations or even standalone products that connects to the protocol and has a UI for users to interact with. While some apps can copy exisiting products and create new interfaces with localized and/or specialized features, sophisticated developers can go further and create new products altogether, building new pools and other overlays on top of the protocol’s suite of smart contracts.
 
-In the simplest example (i.e. a prediction app like [bookmaker.XYZ](https://bookmaker.xyz)) - by integrating Azuro - the frontend gains opportunity to access the liquidity pools created on the basis of Azuro solution, outsource risk management, and may simply focus on interactions with Users and development of UX.
+In the case of [bookmaker.XYZ](https://bookmaker.xyz/) (a betting interface), the app instantly inherits all markets (with its underlying liquidity) that are hosted via Azuro smart contracts, and may simply focus on user acquisition and UI/UX improvements.
 
-Frontend operators [earn a % of the profits](/concepts/basic/rewards) realized by the [Pools](/concepts/protocol/pools)
-(from the part associated with their own users' activity). Each Frontend Operator provides their address to the smart
-contract with their users' bets and the [LP](/contracts/lp) contract distributes part of the profits to the frontend address.
+Apps [earn a % of the profits](https://gem.azuro.org/concepts/how-azuro-works/protocol-actors/rewards) realized by the [Pools](https://gem.azuro.org/concepts/how-azuro-works/components/pools) (from the part associated with their own users' activity). Apps will provide their addresses to allow the protocol to link it with their users' bets, allowing the [LP contract](https://gem.azuro.org/contracts/lp) to distribute part of generated protocol revenue to the given address.
 
-Frontend operators have the ability to choose which markets to display on their app. They can select from the list of supported conditions live on the protocol and remove events that are not needed.
+Apps have the ability to choose which markets to display on their app. They can select from the list of supported conditions live on the protocol and remove events that are not needed.
 
----
-
-For a list with live Frontends check: [azuro.org/ecosystem](https://azuro.org/ecosystem).
-
-Despite the fact that the [Azuro DAO](/concepts/governance/overview) has no control over whoever connects their front-end
-platforms with the Azuro Protocol, the Azuro DAO encourages front-end operators who intend to do so to comply with
-any laws applicable to the operation of such platforms.
-
-The Azuro DAO expressly disclaims any liability for the activity of front-end operators who connect their platform with Azuro.
-
-<div className="mt-8">
-  <Card
-    title="Build own frontend"
-    to="/hub"
-  />
-</div>
+<Callout type="warning">
+AzuroDAO encourages apps to comply with any laws applicable to the jurisdictions they’re under. We expressly disclaim any liability in relation to the activities of any app connected to the protocol, as we have no control over the operations of said apps.
+</Callout>
