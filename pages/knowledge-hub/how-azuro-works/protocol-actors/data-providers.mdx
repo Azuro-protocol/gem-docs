@@ -1,0 +1,24 @@
+import { Callout } from 'components'
+
+# Data Providers
+
+The Data Provider is an entity connected to the protocol with the responsibility to create and cancel events, as well as update (or reprice) sell-side odds. Data Providers ensure that there are [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions) to predict on, and that the probabilities for these conditions are such that the pool generates a profit from the predicting over time.
+
+When creating a new Condition, the Data Provider sets the following:
+
+Total [Reinforcements](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/reinforcement) for each condition and the respective outcomes
+
+Margin for each condition/outcomes, thus setting the [odds](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/odds)
+
+For its services, the Data Provider receives a share of the profit that is due to the Pool. It can be either the Pool owner or any other address, for additional security.
+
+In contracts infrastructure, the Data Provider is represented as an address to which a part of the profit share is credited by LP after the completion of each Condition.
+
+Currently, the Data Provider is also responsible for resolving Conditions in good-faith, with AzuroDAO acting as the arbiter of last resort in case of disputes. For instance, Pinnacle (one of Azuro’s Data Providers) has published an extensive document outlining the general rules to which it intends to use as a basis to resolve markets (https://www.pinnacle.com/en/future/betting-rules).
+
+Data Providers are required to put up collateral up to the total Reinforcement amount that they expect to use for the pricing of sell-side odds across involved prediction markets.
+
+
+<Callout type="feature">
+Currently, data providers are still permissioned due to the critical nature of the role. Once the protocol reaches a certain level of maturity, we aim to open up the data provider role to the free market — permissionless data providers elected via AzuroDAO.
+</Callout>
