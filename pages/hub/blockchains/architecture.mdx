@@ -34,8 +34,8 @@ The contract uses a token-based system where each token represents a role with a
 
 #### Prediction Engines
 
-A Prediction Engine (aka Betting Engine) is a collective term for contracts that encompass the logic of creating [Conditions](https://gem.azuro.org/concepts/protocol/conditions), accepting bets, computing payouts for bets, and calculating [Affiliate](https://gem.azuro.org/concepts/basic/affiliates) [rewards](https://gem.azuro.org/concepts/basic/rewards).
+A Prediction Engine (aka Betting Engine) is a collective term for contracts that encompass the logic of creating [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions), accepting bets, computing payouts for bets, and calculating [App rewards](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
 
-These contracts are plugged into the [Pool](https://gem.azuro.org/concepts/protocol/pools) by its owner via the [Factory](https://gem.azuro.org/contracts/factory), and access to place bets and withdraw payouts is only granted through the [LP](https://gem.azuro.org/contracts/lp) contract for which it was deployed.
+These contracts are plugged into the [Pool](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) by its owner via the [Factory](https://gem.azuro.org/contracts/factory), and access to place bets and withdraw payouts is only granted through the [LP](https://gem.azuro.org/contracts/lp) contract for which it was deployed.
 
 A Betting Engine can inherit the [CoreBase](https://gem.azuro.org/contracts/core-base) contract that contains the fundamental logic to facilitate the betting process on multi-outcome Conditions.
