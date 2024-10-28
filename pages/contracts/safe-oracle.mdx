@@ -13,14 +13,14 @@ import { PageHeadline, Callout } from 'components'
   This contract does not affect the logic of a Pool's contracts
 </Callout>
 
-The SafeOracle contract allows to create and resolve [Conditions](/concepts/protocol/conditions) on any
+The SafeOracle contract allows to create and resolve [Conditions](/knowledge-hub/how-azuro-works/components/conditions) on any
 [PrematchCore](/contracts/prematch-core) contract, with an option for any user to dispute the result. If the result is
 disputed or not provided within the specified period set at the time of Condition creation,
-[Azuro DAO](/concepts/governance/overview) will provide the result.
+[Azuro DAO](/knowledge-hub/azur/azuro-dao) will provide the result.
 
 The SafeOracle's logic guarantees timely and accurate results for created Conditions or cancels them if the correct
 result is impossible to determine. This eliminates the risk of fraud against bettors by the
-[data provider](/concepts/basic/data-providers) and the possibility of their funds being locked due to the data
+[data provider](/knowledge-hub/how-azuro-works/protocol-actors/data-providers) and the possibility of their funds being locked due to the data
 provider's failure to provide the result.
 
 When creating a Condition through SafeOracle, the data provider places a fixed amount as collateral, which will be
