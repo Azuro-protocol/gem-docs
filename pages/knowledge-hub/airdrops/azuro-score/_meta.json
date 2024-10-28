@@ -1,6 +1,6 @@
 {
   "overview": "Overview",
-  "historical-settings": "Changelog",
-  "drops": "Phase 1",
-  "airdrop": "Phase 2"
+  "changelog": "Changelog",
+  "phase-1": "Phase 1",
+  "phase-2": "Phase 2"
 }
