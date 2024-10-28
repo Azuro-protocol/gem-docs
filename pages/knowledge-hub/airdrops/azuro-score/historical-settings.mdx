@@ -1,0 +1,122 @@
+import { PageHeadline, Formula, Callout } from 'components'
+
+<PageHeadline
+  title="Changelog"
+  subTitle="Previous settings are documented here"
+/>
+
+### Change effective since Apr 8, 2024:
+
+From Apr 8, 2024, 00:01 UTC onwards, the 3x liquidity provision rule that existed from Nov 10, 2023, does not apply anymore. 
+
+<Callout type="info">
+ The 3x rule stated that liquidity added to the Polygon USDT pool earns 3x the Azuro Score points (i.e. 3 * 1.05=3.15). Does not apply since Apr 8, 2024.
+</Callout>
+
+### Change effective since Mar 18, 2024:
+
+Bet using frontend dApps
+(find them on https://azuro.org/ecosystem)
+
+<Formula>
+$$
+\begin{array}{l}
+&\text{Score} = \$ \text{ amount of the bet} \times \text{ odds of the bet} \times 5 \
+\end{array}
+$$
+</Formula>
+
+<Callout type="info">
+  - Example: a user makes a bet of $10 at odds of 3 (European odds used for the example). Points are calculated like this: **10 * 3 * 5 = 150 points**
+  - All bets count. For combo bets - the final odds of the combo are used for the multiplier.
+  - The max odds mutiplier is 10. I.e. if the odds of the bet or combo are above 10, then they are counted as 10 for the Azuro Score multiplier.
+  - For previous settings check [here](https://gem.azuro.org/knowledge-hub/azuro-score/historical-data).
+</Callout>
+
+### Change effective since Nov 10, 2023:
+
+Provide liquidity
+
+**1 USDT/XDAI liquidity for 1 increment of time = 1.05 points** (i.e. \$1 liquidity provided for 2 increments
+(at least 14 days) = 2.1 points; and so on…)
+
+<Callout type="info">
+  - 1 increment of time is 7 days. Only full increments count.
+</Callout>
+
+### Change effective since Nov 10, 2023:
+
+**Liquidity in the Polygon USDT pool gets 3x points** (i.e. \$1 liquidity provided for 1 increment = 3 * 1.05 = 3.15 points; and so on…)
+
+
+### Change effective since Sep 6, 2023:
+
+Bet using frontend dApps
+(find them on https://azuro.org/ecosystem)
+
+| Condition | Score |
+|---|---|
+| For users with Azuro Score \<=100,000 | $ amount of the bet * odds of the bet * 10 |
+| for users with Azuro Score \>100,000 | $ amount of the bet * odds of the bet * 5 |
+
+<Callout type="info">
+  - Example: a user with Azuro Score less than 100,000 makes a bet of $10 at odds of 3 (European odds used for the example). Points are calculated like this: **10 * 3 * 10 = 300 points**
+  - All bets count. For combo bets - the final odds of the combo are used for the multiplier.
+  - The max odds mutiplier is 10. I.e. if the odds of the bet or combo are above 10, then they are counted as 10 for the Azuro Score multiplier.
+</Callout>
+
+### Change effective since Sep 6, 2023:
+
+Provide liquidity
+
+**1 USDT/XDAI liquidity for 1 increment of time = 1.5 points** (i.e. \$1 liquidity provided for 2 increments
+(at least 20 days) = 3 points; $1 liquidity provided for 35 days = 4.5 points; and so on…)
+
+### Addition effective since Sep 6, 2023:
+
+<Callout type="info">
+  As of the start of Azuro Score Phase 2, a Weekly Leaderboard is introduced! It allows top Azuro Scorers every week to gain multipliers or boosts to their points. The weekly leaderboard resets every Sunday midnight at 00:00 UTC.
+</Callout>
+
+
+### Change effective since Mar 3, 2023:
+
+Bet using frontend dApps
+(find them on https://azuro.org/ecosystem)
+
+| Condition | Score |
+|---|---|
+| For users with Azuro Score \<10,000 | $1 bet = 10 points |
+| For users with Azuro Score between 10,000 and 20,000 | $1 bet = between 10 points and 1 point according to this formula: <Formula>$$(1 - (\sqrt{AzuroScore / 10000 - 1})) * 9 + 1$$</Formula> |
+| for users with Azuro Score \>20,000 | $1 bet = 1 point |
+
+### Addition effective since Mar 3, 2023:
+
+Refer friends
+(to https://bookmaker.XYZ)
+
+You can get up to 15% of the Azuro Score points your friends earn each month. [Read more](https://docs.bookmaker.xyz/for-bookmaker.xyz-users/refer-a-friend)
+
+
+### Since Feb 16, 2023:
+
+Bet using frontend dApps
+(find them on https://azuro.org/ecosystem)
+
+| Condition | Score |
+|---|---|
+| For users with Azuro Score \<10,000 | $1 bet = 10 points |
+| For users with Azuro Score between 10,000 and 20,000 | $1 bet = between 10 points and 5 points according to this formula: <Formula>$$(2 - (\sqrt{AzuroScore / 10000 - 1})) * 5$$</Formula> |
+| for users with Azuro Score \>20,000 | $1 bet = 5 points |
+
+Provide liquidity
+
+**1 USDT/XDAI liquidity for 1 increment of time = 0.3 points**<br />
+(i.e. \$1 liquidity provided for 2 increments (at least 20 days) = 0.6 points; $1 liquidity provided for 35 days = 0.9 points; and so on…)
+
+<Callout type="info">
+  - 1 increment of time is 10 days. Only full increments count.
+  - There is no restrictions on adding/withdrawing liquidity. The points are calculated according to the total amount of time liquidity has been provided for.
+  - Only liquidity providers (addresses) adding liquidity after Feb 15, 00:01 UTC, 2023 (when Azuro pools were opened to the public) can receive points. If the LP (address) was LPing before this point in time (i.e. private liquidity) - it is excluded from Azuro Score points.
+  - Score points are updated/attributed once per day at midnight UTC.
+</Callout>

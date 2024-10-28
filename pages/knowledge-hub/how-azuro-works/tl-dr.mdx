@@ -1,0 +1,59 @@
+import { Callout, Formula } from 'components'
+
+# TL;DR
+
+## Initialization
+
+Data Provider creates Pool request to [Factory](https://gem.azuro.org/contracts/factory) (owned by AzuroDAO). If approved, Factory deploys a [Pool](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) for the Data Provider and gives access to Azuro LP (and etc.) via [Access](https://gem.azuro.org/contracts/access).
+
+This allows the Data Provider to create new prediction markets, via a set of [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions) making up each prediction market. For example (for a football match): FullTimeResult, BothTeamsToScore, etc.
+
+Data Provider sets [Reinforcement](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/reinforcement) for each Condition. **Reinforcement** represents the initial liquidity seeded from the Azuro LP to serve that **Condition** (e.g., \$200k), distributed across multiple outcomes (e.g., \$30k on Team 1, \$70k on X, \$100k on Team 2). This will also set the **Initial Odds** for each outcome within a **Condition** (\$200k/\$30k = 6.67 odds for Team 1, etc.).
+
+Data Provider sets margin (i.e., 2.5%) on each Condition. Displayed odds to users will be post-margin, not the “true” odds derived from **Reinforcement** seeding. Post-margin odds will be automatically applied onchain, based on “true” **Initial Odds** (and **Live Odds**) of an outcome.
+
+## Active markets
+
+User bets will add to the **Condition’s** initial liquidity **(Reinforcement)**. If the Condition’s initial liquidity is \$200k and it sees \$50k in bets, its total seeded liquidity becomes \$250k.
+
+**Live Odds** will deviate from **Initial Odds** depending on betting flows, divided by the Condition’s total seeded liquidity at time of bet. The more flows to one side of the Condition, the lower the outcome’s odds will be (e.g., if this \$50k flows entirely to Team 1, its live odds will become \$250k/\$80k = 3.125, massively down from its initial odds of 6.667).
+
+The above bet entails a potential loss of \$106.25k (\$50k \* 3.125 - \$50k) to the Condition, hence the bet will still be accepted as \$106.25k is still below the Condition’s \$200k **Reinforcement**.
+
+As bettors won’t bet on just one side of a Condition, on aggregate it’s unlikely for potential loss to exceed **Reinforcement**. However, if more bets are disproportionately placed on one side and push the Condition’s potential loss to exceed **Reinforcement**, the bets will be rejected.
+
+Hence, apart from seeding initial liquidity (and setting initial odds), **Reinforcement** also caps the amount of max loss that could be incurred to the Condition assuming the worst-case scenario (borne out of bad oddsmaking by the data provider, or unforeseen changes relating to the event post market creation that severely tilts the probability of one outcome happening over the other).
+
+## Singleton LP
+
+As all active **Conditions** share the same singleton **LP**, each active **Condition** needs to ensure there’s sufficient liquidity on the **LP** prior to accepting more bets. The amount denoting the additional liquidity (in excess of **Reinforcement**) that needs to be booked in the **LP** for an active **Condition** before accepting further bets is referred to as the Condition’s [**Virtual Fund**](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/virtual-funds) (aka “float”).
+
+<Formula>
+$$
+F=R-sum(bets)-max(payout)
+$$
+</Formula>
+<Formula className="text-md">
+$$
+\text{ where }
+\\R \text{ is the Reinfrocement of a Condition, }
+\\sum(bets) \text{ is the sum of bets on all outcomes of a Conidition, }
+\\max(payout) \text{ is the maximum potential payout to players for a Condition. }
+$$
+</Formula>
+
+Initially, **Conditions** “book” liquidity from the LP via its **Reinforcement** (as it represents the Condition’s max potential loss). Assuming \$5M LP TVL (and implied \$200k **Reinforcement** on this active **Condition**), Azuro LP’s available capacity now stands at \$4.8M.
+
+Let’s say this **Condition** (\$200k **Reinforcement**) accumulates \$500k total bets with a \$150k potential loss. In this case, the Condition’s **Virtual Fund** is -\$450k (\$200k - \$500k - \$150k).
+
+Let’s assume that the LP capacity is down to \$1M (the Condition’s \$200k **Reinforcement** is already part of the “booked” \$4M liquidity). The Condition’s **Virtual Fund** of -\$450k will now push the capacity further down to \$550k (\$1M - \$450k).
+
+Once the LP’s capacity runs out, it is no longer able to service further bets, that is until capacity frees up (from settled **Conditions**, LP profits from previously settled bets, new LP deposits, etc.).
+
+## Event resolution and rewards distribution
+
+The Data Provider resolves the set of **Conditions** making up a prediction market, depending on its associated real-world results. Where necessary, **AzuroDAO** may act as the arbiter of last resort.
+
+Each **Condition’s** booked liquidity (**Reinforcement** + **Virtual Fund**) that is part of the resolved market is immediately released back to the LP, which replenishes its capacity.
+
+[**Rewards**](https://gem.azuro.org/knowledge-hub/how-azuro-wors/reward-distribution) on each **Condition** is calculated, stored on an onchain vault, then disbursed to relevant protocol actors (i.e., apps, LP, data provider, **AzuroDAO**) on a monthly basis.

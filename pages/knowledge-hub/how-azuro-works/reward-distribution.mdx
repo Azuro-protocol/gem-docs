@@ -1,0 +1,45 @@
+import { Callout, Formula } from 'components'
+
+# Reward Distribution
+
+The term "reward" within Azuro protocol refers to the fee of the [Pool's](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) profit that is distributed to those who contribute to its operation.
+
+Currently, there are 4 types of contributors in the Pool, each entitled to rewards from protocol revenue: Liquidity Providers (LPs), Data Providers, Apps, and AzuroDAO.
+
+## LPs and Data Providers
+
+For LPs and Data Providers, after the completion of each [Condition](/knowledge-hub/how-azuro-works/components/conditions), the profit or loss of the pool is multiplied by the reward rate (20% and 10% respectively) and added to the contributor reward balance.
+
+## Apps (Frontends)
+
+Apps' reward is paid monthly, separately for each chain.
+
+<Formula>
+$$
+\begin{array}{c}
+\textit{AppReward} = 70\% \times \textit{AppRevenue} \\
+\textit{SpreadRewardCap} = 50\% \times \textit{Spread} \times \textit{BetSize} \\
+\end{array}
+$$
+</Formula>
+
+<Formula>
+$$
+\begin{array}{c}
+\text{where} \\
+\textit{AppReward} \text{ is not higher than } \textit{SpreadRewardCap}, \\
+\textit{Spread} \text{ is the vig (aka margin) for each particular bet,} \\
+\textit{BetSize} \text{ is the amount (aka wagered cryptocurrency) of each particular bet.}
+\end{array}
+$$
+</Formula>
+
+
+### DAO
+
+The DAO reward being a license fee for the Azuro protocol solution is calculated by deducting all other rewards from the total monthly Pool Revenue.
+
+<Callout type="info">
+LPs’, Data Providers’, and the DAO’s rewards can happen to be negative. 
+Affiliates’ rewards can be only positive or 0.
+</Callout>
