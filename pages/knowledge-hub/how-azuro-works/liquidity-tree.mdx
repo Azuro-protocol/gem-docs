@@ -1,6 +1,6 @@
 import { Callout, Image } from 'components'
 
-# Liquidity Tree
+# LiquidityTree
 
 LiquidityTree is a novel data structure based on Segment Tree, tailored to facilitate efficient liquidity provision across multiple active **Conditions** from a unified singleton liquidity pool.
 
@@ -25,22 +25,22 @@ Two leaves (left and right) are combined into one parent node. Two nodes (left a
 node and so on up to the single root of the entire segment tree. The root node of the segment tree represents the most
 up-to-date value of the sum of its child elements (leaves). The root has no parents, and the leaves have no children.
 
-The Liquidity Tree is a data structure used to track provided liquidity, based on a segment tree. In the task of liquidity
+The LiquidityTree is a data structure used to track provided liquidity, based on a segment tree. In the task of liquidity
 accounting, the root node contains the most up-to-date liquidity value.
 
 
-### Liquidity Tree Organization
+### LiquidityTree Organization
 
-All Liquidity Tree nodes are stored as elements of an array. To store data in **K** elements, an array of size
+All LiquidityTree nodes are stored as elements of an array. To store data in **K** elements, an array of size
 **K * 2 + 1** is required. Element number **0** is not used, the root node has number **1**, and the first leaf has
 number **K**. The children of the root node are: **2** - left child **3** - right child.
 
-Navigation inside the Liquidity Tree is performed through the relation of node numbers:
+Navigation inside the LiquidityTree is performed through the relation of node numbers:
 
 - The left child of node X has the number **2X**
 - The right child has the number **2X + 1**
 
-_Example of a Liquidity Tree for storing 4 elements:_
+_Example of a LiquidityTree for storing 4 elements:_
 
 ```
 +------------------------------------------
