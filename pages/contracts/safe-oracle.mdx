@@ -13,25 +13,21 @@ import { PageHeadline, Callout } from 'components'
   This contract does not affect the logic of a Pool's contracts
 </Callout>
 
-The SafeOracle contract allows to create and resolve [Conditions](/knowledge-hub/how-azuro-works/components/conditions) on any
+The SafeOracle contract allows data providers to create and resolve [Conditions](/knowledge-hub/how-azuro-works/components/conditions) on any
 [PrematchCore](/contracts/prematch-core) contract, with an option for any user to dispute the result. If the result is
 disputed or not provided within the specified period set at the time of Condition creation,
-[Azuro DAO](/knowledge-hub/azur/azuro-dao) will provide the result.
+[AzuroDAO](/knowledge-hub/azur/azuro-dao) will step in to resolve the Condition.
 
 The SafeOracle's logic guarantees timely and accurate results for created Conditions or cancels them if the correct
 result is impossible to determine. This eliminates the risk of fraud against bettors by the
 [data provider](/knowledge-hub/how-azuro-works/protocol-actors/data-providers) and the possibility of their funds being locked due to the data
 provider's failure to provide the result.
 
-When creating a Condition through SafeOracle, the data provider places a fixed amount as collateral, which will be
-returned to them if their result is timely and accurate. Otherwise, the collateral will be used as a reward for Azuro DAO
-and optionally the disputant.
+Each data provider will have a certain amount of fixed collateral placed to the protocol, depending on the amount of [Reinforcement](/knowledge-hub/how-azuro-works/components/reinforcement) that they intend to draw upon from the singleton LP at any one time. This collateral doubles as slashable assets in the case of false resolutions, if deemed by AzuroDAO.
 
-A dispute can be opened by a disputant only within a limited timeframe after the data providers result for the Condition.
-After this period, the result will be accepted and executed on the LP contract. When opening a dispute,
-the disputant also places a collateral, which is half of the data provider's collateral. If the DAO determines that
-the result is incorrect, the disputant will double their collateral; otherwise, they will lose their funds.
+Each market's settlement will have a short delay post-resolution to allow for members of AzuroDAO to raise a dispute if necessary. Disputants will be required to place a small bond to deter griefing attacks to the protocol's dispute mechanism.
 
+If the data provider's original resolution is determined to be accurate, the disputant will lose their bond to the data provider. Conversely, a portion of the data provider's collateral will be slashed and redistributed to the disputant, while the AzuroDAO resolves the market to the correct outcome and renounces the data provider's ownership of the associated [Pool](/knowledge-hub/how-azuro-works/components/pools ownership) (ejected from the set). Amount of slashed collateral will scale relative to the amount at risk of the disputed market.
 
 ### Reference
 
