@@ -1,20 +1,17 @@
-import { PageHeadline, Callout } from 'components'
+import { Callout } from 'components'
 
-<PageHeadline
-  title="ClientCore (Live betting)"
-  subTitle="A Register Engine for the betting"
-/>
+# LiveCore
 
-"LiveCore" contract is designed to accept bets on sport events in real time and reserve payouts for them.
+LiveCore contract is designed to accept bets on sport events in real time and reserve payouts for them.
 Bets are made according to the parameters  (event, outcome, odds, amount) approved and signed by the bettor and by the Azuro backend.
 Each LiveCore bet is "AzuroBet token" as in PrematchCore. The contract does not calculate odds,
 it only checks the provided parameters and signatures.
 
-"LiveCore" contract checks the states of the events: creates new ones and resolves finished events. When the event ends
+LiveCore contract checks the states of the events: creates new ones and resolves finished events. When the event ends
 at a certain "resolve time", bets made later than the "resolve time" are possible - these bets are considered canceled
 and can be returned back to the players (players take back "LP.withdrawPayout()" canceled bets by themselves).
 
-"LiveCore" is contract similar to “PrematchCore” does not store bet amounts and payments, it uses the “LP” contract:
+LiveCore is contract similar to PrematchCore does not store bet amounts and payments, it uses the “LP” contract:
 sends bets and reserves the amount for payments there.
 
 A snapshot saving approach is used for canceled bets. In this way, bets are saved with time stamps and if bets are placed
