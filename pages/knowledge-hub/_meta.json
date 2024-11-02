@@ -1,29 +1,47 @@
 {
-  "mission-and-vision": {
-    "title": "Mission & Vision"
+  "abstract": {
+    "title": "Abstract"
   },
-  "foreword": {
-    "title": "Foreword"
+  "background": {
+    "title": "Background"
+  },
+  "separator1": {
+    "type": "separator"
   },
   "introduction": {
     "title": "Introduction"
+  },
+  "how-to-use-azuro": {
+    "title": "How to Use Azuro?"
+  },
+  "azuroscan": {
+    "title": "Azuroscan: Search & Discover"
+  },
+  "faqs": {
+    "title": "FAQs"
+  },
+  "separator2": {
+    "type": "separator"
   },
   "how-azuro-works": {
     "title": "How Azuro Works"
   },
   "azur": {
-    "title": "🌊 $ AZUR token"
-  },
-  "additional": {
-    "title": "Additional Info"
+    "title": "🌊 $AZUR token"
   },
   "go-defi": {
     "title": "💧 Go DeFi"
+  },
+  "separator3": {
+    "type": "separator"
+  },
+  "additional": {
+    "title": "Additional Info"
   },
   "get-involved": {
     "title": "Get Involved"
   },
   "airdrops": {
-    "title": "Airdrops"
+    "title": "🪂 Airdrops"
   }
 }
