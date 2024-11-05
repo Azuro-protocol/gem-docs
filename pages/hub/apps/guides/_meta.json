@@ -12,6 +12,9 @@
     "type": "separator"
   },
   "custom-markets": {
+    "title": "Custom markets"
+  },
+  "political-markets": {
     "title": "How to add political / social markets"
   },
   "affiliate-wallet": {
