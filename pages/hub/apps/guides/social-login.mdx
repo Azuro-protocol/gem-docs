@@ -1,0 +1,286 @@
+import { Image } from 'components'
+
+
+# Implement Social Login in your app
+
+It's assumed, you already have an existing app.
+We use privy.io service
+
+## Prerequisites
+
+We use [privy.io](https://privy.io) as an authentication and key management provider. So:
+1. Register an account at [dashboard.privy.io](https://dashboard.privy.io) and create a project (name will be passed to WalletConnect).
+2. Go to **"Embedded wallets"** page, open **"Smart wallets"** tab:
+   - Enable it and select **`Safe`** option;
+   - Configure chains. We recommend to use **Pimlico**:
+     - Register at [their dashboard and copy API key](https://dashboard.pimlico.io/apikeys).
+     - Return to privy page, press "Quick setup", select "Pimlico", paste API key and choose your primary app chain (Polygon, Gnosis, or Amoy, if you're setting up dev env).
+3. Go to **"Settings"** page and copy **`App ID`** of your project.
+
+You must have at least one chain configured, we recommend to use just one chain for smart wallets and hide chain switcher from UI for such users.
+
+<Image
+  src="/images/sdk/privy-dashboard.png"
+  width={1640}
+  height={1402}
+/>
+
+## Installation
+
+Run
+```bash
+npm install @azuro-org/sdk-social-aa-connector
+```
+
+If you're using `@azuro-org/sdk`, update it to the latest version, it supports `sdk-social-aa-connector` since version `5.3.0`.
+
+## Setup
+
+### Update configs and providers
+
+1. Replace wagmiConfig creation by `createConfig` from `@privy-io/wagmi` (this package is already installed):
+
+```ts {2} copy filename="config.ts"
+import { http, cookieStorage, createStorage } from 'wagmi'
+import { createConfig } from '@privy-io/wagmi'
+
+export const wagmiConfig = createConfig({
+  /* the same options as you have */
+})
+```
+
+2. Create privyConfig, discover available options in the [Privy Docs](https://docs.privy.io/guide/react/configuration/appearance#app-name):
+
+```ts {3,9-100} copy filename="config.ts"
+import { http, cookieStorage, createStorage } from 'wagmi'
+import { createConfig } from '@privy-io/wagmi'
+import type {PrivyClientConfig} from '@privy-io/react-auth'
+
+export const wagmiConfig = createConfig({
+  /* the same options as you have */
+})
+
+export const privyConfig: PrivyClientConfig = {
+  walletConnectCloudProjectId: 'Your-WALLET-CONNECT-Project-ID',
+  loginMethods: [ 'wallet', 'email', 'google', 'twitter', 'farcaster', 'discord', 'instagram' ],
+  appearance: {
+    theme: 'dark',
+    showWalletLoginFirst: true,
+  },
+}
+```
+
+3. Replace `WagmiProvider` from `wagmi` with `PrivyProvider` from `@azuro-org/sdk-social-aa-connector`:
+
+```tsx {2,3,9-14,18} filename="Providers.tsx"
+import { QueryClientProvider } from '@tanstack/react-query'
+import { PrivyProvider } from '@azuro-org/sdk-social-aa-connector'
+import { wagmiConfig, privyConfig } from './config'
+import { queryClient } from './queryClient'
+
+export const Providers = ({ children, initialWagmiState, initialChainId }) => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <PrivyProvider
+        appId="your-App-ID-from-privy-dashboard"
+        privyConfig={privyConfig}
+        wagmiConfig={wagmiConfig}
+        initialWagmiState={initialWagmiState}
+      >
+        <AzuroSDKProvider initialChainId={initialChainId}>
+          {children}
+        </AzuroSDKProvider>
+      </PrivyProvider>
+    </QueryClientProvider>
+  )
+}
+```
+
+### Replace `useAccount` import
+
+`@azuro-org/sdk-social-aa-connector` exports `useAccount` hook which is extended version of `useAccount` from "wagmi".
+For web2 users (who logged in via email or social network), it replaces `address` property to generated smart account (for web3 users, it isn't changed),
+and provides `account.isAAWallet` flag to simplify detecting in you app logic.
+
+```tsx {1}
+import { useAccount } from '@azuro-org/sdk-social-aa-connector'
+
+const Component = () => {
+  const { address, isAAWallet, ...restWagmiUseAccountFields } = useAccount()
+
+  console.log({
+    // Smart Wallet address for web2,  default wallet signer address for web3
+    address,
+    isAAWallet,
+  })
+
+  // ...
+}
+```
+
+### Replace Connect handlers to `privy`:
+
+Use privy connect instead of your existing one:
+
+```tsx filename="ConnectButton.tsx"
+import { usePrivy } from '@privy-io/react-auth'
+import { useAccount } from '@azuro-org/sdk-social-aa-connector'
+
+export const ConnectButton = () => {
+  const { address } = useAccount()
+  const { connectOrCreateWallet, ready } = usePrivy()
+
+  if (!address) {
+    return (
+      <button type="button" onClick={() => connectOrCreateWallet()}>Connect Wallet</button>
+    )
+  }
+
+  return <>Your connected state view</>
+}
+```
+
+### Withdrawals Logic
+
+It's important to add withdrawal from user smart accounts UI and logic.
+
+To act with user's smart account, use walletClient from `useAAWalletClient` hook from `@azuro-org/sdk-social-aa-connector`.
+Read [Privy "Using smart wallets" docs](https://docs.privy.io/guide/react/wallets/smart-wallets/usage#signatures-and-transactions)
+
+Example of usage (simplified, not verified):
+
+```tsx copy filename="WithdrawalForm.tsx"
+import { useState } from 'react'
+import { isAddress, erc20Abi, parseUnits, encodeFunctionData } from 'viem'
+import { useBalance, usePublicClient } from 'wagmi'
+import { useAccount, useAAWalletClient } from '@azuro-org/sdk-social-aa-connector'
+import { useChain } from "@azuro-org/sdk"
+
+export const WithdrawalForm = () => {
+  const { address } = useAccount()
+  const aaWalletClient = useAAWalletClient()
+  const publicClient = usePublicClient()
+  const { appChain, betToken } = useChain()
+  const { isLoading, data, error, refetch } = useBalance({
+    chainId: appChain.id,
+    address,
+    token: betToken.address,
+  })
+
+  const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false)
+  const [ recipientAddress, setRecipientAddress ] = useState<string>('')
+  const [ amount, setAmount ] = useState<string>('')
+  const [ txHash, setTxHash ] = useState<`0x${string}` | undefined>()
+
+  const withdraw = async () => {
+    // handle it more granular and show feedback to the user
+    if (!isAddress(recipientAddress) || !aaWalletClient || !data?.value || !+amount) {
+      return
+    }
+
+    const fixedAmount = (+amount).toFixed(betToken.decimals)
+    const rawAmount = parseUnits(fixedAmount, betToken.decimals)
+
+    if (rawAmount > data.value) {
+      // show error
+      return
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      const hash = await aaWalletClient.sendTransaction({
+        account: aaWalletClient.account,
+        chain: appChain,
+        to: betToken.address,
+        data: encodeFunctionData({
+          abi: erc20Abi,
+          functionName: 'transfer',
+          args: [
+            recipientAddress,
+            rawAmount,
+          ],
+        })
+      })
+
+      const receipt = await publicClient!.waitForTransactionReceipt({
+        hash,
+      })
+
+      refetch()
+    }
+    catch (error) {
+      console.error(error)
+    }
+
+    setIsSubmitting(false)
+  }
+
+  if (!address) {
+    return <ConnectButton />
+  }
+
+  const submit = (event) => {
+    event.preventDefault()
+
+    if (isSubmitting) {
+      return
+    }
+
+    withdraw()
+  }
+
+  return (
+    <form aria-busy={isSubmitting} action="." onSubmit={submit}>
+      <div>Balance: {isLoading ? 'loading...' : (+data?.formatted || 0).toFixed(4)}</div>
+      <label className="block">
+        <span className="text-md text-zinc-400">Amount to withdraw</span>
+        <input
+          className="w-[140px] py-2 px-4 border border-zinc-400 text-md text-right font-semibold rounded-md"
+          type="number"
+          placeholder="Amount to withdraw"
+          value={amount}
+          onChange={(event) => setAmount(event.target.value)}
+        />
+      </label>
+      <label className="block">
+        <span className="text-md text-zinc-400">Recipient address</span>
+        <input
+          className="w-[140px] py-2 px-4 border border-zinc-400 text-md text-right font-semibold rounded-md"
+          type="text"
+          placeholder="Recipient address"
+          value={recipientAddress}
+          onChange={(event) => setRecipientAddress(event.target.value)}
+        />
+      </label>
+    </form>
+  )
+}
+```
+
+## If you don't use SDK
+
+Just do the same setup, use `@azuro-org/sdk-social-aa-connector`
+and work with user's smart account by viem walletClient drop-in replacement from `useAAWalletClient`.
+
+```tsx
+import { useAccount, useAAWalletClient } from '@azuro-org/sdk-social-aa-connector'
+import { useWalletClient } from 'wagmi'
+
+const Component = () => {
+  const { address, isAAWallet } = useAccount()
+  const aaWalletClient = useAAWalletClient()
+  const { data: defaultWalletClient } = useWalletClient()
+
+  const sendTxExample = async () => {
+    const to ='0x...'
+    const data ='0x...'
+
+    const txHash = isAAWallet
+      ? await aaWalletClient.sendTransaction({ to, data, account: aaWalletClient.account, chain: appChainTakenFromViem })
+      : await defaultWalletClient.sendTransaction({ to, data })
+  }
+}
+```
+
+Read [Privy "Using smart wallets" docs](https://docs.privy.io/guide/react/wallets/smart-wallets/usage#signatures-and-transactions) for more details, e.g. signing messages.

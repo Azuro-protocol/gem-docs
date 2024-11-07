@@ -14,19 +14,19 @@ import { polygonAmoy } from 'viem/chains'
 
 
 const wagmiConfig = createConfig(config)
-const queryClient = new QueryClient() 
+const queryClient = new QueryClient()
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}> 
+    <QueryClientProvider client={queryClient}>
+      <WagmiProvider config={wagmiConfig}>
         <AzuroSDKProvider initialChainId={polygonAmoy.id}>
           {children}
         </AzuroSDKProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+      </WagmiProvider>
+    </QueryClientProvider>
   )
 }
 ```
