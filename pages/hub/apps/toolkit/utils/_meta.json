@@ -9,5 +9,8 @@
   "getLiveBetFee": "getLiveBetFee",
   "getPrematchBetDataBytes": "getPrematchBetDataBytes",
   "groupConditionsByMarket": "groupConditionsByMarket",
-  "getFreeBets": "getFreeBets"
+  "getFreeBets": "getFreeBets",
+  "getLiveBetTypedData": "getLiveBetTypedData",
+  "createLiveBet": "createLiveBet",
+  "getLiveBet": "getLiveBet"
 }
