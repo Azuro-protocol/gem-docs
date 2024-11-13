@@ -2,26 +2,26 @@
 
 ## What is LiquidityTree?
 
-LiquidityTree is Azuro’s novel fund accounting system that tracks the balance changes of Virtual Funds across all prediction markets in real-time, block-by-block.
+[LiquidityTree](/knowledge-hub/how-azuro-works/liquidity-tree) is Azuro’s novel fund accounting system that tracks the balance changes of Virtual Funds across all prediction markets in real-time, block-by-block.
 
 It forms the backbone of Azuro — facilitating open deposits and unrestricted withdrawals to/from the LP, setting capacity for each prediction market to draw or ‘book’ liquidity from the LP, etc.
 
 ## What is Reinforcement?
 
-Reinforcement is a measure of the maximum potential loss that the singleton LP can suffer from a particular prediction market. It also represents the initial liquidity base upon creation of a prediction market, set by the responsible data provider with sell-side odds push authority.
+[Reinforcement](/knowledge-hub/how-azuro-works/components/reinforcement) is a measure of the maximum potential loss that the singleton LP can suffer from a particular prediction market. It also represents the initial liquidity base upon creation of a prediction market, set by the responsible Data Provider with sell-side odds push authority.
 
 ## What is Virtual Fund?
 
-Virtual Fund is a measure of virtual balances attributed to a prediction market. From the perspective of the singleton LP, the Virtual Fund balance of a prediction market corresponds to the amount of ‘booked’ liquidity that the prediction market draws upon from the LP.
+[Virtual Fund](/knowledge-hub/how-azuro-works/components/virtual-funds) is a measure of virtual balances attributed to a prediction market. From the perspective of the singleton LP, the Virtual Fund balance of a prediction market corresponds to the amount of ‘booked’ liquidity that the prediction market draws upon from the LP.
 
 ## What is vAMM?
 
-Virtual AMM (vAMM) is Azuro’s self-adjusting pricing mechanism on top of pushed sell-side odds from the data provider. Similar to conventional AMMs, vAMMs will shift the onchain odds of a prediction market depending on betting flows coming from bettors.
+The [vAMM](/knowledge-hub/how-azuro-works/components/vAMM) (Virtual AMM) is Azuro’s self-adjusting pricing mechanism on top of pushed sell-side odds from the data provider. Similar to conventional AMMs, vAMMs will shift the onchain odds of a prediction market depending on betting flows coming from bettors.
 
 ## How is protocol revenue distributed?
 
-The protocol involves three actors when facilitating a bet: apps, LP, and the data provider.
+The protocol involves three actors when facilitating a bet: apps, LP, and the Data Provider.
 
-Apps are entitled to 70% of all generated revenue serviced from their interface (subject to Spread Reward Cap). The singleton LP takes 20% of protocol revenue, while the data provider takes the remaining 10%. AzuroDAO currently does not take any protocol revenue.
+Apps are entitled to 70% of all generated revenue serviced from their interface (subject to Spread Reward Cap). The singleton LP takes 20% of protocol revenue, while the Data Provider takes the remaining 10%. AzuroDAO currently does not take any protocol revenue.
 
-Reward distribution percentages are not fixed. In the future, AzuroDAO will be able to turn on the fee switch and adjust the percentages across each protocol actor.
+[Reward Distribution](/knowledge-hub/how-azuro-works/reward-distribution) percentages are not fixed, and may be subject to further changes if deemed necessary by AzuroDAO.
