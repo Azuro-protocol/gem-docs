@@ -1,0 +1,29 @@
+import { Image, Button, Callout } from 'components'
+
+# The End of Impermanent Loss
+
+Azuro [Data Providers](/knowledge-hub/how-azuro-works/protocol-actors/data-providers) play an important role to ensure that the [singleton LP](/knowledge-hub/how-azuro-works/protocol-actors/liquidity-providers) is protected from extended periods of Impermanent Loss, and that liquidity provision is a passive set-and-forget action from the perspective of Azuro LPers. Due to the complexities that comes with the role, Data Providers are expected to be highly sophisticated entities with deep oddsmaking insight on the markets that they will be providing sell-side odds for.
+
+To ensure alignment with the protocol, Data Providers are required to specify a fixed amount of collateral (in USDT, which is the protocol's betting and LP denomination) as part of their election proposal[*] to [AzuroDAO](/knowledge-hub/azur/azuro-dao). Once onboarded, the amount of [Reinforcement](/knowledge-hub/how-azuro-works/components/reinforcement) that the Data Provider could draw upon from the singleton LP will be limited to the amount of collateral that they have put up with. As such, if a Data Provider wishes to price sell-side odds for high-volume events (e.g., the 2026 World Cup Final, etc.), then they are required to put up more collateral up to the estimated Reinforcement that the said prediction market would necessitate.
+
+Data Providers are ‘privileged’ participants on the prediction markets they’re pricing for, with the ability to reprice sell-side odds at any moment throughout the duration when the market is live, as well as pausing markets (not taking further bets) if extenuating circumstances arise. For their services, Data Providers are entitled to [10%](/knowledge-hub/how-azuro-works/reward-distribution) of all revenues that are generated from all prediction markets they’re involved with, while also being liable to its losses (to be deducted from their collateral balance).
+
+Therefore, Data Providers are incentivized to price (and reprice) sell-side odds in a way that maximizes profits and minimizes losses for themselves (and by extension, the protocol itself).
+
+## In action: preventing LP losses
+
+Suppose that a Data Provider is pricing sell-side odds for a football match:
+- The match is evenly contested, and is now in the 88th minute with a 1-1 scoreline. Onchain probabilities stand at 8-86-6 (8% team A, 86% draw, 6% team B).
+- Suddenly, team A scores a goal in the 90th minute, which results in a 2-1 scoreline and could potentially win them the match. Odds abruptly shift from 8-88-6 to 95-4-1 (95% team A, 4% draw, 1% team B).
+
+If the above happens on other prediction markets, it is virtually certain that LPers will be on the hook and eat losses as a result of the abrupt shift in odds — they won’t be able to pull out their liquidity in time before arbitrageurs swoop in and reprice the odds, to their detriment.
+
+However, due to the privileged position that the Data Provider has on prediction markets they’re pricing for (in addition to being incentivized to maximize their own profits), as soon as the goal happened, the Data Provider will be able to pause markets and front-run bettors to reprice the sell-side odds closer to 95%.
+
+Since data providers are also able to set “stop-loss” thresholds to auto-pause markets in the event of extremely abrupt onchain price swings (i.e., 10% swing within three blocks), even if the data provider somehow loses out in speed to onchain arbitrageurs, the maximum loss that they could incur (and by extension, the singleton LP and the protocol) will not exceed their “stop-loss” limit, which is defined before market creation and continuously monitored during when the market is live.
+
+Effectively, the protocol deliberately throttles the speed to which its onchain odds can move in reaction to an abrupt external catalyst, in favor of protecting the principal of its LPers. Although this may result in slightly lagged repricing of odds (a few seconds), we believe this tradeoff is justified for the sake of maintaining deep and ‘sticky’ liquidity on the singleton LP, ensuring that Azuro prediction markets will always have ample stock of funds to draw upon over the long run.
+
+<Callout type="info">
+Azuro’s singleton LP has historically returned 15-20% APY to its LPers. Actual yield depends on the amount of liquidity in the pool relative to its serviced bet volume.
+</Callout>

@@ -10,17 +10,17 @@ Stake.com is a centralized betting platform that leverages crypto as a payment r
 
 Azuro is simply a set of smart contracts that you interact with to place your bets. Your funds will only leave your possession at the moment of bet placement — you hold your own crypto, secured by your own private key.
 
-Events are resolved by the data provider, while AzuroDAO acts as the arbiter of last resort in case of disputes. Data providers are unable to cherry-pick resolutions for each betting slip — if an event is resolved as YES, all YES bets on that event will immediately resolve to TRUE. This protects bettors from discriminatory resolutions on select huge wins or parlays, an occurrence that has always been a problem in the traditional betting industry.
+Events are resolved by the [Data Provider](/knowledge-hub/how-azuro-works/protocol-actors/data-providers), while [AzuroDAO](/knowledge-hub/azur/azuro-dao) acts as the arbiter of last resort in case of disputes. Data Providers are unable to cherry-pick resolutions for each betting slip — if an event is resolved as YES, all YES bets on that event will immediately resolve to TRUE. This protects bettors from discriminatory resolutions on select huge wins or parlays, an occurrence that has always been a problem in the traditional betting industry.
 
-In addition, since voting power is determined based on AZUR staked amount and its staking duration, AzuroDAO will largely consist of long-term AZUR stakers that are aligned with the success of the protocol. This mostly ensures that by virtue of sheer game-theory, last resort resolutions that are presided over by AzuroDAO will always be truthful and non-arbitrary.
+In addition, since voting power is based on the [redacted] mechanism, AzuroDAO will largely consist of long-term AZUR stakers that are aligned with the success of the protocol. This mostly ensures that by virtue of sheer game-theory, last resort resolutions that are presided over by AzuroDAO will always be truthful and non-arbitrary.
 
 ## How does Azuro compare to Polymarket?
 
 Polymarket is a prediction markets platform based on the CLOB model. Individual markets are created by the team, and liquidity on each market is supplied by a combination of Polymarket’s designated market-makers and user-incentivized top-of-book orders. Bets are placed via the canonical Polymarket interface, and the aggregation of bets form Polymarket’s view on an event’s probabilities.
 
-Azuro is a protocol for prediction markets, utilizing a singleton LP model. Azuro markets are hosted by the data provider, who pushes sell-side odds for bettors to bet against. Liquidity is drawn from the unified singleton LP, powered by LiquidityTree. Bettors move sell-side odds with their betting flows (buy-side odds), and the resulting onchain odds reflect Azuro’s view on an event’s probabilities. Azuro’s singleton LP profits if the applied spread from the data provider’s sell-side odds is more than the degree of mispricing that is exploited onchain by bettor flows.
+Azuro is a protocol for prediction markets, utilizing a [singleton LP](/knowledge-hub/how-azuro-works/protocol-actors/liquidity-providers) model. Azuro markets are hosted by the Data Provider, who pushes sell-side odds for bettors to bet against. Liquidity is drawn from the unified singleton LP, powered by [LiquidityTree](/knowledge-hub/how-azuro-works/liquidity-tree). Bettors move sell-side odds with their betting flows (buy-side odds), and the resulting onchain odds reflect Azuro’s view on an event’s probabilities. Azuro’s singleton LP profits if the applied spread from the data provider’s sell-side odds is more than the degree of mispricing that is exploited onchain by bettor flows.
 
-Azuro’s use of data providers as benevolent sophisticated entities (elected by AzuroDAO) allows Azuro prediction markets to cover fast-paced events with non-binary outcomes (i.e., sports), as well as markets with relatively niche interest (since liquidity is inherited from the singleton LP instead of needing to be separately bootstrapped for each prediction market).
+Azuro’s use of Data Providers as benevolent sophisticated entities (elected by AzuroDAO) allows Azuro prediction markets to cover fast-paced events with non-binary outcomes (i.e., sports), as well as markets with relatively niche interest (since liquidity is inherited from the singleton LP instead of needing to be separately bootstrapped for each prediction market).
 
 Azuro does not maintain a canonical betting interface. Bettors place bets by choosing from one of Azuro’s third-party apps that are connected to the open-source protocol. This ensures that the protocol is able to scale access globally (as each app caters to their own respective localities, customs, and jurisdictional laws), while simultaneously removing the risk of having a single point-of-failure access point.
 
@@ -32,6 +32,6 @@ By implementing all betting logic in form of smart contracts, we eliminate the n
 
 ## What is Azuroscan?
 
-Azuroscan is a non-betting interface geared towards information-curious viewers. It indexes rich onchain data that is generated from using the protocol, and displays such data in an easy-to-digest format to casual non-betting viewers.
+[Azuroscan](/knowledge-hub/azuroscan) is a non-betting interface geared towards information-curious viewers. It indexes rich onchain data that is generated from using the protocol, and displays such data in an easy-to-digest format to casual non-betting viewers.
 
-We aim to have Azuroscan to be the gateway for people to search and discover the real-time probabilities of various world events, powered by Azuro prediction markets driven by onchain activity and betting volume.
+We aim to have Azuroscan to be the gateway for people to search and discover the real-time probabilities of various world events, driven by onchain activity and betting volume on Azuro prediction markets.

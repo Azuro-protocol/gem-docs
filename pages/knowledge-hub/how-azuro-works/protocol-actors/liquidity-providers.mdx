@@ -4,41 +4,36 @@ import { Callout } from 'components'
 
 Providing liquidity into one of Azuro's [pools](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) exposes the LP to all prediction markets supported by the pool — one-click exposure to thousands of markets, concurrently.
 
-The liquidity pools earn through the spread embedded in the [odds (sell-side)](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/odds) which players can bet on. The profit of the liquidity pool is the difference between the tokens seeded from the pool into the [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions) and the tokens returned to the pool after those Conditions are resolved.
-
-The more bet volumes serviced by the pool, the higher the likelihood that the pool is profitable. And the longer the duration of an LP's position, the higher the likelihood that it yields a positive return.
-
-AzuroDAO has no control over the LP, nor holds any interest in the LP. We simply develop the infrastructure to allow users to create new LPs and add liquidity to existing LPs.
-
-**APR is calculated in two steps:**
-1. The daily returns are determined by dividing the total rewards received by liquidity pool for resolved events within a day by the volume of the liquidity pool at the end of that day.
-2. The daily returns are then annualized for a one-year period.
+Azuro LPs earn through the spread embedded in sell-side [odds](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/odds) pushed by Data Providers, which players can bet on. The profit of the liquidity pool is the difference between the tokens seeded from the pool into the [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions) and the tokens returned to the pool after those Conditions are resolved.
 
 <Callout type="feature">
 Visit the [Azuro Portal](https://app.azuro.org/) to provide liquidity.
 </Callout>
 
+The more bet volumes serviced by the pool, the higher the likelihood that the pool is profitable. And the longer the duration of an LP's position, the higher the likelihood that it yields a positive return.
+
+**APR is calculated in two steps:**
+1. The daily returns are determined by dividing the total rewards received by liquidity pool for resolved events within a day by the volume of the liquidity pool at the end of that day.
+2. The daily returns are then annualized for a one-year period.
+
 <Callout type="alert">
   **RISKS:**
-- There is a significant chance that liquidity positions held under a week will be in the red (in the negative).
-- There is a non-zero chance that this can extend to longer periods of time. It is estimated that for periods above 1 month the likelihood of the pools turning a profit is >99%. But this is not a certainty.
+- Liquidity positions held under a week will most likely be in the red (negative yield).
+- Negative yield can extend to longer periods of time in the event of bettor outperformance.
+- Historical data suggests a >95% likelihood that LPs will return a positive yield on positions held above one month. However, past performance does not indicate future results.
 </Callout>
 
+<Callout type="warning">
+AzuroDAO does not have any control nor backdoor functionality over the LPs. Azuro LPers are able to withdraw funds from the pool at any point after the initial 7-day lock period.
+</Callout>
 
 ## Liquidity Positions
 
 ### Adding Liquidity
 
-When a user makes a new liquidity deposit they get exposed to pool losses that may occur on the markets which are already open at the time of the deposit. The positive exposure into pool profits starts with markets that are created after the deposit is made. Therefore it is almost a certainty that a new liquidity position shows negative returns in the first few days (i.e. before it starts getting positive exposure to the new markets coming up on the protocol).
+When a user makes a new liquidity deposit they get exposed to pool losses that may occur on the markets which are already open at the time of the deposit. The positive exposure into pool profits starts with markets that are created after the deposit is made.
 
-<Callout type="warning">
-  New liquidity positions experience an initial negative skew. It is most pronounced in the first several days.
-</Callout>
-
-<Callout type="warning">
-  There is a lockup period of **7 days** after liquidity is deposited. This means you can provide liquidity for
-  7 days or more. Not less.
-</Callout>
+Therefore it is almost a certainty that a new liquidity position shows negative returns in the first few days (i.e. before it starts getting positive exposure to the new markets coming up on the protocol).
 
 ### Withdrawing liquidity
 
