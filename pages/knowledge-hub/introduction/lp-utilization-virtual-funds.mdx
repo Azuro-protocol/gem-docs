@@ -6,12 +6,6 @@ When you place a bet on Azuro prediction markets, you’re effectively putting i
 
 Since all concurrent prediction markets share the same [singleton LP](/knowledge-hub/how-azuro-works/protocol-actors/liquidity-providers), each needs to check whether there’s sufficient liquidity on the Azuro LP prior to accepting more bets. The capacity of the singleton LP is updated block-by-block in real-time, where it will continue to facilitate more bets from any active prediction market under its umbrella as long as the sum of Virtual Fund balances across all of its currently active vAMMs does not exceed the pool’s own TVL.
 
-<Image
-  src="/images/concepts/lp-utilization.png"
-  width={2000}
-  height={700}
-/>
-
 Data providers stream sell-side odds and bettors aim to exploit any mispricing of said odds, all the while vAMMs maintain Virtual Fund balances by algorithmically ‘booking’ liquidity from the singleton LP on a block-by-block basis.
 
 This is capital-efficiency at its finest: through the elegance of the Virtual Fund accounting system, Azuro prediction markets are autonomously allocated optimal liquidity levels from the singleton LP, without needing sophisticated entities to act as an opinionated market-maker for liquidity provisioning.

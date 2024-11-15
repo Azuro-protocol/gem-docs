@@ -6,12 +6,6 @@ Azuro [Data Providers](/knowledge-hub/how-azuro-works/protocol-actors/data-provi
 
 To ensure alignment with the protocol, Data Providers are required to specify a fixed amount of collateral (in USDT, which is the protocol's betting and LP denomination) as part of their election proposal[*] to [AzuroDAO](/knowledge-hub/azur/azuro-dao). Once onboarded, the amount of [Reinforcement](/knowledge-hub/how-azuro-works/components/reinforcement) that the Data Provider could draw upon from the singleton LP will be limited to the amount of collateral that they have put up with. As such, if a Data Provider wishes to price sell-side odds for high-volume events (e.g., the 2026 World Cup Final, etc.), then they are required to put up more collateral up to the estimated Reinforcement that the said prediction market would necessitate.
 
-<Image
-  src="/images/concepts/end-of-impermanent-loss-1.png"
-  width={2000}
-  height={700}
-/>
-
 Data Providers are ‘privileged’ participants on the prediction markets they’re pricing for, with the ability to reprice sell-side odds at any moment throughout the duration when the market is live, as well as pausing markets (not taking further bets) if extenuating circumstances arise. For their services, Data Providers are entitled to [10%](/knowledge-hub/how-azuro-works/reward-distribution) of all revenues that are generated from all prediction markets they’re involved with, while also being liable to its losses (to be deducted from their collateral balance).
 
 Therefore, Data Providers are incentivized to price (and reprice) sell-side odds in a way that maximizes profits and minimizes losses for themselves (and by extension, the protocol itself).
@@ -25,12 +19,6 @@ Suppose that a Data Provider is pricing sell-side odds for a football match:
 If the above happens on other prediction markets, it is virtually certain that LPers will be on the hook and eat losses as a result of the abrupt shift in odds — they won’t be able to pull out their liquidity in time before arbitrageurs swoop in and reprice the odds, to their detriment.
 
 However, due to the privileged position that the Data Provider has on markets they’re pricing for (in addition to being incentivized to maximize their own profits), the Data Provider will be able to pause markets as soon as the goal happens and front-run bettors to reprice the sell-side odds closer to 95%.
-
-<Image
-  src="/images/concepts/end-of-impermanent-loss-2.png"
-  width={2000}
-  height={700}
-/>
 
 Since data providers are also able to set “stop-loss” thresholds to auto-pause markets in the event of extremely abrupt onchain price swings (i.e., 10% swing within three blocks), even if the data provider somehow loses out in speed to onchain arbitrageurs, the maximum loss that they could incur (and by extension, the singleton LP and the protocol) will not exceed their “stop-loss” limit, which is defined before market creation and always continuously monitored during when the market is live.
 
