@@ -1,8 +1,12 @@
+import { Image } from 'components'
+
 # What Is Azuro?
 
 Azuro is a decentralized protocol for prediction markets. Unlike most of its industry peers, Azuro does not use the orderbook model as the mechanism underpinning its prediction markets, opting for a dynamic AMM-based approach under a singular concentrated liquidity pool model.
 
-With its innovative [vAMM](/knowledge-hub/how-azuro-works/components/vAMM) mechanism and the [LiquidityTree](/knowledge-hub/how-azuro-works/liquidity-tree) fund accounting system, prediction markets are seeded by Azuro’s singleton pool — free and open for anyone to participate as an LP. All Azuro prediction markets inherit the full might of Azuro’s [singleton LP](/knowledge-hub/how-azuro-works/protocol-actors/liquidity-providers), allowing each to scale (and service bets) to the ‘true’ demand levels of its underlying event — up to the pool’s capacity.
+Utilizing [vAMMs](/knowledge-hub/how-azuro-works/components/vAMM) and the [LiquidityTree](/knowledge-hub/how-azuro-works/liquidity-tree) fund accounting system, all prediction markets on Azuro inherit the full might of Azuro's singleton LPs. This allows each market to 'book' liquidity and scale (and service bets) in an unconstrained manner, up to the **entire** capacity of the pool.
+
+Anyone can be an [LP](/knowledge-hub/how-azuro-works/protocol-actors/liquidity-providers) on Azuro: simply choose a preferred pool and deposit your funds. When LP'ing on Azuro, you're automatically exposed to all prediction markets that are seeded by the pool you're LP'ing in, allowing you to passively earn stablecoin yield off the betting activity from all of these markets.
 
 In addition, Azuro apps compete with each other to offer [bettors](/knowledge-hub/how-azuro-works/protocol-actors/bettors) with the best interface and user experience. Anyone in the world can spin-up a front-end, connect to the protocol, and facilitate bets — there is no designated canonical app that could be Azuro’s single point-of-failure.
 
@@ -17,4 +21,4 @@ The Azuro project is made up of three separate yet interconnected branches:
 
 - **AzuroSDK:** Web components that make it quick & easy to build applications on Azuro Protocol. Betting interfaces are only one of the many instances of apps on Azuro.
 
-- **AzuroDAO:** A decentralized system to govern the Azuro Protocol at steady-state. AZUR will serve as the Schelling point token, operating under vsAZUR tokenomics.
+- **AzuroDAO:** A decentralized system to govern the Azuro Protocol at steady-state. AZUR will serve as the Schelling point token, operating under the [redacted] mechanism.

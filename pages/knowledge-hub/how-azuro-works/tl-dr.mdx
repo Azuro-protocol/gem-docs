@@ -44,11 +44,18 @@ $$
 
 Initially, Conditions “book” liquidity from the LP via its Reinforcement (as it represents the Condition’s max potential loss). Assuming \$5M LP TVL (and implied \$200k Reinforcement on this active Condition), Azuro LP’s available capacity now stands at \$4.8M.
 
-Let’s say this Condition (\$200k Reinforcement) accumulates \$500k total bets with a \$150k potential loss. In this case, the Condition’s Virtual Fund is -\$450k (\$200k - \$500k - \$150k).
-
-Let’s assume that the LP capacity is down to \$1M (the Condition’s \$200k Reinforcement is already part of the “booked” \$4M liquidity). The Condition’s Virtual Fund of -\$450k will now push the capacity further down to \$550k (\$1M - \$450k).
+Let’s say this Condition (\$200k Reinforcement) accumulates \$100k total bets with a \$50k max loss. In this case, the Condition’s Virtual Fund is \$50k (\$200k - \$50k - \$100k), which frees up LP capacity from \$4.8M (\$5M-\$200k) to \$4.95M (\$5M-\$50k).
 
 Once the LP’s capacity runs out, it is no longer able to service further bets, that is until capacity frees up (from settled Conditions, LP profits from previously settled bets, new LP deposits, etc.).
+
+<Callout type="info">
+In rare cases, Virtual Fund balance may turn negative. This could happen when the Data Provider severely underestimates a market's betting demand and sets the Reinforcement amount too low relative to the market's actual sum of bets.
+
+For example:
+- Assume a Condition has \$200k Reinforcement, \$300k total bets, and \$500k max loss;
+- Its resulting Virtual Fund balance will be -\$600k, freeing up LP capacity from \$4.8M (\$5M-\$200k) to \$5.6M (\$5M+\$600k).
+</Callout>
+
 
 ## Event resolution and rewards distribution
 
