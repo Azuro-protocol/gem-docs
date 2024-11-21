@@ -23,5 +23,4 @@ Website: [gem.azuro.org](https://gem.azuro.org)
 
 ## Other way
 
-If you have a small changes proposal please visit https://gem.azuro.org. There is "Edit this page" in top right corner on each page. 
-Click on it to open GitHub's editor. Make your changes and submit a PR. Thank you!
+If you have a small change proposal, please visit [gem.azuro.org](https://gem.azuro.org). There is an "Edit this page" link in the top right corner of each page. Click on it to open the GitHub editor. Make your changes and submit a PR. Thank you!
