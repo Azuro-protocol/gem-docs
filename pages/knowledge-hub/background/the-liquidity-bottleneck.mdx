@@ -2,9 +2,7 @@ import { Image } from 'components'
 
 # The Liquidity Bottleneck
 
-When providing liquidity to a market, you will be exposed to the risk of Impermanent Loss (IL).
-
-In the case of AMMs, this will be the price differential between the point when you first deposited liquidity into the pool and the current point to which you want to withdraw your liquidity from the pool. In the case of CLOBs, this will be the difference between the orderbook’s current price and the aggregate prices of your top-of-book liquidity provision (buy/sell orders) for the orderbook.
+When providing liquidity to a market, you will be exposed to the risk of Impermanent Loss (IL). In the case of AMMs, this will be the price differential between the point when you first deposited liquidity into the pool and the current point to which you want to withdraw your liquidity from the pool. In the case of CLOBs, this will be the difference between the orderbook’s current price and the aggregate prices of your top-of-book liquidity provision (buy/sell orders) for the orderbook.
 
 Market-making in “conventional” markets (e.g., spot markets) is already hard enough: Uniswap LPs often had to be compensated via external rewards outside of fees just to breakeven when providing liquidity for non-correlated asset pairs. This is demonstrated by the makeup of LPs on Uniswap, where the majority of its LPs are in fact made up of highly sophisticated entities (i.e., Wintermute).
 
@@ -14,8 +12,6 @@ Market-making in “conventional” markets (e.g., spot markets) is already hard
   height={700}
 />
 
-First-generation protocols, whether AMM- or CLOB-based, impose unrealistic expectations on LPs to manage their liquidity on individual prediction markets.
+First-generation protocols, whether AMM- or CLOB-based, impose unrealistic expectations on LPs to manage their liquidity on individual prediction markets. For prediction markets, where odds swing from 40% to 95% in as short as a few minutes time, liquidity provision is simply a fool’s errand. One injury-time goal, the sudden withdrawal of a political candidate, the revelation of an election’s quick count results, or a knockout win by an MMA fighter — all of these cases will leave LPs on the hook, staring down at the barrel of their now-unrecoverable ILs.
 
-For prediction markets, where odds swing from 40% to 95% in as short as a few minutes time, liquidity provision is simply a fool’s errand. One injury-time goal, the sudden withdrawal of a political candidate, the revelation of an election’s quick count results, or a knockout win by an MMA fighter — all of these cases will leave LPs on the hook, staring down at the barrel of their now-unrecoverable ILs.
-
-With such high levels of principal risk, nobody is simply bothered enough to provide liquidity for prediction markets — ironically the very lifeblood driving accurate odds in the first place. This constrains the available pool of liquidity only to well-resourced centralized entities who are able to shoulder the principal risk in exchange for under-the-table benefits — definitely not the ideal status quo if you want a truly decentralized yet scalable prediction markets protocol.
+With such high levels of principal risk, nobody is simply bothered enough to provide liquidity for prediction markets — the very lifeblood driving accurate odds in the first place. This constrains the available pool of liquidity only to well-resourced centralized entities who are able to shoulder the principal risk in exchange for under-the-table benefits — not the ideal status quo if you want a truly decentralized yet scalable prediction markets protocol.

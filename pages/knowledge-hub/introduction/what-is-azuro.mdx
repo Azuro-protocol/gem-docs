@@ -4,7 +4,7 @@ import { Image } from 'components'
 
 Azuro is a decentralized protocol for prediction markets. Unlike most of its industry peers, Azuro does not use the orderbook model as the mechanism underpinning its prediction markets, opting for a dynamic AMM-based approach under a singular concentrated liquidity pool model.
 
-Utilizing [vAMMs](/knowledge-hub/how-azuro-works/components/vAMM) and the [LiquidityTree](/knowledge-hub/how-azuro-works/liquidity-tree) fund accounting system, all prediction markets on Azuro inherit the full might of Azuro's singleton LPs. This allows each market to 'book' liquidity and service bets in an unconstrained manner, up to the **entire** capacity of the pool.
+Utilizing [vAMMs](/knowledge-hub/how-azuro-works/components/vAMM) and our novel [LiquidityTree](/knowledge-hub/how-azuro-works/liquidity-tree) fund accounting system, all prediction markets on Azuro inherit the full might of Azuro's singleton LPs. This allows each market to 'book' liquidity and scale (aka service bets) in an unconstrained manner, up to the *entire* capacity of the pool.
 
 Anyone can be an [LP](/knowledge-hub/how-azuro-works/protocol-actors/liquidity-providers) on Azuro: simply choose a preferred pool and deposit your funds. When LP'ing on Azuro, you're automatically exposed to all prediction markets that are seeded by the pool you're LP'ing in, allowing you to passively earn stablecoin yield off the betting activity from all of these markets.
 
@@ -15,8 +15,6 @@ In addition, Azuro apps compete with each other to offer [bettors](/knowledge-hu
   width={2000}
   height={700}
 />
-
-As prediction markets are increasingly being relied upon by society as an unbiased source of truth for world events, enabling trust-minimized and scalable liquidity provision is of paramount importance. Azuro is the only protocol in production today that enables passive algorithmic liquidity provision, where LPs are protected from the risk of Impermanent Loss (IL) — prevalent in first-generation prediction market designs.
 
 ---
 
