@@ -14,34 +14,52 @@ For LPs and Data Providers, after the completion of each [Condition](/knowledge-
 
 ## Apps (Frontends)
 
-Apps' reward is paid monthly, separately for each chain.
+<Callout type="info">
+Visit [this](https://dune.com/queries/4361346/7319176) Dune query to view the historical month-by-month of our apps' reward calculation.
+</Callout>
+
+Apps' reward is paid monthly, separately for each chain. Each app's final take-home reward will be the lower of its *NotionalReward* and the sum of its *SpreadRewardCap* for that month.
+
+### SpreadRewardCap
 
 <Formula>
 $$
 \begin{array}{c}
-\textit{AppReward} = 60\% \times \textit{AppRevenue} \\
-\textit{SpreadRewardCap} = 50\% \times \textit{Spread} \times \textit{BetSize} \\
-\end{array}
-$$
-</Formula>
-
-<Formula>
-$$
-\begin{array}{c}
+\textit{SRCb} = 50\% \times \textit{Spread} \times \textit{BetSize} \\
+\textit{SRCt} = \textit{SRCb1} + \textit{SRCb2} + ... + \textit{SRCbi} \\
+\\
+\\
 \text{where} \\
-\textit{AppReward} \text{ is not higher than } \textit{SpreadRewardCap}, \\
-\textit{Spread} \text{ is the vig (aka margin) for each particular bet,} \\
-\textit{BetSize} \text{ is the amount (aka wagered cryptocurrency) of each particular bet.}
+\textit{SRC} \text{ denotes } \textit{SpreadRewardCap}, \\
+\textit{SRCb} \text{ represents the } \textit{SpreadRewardCap} \text{ for an individual bet}, \\
+\textit{SRCt} \text{ represents the sum of } \textit{SRCb} \text{ over a month's period}, \\
+\\
+\text{and} \\
+\textit{Spread} \text{ is the vig (aka margin) for an individual bet,} \\
+\textit{BetSize} \text{ is the amount (aka wager size) of an individual bet.}
 \end{array}
 $$
 </Formula>
 
+### NotionalRevenue
+
+<Formula>
+$$
+\begin{array}{c}
+\textit{NotionalReward} = 70\% \times \textit{AppRevenue} \\
+\\
+\\
+\text{where} \\
+\textit{AppRevenue} \text{ is the protocol revenue that is attributed to a particular app}, \\
+\textit{NotionalReward} \text{ is the notional reward for a particular app before applying } \textit{SRC}.
+\end{array}
+$$
+</Formula>
 
 ## DAO
 
-The remaining rewards will be attributable to AzuroDAO, calculated by deducting all other rewards from the total monthly Pool Revenue.
+The remaining amount will be attributable to AzuroDAO, calculated by deducting all other rewards from the total monthly Pool Revenue.
 
 <Callout type="info">
-LPs’, Data Providers’, and the DAO’s rewards can happen to be negative. 
-Frontends’ rewards can be only positive or 0.
+LP, Data Provider, and DAO rewards can happen to be negative in the event of Pool losses (caused by bettor outperformance). However, App rewards can be only positive or zero.
 </Callout>
