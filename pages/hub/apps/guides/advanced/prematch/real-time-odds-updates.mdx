@@ -93,13 +93,13 @@ It is highly probable that you will interact with multiple core contracts simult
 subscribers will be required. GraphQL can be utilized to obtain a list of core contract addresses.
 
 <Callout type="info">
-  Filter core contracts from graphql by type. Current active type for prematch core is `pre-match-v2`
+  Filter core contracts from graphql by type. Current active type for prematch core is `pre-match-v3`
 </Callout>
 
 ```graphql copy
 query CoreContracts{
   coreContracts(
-    where: { liquidityPool: "<LP_ADDRESS_LOWERCASE>", type: "pre-match-v2" }
+    where: { liquidityPool: "<LP_ADDRESS_LOWERCASE>", type: "pre-match-v3" }
     subgraphError: allow
   ) {
     address
