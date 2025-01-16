@@ -8,6 +8,9 @@
   "freebets": {
     "title": "Freebets"
   },
+  "cashback": {
+    "title": "Cashback"
+  },
   "---": {
     "type": "separator"
   },
