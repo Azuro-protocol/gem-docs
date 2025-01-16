@@ -1,0 +1,96 @@
+import { Image, Callout, Button } from 'components'
+
+# Distribute Cashback
+
+## Keynotes
+
+### Request Cashback Contracts
+Begin by making a [request to the Azuro Protocol team](https://azuro.typeform.com/cashbackpanel) to create Cashback
+contracts for your use. Once approved, you will gain access to our Cashback admin panel, and your new contracts
+integrated into our subgraphs. As the contract owner, you have the flexibility to withdraw
+funds from the marketing budget at any time. Additionally, Cashback contracts will be deployed exclusively
+for your affiliate address, ensuring that your funds are allocated solely to your frontend.
+
+<div className="mt-4">
+  <Button
+    toTab="https://azuro.typeform.com/cashbackpanel"
+    title="Request contracts"
+  />
+</div>
+
+### Provide Liquidity
+To check the liquidity balance, use the `balanceOf(cashbackAddress)` function on the token
+contract. You can top up your contract by simply sending tokens to your cashback contract address, just as you would with
+a regular ERC-20 transfer.
+
+### Withdraw Liquidity
+When you wish to withdraw liquidity from the contract, call the `withdrawReserve(amount)`
+function. Keep in mind that only tokens not reserved for Cashback can be withdrawn.
+To release reserved tokens, use the `resolvePayout(cashbackIds[])` function, especially when customers have not
+resolved their Cashbacks (i.e., they haven't claimed their cashback).
+
+<Callout type="info">
+  We recommend limiting the IDs provided to the `resolvePayout` function parameters to avoid errors during transaction
+  execution.
+</Callout>
+
+### Locked Reserve
+You can check the amount of locked tokens that cannot be withdrawn by using the `lockedReserve`
+function on the Cashback contract.
+
+### Budget Limitation
+Please note that we provide you with the flexibility to distribute Cashback
+without a budget limitation. However, if your customers claim Cashback for an amount exceeding what you've provided
+to the contract, they will encounter an error during the smart contract execution call.
+
+### Use cashback transactions
+Private request.
+To create a cashback, you need to create a campaign and offer, or use existing ones.
+Campaign and offer creation are available in the admin panel.
+
+<Callout type="warning">
+  Please note that we provide you with the flexibility to distribute Cashback without a budget limitation.
+  However, if your customers claim Cashback for an amount exceeding the Cashback contract balance,
+  they will encounter an error during the smart contract execution call.
+</Callout>
+
+```ts
+type Address = `0x${string}`
+
+enum RestState {
+  InProgress = 'InProgress',
+  Received = 'Received',
+  Suggested = 'Suggested',
+}
+
+type RestTransaction = {
+  id: string,
+  userAddress: Address,
+  comment: string,
+  offerId: string,
+  campaignId: string,
+  state: RestState,
+  createdAt: Date
+}
+
+const transactionFetcher = async (userAddress: string, comment: string, offerId: string, campaignId: string): Promise<RestTransaction> => {
+  const response = await axios.post<RestTransaction>('https://---/api/v1/public/cashback/transaction/create', {
+    params: {
+      userAddress, // user wallet address
+      comment, // user wallet address
+      offerId, // affiliate wallet address
+      campaignId // Optional. Networks array. For example: [PolygonUSDT]
+    },
+  })
+
+  return response.data || []
+}
+```
+
+## Distribute Cashback with Azuro Admin Panel
+
+Follow these steps to distribute Cashback using the Azuro Cashback Admin Panel:
+
+### 1. Sign In to Admin Panel
+
+Coming soon
