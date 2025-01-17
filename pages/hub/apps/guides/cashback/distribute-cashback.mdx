@@ -26,17 +26,6 @@ a regular ERC-20 transfer.
 ### Withdraw Liquidity
 When you wish to withdraw liquidity from the contract, call the `withdrawReserve(amount)`
 function. Keep in mind that only tokens not reserved for Cashback can be withdrawn.
-To release reserved tokens, use the `resolvePayout(cashbackIds[])` function, especially when customers have not
-resolved their Cashbacks (i.e., they haven't claimed their cashback).
-
-<Callout type="info">
-  We recommend limiting the IDs provided to the `resolvePayout` function parameters to avoid errors during transaction
-  execution.
-</Callout>
-
-### Locked Reserve
-You can check the amount of locked tokens that cannot be withdrawn by using the `lockedReserve`
-function on the Cashback contract.
 
 ### Budget Limitation
 Please note that we provide you with the flexibility to distribute Cashback
