@@ -1,0 +1,44 @@
+Provides approximate precalculated cashout values, intended for use in the client's bets view.
+
+#### Usage
+
+```ts
+import { getPrecalculatedCashouts } from '@azuro-org/toolkit'
+
+
+const cashouts = await getPrecalculatedCashouts({
+  chainId: 137,
+  conditionIds: ['...'],
+})
+
+const totalMultiplier = cashouts.reduce((acc, { multiplier }) => acc *= +multiplier, 1)
+const { possibleWin } = bet // user's bet
+
+const cashoutAmount = possibleWin * +totalCashoutMultiplier // it's precalculated cashout amount for bet
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  conditionIds: string[]
+}
+```
+
+```ts
+type ChainId = 100 | 137 | 80002 | 88888 | 88882
+```
+
+#### Return Value
+
+```ts
+type GetPrecalculatedCashouts = {
+  conditionId: string
+  available: boolean // Indicates whether cashout is available for the provided condition
+  outcomes: {
+    outcomeId: number
+    multiplier: string
+  }[]
+}[] | null
+```

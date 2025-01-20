@@ -37,6 +37,7 @@ enum BetType {
   Unredeemed = 'unredeemed', // ready to redeem bets
   Accepted = 'accepted', // not resolved bets
   Settled = 'settled', // resolved bets
+  CashedOut = 'cashedOut', // cashed out bets
 }
 ```
 
@@ -105,5 +106,7 @@ type Bet = {
   isRedeemable: boolean // flag indicates the possibility of redeeming the bet
   isRedeemed: boolean // flag indicates whether the bet has been redeemed
   isCanceled: boolean // flag indicates whether the bet has been canceled
+  isLive: boolean // flag indicates whether the bet is live
+  isCashedOut: boolean // flag indicates whether the bet is cashed out
 }
 ```

@@ -1,0 +1,47 @@
+Returns the details of the created cashout order.
+
+#### Usage
+
+```ts
+import { getCashout } from '@azuro-org/toolkit'
+
+
+const cashout = await getCashout({
+  chainId: 137,
+  orderId: '...',
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  orderId: string // created cashout order id
+}
+```
+
+```ts
+type ChainId = 100 | 137 | 80002 | 88888 | 88882
+```
+
+#### Return Value
+
+```ts
+type GetCashoutResponse = {
+  txHash: string // transaction hash
+} & CreateCashoutResponse
+
+type CreateCashoutResponse = {
+  id: string // cashout id
+  state: CashoutState // cashout state
+  errorMessage?: string
+}
+
+enum CashoutState {
+  Processing = 'PROCESSING',
+  Accepted = 'ACCEPTED',
+  Rejected = 'REJECTED',
+  Open = 'OPEN'
+}
+```
