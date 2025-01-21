@@ -1,6 +1,6 @@
 import { Callout } from 'components';
 
-This hook creates a cashout order.
+This hook creates a cashout order and monitors its status
 
 
 #### Usage
@@ -42,7 +42,7 @@ type Selection = {
 ```ts
 {
   submit: () => Promise<void> // function used to trigger the cashout action or token spending approval
-  calculationQuery: Query<>
+  calculationQuery: UseQueryResult<GetCalculatedCashout>
   approveTx: {
     isPending: approveTx.isPending
     isProcessing: approveReceipt.isLoading
@@ -57,4 +57,21 @@ type Selection = {
   isCashoutAvailable
   isApproveRequired
 }
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+
+type GetCalculatedCashout = {
+  calculationId: string // calculation id, needed for createCashout
+  account: string
+  environment: Environment
+  tokenId: string // bet token id from graph
+  cashoutAmount: string
+  multiplier: string
+  expiredAt: number // cashout expired at
+  approveExpiredAt: number // sigh cashout type data expired at
+  isLive: boolean
+} | null
 ```

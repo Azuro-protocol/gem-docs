@@ -1,0 +1,239 @@
+import { Callout } from 'components'
+
+The `useLiveStatistics` hook is used to retrieve updated live statistics for an live event.
+
+<Callout type="warning">
+  If you're using the `AzuroSDKProvider`, you can skip this step.
+
+  Before utilizing `useLiveStatistics`, it is essential to initialize event watchers and the `LiveStatisticsSocketProvider`:
+
+  ```tsx
+    import { ChainProvider, LiveStatisticsSocketProvider, useWatchers } from '@azuro-org/sdk'
+
+    export function Watchers() {
+      useWatchers()
+
+      return null
+    }
+
+    function Providers(props: { children: React.ReactNode }) {
+      const { children } = props
+
+      return (
+        <ChainProvider>
+          <LiveStatisticsSocketProvider>
+            {children}
+          </LiveStatisticsSocketProvider>
+          <Watchers />
+        </ChainProvider>
+      )
+    }
+  ```
+</Callout>
+
+#### Usage
+
+Subscribe to changes for game.
+
+```ts
+import { useGameStatus, useLiveStatistics, type BasketballScoreBoard } from '@azuro-org/sdk'
+
+
+const { gameId, status: graphStatus, startsAt, sport: { sportId } } = game // game from live subgraph
+const { status } = useGameStatus({
+  graphStatus,
+  startsAt: +startsAt,
+  isGameExistInLive: true,
+})
+
+const { statistics, isFetching } = useLiveStatistics({
+  gameId,
+  sportId,
+  gameStatus: status,
+})
+
+const { q1, q2, q3, q4, state } = (statistics?.scoreBoard as BasketballScoreBoard)
+```
+
+<Callout type="info">
+  You can find a usage example in our [demo](https://github.com/Azuro-protocol/example-app/blob/main/src/compositions/LiveStatistics/LiveStatistics.tsx#L43).
+</Callout>
+
+#### Props
+
+```ts
+{
+  gameId: string
+  sportId: number | string
+  gameStatus: GameStatus
+  enabled?: boolean
+}
+```
+
+```ts
+enum GameStatus {
+  Created,
+  Live,
+  Resolved,
+  Canceled,
+  Paused,
+  PendingResolution,
+}
+```
+
+#### Return Value
+
+```ts
+{
+  statistics: LiveStatistics
+  isFetching // flag indicates statistics fetching
+  isAvailable  // flag indicates the availability of statistics
+}
+```
+```ts
+type LiveStatistics = {
+  status: Status | null
+  scoreBoard: ScoreBoard | null
+  stats: Stats | null
+}
+
+enum Status {
+  InProgress = 'In progress',
+  NotStarted = 'Not started yet',
+  Finished = 'Finished',
+  PreFinished = 'PreFinished',
+  CoverageLost = 'Coverage lost',
+  Suspended = 'Suspended'
+}
+
+type ScoreBoard = SoccerScoreBoard | BasketballScoreBoard | TennisScoreBoard | VolleyballScoreBoard
+
+type Stats = SoccerStats | BasketballStats | TennisStats | VolleyballStats
+
+type SoccerScoreBoard = {
+  time: string // The running time of the event
+  freeKicks: HomeGuest<number> // penalty kicks (kicks awarded for infringements of the rules)
+  goalKicks: HomeGuest<number> // goal kicks taken by the teams
+  goals: HomeGuest<number> // goals (number of goals scored)
+  corners: HomeGuest<number> // corner kicks (number of corner kicks taken)
+  penalties: HomeGuest<number> // penalties (number of 11-meter kicks awarded)
+  reds: HomeGuest<number> // red cards (number of penalties)
+  yellows: HomeGuest<number> // yellow cards (number of warnings)
+  throwIns: HomeGuest<number> // throw-in (putting the ball back into play after going over the sideline)
+  substitutions: HomeGuest<number> // replacements (number of replacements made)
+  offsides: HomeGuest<number> // offsides (offside position)
+  shotsOffTarget: HomeGuest<number> // shots off target by each team
+  shotsOnTarget: HomeGuest<number> // shots on target by each team
+  fouls: HomeGuest<number> // fouls (rule violations)
+  state: string // the current state of the match (H1, HT, H2, FT, ET1, ET2, ETHT, ETFT, P, F)
+}
+
+type BasketballScoreBoard = {
+  time: string // the running time of the event
+  q1: HomeGuest<number> // points scored by each team in the 1st quarter
+  q2: HomeGuest<number> // points scored by each team in the 2nd quarter
+  q3: HomeGuest<number> // points scored by each team in the 3rd quarter
+  q4: HomeGuest<number> // points scored by each team in the 4th quarter
+  total: HomeGuest<number> // total points scored by each team
+  overtime: HomeGuest<number> // points scored by each team during overtime
+  possession: HomeGuest<boolean> // indicates which team currently has possession
+  state: string // the current state of the match (Q1, Q2, Q3, Q4, H1, H2, HT, FT, OT, F, IS)
+}
+
+type TennisScoreBoard = {
+  points: HomeGuest<number> // current points won by each player in the ongoing game
+  s1: HomeGuest<number> // games won by each player in the 1st set
+  s2: HomeGuest<number> // games won by each player in the 2nd set
+  s3: HomeGuest<number> // games won by each player in the 3rd set
+  s4: HomeGuest<number> // games won by each player in the 4th set
+  s5: HomeGuest<number> // games won by each player in the 5th set
+  servis: HomeGuest<boolean> // indicates which player is serving
+  sets: HomeGuest<number> // sets won by each player
+  state: string // the current state of the match (S1, S2, S3, S4, S5, T, F)
+}
+
+type VolleyballScoreBoard = {
+  s1: HomeGuest<number> // Points scored by each team in the 1st set
+  s2: HomeGuest<number> // points scored by each team in the 2nd set
+  s3: HomeGuest<number> // points scored by each team in the 3rd set
+  s4: HomeGuest<number> // points scored by each team in the 4th set
+  s5: HomeGuest<number> // points scored by each team in the 5th set
+  servis: HomeGuest<boolean> // indicates which team is serving
+  sets: HomeGuest<number> // sets won by each team
+  state: string // the current state of the match (S1, S2, S3, S4, S5, IS, T, F)
+}
+
+type SoccerStats = {
+  attacks: HomeGuest<number> // the number of attacks
+  dangerousAttacks: HomeGuest<number> // number of dangerous attacks (episodes when an attack poses a direct threat to the goal)
+  goals: HomeGuest<number> // goals (number of goals scored)
+  possession: HomeGuest<number> // Ball possession (percentage of time the ball is controlled by the team)
+  penalties: HomeGuest<number> // penalty kicks (number of 11-meter kicks awarded)
+  corners: HomeGuest<number> // corner kicks (number of corner kicks taken)
+  yellowCards: HomeGuest<number> // yellow cards (number of warnings)
+  redCards: HomeGuest<number> // red cards (number of penalties)
+  totalShots: HomeGuest<number> // total shots (total number of shots on goal)
+  shotsOnTarget: HomeGuest<number> // shots on goal (shots that could have been goals if not for the goalkeeper or defenders)
+  shotsOffTarget: HomeGuest<number> // shots off target by each team
+  throwIns: HomeGuest<number> // throw-in (putting the ball back into play after going over the sideline)
+  freeKicks: HomeGuest<number> // penalty kicks (kicks awarded for infringements of the rules)
+  goalKicks: HomeGuest<number> // goal kicks taken by the teams
+  substitutions: HomeGuest<number> // replacements (number of replacements made)
+  actionArea: HomeGuest<number> // The active area (where on the pitch the team most often keeps the ball)
+  expectedGoals: HomeGuest<number> // expected goals (a metric that estimates the probability of scoring a goal from each shot attempt)
+  passes: HomeGuest<number> // passes (number of passes between players)
+  goalkeeperSaves: HomeGuest<number> // goalkeeper saves (successful attempts by the goalkeeper to deflect shots)
+  passingAccuracy: HomeGuest<number> // accuracy of passes (percentage of successful passes)
+  crosses: HomeGuest<number> // crosses (long passes from one flank into the penalty area)
+  offsides: HomeGuest<number> // offsides (offside position)
+  ballSafe: HomeGuest<number> // Safe ball possession (the proportion of time a team holds the ball securely, avoiding risky actions)
+  shotsBlocked: HomeGuest<number> // blocked shots (shots blocked by defenders before the goal)
+  injuryBreaks: HomeGuest<number> // Injury pauses (time to stop play to help injured players)
+  missedPenalties: HomeGuest<number> // unassisted penalties
+  kickoffs: HomeGuest<number> // the start of the game (the number of times the ball is put into play after a goal has been scored)
+}
+
+type BasketballStats = {
+  fouls: HomeGuest<number> // fouls (rule violations)
+  freeThrows: HomeGuest<number> // penalty shots (number of penalty shots awarded)
+  freeThrowsScoredPerc: HomeGuest<number> // free throw shooting percentage
+  twoPointers: HomeGuest<number> // two-point shots (successful shots from the two-point zone)
+  threePointers: HomeGuest<number> // three-point shots (successful shots from behind the three-point line)
+  timeoutsTaken: HomeGuest<number> // timeouts taken (number of timeouts used)
+  timeoutsRemaining: HomeGuest<number> // the remaining timeouts
+  jumpBalls: HomeGuest<number>  // disputed balls (when the ball is put into play by a referee's throw-in between players of the teams)
+  assists: HomeGuest<number> // goal assists (number of assists after which a goal was scored)
+  offensiveRebounds: HomeGuest<number> // offensive rebounds (successful attempts to retrieve the ball after a missed shot at your team's basket)
+  defensiveRebounds: HomeGuest<number> // defensive rebounds (successful attempts to retrieve the ball after the opposing team misses a basket)
+  totalRebounds: HomeGuest<number> // total rebounds (sum of offensive and defensive rebounds)
+  turnovers: HomeGuest<number> // ball losses (errors that result in a change of possession)
+  steals: HomeGuest<number> // Interceptions (successful attempts to take the ball away from an opponent)
+  blocks: HomeGuest<number> // blocks (blocked opponent's throws)
+  playersDisqualified: HomeGuest<number> // disqualified players (number of players removed from the game due to infractions)
+}
+
+type TennisStats = {
+  serviceFaults: HomeGuest<number> // serving errors (errors when the ball does not enter the serving area)
+  doubleFaults: HomeGuest<number> // double faults (when a player makes two consecutive service errors, resulting in the loss of a point)
+  aces: HomeGuest<number> // aces (serves after which the opponent cannot reach the ball)
+  breakPoints: HomeGuest<number> // break points (situations where the receiving player can win a game on the opponent's serve)
+  breakPointsConversion: HomeGuest<number> // break point conversion (percentage of realized break points)
+  winFirstServePerc: HomeGuest<number>  // first-serve winning percentage (proportion of points won on the first serve)
+  winSecondServePerc: HomeGuest<number> // percentage of winning on the second serve (proportion of points won on the second serve)
+  pointsOnOwnServe: HomeGuest<number> // points on their serve (number of points won on their serve)
+  totalPointsWon: HomeGuest<number> // total points won
+}
+
+type VolleyballStats = {
+  longestStreak: HomeGuest<number> // longest streak (longest consecutive successful streak of scoring points)
+  pointsWonOnOwnServe: HomeGuest<number> // points won on their serve (the number of points earned during their serve)
+  pointsWonOnOpponentServe: HomeGuest<number> // points won on the opponent's serve (the number of points earned when the opponent serves)
+  aces: HomeGuest<number> // aces (serves after which the opponent cannot reach the ball)
+  serviceErrors: HomeGuest<number> // serving errors (errors in which the server loses a point)
+}
+
+type HomeGuest<T> = {
+  h: T
+  g: T
+}
+```
