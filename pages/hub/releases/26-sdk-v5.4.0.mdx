@@ -1,0 +1,23 @@
+import { Callout } from 'components'
+
+# SDK v5.4 & Toolkit v4.5
+
+We have added implementation of [Cashouts](/) and [Live Statistics](/) for live events.
+
+
+## Toolkit v5.4
+- [`getPrecalculatedCashouts`](/hub/apps/toolkit/utils/getPrecalculatedCashouts) - Provides approximate precalculated cashout values, intended for use in the client's bets view
+- [`getCalculatedCashout`](/hub/apps/toolkit/utils/getCalculatedCashout) - Returns the calculated cashout, intended to provide the exact cashout value for a specific bet
+- [`getCashoutTypedData`](/hub/apps/toolkit/utils/getCashoutTypedData) - Returns a typed data for cashout typed signature
+- [`createCashout`](/hub/apps/toolkit/utils/createCashout) - Submits a cashout order
+- [`getCashout`](/hub/apps/toolkit/utils/getCashout) - Returns the details of the created cashout order
+
+- New constants: `CASHOUT_DATA_TYPES`, `CASHOUT_TYPED_DATA_DOMAIN_NAME` and `CASHOUT_TYPED_DATA_DOMAIN_VERSION`
+
+## SDK v5.4
+- [`usePrecalculatedCashouts`](/hub/apps/sdk/cashout/usePrecalculatedCashouts) - Wrapper around [`getPrecalculatedCashouts`](/hub/apps/toolkit/utils/getPrecalculatedCashouts) for creating batch requests
+- [`useCashout`](/hub/apps/sdk/cashout/useCashout) - Handles cashout creation and status monitoring
+- [`useLiveStatistics`](/hub/apps/sdk/watch-hooks/useLiveStatistics) - Used to retrieve updated live statistics for an live event.
+
+- Introduces a new bet type filter: `BetType.CashedOut`, along with `isCashedOut` and `cashout` fields for the [useLiveBets](/hub/apps/sdk/data-hooks/useLiveBets) and [usePrematchBets](/hub/apps/sdk/data-hooks/usePrematchBets) hooks.
+- New constants: `LIVE_STATISTICS_SUPPORTED_SPORTS` and `LIVE_STATISTICS_SUPPORTED_PROVIDERS`

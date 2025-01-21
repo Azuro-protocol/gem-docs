@@ -1,0 +1,58 @@
+import { Callout } from 'components';
+
+This hook retrieves a list of approximate precalculated cashouts for a specific bettor and is intended for use in the client's bets view.
+
+
+#### Usage
+
+```ts {4, 6-8}
+import { usePrecalculatedCashouts } from '@azuro-org/sdk'
+
+
+const { status, outcomes, possibleWin, tokenId } = bet // bet from subgraph
+const { cashouts, totalMultiplier, isCashoutAvailable, isFetching } = usePrecalculatedCashouts({
+  tokenId,
+  selections: outcomes,
+  graphBetStatus: status,
+})
+
+const cashoutAmount = possibleWin * +totalMultiplier
+```
+
+#### Props
+
+```ts
+  selections: Selection[] // user's bet selections
+  graphBetStatus: GraphBetStatus
+  enabled?: boolean
+```
+
+```ts
+type Selection = {
+  tokenId: string
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
+}
+```
+
+#### Return Value
+
+```ts
+{
+  cashouts: Record<string, GetPrecalculatedCashouts>
+  totalMultiplier: number // total multiplier for cashout
+  isCashoutAvailable: boolean // Indicates whether cashout is available for the provided condition
+  isFetching: boolean
+}
+```
+```ts
+type GetPrecalculatedCashouts = {
+  conditionId: string
+  available: boolean
+  outcomes: {
+    outcomeId: number
+    multiplier: string
+  }[]
+}[] | null
+```

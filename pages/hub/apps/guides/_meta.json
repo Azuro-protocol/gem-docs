@@ -44,5 +44,6 @@
   "azuro-score": {
     "title": "How to get Azuro Score leaderboard",
     "display": "hidden"
-  }
+  },
+  "live-statistics": "Live statistics"
 }

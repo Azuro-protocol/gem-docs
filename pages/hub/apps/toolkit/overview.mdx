@@ -52,7 +52,7 @@ type ChainData = {
 ```
 ```ts
 import { type Chain } from 'viem/chains'
-import { type Address } from 'viem'
+import { type Address, erc721Abi } from 'viem'
 
 type BetToken = {
   address: Address
@@ -77,12 +77,19 @@ type Contracts = {
     address: Address
     abi: typeof proxyFrontAbi
   }
+  azuroBet: {
+    address: Address
+    abi: typeof erc721Abi
+  }
   liveRelayer?: {
     address: Address
   }
   liveCore?: {
     address: Address
     abi: typeof liveCoreAbi
+  }
+  cashout?: {
+    address: Address
   }
 }
 
@@ -110,9 +117,12 @@ import {
   MARGIN_DECIMALS, // marginality decimals
   ODDS_DECIMALS, // odds decimals
   MIN_LIVE_BET_AMOUNT, // min amount for live bet
-  LIVE_BET_DATA_TYPES, // data types for sign typed data
-  LIVE_TYPED_DATA_DOMAIN_NAME, // typed data domain name
-  LIVE_TYPED_DATA_DOMAIN_VERSION, // typed data domain version
+  LIVE_BET_DATA_TYPES, // live bet data types for sign typed data
+  LIVE_TYPED_DATA_DOMAIN_NAME, // live bet typed data domain name
+  LIVE_TYPED_DATA_DOMAIN_VERSION, // live bet typed data domain version
+  CASHOUT_DATA_TYPES, // cashout data types for sign typed data
+  CASHOUT_TYPED_DATA_DOMAIN_NAME, // cashout typed data domain name
+  CASHOUT_TYPED_DATA_DOMAIN_VERSION, // cashout typed data domain version
 
   deBridgeUrl, // deBridge api endpoint for creating order
   deBridgeTxUrl, // deBridge tx api endpoint for checking order status
