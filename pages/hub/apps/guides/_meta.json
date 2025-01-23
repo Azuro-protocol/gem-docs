@@ -11,6 +11,9 @@
   "cashback": {
     "title": "Cashback"
   },
+  "cashout": {
+    "title": "Cashout"
+  },
   "---": {
     "type": "separator"
   },

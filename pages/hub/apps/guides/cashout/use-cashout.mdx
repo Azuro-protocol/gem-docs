@@ -1,0 +1,190 @@
+import { Callout } from 'components'
+import { Tab, Tabs } from 'nextra-theme-docs'
+
+# Use Cashout
+
+### Get pre-calculation
+Provides preliminary calculation and availability of cashout for conditions and outcomes
+Use the [Azuro Cashout API](https://---/api/v1/public/cashout/get-multipliers) to get pre-calculation.
+
+```ts copy
+
+type MultipliersResponse = {
+ multipliers: {
+   conditionId: string;
+   gameStartAt: number;
+   available: boolean; // cashout availability flag by condition
+   outcomes: {
+     outcomeId: number;
+     multiplier: string; // multiplier in numberString format (how to use - see below)
+   }[];
+ }[];
+}
+
+const cashoutGetMultipliersFetcher = async (conditionIds: string[]): Promise<MultipliersResponse> => {
+  const response = await axios.post<MultipliersResponse>('https://---/api/v1/public/cashout/get-multipliers', {
+      conditionIds, // Condition ids
+    },
+  })
+
+  return response.data || []
+}
+```
+To pre-calculate any cashout from bet, multiply the multiplier by the user's existing bet payout
+
+
+### Get calculation
+Calculates the exact cashout amount based on the bet in the contract
+Use the [Azuro Cashout API](https://---/api/v1/public/cashout/get-calculation) to get calculation.
+
+```ts copy
+
+type CalculationRequest = {
+    environment: string; // Crypto network type
+    owner: string; // Bet owner address
+    betId: string; // Bet ID from the Graph
+    isLive: boolean; // Is the bet live flag (live is not available)
+}
+
+type CalculationResponse = {
+    calculationId: string; // Requirements for creating a cashout
+    owner: string;
+    environment: string;
+    betId: string;
+    cashoutAmount: string; // Сalculated cashout amount
+    cashoutOdds: string; // Calculated cashout as a coefficient
+    expiredAt: number; // The time during which the transaction must be completed, taking into account the execution on the contract
+    approveExpiredAt: number; // The time within which a request to create a cashout must be sent
+    isLive: true;
+}
+
+const cashoutGetСalculationFetcher = async (data: CalculationRequest): Promise<CalculationResponse> => {
+  const response = await axios.post<MultipliersResponse>('https://---/api/v1/public/cashout/get-calculation', {
+    ...data
+  })
+
+  return response.data || []
+}
+```
+
+### Create cashout
+Creates a cashout based on the calculation
+Use the [Azuro Cashout API](https://---/api/v1/public/cashout/create) to create cashout.
+
+```ts copy
+
+type CreateRequest = {
+  calculationId: string;
+  signature: {
+    verifyingContract: string; // Cashout contract
+    bettingContract: string; // Bet contract
+    attention: string;
+    chainId: number;
+    ownerSignature: number;
+  }
+}
+
+type CreateResponse = {
+  id: string; // Cashout ID
+  state: // Order state (PROCESSING, ACCEPTED, REJECTED, OPEN)
+}
+
+const cashoutСreateCashoutFetcher = async (data: CreateRequest): Promise<CreateResponse> => {
+  const response = await axios.post<MultipliersResponse>('https://---/api/v1/public/cashout/create', {
+    ...data
+  })
+
+  return response.data || []
+}
+```
+
+Exceptions:
+```ts
+export const CashoutExceptionResponses = {
+  GET_CONDITIONS_ERROR: {
+    code: 'cashout.get_conditions_error',
+    message: "Can't get conditions",
+  },
+  CASHOUT_MULTIPLIER_NOT_FOUND: {
+    code: 'cashout.cashout_multiplier_not_found',
+    message: 'Cashout multiplier not found',
+  },
+  CASHOUT_MULTIPLIER_NOT_AVAILABLE: {
+    code: 'cashout.cashout_multiplier_not_available',
+    message: 'Cashout multiplier not available',
+  },
+  BET_NOT_FOUND: {
+    code: 'cashout.bet_not_found',
+    message: 'Bet not found',
+  },
+  BET_NOT_AVAILABLE_TO_CASHOUT: {
+    code: 'cashout.bet_not_available_to_cashout',
+    message: 'Bet not available to cashout',
+  },
+  ENVIRONMENT_NOT_AVAILABLE: {
+    code: 'cashout.environment_not_available',
+    message: 'Environment not available',
+  },
+  CALCULATION_NOT_FOUND: {
+    code: 'cashout.calculation_not_found',
+    message: 'Calculation not found',
+  },
+  CASHOUT_NOT_AVAILABLE: {
+    code: 'cashout.cashout_not_available',
+    message: 'Cashout not available',
+  },
+  CASHOUT_ORDER_ALREADY_EXISTS: {
+    code: 'cashout.cashout_order_already_exists',
+    message: 'Cashout order already exists',
+  },
+  BET_ALREADY_CASHOUTED: {
+    code: 'cashout.bet_already_cashouted',
+    message: 'Bet already cash-outed',
+  },
+  ORDER_NOT_FOUND: {
+    code: 'cashout.order_not_found',
+    message: 'Order not found',
+  },
+  SIGNATURE_NOT_VERIFIED: {
+    code: 'cashout.owner_signature_not_verified',
+    message: 'Owner signature not verified',
+  },
+};
+```
+
+### Get cashout order
+Gives cashout to the horde by ID
+Use the [Azuro Cashout API](https://---/api/v1/public/cashout/{id}) to get cashout order.
+
+```ts copy
+
+type OrderResponse = {
+  id: string; // Cashout ID
+  state: // Order state (PROCESSING, ACCEPTED, REJECTED, OPEN)
+  txHash: string; // Transaction id
+  error?: string; // Error code
+  errorMessage?: string; // // Error message
+}
+
+const cashoutGetOrderFetcher = async (cashoutId: string): Promise<OrderResponse> => {
+  const response = await axios.get<OrderResponse>('https://---/api/v1/public/cashout/{id}')
+
+  return response.data || []
+}
+```
+
+Error codes:
+```ts
+  BadData = 'BadData',
+  Other = 'Other',
+  RiskExceeded = 'RiskExceeded',
+  BetAlreadyPaid = 'BetAlreadyPaid',
+  BetAlreadyResolved = 'BetAlreadyResolved',
+  BetOwnerSignatureExpired = 'BetOwnerSignatureExpired',
+  BettingContractNotAllowed = 'BettingContractNotAllowed',
+  InsufficientBalance = 'InsufficientBalance',
+  InvalidBetOwnerSignature = 'InvalidBetOwnerSignature',
+  InvalidOdds = 'InvalidOdds',
+  InvalidOddsCount = 'InvalidOddsCount',
+  NothingChanged = 'NothingChanged',
+```
