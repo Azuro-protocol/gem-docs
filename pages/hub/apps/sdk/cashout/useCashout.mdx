@@ -10,11 +10,13 @@ import { useCashout } from '@azuro-org/sdk'
 
 
 const { outcomes, tokenId } = bet // bet from subgraph
-const { cashouts, totalMultiplier, isCashoutAvailable, isFetching } = useCashout({
+const { submit, cashouts, totalMultiplier, isCashoutAvailable, isFetching } = useCashout({
   tokenId,
   selections: outcomes,
   EIP712Attention: '...',
 })
+
+submit() // run cashout
 ```
 
 <Callout type="info">
