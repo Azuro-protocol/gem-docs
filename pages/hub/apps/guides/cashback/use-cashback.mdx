@@ -1,0 +1,130 @@
+import { Callout } from 'components'
+import { Tab, Tabs } from 'nextra-theme-docs'
+
+# Use Cashback
+
+To use cashback, the user needs to:
+1. See the available cashback in the UI.
+2. Claim their cashback.
+
+
+### Fetch the available cashback
+Public Request.
+Use the [Azuro Cashback API](https://---/api/v1/public/cashback) to retrieve cashback information for the user.
+
+```ts copy
+type Address = `0x${string}`
+
+enum RestNetwork {
+  PolygonUSDT = 'PolygonUSDT',
+}
+
+enum RestCurrency {
+  USDT = 'USDT',
+}
+
+type RestBalance = {
+  userAddress: Address
+  amount: string // Available amount
+  network: RestNetwork // Network name
+  currency: RestCurrency // Currency name
+  updatedAt: Date
+}
+
+const cashbackFetcher = async (userAddress: string, affiliateAddress: string, networks?: string[]): Promise<RestBalance[]> => {
+  const response = await axios.get<RestBalance[]>('https://---/api/v1/public/cashback/public/user-balance', {
+    params: {
+      userAddress, // User wallet address
+      affiliateAddress, // Affiliate wallet address
+      networks
+    },
+  })
+
+  return response.data || []
+}
+```
+Exceptions:
+  `GET_BALANCE_ERROR` - Incorrect parameters.
+  `GET_AFFILIATE_ERROR` - The `affiliateAddress` parameter is invalid, or there is no active affiliate.
+
+
+### Get user cashback
+Public Request.
+
+```ts copy
+type Address = `0x${string}`
+type Hex = `0x${string}`
+
+enum RestNetwork {
+  PolygonUSDT = 'PolygonUSDT',
+}
+
+enum RestCurrency {
+  USDT = 'USDT',
+}
+
+type RestCashback = {
+  userAddress: Address
+  amount: string // Available amount
+  network: RestNetwork // Network name
+  currency: RestCurrency // Currency name
+  updatedAt: Date
+  signature: Hex
+}
+
+const cashbackFetcher = async (userAddress: string, affiliateAddress: string, network: RestNetwork, currency: RestCurrency, expiresAt: Date): Promise<RestCashback> => {
+  const response = await axios.get<RestCashback>('https://---/api/v1/public/cashback/public/cashback', {
+    params: {
+      userAddress, // User wallet address
+      affiliateAddress, // Affiliate wallet address
+      network,
+      currency,
+      expiresAt
+    },
+  })
+
+  return response.data || []
+}
+```
+Exceptions:
+  `SEND_CASHBACK_ERROR` - Incorrect parameters.
+  `GET_TRANSACTION_ERROR` - No transactions for withdrawal.
+  `CREATE_CASHBACK_SIGNATURE_ERROR` - Error creating the signature.
+  `GET_AFFILIATE_ERROR` - The `affiliateAddress` parameter is invalid, or there is no active affiliate.
+
+
+### Get user cashback history
+Public Request.
+
+```ts copy
+type Address = `0x${string}`
+
+enum RestNetwork {
+  PolygonUSDT = 'PolygonUSDT',
+}
+
+type RestCashbackHistory = {
+  id: string,
+  userAddress: Address,
+  comment: string,
+  offerId: string,
+  campaignId: string,
+  state: RestState,
+  createdAt: Date
+}
+
+const cashbackFetcher = async (userAddress: string, affiliateAddress: string, networks?: RestNetwork[]): Promise<RestCashbackHistory[]> => {
+  const response = await axios.get<RestCashbackHistory[]>('https://---/api/v1/public/cashback/public/user-transactions', {
+    params: {
+      userAddress, // User wallet address
+      affiliateAddress, // Affiliate wallet address
+      networks,
+    },
+  })
+
+  return response.data || []
+}
+```
+Exceptions:
+  `GET_TRANSACTION_ERROR` - Incorrect parameters.
+  `GET_AFFILIATE_ERROR` - The `affiliateAddress` parameter is invalid, or there is no active affiliate.

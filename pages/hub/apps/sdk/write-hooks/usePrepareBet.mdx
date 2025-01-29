@@ -107,7 +107,7 @@ const {...} = usePrepareBet({
   totalOdds: number, // total odds
   freeBet?: FreeBet // freeBet info
   betGas?: Pick<SendTransactionParameters, 'gas' | 'gasPrice' | 'maxFeePerGas' | 'maxFeePerBlobGas' | 'maxPriorityFeePerGas'> // transaction gas parameters, prematch only
-  selections: Selection[] // user's choise for bet
+  selections: Selection[] // user's choice for bet
   liveEIP712Attention?: string // attention text for eip-712 sign (up to 160 chars)
   deadline?: number // duration after which the bet will be canceled if it does not get included in a block
   onSuccess?(receipt: TransactionReceipt): void // callback function triggered after a successful bet

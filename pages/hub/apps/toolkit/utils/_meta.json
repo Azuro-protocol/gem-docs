@@ -12,5 +12,10 @@
   "getFreeBets": "getFreeBets",
   "getLiveBetTypedData": "getLiveBetTypedData",
   "createLiveBet": "createLiveBet",
-  "getLiveBet": "getLiveBet"
+  "getLiveBet": "getLiveBet",
+  "getPrecalculatedCashouts": "getPrecalculatedCashouts",
+  "getCalculatedCashout": "getCalculatedCashout",
+  "getCashoutTypedData": "getCashoutTypedData",
+  "createCashout": "createCashout",
+  "getCashout": "getCashout"
 }

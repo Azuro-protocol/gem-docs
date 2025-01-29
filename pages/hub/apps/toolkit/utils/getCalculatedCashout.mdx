@@ -1,0 +1,56 @@
+import { Callout } from 'components'
+
+Returns the calculated cashout, intended to provide the exact cashout value for a specific bet.
+
+<Callout type="info">
+  You can find more information [Here](/hub/apps/guides/cashout/overview).
+</Callout>
+
+#### Usage
+
+```ts {4, 9}
+import { getCalculatedCashout } from '@azuro-org/toolkit'
+
+
+const { id } = bet // user's bet
+const cashout = await getCalculatedCashout({
+  chainId: 137,
+  betCoreAddress: '0x...',
+  account: '0x...',
+  graphBetId: id,
+  isLive: false,
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  account: Address
+  graphBetId: string // bet id from graph
+  isLive: boolean
+}
+```
+
+```ts
+type ChainId = 100 | 137 | 80002 | 88888 | 88882
+
+import { type Address } from 'viem'
+```
+
+#### Return Value
+
+```ts
+type GetCalculatedCashout = {
+  calculationId: string // calculation id, needed for createCashout
+  account: string
+  environment: Environment
+  tokenId: string // bet token id from graph
+  cashoutAmount: string
+  multiplier: string
+  expiredAt: number // cashout expired at
+  approveExpiredAt: number // sigh cashout type data expired at
+  isLive: boolean
+} | null
+```

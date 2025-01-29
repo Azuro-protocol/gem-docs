@@ -1,0 +1,52 @@
+Returns a typed data for cashout typed signature.
+
+#### Usage
+
+```ts {4, 5, 16, 18, 19}
+import { getCalculatedCashout, getCashoutTypedData } from '@azuro-org/toolkit'
+
+
+const { id, tokenId } = bet // user's bet
+const { multiplier, expiredAt } = await getCalculatedCashout({
+  chainId: 137,
+  betCoreAddress: '0x...',
+  account: '0x...',
+  graphBetId: id,
+  isLive: false,
+})
+const typedData = getCashoutTypedData({
+  chainId: 137,
+  account: '0x...',
+  attention: '...',
+  tokenId,
+  betCoreAddress: '0x...',
+  multiplier,
+  expiredAt,
+})
+
+const signature = await walletClient.data.signTypedData(typedData)
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  account: Address
+  attention: string
+  tokenId: string | bigint // bet token
+  betCoreAddress: Address
+  multiplier: string | bigint // multiplier from getCalculatedCashout calculation
+  expiredAt: number // expiredAt from getCalculatedCashout calculation
+}
+```
+
+```ts
+type ChainId = 100 | 137 | 80002 | 88888 | 88882
+
+import { type Address } from 'viem'
+```
+
+#### Return Value
+
+`SignTypedDataParameters<typeof CASHOUT_DATA_TYPES>`

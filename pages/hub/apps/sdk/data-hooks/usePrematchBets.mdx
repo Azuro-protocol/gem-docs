@@ -37,6 +37,7 @@ enum BetType {
   Unredeemed = 'unredeemed', // ready to redeem bets
   Accepted = 'accepted', // not resolved bets
   Settled = 'settled', // resolved bets
+  CashedOut = 'cashedOut', // cashed out bets
 }
 ```
 
@@ -99,11 +100,14 @@ type Bet = {
   amount: string // bet's amount in USDT
   possibleWin: number // possible win amount in USDT
   payout: number | null // actual payout amount in USDT
+  cashout: string | null // cashout amount in USDT
   createdAt: number // created date
   isWin: boolean // flag indicates the bet's win
   isLose: boolean // flag indicates the bet's lose
   isRedeemable: boolean // flag indicates the possibility of redeeming the bet
   isRedeemed: boolean // flag indicates whether the bet has been redeemed
   isCanceled: boolean // flag indicates whether the bet has been canceled
+  isLive: boolean // flag indicates whether the bet is live
+  isCashedOut: boolean // flag indicates whether the bet is cashed out
 }
 ```

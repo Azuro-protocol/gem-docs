@@ -1,0 +1,86 @@
+import { Callout } from 'components';
+
+This hook creates a cashout order and monitors its status
+
+<Callout type="info">
+  You can find more information [Here](/hub/apps/guides/cashout/overview).
+</Callout>
+
+#### Usage
+
+```ts {4, 6, 7}
+import { useCashout } from '@azuro-org/sdk'
+
+
+const { outcomes, tokenId } = bet // bet from subgraph
+const { submit, cashouts, totalMultiplier, isCashoutAvailable, isFetching } = useCashout({
+  tokenId,
+  selections: outcomes,
+  EIP712Attention: '...',
+})
+
+submit() // run cashout
+```
+
+<Callout type="info">
+  You can find a usage example in our [demo](https://github.com/Azuro-protocol/example-app/blob/main/src/compositions/modals/CashoutModal/CashoutModal.tsx#L36).
+</Callout>
+
+#### Props
+
+```ts
+{
+  tokenId: string
+  selections: Selection[] // user's bet selections
+  EIP712Attention?: string
+  onSuccess?(receipt?: TransactionReceipt): void
+  onError?(err?: Error): void
+}
+```
+
+```ts
+type Selection = {
+  conditionId: string
+  outcomeId: string
+  coreAddress: string
+}
+```
+
+#### Return Value
+
+```ts
+{
+  submit: () => Promise<void> // function used to trigger the cashout action or token spending approval
+  calculationQuery: UseQueryResult<GetCalculatedCashout>
+  approveTx: {
+    isPending: approveTx.isPending
+    isProcessing: approveReceipt.isLoading
+  }
+  cashoutTx: {
+    data: cashoutTx.data
+    receipt: cashoutReceipt.data
+    isPending: cashoutTx.isPending
+    isProcessing: cashoutReceipt.isLoading
+  }
+  isAllowanceFetching: allowanceTx.isLoading
+  isCashoutAvailable
+  isApproveRequired
+}
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+
+type GetCalculatedCashout = {
+  calculationId: string // calculation id, needed for createCashout
+  account: string
+  environment: Environment
+  tokenId: string // bet token id from graph
+  cashoutAmount: string
+  multiplier: string
+  expiredAt: number // cashout expired at
+  approveExpiredAt: number // sigh cashout type data expired at
+  isLive: boolean
+} | null
+```
