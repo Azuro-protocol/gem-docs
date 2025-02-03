@@ -87,7 +87,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 ```
 
 ```ts
-type ChainId =  100 | 137 | 80002 | 88888 | 88882
+type ChainId =  100 | 137 | 80002 | 88888 | 88882 | 8453 | 84532
 ```
 
 #### Return Value
@@ -109,11 +109,15 @@ import { type Chain } from 'wagmi'
 
 ```ts
 enum Environment {
+  GnosisDevXDAI = 'GnosisDevXDAI',
   GnosisXDAI = 'GnosisXDAI',
   PolygonUSDT = 'PolygonUSDT',
   PolygonAmoyAZUSD = 'PolygonAmoyAZUSD',
+  PolygonAmoyUSDT = 'PolygonAmoyUSDT',
   ChilizWCHZ = 'ChilizWCHZ',
-  ChilizSpicyWCHZ = 'ChilizSpicyWCHZ'
+  ChilizSpicyWCHZ = 'ChilizSpicyWCHZ',
+  BaseWETH = 'BaseWETH',
+  BaseSepoliaWETH = 'BaseSepoliaWETH'
 }
 
 type Contracts = {
