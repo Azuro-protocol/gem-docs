@@ -1,0 +1,149 @@
+import { Callout, Image } from 'components'
+
+# How to Wrap and Unwrap Tokens
+
+This guide provides step-by-step instructions on how to wrap and unwrap tokens for use in our betting system on the `Gnosis Chain` and `Base Chain`. Wrapping tokens ensures compatibility with our smart contracts.
+
+<Callout type="info">
+We recommend depositing the desired balance in advance to ensure immediate availability for the user. Avoid performing this operation while placing a bet or redeem.
+</Callout>
+
+## What is a Wrapped Token?
+A wrapped token is a tokenized version of an existing cryptocurrency that is compatible with a specific blockchain or protocol. In our case, these include:
+
+- [**WXDAI**](https://gnosisscan.io/address/0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d): Wrapped XDAI (ERC-20 version of native XDAI) for `Gnosis Chain`.
+- [**WETH**](https://basescan.org/address/0x4200000000000000000000000000000000000006): Wrapped ETH (ERC-20 version of native ETH) for `Base Chain`.
+
+## Official contracts
+
+**Always ensure you're using the official wrapped token contract addresses:**
+- **WXDAI**: [`0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d`](https://gnosisscan.io/address/0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d)
+- **WETH**: [`0x4200000000000000000000000000000000000006`](https://basescan.org/address/0x4200000000000000000000000000000000000006)
+
+## How to Wrap Your Native Tokens
+
+**wagmi/viem XDAI example**
+```ts copy
+import { createWalletClient, encodeFunctionData } from 'viem'
+
+const abi = [
+  {
+    'constant': false,
+    'inputs': [],
+    'name': 'deposit',
+    'outputs': [],
+    'payable': true,
+    'stateMutability': 'payable',
+    'type': 'function',
+  },
+] as const
+
+const walletClient = createWalletClient({...})
+
+await walletClient.sendTransaction({ 
+  account: '0xsdk....',
+  to: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+  value: 1000000000000000000n,
+  data: encodeFunctionData({
+    abi: abi,
+    functionName: 'deposit',
+  }),
+})
+```
+
+**The wrapped token contract provides a deposit method to convert native tokens. Follow these steps:**
+
+1. Visit the official wrapped token contract on a blockchain explorer:
+   - [Gnosis Chain **WXDAI**](https://gnosisscan.io/address/0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d#writeContract#F5)
+   - [Base Chain **WETH**](https://basescan.org/address/0x4200000000000000000000000000000000000006#writeContract#F2)
+
+<Callout type="warning">
+**Always ensure you're using the official wrapped token contract addresses:**
+- **WXDAI**: `0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d`
+- **WETH**: `0x4200000000000000000000000000000000000006`
+</Callout>
+
+
+2. Connect your web3 wallet and navigate to the `deposit` function.:
+
+<Image
+  src="/images/hub/explorer-connect.jpg"
+  width={2000}
+  height={1000}
+/>
+
+3. Enter the amount of native tokens you want to wrap and click the `Write` button:
+
+<Image
+  src="/images/hub/explorer-wrap.jpg"
+  width={2000}
+  height={1000}
+/>
+
+4. Once the transaction is confirmed, your native tokens will be converted, and you will receive the equivalent amount in wrapped tokens.
+
+## How to Unwrap Tokens
+
+**wagmi/viem XDAI example**
+```ts copy
+import { createWalletClient, encodeFunctionData } from 'viem'
+
+const abi = [
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "wad",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdraw",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+] as const
+
+const walletClient = createWalletClient({...})
+
+await walletClient.sendTransaction({ 
+  account: '0xsdk....',
+  to: '0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d',
+  data: encodeFunctionData({
+    abi: abi,
+    functionName: 'withdraw',
+    args: [ 1000000000000000000n ],
+  }),
+})
+```
+
+**The wrapped token contract provides a withdraw method to unwrap tokens and convert them back to native tokens, follow these steps:**
+
+1. Visit the official wrapped token contract on a blockchain explorer:
+   - [Gnosis Chain WXDAI](https://gnosisscan.io/address/0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d#writeContract#F3)
+   - [Base Chain WETH](https://basescan.org/address/0x4200000000000000000000000000000000000006#writeContract#F5)
+
+<Callout type="warning">
+**Always ensure you're using the official wrapped token contract addresses:**
+- **WXDAI**: `0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d`
+- **WETH**: `0x4200000000000000000000000000000000000006`
+</Callout>
+
+2. Connect your wallet and navigate to the `withdraw` function.
+
+<Image
+  src="/images/hub/explorer-connect2.jpg"
+  width={2000}
+  height={1000}
+/>
+
+3. Enter the amount of wrapped tokens you want to unwrap and click the `Write` button.  
+
+<Image
+  src="/images/hub/explorer-withdraw.jpg"
+  width={2000}
+  height={1000}
+/>
+
+4. Once the transaction is confirmed, your wrapped tokens will be converted back to native tokens.  
