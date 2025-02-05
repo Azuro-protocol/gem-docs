@@ -1,0 +1,39 @@
+import { Callout } from 'components'
+
+The `useWrapTokens` hook to handle wrapping and unwrapping tokens on the Gnosis and Base chains.
+
+<Callout type="info">
+  The `useWrapTokens` uses chain settings from [ChainProvider](/hub/apps/sdk/providers/chain).
+</Callout>
+
+#### Usage
+
+```ts
+import { useWrapTokens } from '@azuro-org/sdk'
+
+const { wrap, unwrap } = useWrapTokens()
+
+wrap('0.1') // wrap 0.1 XDAI to 0.1 WXDAI
+unwrap('0.1') // unwrap 0.1 WXDAI to 0.1 XDAI
+```
+
+#### Return Value
+
+```ts
+{
+  wrap: Promise<TransactionReceipt>
+  unwrap: Promise<TransactionReceipt>
+  wrapTx: { // wrap transaction state
+    data: Hex
+    receipt: TransactionReceipt
+    isPending: boolean
+    isProcessing: boolean
+  }
+  unwrapTx: { // unwrap transaction state
+    data: Hex
+    receipt: TransactionReceipt
+    isPending: boolean
+    isProcessing: boolean
+  }
+}
+```
