@@ -15,6 +15,7 @@ type ContractName =
   | 'hostCore'
   | 'clientCore'
   | 'relayer'
+  | 'cashOut'
 
 const config: Record<ContractName, { title: string, link?: string }> = {
   factory: {
@@ -60,6 +61,10 @@ const config: Record<ContractName, { title: string, link?: string }> = {
     title: 'Relayer',
     link: '/contracts/live-relayer',
   },
+  cashOut: {
+    title: 'CashOut',
+    link: '/contracts/cash-out',
+  },
 }
 
 const rows: ContractName[] = [
@@ -73,7 +78,8 @@ const rows: ContractName[] = [
   'azuroBet',
   'hostCore',
   'clientCore',
-  'relayer'
+  'relayer',
+  'cashOut'
 ]
 
 type ContractsTableProps = {
