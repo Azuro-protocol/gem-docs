@@ -5,7 +5,7 @@ import { Tab, Tabs } from 'nextra-theme-docs'
 
 ### Get pre-calculation
 Provides preliminary calculation and availability of cashout for conditions and outcomes
-Use the [Azuro Cashout API](https://---/api/v1/public/cashout/get-multipliers) to get pre-calculation.
+Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-multipliers) to get pre-calculation.
 
 ```ts copy
 
@@ -22,7 +22,7 @@ type MultipliersResponse = {
 }
 
 const cashoutGetMultipliersFetcher = async (conditionIds: string[]): Promise<MultipliersResponse> => {
-  const response = await axios.post<MultipliersResponse>('https://---/api/v1/public/cashout/get-multipliers', {
+  const response = await axios.post<MultipliersResponse>('https://api.azuro.org/api/v1/public/cashout/get-multipliers', {
       conditionIds, // Condition ids
     },
   })
@@ -35,7 +35,7 @@ To pre-calculate any cashout from bet, multiply the multiplier by the user's exi
 
 ### Get calculation
 Calculates the exact cashout amount based on the bet in the contract
-Use the [Azuro Cashout API](https://---/api/v1/public/cashout/get-calculation) to get calculation.
+Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-calculation) to get calculation.
 
 ```ts copy
 
@@ -59,7 +59,7 @@ type CalculationResponse = {
 }
 
 const cashoutGetСalculationFetcher = async (data: CalculationRequest): Promise<CalculationResponse> => {
-  const response = await axios.post<MultipliersResponse>('https://---/api/v1/public/cashout/get-calculation', {
+  const response = await axios.post<MultipliersResponse>('https://api.azuro.org/api/v1/public/cashout/get-calculation', {
     ...data
   })
 
@@ -69,7 +69,7 @@ const cashoutGetСalculationFetcher = async (data: CalculationRequest): Promise<
 
 ### Create cashout
 Creates a cashout based on the calculation
-Use the [Azuro Cashout API](https://---/api/v1/public/cashout/create) to create cashout.
+Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/create) to create cashout.
 
 ```ts copy
 
@@ -90,7 +90,7 @@ type CreateResponse = {
 }
 
 const cashoutСreateCashoutFetcher = async (data: CreateRequest): Promise<CreateResponse> => {
-  const response = await axios.post<MultipliersResponse>('https://---/api/v1/public/cashout/create', {
+  const response = await axios.post<MultipliersResponse>('https://api.azuro.org/api/v1/public/cashout/create', {
     ...data
   })
 
@@ -154,7 +154,7 @@ export const CashoutExceptionResponses = {
 
 ### Get cashout order
 Gives cashout to the horde by ID
-Use the [Azuro Cashout API](https://---/api/v1/public/cashout/{id}) to get cashout order.
+Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/{id}) to get cashout order.
 
 ```ts copy
 
@@ -167,7 +167,7 @@ type OrderResponse = {
 }
 
 const cashoutGetOrderFetcher = async (cashoutId: string): Promise<OrderResponse> => {
-  const response = await axios.get<OrderResponse>('https://---/api/v1/public/cashout/{id}')
+  const response = await axios.get<OrderResponse>('https://api.azuro.org/api/v1/public/cashout/{id}')
 
   return response.data || []
 }
