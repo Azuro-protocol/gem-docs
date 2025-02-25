@@ -30,6 +30,19 @@ submit({ bets: [ bet1, bet2 ] })
 
 #### Return Value
 ```ts
+{
+  data: Hex | undefined // transaction data
+  error: Error | undefined // redeem error
+  submit: (props: SubmitProps) => Promise<TransactionReceipt> // function used to trigger the redeem action
+  isPending: boolean // flag indicates the transaction approve action
+  isProcessing: boolean // flag indicates the transaction submitting
+}
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+import { type TransactionReceipt, type Hex } from 'viem'
+
 type SubmitProps = {
   bets: Array<{
     tokenId: string | bigint // id of the bet's NFT
@@ -37,12 +50,4 @@ type SubmitProps = {
   }>
 }
 ```
-```ts
-{
-  data: WriteContractResult | null // transaction data
-  error: Error | null // redeem error
-  submit: (props: SubmitProps) => Promise<TransactionReceipt> // function used to trigger the redeem action
-  isPending: boolean // flag indicates the transaction approve action
-  isProcessing: boolean // flag indicates the transaction submitting
-}
-```
+

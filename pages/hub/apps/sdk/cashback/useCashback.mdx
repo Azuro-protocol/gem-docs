@@ -1,0 +1,52 @@
+import { Callout } from 'components'
+
+This hook is used to withdraw cashback.
+
+<Callout type="info">
+  This hook is a wrapper around [createCashbackTransaction](/hub/apps/toolkit/cashback/createCashbackTransaction) function.
+</Callout>
+{/* <Callout type="info">
+  You can find more information [Here](/hub/apps/guides/cashout/overview).
+</Callout> */}
+
+#### Usage
+
+```ts
+import { useCashback } from '@azuro-org/sdk'
+
+
+const { submit, isPending, isProcessing } = useCashback({
+  affiliate: '0xlksnf...',
+})
+
+submit()
+```
+
+#### Props
+
+```ts
+{
+  affiliate: Address
+}
+```
+
+```ts
+import { type Address } from 'viem'
+```
+
+#### Return Value
+
+```ts
+{
+  data: Hex | undefined // transaction data
+  error: Error | undefined // cashback error
+  submit: () => Promise<TransactionReceipt> // function used to trigger the cashback action
+  isPending: boolean // flag indicates the transaction approve action
+  isProcessing: boolean // flag indicates the transaction submitting
+}
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+import { type TransactionReceipt, type Hex } from 'viem'
+```

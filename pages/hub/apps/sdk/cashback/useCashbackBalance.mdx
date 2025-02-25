@@ -1,0 +1,44 @@
+import { Callout } from 'components'
+
+This hook returns the user's cashback balance for the specified chain.
+
+<Callout type="info">
+  This hook is a wrapper around [getCashbackBalance](/hub/apps/toolkit/cashback/getCashbackBalance) function.
+</Callout>
+{/* <Callout type="info">
+  You can find more information [Here](/hub/apps/guides/cashout/overview).
+</Callout> */}
+
+#### Usage
+
+```ts
+import { useCashbackBalance } from '@azuro-org/sdk'
+
+
+const { data, isFetching } = useCashbackBalance({
+  affiliate: '0xlksnf...',
+})
+```
+
+#### Props
+
+```ts
+{
+  affiliate: Address
+  refetchInterval?: number
+}
+```
+
+```ts
+import { type Address } from 'viem'
+```
+
+#### Return Value
+
+```ts
+UseQueryResult<string>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+```

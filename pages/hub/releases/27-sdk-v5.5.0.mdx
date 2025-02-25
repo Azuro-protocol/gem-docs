@@ -1,0 +1,20 @@
+import { Callout } from 'components'
+
+# SDK v5.5 & Toolkit v4.6
+
+We have added implementation of [Cashback](/hub/apps/guides/cashout/overview).
+
+
+## Toolkit v4.5
+- [`getCashbackBalance`](/hub/apps/toolkit/cashback/getCashbackBalance) - Returns the user's cashback balance for the specified chain
+- [`createCashbackTransaction`](/hub/apps/toolkit/cashback/createCashbackTransaction) - Returns a cashback transaction ready for submission on the blockchain
+- Added Cashback ABI
+
+## SDK v5.4
+- [`useCashbackBalance`](/hub/apps/sdk/cashback/useCashbackBalance) - This hook returns the user's cashback balance for the specified chain
+- [`useCashback`](/hub/apps/sdk/cashback/useCashback) - This hook is used to withdraw cashback
+- Reduced websocket reconnections amount
+- Reworked apollo clients: keep clients for each chain instead of changing link of existing clients, value of context updates now
+- Added export for `getGameStartsAtValue` helper
+- Added params `notifyOnNetworkStatusChange`, `pollInterval` to [`useNavigation`](/hub/apps/sdk/data-hooks/useNavigation) & [`useSportsNavigation`](/hub/apps/sdk/data-hooks/useSportsNavigation)
+- Added params `orderBy`, `orderDirection` to [`useConditions`](hub/apps/sdk/data-hooks/useConditions), [`useActiveMarkets`](hub/apps/sdk/data-hooks/useActiveMarkets), [`useActiveConditions`](hub/apps/sdk/data-hooks/useActiveConditions)

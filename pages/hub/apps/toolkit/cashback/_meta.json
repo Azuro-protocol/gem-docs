@@ -1,0 +1,4 @@
+{
+  "getCashbackBalance": "getCashbackBalance",
+  "createCashbackTransaction": "createCashbackTransaction"
+}

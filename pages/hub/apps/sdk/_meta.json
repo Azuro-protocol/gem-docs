@@ -16,6 +16,7 @@
   },
   "waves": "Azuro Waves",
   "deBridge": "deBridge",
-  "cashout": "cashout",
+  "cashout": "Cashout",
+  "cashback": "Cashback",
   "hooks": "Other Hooks"
 }
