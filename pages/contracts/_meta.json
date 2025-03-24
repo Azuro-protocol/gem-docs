@@ -16,6 +16,7 @@
   "---3": {
     "type": "separator"
   },
+  "cash-out": "CashOut",
   "free-bet": "FreeBet",
   "safe-oracle": "SafeOracle",
   "access": "Access",

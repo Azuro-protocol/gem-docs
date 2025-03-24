@@ -1,0 +1,25 @@
+import { PageHeadline, Callout } from 'components'
+
+<PageHeadline
+    title="CashOut"
+    subTitle="Enables bettors to cash out their bets by oracle's signatures"
+/>
+
+<Callout type="info">
+    This contract does not affect the logic of a Pool's contracts
+</Callout>
+
+
+The CashOut contract allows bettors to sell their [PrematchCore](/contracts/prematch-core), [LiveCore](/contracts/live-client-core), or [BetExpress](contracts/bet-express) bet tokens before the outcome is determined.
+
+The payout is calculated based on the bet size and the exchange odds provided by an oracle at the time of cash-out. A valid oracle signature is required to confirm the odds. Bets can only be cashed out while their outcome remains unknown.
+
+Once a bet is successfully cashed out:
+- Ownership of the bet token is transferred to the smart contract.
+- The payout is credited from the contract to the bettor’s balance.
+
+### Reference
+
+- [Source Code](https://github.com/Azuro-protocol/Azuro-v2-public/blob/main/contracts/extensions/CashOut.sol)
+- [NatSpec-Based Documentation](https://azuro-protocol.github.io/Azuro-v2-public/#/contracts/extensions/CashOut.sol:CashOut)
+- [Tests](https://github.com/Azuro-protocol/Azuro-v2-public/blob/main/test/cash-out-test.js)
