@@ -1,0 +1,586 @@
+import { Callout } from 'components'
+
+# Migrate SDK from v5 to v6
+
+In this migration guide, we will explore each component of your application and highlight the key changes in the SDK and Toolkit.
+
+<Callout type="warning">
+The current SDK version is `v6.0.0-beta.1`, and the Toolkit version is `v5.0.0-beta.1`. Please note that some parts might have changed in next versions
+</Callout>
+
+## Key changes
+
+### Cashout, Batch betting and freebets are temporarily unavailable
+
+These features will be available during release
+
+### Dependency Removal: `@apollo/client`
+
+The heavyweight `@apollo/client` dependency has been removed, and all requests now go through [TanStack Query](https://tanstack.com/query/v5/docs/react).
+
+### New `query` prop for TanStack Query parameters
+
+Data hooks (such as `useSports`) now support a `query` prop, allowing `TanStack Query` parameters to be passed in. This enhancement provides greater flexibility and control over requests.
+
+```ts /query/
+useSports({
+  ...
+  query: {
+    refetchInterval: 10_000,
+    enabled: false,
+  },
+})
+```
+
+### Full Query Information
+
+Data hooks (such as `useSports`) now provide full access to `TanStack Query’s` return values. This enhancement allows for better handling of loading states, errors, caching, and other query metadata, giving developers more control over data-fetching behavior. All return data information can be found [here](https://tanstack.com/query/v5/docs/framework/react/reference/useQuery).
+
+```ts {2-5}
+const {
+  data,
+  isPending,
+  isFetching,
+  refetch,
+} = useSports({...})
+```
+
+### deBridge Support Discontinued
+
+The new version of the Azuro protocol no longer supports bets using deBridge. As a result, the corresponding hooks have been removed:
+
+- `useDeBridgeBet`
+- `useDeBridgeSupportedChains`
+- `useDeBridgeSupportedTokens`
+- `useDeBridgeSupportedTokens`
+
+## Feed
+
+### Navigation
+
+Games counters have been added to the `useNavigation` and `useSportsNavigation` hooks:
+
+- `activeGamesCount`: Total count of active games
+- `activeLiveGamesCount`: Count of live games
+- `activePrematchGamesCount`: Count of pre-match games
+
+```gql /activeGamesCount/ /activeLiveGamesCount/ /activePrematchGamesCount/ filename="useNavigation schema"
+query Navigation(
+  $first: Int,
+  $sportFilter: Sport_filter, 
+  $countryFilter: Country_filter, 
+  $leagueFilter: League_filter,
+) {
+  sports(
+    where: $sportFilter,
+    subgraphError: allow
+  ) {
+    id
+    slug
+    name
+    sportId
+    activeGamesCount
+    activeLiveGamesCount
+    activePrematchGamesCount
+    countries(where: $countryFilter) {
+      id
+      slug
+      name
+      turnover
+      activeGamesCount
+      activeLiveGamesCount
+      activePrematchGamesCount
+      leagues(where: $leagueFilter) {
+        id
+        slug
+        name
+        turnover
+        activeGamesCount
+        activeLiveGamesCount
+        activePrematchGamesCount
+      }
+    }
+  }
+}
+```
+
+```gql /activeGamesCount/ /activeLiveGamesCount/ /activePrematchGamesCount/ filename="useSportsNavigation schema"
+query SportsNavigation(
+  $first: Int,
+  $sportFilter: Sport_filter,
+) {
+  sports(
+    where: $sportFilter,
+    subgraphError: allow
+  ) {
+    id
+    slug
+    name
+    sportId
+    activeGamesCount
+    activeLiveGamesCount
+    activePrematchGamesCount
+  }
+}
+```
+
+Usage and props for `useNavigation` and `useSportsNavigation` hooks remain unchanged
+
+### Events
+
+Usage and props for `useSports`, `useGames`, `useGame` hooks remain unchanged
+
+#### Game Schema Changes
+
+The `country` field has been moved to the same level as the `league`, and the `status` field has been renamed to `state`
+
+```gql {6, 16-19} filename="Game schema"
+fragment GameInfo on Game {
+  id
+  gameId
+  title
+  startsAt
+  state
+  sport {
+    sportId
+    slug
+    name
+  }
+  league {
+    slug
+    name
+  }
+  country {
+    slug
+    name
+  }
+  participants {
+    image
+    name
+  }
+}
+```
+
+```gql
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped'
+}
+```
+
+#### Game State Updates
+
+The `useGameStatus` hook has been renamed to `useGameState`. To subscribe to game state updates, use `useGameState`
+
+```ts
+const game = {...} // game from subgraph
+
+const { data: state } = useGameState({
+  gameId,
+  initialState: game.state,
+})
+```
+
+<Callout type="warning">
+The `useGameState` hook only subscribes to game state updates and does not fetch the game’s state on mount
+</Callout>
+
+### Markets
+
+The GameMarkets structure has been changed:
+
+
+```diff
+type GameMarkets = Market[]
+
+type Market = {
+  marketKey: string
+  name: string
+  description: string
+-  outcomeRows: MarketOutcome[][]
++  conditions: Condition[]
+}
+
+type Condition = {
+  conditionId: string
+  state: ConditionState
+  isExpressForbidden: boolean
+  outcomes: MarketOutcome[]
+}
+
+type MarketOutcome = {
+  selectionName: string
+  odds: number
+  gameId: string
+  isExpressForbidden: boolean
+  isWon?: boolean
+} & Selection
+
+type Selection = {
+  conditionId: string
+  outcomeId: string
+-  coreAddress: string
+}
+```
+
+```ts
+enum ConditionState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Removed = 'Removed',
+  Resolved = 'Resolved',
+  Stopped = 'Stopped'
+}
+```
+
+#### useConditions
+
+```diff filename="UseConditionsProps"
+type UseConditionsProps = {
+  gameId: string | bigint
+  filter?: Condition_Filter
+-  prematchQuery?: QueryProps
+-  liveQuery?: QueryProps
++  query?: QueryParameter<ConditionsQuery['conditions']>
+}
+```
+
+Returns `UseQueryResult<ConditionsQuery['conditions']>`
+
+```diff
+- prematchConditions: prematchData?.conditions,
+- liveConditions: liveData?.conditions,
+- loading: isPrematchLoading || isLiveLoading,
+- error: prematchError || liveError,
+```
+
+#### useActiveConditions
+
+```diff filename="UseActiveConditionsProps"
+type UseActiveConditionsProps = {
+  gameId: string | bigint
+-  isLive: boolean
+-  livePollInterval?: number
+  filter?: {
+    outcomeIds?: string[]
+-    maxMargin?: number
+  }
+-  fetchPolicy?: FetchPolicy
++  query?: QueryParameter<ConditionsQuery['conditions']>
+}
+```
+
+Returns `UseQueryResult<ConditionsQuery['conditions']>`
+
+#### useActiveMarkets
+
+```diff filename="UseActiveMarketsProps"
+type UseActiveMarketsProps = {
+  gameId: 
+-  gameStatus: GameStatus
+  filter?: {
+    outcomeIds?: string[]
+    maxMargin?: number
+  }
+-  livePollInterval?: number
+-  fetchPolicy?: FetchPolicy
++  query?: QueryParameter<ConditionsQuery['conditions']>
+}
+```
+
+Returns `UseQueryResult<GameMarkets>`
+
+#### useResolvedMarkets
+
+Returns `UseQueryResult<GameMarkets>`
+
+```diff filename="Return"
+-  groupedMarkets,
+-  prematchMarkets,
+-  liveMarkets,
+-  loading,
+-  error,
+```
+
+#### Condition State
+
+The `status` field in `Condition` has been renamed to `state`.
+
+The `useSelection` hook has been removed. To subscribe to `condition state` updates, use `useConditionState` instead. Example can be found [here](https://github.com/Azuro-protocol/example-app/blob/sdk-v6/src/compositions/event/Markets/Markets.tsx#L63).
+
+```ts
+const { data: state, isLocked, isFetching } = useConditionState({ conditionId })
+```
+
+#### Odds
+
+The `useSelection` hook has been removed. To subscribe to `odds` updates, use `useSelectionOdds` instead. Example can be found [here](https://github.com/Azuro-protocol/example-app/blob/sdk-v6/src/compositions/OutcomeButton/utils/useButton.ts#L18).
+
+```ts
+const { data: odds, isFetching } = useSelectionOdds({ selection })
+```
+
+### Betslip
+
+The betslip item now stores only the `selection` information by default:
+
+```ts
+declare global {
+  namespace AzuroSDK {
+    interface BetslipItem extends Selection {
+      gameId: string
+      isExpressForbidden: boolean
+    }
+  }
+}
+```
+
+You can extend the betslip item in your `global.d.ts` to suit your needs by adding additional fields to the `BetslipItem` interface. This allows you to customize the data structure and store extra information as required for your application:
+
+```ts filename="global.d.ts"
+import { type GameQuery } from '@azuro-org/toolkit'
+
+
+declare global {
+  namespace AzuroSDK {
+    interface BetslipItem {
+      marketName: string
+      game: NonNullable<GameQuery['game']>
+    }
+  }
+}
+```
+
+Example can be found [here](https://github.com/Azuro-protocol/example-app/blob/sdk-v6/globals.d.ts#L8).
+
+After extending the `BetslipItem` interface with your additional fields, you can pass them to the `addItem` function. These custom fields will then be accessible from the `Betslip` context, allowing you to retrieve and manage the data as needed:
+
+```ts
+const { items, addItem } = useBaseBetslip()
+
+addItem({
+  marketName: '...',
+  game: {...},
+  gameId: '...',
+  conditionId: '...',
+  outcomeId: '...',
+  isExpressForbidden: false,
+})
+
+const { game } = items[0]
+```
+
+#### Max Bet
+
+To retrieve the maximum bet amount, use the `useMaxBet` hook.
+
+```ts
+const { data: maxBet, isFetching } = useMaxBet({ selections })
+```
+
+<Callout type="info">
+The `useMaxBet` hook is part of the `Betslip` context, allowing access to the maximum bet amount within the betslip functionality.
+
+```ts
+const { maxBet } = useDetailedBetslip()
+```
+</Callout>
+
+#### Batch bet and Freebets
+
+Batch betting and freebets are temporarily unavailable
+
+```diff filename="BetslipProviderProps"
+type BetslipProviderProps = {
+  children: React.ReactNode
+  affiliate?: Address
+-  isBatchBetWithSameGameEnabled?: boolean
+}
+```
+
+```diff filename="DetailedBetslipContextValue"
+export type DetailedBetslipContextValue = {
+  betAmount: string
+-  batchBetAmounts: Record<string, string>
+  odds: Record<string, number>
+  totalOdds: number
+  maxBet: number | undefined
+  minBet: number | undefined
+-  selectedFreeBet: FreeBet | undefined
+-  freeBets: FreeBet[] | undefined | null
+-  statuses: Record<string, ConditionStatus>
++  states: Record<string, ConditionState>
+  disableReason: BetslipDisableReason | undefined
+  changeBetAmount: (value: string) => void
+-  changeBatchBetAmount: (item: ChangeBatchBetAmountItem, value: string) => void
+-  changeBatch: (value: boolean) => void
+-  selectFreeBet: (value?: FreeBet) => void
+-  isLiveBet: boolean
+-  isBatch: boolean
+-  isStatusesFetching: boolean
++  isStatesFetching: boolean
+  isOddsFetching: boolean
+-  isFreeBetsFetching: boolean
++  isMaxBetFetching: boolean
+  isBetAllowed: boolean
+}
+```
+
+## Bet
+
+The `usePrepareBet` hook has been renamed to `useBet`.
+
+```diff filename="UseBetProps"
+type UseBetProps = {
+- betAmount: string | Record<string, string>
++  betAmount: string
+  slippage: number
+  affiliate: Address
+  selections: Selection[]
+  odds: Record<string, number>
+  totalOdds: number
+- freeBet?: FreeBet
+  liveEIP712Attention?: string
+  deadline?: number
+  onSuccess?(receipt?: TransactionReceipt): void
+  onError?(err?: Error): void
+}
+```
+
+Usage for `useBet` hook remain unchanged
+
+## Bets
+
+The `usePrematchBets` and `useLiveBets` hooks have been removed. To retrieve v3 user bets, use the `useBets` hook instead.
+
+```ts
+const { data } = useBets({
+  filter: {
+    bettor: '...',
+  },
+  orderDir: OrderDirection.Desc,
+})
+```
+
+<Callout type="info">
+The `useBets` hook leverages [`useInfiniteQuery`](https://tanstack.com/query/latest/docs/framework/react/reference/useInfiniteQuery) for pagination. To load additional pages, use the `fetchNextPage` function. If the `hasNextPage` flag is `false`, there are no more pages available for fetching
+
+```ts
+const { data, fetchNextPage, hasNextPage } = useBets({
+  filter: {
+    bettor: '...',
+  },
+  itemsPerPage: 10, // pagination settings
+  orderDir: OrderDirection.Desc,
+})
+```
+</Callout>
+
+<Callout type="warning">
+The `useBets` hook does not fetch v2 user bets. If you need to display old bets, use the `useLegacyBets` hook instead. Currently, the `useLegacyBets` hook only retrieves prematch user bets.
+
+```ts
+const { data, fetchNextPage, hasNextPage } = useLegacyBets({
+  filter: {
+    bettor: '...',
+  },
+  itemsPerPage: 10, // pagination settings
+  orderDir: OrderDirection.Desc,
+})
+```
+</Callout>
+
+## Toolkit Changes
+
+- changed chain data type
+
+```diff
+type ChainData = {
+  chain: Omit<Chain, 'id'> & { id: ChainId }
+  graphql: {
+-   prematch: string
+-   live: string
++   bets: string // graph endpoint to fetch bets
++   feed: string // graph endpoint to fetch feed
+  }
+  socket: string
+  api: string
+  environment: Environment
+  contracts: Contracts
+  betToken: BetToken
+}
+
+type Contracts = {
+  lp: {
+    address: Address
+    abi: typeof lpAbi
+  }
++ core: {
++   address: Address
++   abi: typeof coreAbi
++ }
++ relayer: {
++   address: Address
++   abi: typeof relayerAbi
++ }
+  azuroBet: {
+    address: Address
+    abi: typeof azuroBetAbi
+  },
+  cashout?: {
+    address: Address
+    abi: typeof cashoutAbi
+  }
+- prematchCore: {}
+- prematchComboCore {}
+- proxyFront {}
+- liveRelayer {}
+- liveCore {}
+}
+```
+
+- return value has beed changed for `groupConditionsByMarket`
+
+```diff
+type GameMarkets = Market[]
+
+type Market = {
+  marketKey: string
+  name: string
+  description: string
+-  outcomeRows: MarketOutcome[][]
++  conditions: Condition[]
+}
+
+type Condition = {
+  conditionId: string
+  state: ConditionState
+  isExpressForbidden: boolean
+  outcomes: MarketOutcome[]
+}
+
+type MarketOutcome = {
+  selectionName: string
+  odds: number
+  gameId: string
+  isExpressForbidden: boolean
+  isWon?: boolean
+} & Selection
+
+type Selection = {
+  conditionId: string
+  outcomeId: string
+-  coreAddress: string
+}
+```
+
+- `getBetTypedData` and `getComboBetTypedData` have been added to generate typed data for single and combo bets
+- `createBet` and `createComboBet` have been added to create single and combo bets
+
+### Removed
+- `createLiveBet` and `getLiveBet`
+- `calcLiveOdds` and `calcPrematchOdds`
+- `getPrematchBetDataBytes` and `getLiveBetTypedData`
+- `getGameStatus`
