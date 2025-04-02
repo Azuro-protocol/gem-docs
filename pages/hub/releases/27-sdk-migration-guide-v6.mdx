@@ -314,6 +314,10 @@ The `useSelection` hook has been removed. To subscribe to `condition state` upda
 const { data: state, isLocked, isFetching } = useConditionState({ conditionId })
 ```
 
+<Callout type="warning">
+You need to use the `useConditionState` hook at the top level of outcomes and pass the state as a prop down to the outcomes. This ensures that outcomes receive the correct state information for proper rendering and updates
+</Callout>
+
 #### Odds
 
 The `useSelection` hook has been removed. To subscribe to `odds` updates, use `useSelectionOdds` instead. Example can be found [here](https://github.com/Azuro-protocol/example-app/blob/sdk-v6/src/compositions/OutcomeButton/utils/useButton.ts#L18).
