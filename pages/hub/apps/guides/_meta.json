@@ -1,12 +1,11 @@
 {
-  "tutorial": {
-    "title": "Tutorial: build your dApp"
-  },
-  "advanced": {
-    "title": "Advanced integration"
+  "app-building-guide": {
+    "title": "App Building Guide",
+    "display": "hidden"
   },
   "freebets": {
-    "title": "Freebets"
+    "title": "Freebets",
+    "display": "hidden"
   },
   "cashback": {
     "title": "Cashback"
@@ -15,7 +14,8 @@
     "title": "Cashout"
   },
   "wrap-unwrap": {
-    "title": "How to Wrap and Unwrap Tokens"
+    "title": "How to Wrap and Unwrap Tokens",
+    "display": "hidden"
   },
   "---": {
     "type": "separator"
@@ -43,9 +43,6 @@
   },
   "handle-contract-errors": {
     "title": "How to handle contract errors"
-  },
-  "debridge": {
-    "title": "deBridge cross-chain bets"
   },
   "azuro-score": {
     "title": "How to get Azuro Score leaderboard",

@@ -1,0 +1,861 @@
+import { Callout } from 'components'
+
+# Migration Guide: Azuro Protocol V3
+
+This guide describes the migration from the previous version of the Azuro Protocol, where prematch and live bets were processed separately, to version V3, where all bets become offchain and data is combined in a unified structure.
+
+## Technical Comparison: Before and After
+
+### Architecture Before Migration
+
+#### Data Sources
+
+- **Prematch bets**: Stored in the main client subgraphs separately for each network (e.g. `azuro-api-polygon-v3`)
+- **Live bets**: Stored as separate entities in the client subgraphs (e.g. `azuro-api-polygon-v3`)
+- **Live data feed**: Located in a separate common subgraphs in the host network (e.g. `azuro-api-live-data-feed`)
+
+#### Schemas
+
+- Separate `Bet` entity for prematch bets
+- Separate `LiveBet` entity for live bets
+- `Conditions`, `Outcomes`, and `Selections` entities for prematch betting
+- `LiveCondition`, `LiveOutcome`, and `LiveSelection` entities created after the bet was placed in live betting process
+
+#### Real-time Updates
+
+- Limited WebSocket capabilities (500 conditions limit)
+- Multiple data sources needed to be queried separately
+
+### Architecture After Migration (V3)
+
+#### Data Sources
+
+- **All bets**: Unified in client subgraphs with new `V3_*` entities
+- **Feed and odds data**: Moved to `azuro-data-feed-graph` (per network - e.g. `azuro-data-feed-polygon-amoy-dev`)
+- **Real-time updates**: Available via WebSocket API at `dev-streams.onchainfeed.org` with unlimited conditions and games
+
+#### Schemas
+
+- New `V3_Bet` entity that unifies prematch and live bets, for single and combo bets
+- New `V3_Condition`, `V3_Outcome`, and `V3_Selection` entities
+- `conditionKind` field in `V3_Selection` to distinguish between prematch and live subbets in a combo bet
+
+#### Real-time Updates
+
+- Comprehensive WebSocket API for real-time updates
+- Game and condition subscriptions through a single interface
+
+## Core Changes in Detail
+
+### 1. Data Source Changes
+
+**Before:**
+
+```
+Client Subgraphs (e.g., azuro-api-polygon-v3)
+- Prematch bets data (Bet entity)
+- Live bets data (LiveBet entity)
+
+Live Data Feed Subgraph (azuro-api-live-data-feed)
+- Live data for games and conditions
+```
+
+**After:**
+
+```
+Client Subgraphs - Same URLs with new entities
+- All bets (V3_Bet entity)
+- History and bet-related data
+
+Data Feed Subgraph (per network)
+- Current odds and condition states
+- Game and sport information
+Example: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-polygon-amoy-dev/graphql
+
+WebSocket API
+- Production: wss://streams.onchainfeed.org/v1/streams/feed
+- Development: wss://dev-streams.onchainfeed.org/v1/streams/feed
+```
+
+<Callout type="warning">
+IMPORTANT: All feed data (games, conditions, outcomes with current odds) should now be fetched exclusively from the data-feed graph. The client API graph should only be used for bet history and other transaction-related data. Never query the API graph for feed data as it no longer contains this information.
+</Callout>
+
+### 2. Schema Changes
+
+#### API Subgraph Changes
+
+##### LiquidityPoolContract
+
+**Before:**
+
+```graphql
+enum LiquidityPoolContractType {
+  V1
+  V2
+}
+```
+
+**After:**
+
+```graphql
+enum LiquidityPoolContractType {
+  V1
+  V2
+  V3
+}
+```
+
+##### Event Types (Client Subgraphs)
+
+**Before:**
+
+```graphql
+enum EventName {
+  NewGame
+  GameShifted
+  # ...other events
+}
+```
+
+**After:**
+
+```graphql
+enum EventName {
+  # Existing events
+  # ...
+  # New V3 events
+  V3_ConditionCreated
+  V3_ConditionResolved
+  V3_NewBet
+  V3_BetRejected
+  V3_BetSettled
+  V3_BetTransfer
+  V3_BetCashedOut
+  V3_BettorWin
+}
+```
+
+##### New V3 Entities (Client Subgraphs)
+
+Added completely new entities for V3 bets:
+
+```graphql
+type V3_Condition @entity {
+  "Core Contract address + Condition Id"
+  id: ID!
+  title: String
+  core: CoreContract!
+  coreAddress: String!
+  conditionId: BigInt!
+  gameId: BigInt!
+  outcomes: [V3_Outcome!]! @derivedFrom(field: "condition")
+  outcomesIds: [BigInt!]
+  wonOutcomes: [V3_Outcome!]
+  wonOutcomeIds: [BigInt!]
+  status: ConditionStatus!
+  turnover: BigInt!
+  createdBlockNumber: BigInt!
+  createdBlockTimestamp: BigInt!
+  createdTxHash: String!
+  resolvedBlockNumber: BigInt
+  resolvedBlockTimestamp: BigInt
+  resolvedTxHash: String  _updatedAt: BigInt!
+  _winningOutcomesCount: Int!
+}
+
+type V3_Bet @entity {
+  "Core contract address + Bet Id"
+  id: ID!
+  core: CoreContract!
+  betId: BigInt!
+  bettor: String!
+  nonce: BigInt
+  owner: String!
+  actor: String!
+  affiliate: String!
+  type: BetType!
+  _conditions: [V3_Condition!]!
+  _conditionIds: [BigInt!]!
+  rawAmount: BigInt!
+  amount: BigDecimal!
+  _tokenDecimals: Int!
+  rawPotentialPayout: BigInt!
+  potentialPayout: BigDecimal!
+  rawPayout: BigInt
+  payout: BigDecimal
+  rawPayoutLimit: BigInt!
+  payoutLimit: BigDecimal!
+  rawOdds: BigInt!
+  odds: BigDecimal!
+  _oddsDecimals: Int!
+  rawSettledOdds: BigInt
+  settledOdds: BigDecimal
+  selections: [V3_Selection!]! @derivedFrom(field: "bet")
+  _gamesIds: [String!]!
+  createdBlockNumber: BigInt!
+  createdBlockTimestamp: BigInt!
+  createdTxHash: String!
+  resolvedBlockNumber: BigInt
+  resolvedBlockTimestamp: BigInt
+  resolvedTxHash: String  status: BetStatus!
+  result: BetResult
+  isRedeemable: Boolean!
+  isRedeemed: Boolean!
+  redeemedBlockNumber: BigInt
+  redeemedBlockTimestamp: BigInt
+  redeemedTxHash: String
+  _subBetsCount: Int!
+  _wonSubBetsCount: Int!
+  _lostSubBetsCount: Int!
+  _canceledSubBetsCount: Int!
+  isFreebet: Boolean!
+  freebet: Freebet
+  isCashedOut: Boolean!
+  cashout: Cashout
+  _updatedAt: BigInt!
+}
+
+type V3_Selection @entity {
+  id: ID!
+  bet: V3_Bet!
+  rawOdds: BigInt!
+  odds: BigDecimal!
+  _oddsDecimals: Int!
+  result: SelectionResult
+  _outcomeId: BigInt!
+  outcome: V3_Outcome!
+  conditionKind: V3_SelectionConditionKind!
+}
+
+enum V3_SelectionConditionKind {
+  Prematch
+  Live
+}
+
+type V3_Outcome @entity {
+  "Condition entity Id (Core Contract address + Condition Id) + outcome Id"
+  id: ID!
+  title: String
+  core: CoreContract!
+  outcomeId: BigInt!
+  condition: V3_Condition!
+  sortOrder: Int!
+  _betsEntityIds: [String!]
+  result: OutcomeResult
+  selections: [V3_Selection!]! @derivedFrom(field: "outcome")
+  _updatedAt: BigInt!
+}
+```
+
+##### Bettor Entity (Client Subgraphs)
+
+**Before:**
+
+```graphql
+type Bettor @entity {
+  # ...other fields
+  betsCount: Int!
+  prematchBetsCount: Int!
+  expressBetsCount: Int!
+  liveBetsCount: Int!
+  # ...other fields
+ }
+```
+
+**After:**
+
+```graphql
+type Bettor @entity {
+  # ...other fields
+  betsCount: Int!
+  prematchBetsCount: Int!
+  expressBetsCount: Int!
+  liveBetsCount: Int!
+  v3BetsCount: Int! # New field for V3 bets
+  # ...other fields
+}
+```
+
+#### Data Feed Subgraph Changes
+
+##### Game State Changes (Data Feed Subgraph)
+
+**Before (in live-data-feed):**
+
+```graphql
+enum GameStatus {
+  Created
+  Resolved
+  Canceled
+  Paused
+  Finished
+}
+```
+
+**After (in data-feed):**
+
+```graphql
+enum GameState {
+  Prematch
+  Live
+  Stopped
+  Finished
+}
+```
+
+Please note that the `GameStatus` enum is not used in the data-feed subgraph anymore. Use `GameState` instead.
+
+##### Condition State Changes (Data Feed Subgraph)
+
+**Before (in live-data-feed):**
+
+```graphql
+enum ConditionStatus {
+  Created
+  Resolved
+  Canceled
+  Paused
+}
+```
+
+**After (in data-feed):**
+
+```graphql
+enum ConditionState {
+  Active
+  Stopped
+  Removed
+  Canceled
+  Resolved
+}
+```
+
+Please note that the `ConditionStatus` enum is not used in the data-feed subgraph anymore. Use `ConditionState` instead.
+
+##### New Counter Fields in Sport Entity (Data Feed Subgraph)
+
+New fields for tracking active games and leagues with prematch/live differentiation:
+
+```graphql
+type Sport @entity {
+  id: ID!
+  sportId: BigInt!
+  name: String!
+  slug: String!
+  sporthub: SportHub!
+  activeGamesCount: Int!          # Total active games
+  activeLeaguesCount: Int!        # Total active leagues
+  activeCountriesCount: Int!      # Total active countries
+  activePrematchGamesCount: Int!  # Games with prematch conditions
+  activePrematchLeaguesCount: Int! # Leagues with prematch games
+  activePrematchCountriesCount: Int! # Countries with prematch leagues
+  activeLiveGamesCount: Int!      # Games with live conditions
+  activeLiveLeaguesCount: Int!    # Leagues with live games
+  activeLiveCountriesCount: Int!  # Countries with live leagues
+  rawTurnover: BigInt!            # Current turnover
+  turnover: BigDecimal!           # Formatted current turnover
+  rawTotalTurnover: BigInt!       # Historical total turnover
+  totalTurnover: BigDecimal!      # Formatted historical total turnover
+  # ...other fields
+}
+```
+
+##### Similar Counter Fields in Country Entity (Data Feed Subgraph)
+
+```graphql
+type Country @entity {
+  # ...other fields
+  activeGamesCount: Int!
+  activeLeaguesCount: Int!
+  activePrematchGamesCount: Int!
+  activePrematchLeaguesCount: Int!
+  activeLiveGamesCount: Int!
+  activeLiveLeaguesCount: Int!
+  rawTurnover: BigInt!
+  turnover: BigDecimal!
+  rawTotalTurnover: BigInt!      # New field for historical total turnover
+  totalTurnover: BigDecimal!     # Formatted historical total turnover
+}
+```
+
+##### Similar Counter Fields in League Entity (Data Feed Subgraph)
+
+```graphql
+type League @entity {
+  # ...other fields
+  activeGamesCount: Int!
+  activePrematchGamesCount: Int!
+  activeLiveGamesCount: Int!
+  rawTurnover: BigInt!
+  turnover: BigDecimal!
+  rawTotalTurnover: BigInt!      # New field for historical total turnover
+  totalTurnover: BigDecimal!     # Formatted historical total turnover
+}
+```
+
+##### New Fields in Condition Entity (Data Feed Subgraph)
+
+```graphql
+type Condition @entity {
+  # ...other fields
+  isPrematchEnabled: Boolean!    # Indicates if condition is enabled for prematch
+  isLiveEnabled: Boolean!        # Indicates if condition is enabled for live betting
+  isExpressForbidden: Boolean!   # Indicates if condition can be used in express bets
+  maxConditionPotentialLoss: BigDecimal!  # Maximum potential loss for the condition
+  maxOutcomePotentialLoss: BigDecimal!    # Maximum potential loss for any outcome
+  rawMaxConditionPotentialLoss: BigInt!
+  rawMaxOutcomePotentialLoss: BigInt!
+  currentConditionPotentialLoss: BigDecimal!  # Current potential loss
+  rawCurrentConditionPotentialLoss: BigInt!
+  winningOutcomesCount: Int!     # Number of winning outcomes
+```
+
+##### **Key New Features in the Data Feed Graph**
+
+**Enhanced Counter Fields**
+
+The new counters provide a way to build tree structures for navigation and filtering. These counters can be used to:
+
+- Display different counts in prematch and live sections
+- Filter out empty nodes in the navigation tree
+- Sort sports, countries, and leagues by activity
+
+**New State Values**
+
+The Removed state in ConditionState enum indicates a condition that should be completely hidden from the UI. Handle different states as follows:
+
+- `Active`: Display normally
+- `Stopped`: Display as suspended/paused
+- `Removed`: Completely hide from the UI
+- `Canceled`: Display as canceled
+- `Resolved`: Display as finished with results
+
+**Historical Turnover Data**
+
+New totalTurnover fields allow for better sorting and filtering:
+
+```graphql
+type Sport @entity {
+  # ...
+  rawTurnover: BigInt!      # Current turnover (recent activity)
+  rawTotalTurnover: BigInt! # Historical total turnover (good for sorting)
+  # ...
+}
+```
+
+Usage examples:
+
+- Sort sports/leagues by historical popularity using totalTurnover
+- Sort by recent activity using turnover
+- Implement "Popular" sections based on these metrics
+
+### 3. API Changes
+
+#### GraphQL Queries
+
+**Before:**
+Separate queries for different bet types:
+
+```graphql
+query PrematchBets {
+  bets(where: { type: Ordinar }) {
+    id
+    betId
+    # ...other fields
+  }
+}
+
+query LiveBets {
+  liveBets {
+    id
+    betId
+    # ...other fields
+  }
+}
+```
+
+**After:**
+Unified query structure with type filtering:
+
+```graphql
+query V3Bets {
+  v3_Bets {
+    id
+    betId
+    type # Ordinar or Express
+    # ...other fields
+    selections {
+      conditionKind # Prematch or Live
+      # ...other fields
+    }
+  }
+}
+```
+
+<Callout type="waning">
+IMPORTANT: When rendering bet history or “My Bets” sections, you’ll need to fetch game data separately from the data-feed graph. The API graph only contains bet information with gameIds, but no game details.
+</Callout>
+
+Example query to fetch games for bets:
+
+```graphql
+# First, get bets from API graph
+query MyBets {
+  v3_Bets(where: { bettor: "0x..." }) {
+    id
+    betId
+    amount
+    odds
+    status
+    _gamesIds  # Get the list of game IDs
+  }
+}
+
+# Then, fetch game details from data-feed graph using the game IDs
+query GamesForBets($gameIds: [ID!]!) {
+  games(where: { id_in: $gameIds }) {
+    id
+    title
+    state
+    startsAt
+    participants {
+      name
+      sortOrder
+    }
+    sport {
+      name
+    }
+    league {
+      name
+    }
+  }
+}
+```
+
+#### WebSocket API
+
+**New WebSocket API:**
+
+Subscribing to condition updates:
+
+```json
+{
+  "event": "SubscribeConditions",
+  "data": {
+    "conditionIds": ["300610060000000000643869810000000000000075712122"],
+    "environment": "PolygonAmoyUSDT"
+  }
+}
+```
+
+Subscribing to game updates:
+
+```json
+{
+  "event": "SubscribeGames",
+  "data": {
+    "gameIds": ["789", "101112"],
+    "environment": "PolygonAmoyUSDT"
+  }
+}
+```
+
+Receiving condition updates:
+
+```json
+{
+  "event": "ConditionUpdated",
+  "data": {
+    "id": "300610060000000000643869810000000000000075712122",
+    "environment": "PolygonAmoyUSDT",
+    "data": {
+      "gameId": "789",
+      "state": "Active",
+      "outcomes": [
+        {
+          "outcomeId": 1,
+          "title": "Team A wins",
+          "currentOdds": "1.95"
+        }
+      ]
+    }
+  }
+}
+```
+
+## Centralized Backend API
+
+The new centralized backend API (`https://dev-api.onchainfeed.org/api/v1/public/`) replaces the old `calcOdds` functionality and provides a more comprehensive betting system.
+
+### Bet Calculation
+
+**Endpoint:** `/api/v1/public/bet/calculation`
+
+**Request:**
+
+```json
+{
+  "environment": "PolygonAmoyUSDT",
+  "bets": [
+    {
+      "conditionId": "300610060000000000649714110000000000000227249395",
+      "outcomeId": 29
+    }
+  ]
+}
+```
+
+**Response:**
+
+```json
+{
+  "environment": "PolygonAmoyUSDT",
+  "odds": "1.85",
+  "maxBet": "100.00",
+  "maxPayout": "185.00",
+  "selections": {
+    "300610060000000000649714110000000000000227249395": {
+      "winningOutcomesCount": 1,
+      "maxConditionPotentialLoss": "100",
+      "maxOutcomePotentialLoss": "100",
+      "potentialLosses": {
+        "29": "100"
+      },
+      "turnovers": {
+        "29": "50"
+      },
+      "price": "1.85",
+      "proportion": "0.5",
+      "proportionPrice": "0.925",
+      "restLiquidity": "500",
+      "maxBetByConditionLiquidity": "200",
+      "maxBetOutcomeLimit": "100",
+      "worstCasePotentialLoss": "100",
+      "worstCaseTurnover": "50",
+      "worstCaseLoss": "100"
+    }
+  }
+}
+```
+
+<Callout type="waning">
+IMPORTANT: The new system no longer uses slippage. Instead, bets are limited by maxBet which can be calculated using this endpoint.
+</Callout>
+
+### Gas Information
+
+**Endpoint:** `/api/v1/public/bet/gas-info`
+
+Returns gas price information for the current network. It must be used as relayer fee amount in the order creation request.
+
+```json
+[
+  {
+    "gasLimit": 0,
+    "gasPrice": 0,
+    "betTokenRate": 0,
+    "gasPriceInBetToken": 0,
+    "slippage": 0,
+    "gasAmount": 0,
+    "relayerFeeAmount": "string",
+    "beautyRelayerFeeAmount": "string",
+    "symbol": "string",
+    "decimals": 0
+  }
+]
+```
+
+### Order Management
+
+#### Create Single Bet Order
+
+**Endpoint:** `/api/v1/public/bet/orders/ordinar`
+
+**Request:**
+
+```json
+{
+  "environment": "string",
+  "bettor": "string",
+  "betOwner": "string",
+  "clientBetData": {
+    "clientData": {
+      "attention": "string",
+      "affiliate": "string",
+      "core": "string",
+      "expiresAt": 0,
+      "chainId": 0,
+      "relayerFeeAmount": "string"
+    },
+    "bet": {
+      "conditionId": "string",
+      "outcomeId": 0,
+      "minOdds": "string",
+      "amount": "string",
+      "nonce": "string"
+    }
+  },
+  "bettorSignature": "string"
+}
+```
+
+#### Create Combo Bet Order
+
+**Endpoint:** `/api/v1/public/bet/orders/combo`
+
+**Request:**
+
+```json
+{
+  "environment": "string",
+  "bettor": "string",
+  "betOwner": "string",
+  "clientBetData": {
+    "clientData": {
+      "attention": "string",
+      "affiliate": "string",
+      "core": "string",
+      "expiresAt": 0,
+      "chainId": 0,
+      "relayerFeeAmount": "string"
+    },
+    "amount": "string",
+    "nonce": "string",
+    "minOdds": "string",
+    "bets": [
+      {
+        "conditionId": "string",
+        "outcomeId": 0
+      }
+    ]
+  },
+  "bettorSignature": "string"
+}
+```
+
+#### Get Order Status
+
+**Endpoint:** `/api/v1/public/bet/orders/{id}`
+
+**Response:**
+
+```json
+[
+  {
+    "id": "string",
+    "environment": "string",
+    "state": "string",
+    "betType": "string",
+    "createdAt": "date",
+    "updatedAt": "date",
+    "core": "date",
+    "bettor": "string",
+    "affiliate": "string",
+    "odds": 0,
+    "amount": 0,
+    "betId": 0,
+    "txHash": "string",
+    "error": "string",
+    "errorMessage": "string"
+  }
+]
+```
+
+## Complete System Flow
+
+Here’s a comprehensive overview of how the entire system works:
+
+### Feed Data Rendering
+
+- **Source:** Data Feed Graph
+- **Purpose:** Display current odds, games, and conditions
+- **Example Query:**
+
+```graphql
+query Games {
+  games {
+    id
+    title
+    state
+    conditions {
+      id
+      outcomes {
+        id
+        currentOdds
+      }
+    }
+  }
+}
+```
+
+### Real-time Updates
+
+- **Source:** WebSocket API
+- **Purpose:** Receive updates for odds and game states
+- **Example:**
+
+```jsx
+socket.send(JSON.stringify({
+  event: "SubscribeConditions",
+  data: {
+    conditionIds: ["conditionId"],
+    environment: "PolygonAmoyUSDT"
+  }
+}));
+```
+
+### Bet Calculation
+
+- **Source:** Centralized Backend API
+- **Purpose:** Calculate odds and bet limits
+- **Flow:**
+    1. User adds conditions to betslip
+    2. Call `/api/v1/public/bet/calculation` for odds and limits
+    3. Call `/api/v1/public/bet/gas-info` for gas estimation
+
+### Order Creation
+
+- **Source:** Centralized Backend API
+- **Purpose:** Create and submit bet orders
+- **Flow:**
+    1. Frontend prepares order data
+    2. User signs the order
+    3. Submit to `/api/v1/public/bet/orders/ordinar` or `/api/v1/public/bet/orders/combo`
+    4. Poll `/api/v1/public/bet/orders/{id}` until terminal state (Accepted, Rejected, Canceled)
+
+### Bet History
+
+- **Source:** Client Subgraphs
+- **Purpose:** Display user’s bet history
+- **Flow:**
+    1. Query `v3_Bets` from client subgraph
+    2. For each bet, fetch game details from data-feed graph. We recommend to use batch request for better performance.
+    3. Combine data for display
+
+### Historical Data Handling
+
+- **Source:** Both old and new client subgraphs
+- **Purpose:** Display complete bet history
+- **Flow:**
+    1. Query both old and new bet entities
+    2. Sort by timestamp
+    3. Display unified history
+
+## Environment Support
+
+The system supports multiple blockchain networks:
+
+```
+- GnosisXDAI
+- GnosisDevXDAI
+- PolygonUSDT
+- PolygonAmoyUSDT
+- PolygonAmoyAZUSD
+- ChilizWCHZ
+- ChilizSpicyWCHZ
+- BaseSepoliaWETH
+- BaseWETH
+```
+
+Ensure you use the correct environment identifier in all API calls and WebSocket subscriptions.
