@@ -1,5 +1,6 @@
 {
+  "overview": "Overview",
   "v3-migration-guide": "Migrate v2 to v3",
   "sdk-migration-guide-v6": "Migrate SDK from v5 to v6",
-  "v3-smartcontract-changes": "Smart contract changes v3"
+  "v3-smartconrtact-changes": "Smart contract changes v3"
 }
