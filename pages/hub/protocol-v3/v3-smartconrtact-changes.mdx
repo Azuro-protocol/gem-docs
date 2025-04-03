@@ -1,0 +1,100 @@
+# Azuro Protocol V3: Changes to smart contracts
+
+## Liquidity improvements
+
+A fairer distribution of losses among depositors, for cases where players win more. Changes have been made to the liquidity tree smart contract code, so a liquidity migration to the new smart contract will be necessary.
+
+### Migration
+Added methods for migrating liquidity from the V2 protocol to the new V3 liquidity contract. Thus, deposit holders will be able to migrate liquidity on their own.
+
+## Bets improvements
+
+In the V2 protocol, bets on pre-match, live and combo events processed in different contracts, with different betting logic, which added complexity to the protocol. In the new version V3, all types of bets (pre-match, live, combo) are processed by a single contract, which allows:
+- pre-match events become live events with the onset of a sporting event
+- combo bets can be made up of pre-match and live events
+- added the ability to accept bets from smart wallets (wallets smart contracts)
+- bets are placed by special bet executors, and the ability to provide gas-free transactions has been added
+
+## Placing bet and paying out
+
+Placing a bet occurs in several stages:
+- bettor approves token spending (for the bet) for the *Relayer contract* (entry point for bets)
+- bettor forms the bet parameters and signs it in the WEB3 wallet
+- bettor transfers the signed data to the oracle via API
+- oracle signs received data, forms and transfers the order to the executor (Relayer Executor)
+- the executor (Relayer Executor) execute transaction call of `function betFor(OrderData[] orders)` method of *Relayer contract*, `orders` contains the user's bet data, placing the bet
+```solidity
+struct OrderData {
+    address betOwner;
+    ConditionData[] conditionDatas;
+    BetType betType;
+    address oracle;
+    bytes clientBetData;
+    bytes bettorSignature;
+    bytes oracleSignature;
+}
+
+struct ConditionData {
+    uint256 gameId;
+    uint256 conditionId;
+    ConditionKind conditionKind;
+    uint64[] odds;
+    uint128[] outcomes;
+    uint128 payoutLimit;
+    uint8 winningOutcomesCount;
+}
+
+enum BetType {
+    ORDINARY,
+    COMBO
+}
+
+enum ConditionKind {
+    PREMATCH,
+    LIVE
+}
+```
+- after placing a bet (transaction executed), the `NewLiveBet()` event is emitted, and bettor receives a bet token (azurobet)
+```solidity
+event NewLiveBet(
+    uint256 indexed tokenId,
+    address indexed bettor,
+    address indexed affiliate,
+    BetType betType,
+    uint256 nonce,
+    uint128 amount,
+    SubBetData[] betDatas, // one record for ordinary, many records for combo
+    uint128 payoutLimit
+)
+
+struct SubBetData {
+    uint256 gameId;
+    uint256 conditionId;
+    ConditionKind conditionKind;
+    uint128 outcomeId;
+    uint64 odds;
+}
+```
+- while betFor() execution, if the condition (in bet params) was not registered, it is register with the emiting of the `ConditionCreated()` event
+```solidity
+event ConditionCreated(
+    uint256 indexed gameId,
+    uint256 indexed conditionId,
+    uint128[] outcomes,
+    uint64[] odds,
+    uint8 winningOutcomesCount
+)
+```
+
+## Payout on winning bet
+*Same as in V2*
+If the bet wins, the user withdraw payout executing `lp.withdrawPayout(address core, uint256 tokenId)`
+The winnings are paid to the owner of the bet token and the BettorWin() event is emitted
+```solidity
+event BettorWin(
+    address indexed core,
+    address indexed bettor,
+    uint256 tokenId,
+    uint256 amount
+)
+```
