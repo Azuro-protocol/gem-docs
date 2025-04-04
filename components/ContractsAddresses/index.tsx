@@ -6,6 +6,7 @@ import { Link } from 'components'
 type ContractName =
   'factory'
   | 'lp'
+  | 'vault'
   | 'prematchCore'
   | 'expressCore'
   | 'proxyFront'
@@ -15,6 +16,7 @@ type ContractName =
   | 'hostCore'
   | 'clientCore'
   | 'relayer'
+  | 'cashout'
 
 const config: Record<ContractName, { title: string, link?: string }> = {
   factory: {
@@ -24,6 +26,10 @@ const config: Record<ContractName, { title: string, link?: string }> = {
   lp: {
     title: 'LP',
     link: '/contracts/lp',
+  },
+  vault: {
+    title: 'Vault',
+    link: '/contracts/vault',
   },
   prematchCore: {
     title: 'PrematchCore',
@@ -60,11 +66,16 @@ const config: Record<ContractName, { title: string, link?: string }> = {
     title: 'Relayer',
     link: '/contracts/live-relayer',
   },
+  cashout: {
+    title: 'Cashout',
+    link: '/contracts/cashout',
+  },
 }
 
 const rows: ContractName[] = [
   'factory',
   'lp',
+  'vault',
   'prematchCore',
   'expressCore',
   'proxyFront',
@@ -73,7 +84,8 @@ const rows: ContractName[] = [
   'azuroBet',
   'hostCore',
   'clientCore',
-  'relayer'
+  'relayer',
+  'cashout'
 ]
 
 type ContractsTableProps = {
