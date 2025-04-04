@@ -18,7 +18,7 @@ In the V2 protocol, bets on pre-match, live and combo events processed in differ
 
 Placing a bet occurs in several stages:
 - bettor approves token spending (for the bet) for the *Relayer contract* (entry point for bets)
-- bettor forms the bet parameters and signs it in the WEB3 wallet
+- bettor forms the bet parameters and signs (using EIP-712 standard) it in the WEB3 wallet. *All betting in V3 is done in the same way as V2 "live betting", using the EIP-712 parameters signing*
 - bettor transfers the signed data to the oracle via API
 - oracle signs received data, forms and transfers the order to the executor (Relayer Executor)
 - the executor (Relayer Executor) execute transaction call of `function betFor(OrderData[] orders)` method of *Relayer contract*, `orders` contains the user's bet data, placing the bet
