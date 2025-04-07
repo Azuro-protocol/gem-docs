@@ -829,6 +829,10 @@ socket.send(JSON.stringify({
     3. Submit to `/api/v1/public/bet/orders/ordinar` or `/api/v1/public/bet/orders/combo`
     4. Poll `/api/v1/public/bet/orders/{id}` until terminal state (Accepted, Rejected, Canceled)
 
+<Callout type="warning">
+  Don’t forget to approve token spending for the [relayer address](/hub/protocol-v3/v3-deployment-addresses), as it is required to cover the bet transaction fee. This step must be completed before placing a bet. To check the required gas amount, refer to the relevant section [here](/hub/protocol-v3/v3-migration-guide#gas-information)
+</Callout>
+
 ### Bet History
 
 - **Source:** Client Subgraphs
