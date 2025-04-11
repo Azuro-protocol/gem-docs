@@ -9,7 +9,7 @@ We are planning a release around **May 1st**, and **version 5 will no longer be 
 </Callout>
 
 <Callout type="warning">
-The current SDK version is `v6.0.0-beta.5`, and the Toolkit version is `v5.0.0-beta.3`.
+The current SDK version is `v6.0.0-beta.6`, and the Toolkit version is `v5.0.0-beta.4`.
 </Callout>
 
 ## Key changes
@@ -269,7 +269,7 @@ type UseActiveConditionsProps = {
 -  livePollInterval?: number
   filter?: {
     outcomeIds?: string[]
--    maxMargin?: number
+    maxMargin?: number
   }
 -  fetchPolicy?: FetchPolicy
 +  query?: QueryParameter<ConditionsQuery['conditions']>
