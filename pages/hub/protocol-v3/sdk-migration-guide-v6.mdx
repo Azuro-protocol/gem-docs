@@ -9,7 +9,7 @@ We are planning a release around **May 1st**, and **version 5 will no longer be 
 </Callout>
 
 <Callout type="warning">
-The current SDK version is `v6.0.0-beta.12`, and the Toolkit version is `v5.0.0-beta.8`.
+The current SDK version is `v6.0.0-beta.16`, and the Toolkit version is `v5.0.0-beta.11`.
 </Callout>
 
 ## Key changes
@@ -465,7 +465,40 @@ Usage for `useBet` hook remain unchanged
 
 ## Cashout
 
-**Cashout feature will be enabled soon in April.**
+### usePrecalculatedCashouts
+
+```diff filename="UsePrecalculatedCashoutsProps"
+type UsePrecalculatedCashoutsProps = {
+- tokenId: string
+- selections: Selection[]
+- graphBetStatus: GraphBetStatus
+- enabled?: boolean
++ bet: Pick<Bet, 'tokenId' | 'amount' | 'outcomes' | 'status' | 'totalOdds'>
++ query?: QueryParameter<PrecalculatedCashoutsQueryData>
+}
+```
+
+Returns
+
+```ts
+UseQueryResult<{
+  isAvailable: false,
+  cashoutAmount: number,
+}>
+```
+
+### useCashout
+
+```diff filename="UseCashoutProps"
+type UseCashoutProps = {
+- tokenId: string
+- selections: Selection[]
++ bet: Pick<Bet, 'tokenId' | 'outcomes'>
+  EIP712Attention?: string
+  onSuccess?(receipt?: TransactionReceipt): void
+  onError?(err?: Error): void
+}
+```
 
 ## Bets
 
