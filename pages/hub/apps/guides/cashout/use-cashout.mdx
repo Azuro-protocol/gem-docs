@@ -3,26 +3,28 @@ import { Tab, Tabs } from 'nextra-theme-docs'
 
 # Use Cashout
 
-### Get pre-calculation
-Provides preliminary calculation and availability of cashout for conditions and outcomes
-Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-multipliers) to get pre-calculation.
+### Get available
+Provides availability of cashout for conditions and outcomes.
+Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-available) to get available.
 
 ```ts copy
 
-type MultipliersResponse = {
- multipliers: {
+type AvailableResponse = {
+ margin: string,
+ marginMin: string,
+ availables: {
    conditionId: string;
    gameStartAt: number;
+   gameState: string; // for information only. May have delays in updating.
    available: boolean; // cashout availability flag by condition
    outcomes: {
      outcomeId: number;
-     multiplier: string; // multiplier in numberString format (how to use - see below)
+     price: string; // current price
    }[];
  }[];
-}
 
-const cashoutGetMultipliersFetcher = async (conditionIds: string[]): Promise<MultipliersResponse> => {
-  const response = await axios.post<MultipliersResponse>('https://api.azuro.org/api/v1/public/cashout/get-multipliers', {
+const cashoutGetAvailableFetcher = async (conditionIds: string[]): Promise<AvailableResponse> => {
+  const response = await axios.post<AvailableResponse>('https://api.azuro.org/api/v1/public/cashout/get-available', {
       conditionIds, // Condition ids
     },
   })
@@ -30,12 +32,14 @@ const cashoutGetMultipliersFetcher = async (conditionIds: string[]): Promise<Mul
   return response.data || []
 }
 ```
-To pre-calculate any cashout from bet, multiply the multiplier by the user's existing bet payout
-
+<Callout type="info">
+  To pre-calculate cashout, you need to:<br/>
+  <b>amount[bet] * (odds[bet] / odds[prices from available]) * margin[available]</b><br/><br/>
+  If <b>odds[bet] = odds[price available]</b> then you need to use <b>marginMin</b>
+</Callout>
 
 ### Get calculation
-Calculates the exact cashout amount based on the bet in the contract
-Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-calculation) to get calculation.
+Calculates the exact cashout amount based on the bet in the contract. Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-calculation) to get calculation.
 
 ```ts copy
 
@@ -43,7 +47,6 @@ type CalculationRequest = {
     environment: string; // Crypto network type
     owner: string; // Bet owner address
     betId: string; // Bet ID from the Graph
-    isLive: boolean; // Is the bet live flag (live is not available)
 }
 
 type CalculationResponse = {
