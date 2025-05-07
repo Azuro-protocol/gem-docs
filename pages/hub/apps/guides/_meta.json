@@ -1,4 +1,7 @@
 {
+  "advanced": {
+    "title": "Advanced integration"
+  },
   "app-building-guide": {
     "title": "App Building Guide",
     "display": "hidden"
