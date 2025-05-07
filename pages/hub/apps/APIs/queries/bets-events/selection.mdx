@@ -1,0 +1,20 @@
+# Selection Entity
+
+## Description
+
+Represents an individual selection in a bet. It is linked to a specific outcome and tracks the odds, result, and other metadata for the selection.
+
+## Usage 
+
+This entity helps when you need to track specific selections within a bet, such as individual outcomes within a parlay. Use it to display detailed bet information to users.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Unique identifier for the selection. |
+| `bet` | `Bet!` | Reference to the associated bet. |
+| `rawOdds` | `BigInt!` | Raw odds for the selection. |
+| `odds` | `BigDecimal!` | Formatted odds for the selection. |
+| `result` | `SelectionResult` | Result of the selection: `Won` or `Lost`. |
+| `outcome` | `Outcome!` | Reference to the outcome related to the selection. |

@@ -1,0 +1,106 @@
+# Request Optimizations
+
+**TL;DR**:
+The subgraph collects historical data, and the lookup time for queries increases with more data.
+To optimize query execution time, consider using **simple queries**, **pagination** and **direct filters** based on **timestamps and/or IDs**.
+If your query is complex, it's beneficial to break it down into simpler queries.
+
+### Create Simple Queries
+
+Avoid creating complex queries. Instead, split entities like `game` and `conditions`.
+First, request games, then retrieve conditions with a filter based on the [game ID](/subgraph/highlights#ids) list.
+The `conditions` entity is the heaviest, so by separating them, you can create a progressive UI:
+
+1. Display a full skeleton while loading game info.
+2. Show game info and a skeleton instead of markets.
+3. Fully render all data once conditions are loaded.
+
+```ts
+// SLOWER:
+// query all data with nested entities by one request
+const { data, loading } = useQuery(ALL_GAME_LIST_WITH_CONDITIONS_COMPLEX_QUERY)
+...
+
+// FASTER:
+// split requests to game list base info (sport, league, participants, etc),
+// then fetch markets for each game
+const GameList = () => {
+  const { data, loading } = useQuery(GAMES_QUERY)
+
+  if (loading) {
+    return <Skeleton />
+  }
+
+  return (
+    <div className="space-y-2">
+      {
+        data?.games?.map((game) => (
+          <GameCard key={game.id} data={game} />
+        ))
+      }
+    </>
+  )
+}
+
+const GameCard = ({ data }) => {
+  const { id } = data
+  const { data: conditions, loading } = useQuery(CONDITIONS_QUERY, {
+    variables: {
+      where: {
+        game: id,
+      },
+    },
+  })
+
+  return (
+    <div>
+      <GameInfo data={data} />
+      {
+        loading ? (
+          <MarketsSkeleton />
+        ) : (
+          <Markets data={conditions} />
+        )
+      }
+    </div>
+  )
+}
+```
+
+### Filter Data by Timestamps
+
+The subgraph stores all historical data, and for many requests, there's no need to go through it entirely. This significantly speeds up queries.
+
+For example, when requesting upcoming games for pre-match markets, filter them by the start date, ensuring it's greater than the current time:
+
+```ts copy
+const nowInSeconds = Math.floor(Date.now() / 1000)
+
+const where: Game_filter = {
+  startsAt_gt: nowInSeconds,
+}
+```
+
+### Use Direct Filters
+
+If you need to filter data, aim for direct filters. The use of nested filters (ending with an underscore, like `game_` in `Condition_filter`) can slow down requests.
+
+For instance, suppose you want to retrieve `conditions` for specific games, using the `gameId` (valid across all chains) as part of the URL. In this case,
+you can easily convert `gameId` to the TheGraph `ID` of the game using the formula `<lp_address_lowercase>_<gameId>`.
+[Read about IDs in Highlights section](/subgraph/highlights#ids)
+
+```ts
+const gameId = '12345'
+
+// SLOWER
+const where: Condition_filter = {
+  game_: {
+    gameId,
+  },
+}
+
+// FASTER
+const where: Condition_filter = {
+  game: `${LP_ADDRESS_LOWERCASE}_${gameId}`,
+}
+```

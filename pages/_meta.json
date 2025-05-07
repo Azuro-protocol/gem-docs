@@ -19,11 +19,11 @@
   },
   "contracts": {
     "title": "Contracts",
-    "type": "page"
+    "type": "hidden"
   },
   "subgraph": {
     "title": "Subgraph",
-    "type": "page"
+    "type": "hidden"
   },
   "hub": {
     "title": "Developer Hub",

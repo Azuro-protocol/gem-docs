@@ -1,0 +1,75 @@
+### The Graph API
+
+Azuro uses multiple subgraphs to index and organize data from its smart contracts, hosted on The Graph service. This makes querying Azuro data efficient and intuitive. 
+
+Public endpoints cover various environments and blockchain networks both on the testnet ([development](https://gem.azuro.org/subgraph/overview#development-30) endpoints) and in production environments ([production](https://gem.azuro.org/subgraph/overview#production-30)). Note that the testing of live betting occurs in the [pre-production](https://gem.azuro.org/subgraph/overview#pre-production-30) environment.
+
+**Important Links:**
+
+- Subgraph Endpoints and API reference can be found [here](https://gem.azuro.org/subgraph/overview).
+- Don’t forget to [optimize requests](https://gem.azuro.org/subgraph/request-optimizations) and load game data faster in your frontend.
+- There is also an option to enhance performance by creating your [own Azuro subgraph](https://gem.azuro.org/hub/apps/guides/deploying-azuro-subgraph) since we provide the [source code](https://github.com/Azuro-protocol/azuro-subgraphs) under the GNU GPL v2 license.
+
+## Client subgraphs 
+
+### Development [#client-subgraphs-development]
+
+- Polygon Amoy: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-polygon-amoy-dev-v3
+- Gnosis Dev: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v3
+- Base Sepolia: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-base-sepolia-dev-v3
+- Chiliz Spicy: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-chiliz-spicy-dev-v3
+
+### Production [#client-subgraphs-production]
+
+- Polygon: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3
+- Gnosis: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-v3
+- Base: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-base-v3
+- Chiliz: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-chiliz-v3
+
+## Data-feed subgraphs 
+
+### Development [#data-feed-subgraphs-development]
+
+- Polygon Amoy: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-polygon-amoy-dev
+- Gnosis Dev: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-gnosis-dev
+- Base Sepolia: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-base-sepolia-dev
+- Chiliz Spicy: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-chiliz-spicy-dev
+
+### Production [#data-feed-subgraphs-production]
+
+- Polygon: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-polygon
+- Gnosis: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-gnosis
+- Base: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-base
+- Chiliz: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-chiliz
+
+
+## Backend API 
+
+### Development [#backend-api-development]
+
+- https://dev-api.onchainfeed.org/api/v1/public/gateway/docs
+
+### Production [#backend-api-production]
+
+- https://api.onchainfeed.org/api/v1/public/gateway/docs
+
+## Websockets API 
+
+This API ensures real-time data streaming, critical for live betting applications. It's about keeping you updated the moment something happens. 
+
+Find out how to use it for live market updates [here](https://gem.azuro.org/hub/apps/guides/advanced/live/data-retrieval#get-realtime-markets-updates).
+
+### Development [#websockets-api-development]
+
+- wss://dev-streams.onchainfeed.org/v1/streams/feed
+
+
+### Production [#websockets-api-development]
+
+- wss://streams.onchainfeed.org/v1/streams/feed
+
+
+### Freebet API
+
+Freebets get a [dedicated API](https://gem.azuro.org/hub/apps/guides/freebets/use-freebets) in Azuro where you can find the info about your distributed freebets.
+

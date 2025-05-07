@@ -1,0 +1,16 @@
+# ExpressPrematchRelation Entity
+
+## Description
+
+Stores the relationship between combo bets and prematch contracts. It links express core contract addresses to the respective prematch contracts.
+
+## Usage
+
+Use this entity when you need to create or manage connections between combo bets and prematch contracts. It's useful for developers building applications that allow users to switch between express and prematch betting modes.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Express core contract address. |
+| `prematchAddress` | `String!` | Address of the prematch contract related to the express bet. |
