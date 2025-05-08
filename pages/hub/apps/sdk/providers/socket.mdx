@@ -1,25 +1,86 @@
-The `SocketProvider` is designed to help the subscription functionality keep track of market changes in real-time during live games, a feature particularly useful for Watch Hooks.
+import { Callout } from 'components'
 
-For both pre-match and live games, the market updates include:
+# Socket Providers
 
-- Stopping and unstopping the market.
-- Adjusting the odds for different outcomes.
+Socket providers are designed to help with real-time subscriptions to market changes.
 
-#### Usage
+<Callout type="warning">
+Crucial for all **Watch Hooks**
+</Callout>
 
-Wrap your application in `SocketProvider`.
+## FeedSocketProvider
+
+The `FeedSocketProvider` is responsible for establishing and maintaining the socket connection. It supports the `ConditionUpdatesProvider` and `GameUpdatesProvider`.
+
+### Usage
+
+Wrap your application in `FeedSocketProvider`:
 
 ```tsx {1, 8, 10}
-import { SocketProvider } from '@azuro-org/sdk'
+import { FeedSocketProvider } from '@azuro-org/sdk'
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <FeedSocketProvider>
+      {children}
+    </FeedSocketProvider>
+  )
+}
+```
+
+## GameUpdatesProvider
+
+The `GameUpdatesProvider` tracks real-time updates about game state changes.
+
+### Usage
+
+Wrap your application in `GameUpdatesProvider` inside the `FeedSocketProvider`:
+
+```tsx {1, 8, 10}
+import { FeedSocketProvider, GameUpdatesProvider } from '@azuro-org/sdk'
 
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <SocketProvider>
-      {children}
-    </SocketProvider>
+    <FeedSocketProvider>
+      <GameUpdatesProvider>
+        {children}
+      </GameUpdatesProvider>
+    </FeedSocketProvider>
+  )
+}
+```
+
+## ConditionUpdatesProvider
+
+The `ConditionUpdatesProvider` tracks updates related to:
+
+- Condition state changes
+- Odds changes for different outcomes
+
+### Usage
+
+Wrap your application in `ConditionUpdatesProvider`, nested under both `FeedSocketProvider` and `GameUpdatesProvider`:
+
+```tsx {1, 8, 10}
+import { FeedSocketProvider, GameUpdatesProvider, ConditionUpdatesProvider } from '@azuro-org/sdk'
+
+
+function Providers(props: { children: React.ReactNode }) {
+  const { children } = props
+
+  return (
+    <FeedSocketProvider>
+      <GameUpdatesProvider>
+        <ConditionUpdatesProvider>
+        {children}
+        </ConditionUpdatesProvider>
+      </GameUpdatesProvider>
+    </FeedSocketProvider>
   )
 }
 ```

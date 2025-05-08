@@ -2,30 +2,32 @@ import { Callout } from 'components'
 
 # Overview
 
-**AzuroSDK** is your one-stop-shop for building a dApp on Azuro Protocol. Simply [install](installation) it and you’ll have a basic betting dApp which you can then [customize](setup) to your needs.
+**AzuroSDK** is your one-stop solution for building betting dApps on the Azuro Protocol. With a simple [installation](installation), you'll get a fully functional base app that you can [customize](setup) to match your product needs.
 
-SDK provides a comprehensive collection of useful React hooks and utilities for creating your own betting application, eliminating the need to worry about the tedious setup details.
+The SDK includes a comprehensive set of React hooks and utility functions to streamline development, so you can focus on business logic and user experience — not boilerplate setup.
 
 <Callout type="info">
-In the future, you may come across the following types often enough, so we've decided to explain them from the get-go:
+You’ll often encounter the following types while using the SDK, so we’ve highlighted them upfront:
 
-- **Selection**: Represents the user's choice, main data for bet and odds calculation, etc.
-- **Outcome**: Specific data, such as the user's bet (`BetOutcome`) that includes `Selection`.
+- **`Selection`** – Represents a user’s bet selection, used for placing bets and calculating odds.
 
 ```ts
 type Selection = {
   outcomeId: string
   conditionId: string
-  coreAddress: string
 }
 ```
+
+- **BetOutcome**: Detailed info about a user's bet, including odds, game data, and result status. Extends `Selection`.
 
 ```ts
 type BetOutcome = {
   selectionName: string
   odds: number
   marketName: string
-  game: GameQuery['games'][0]
+  game: NonNullable<GameQuery['game']>
+  wonOutcomeIds: string[] | null
+  isLive: boolean
   isWin: boolean | null
   isLose: boolean | null
   isCanceled: boolean
@@ -33,10 +35,10 @@ type BetOutcome = {
 ```
 </Callout>
 
-## Npm Package
+## NPM Package
 
-https://www.npmjs.com/package/@azuro-org/sdk
+**Link**: [@azuro-org/sdk](https://www.npmjs.com/package/@azuro-org/sdk)
 
 ## Example
 
-[Here](https://github.com/Azuro-protocol/sdk/tree/main/examples/nextjs) you can look how to use SDK in project.
+Explore a real implementation in the [Azuro example app](https://github.com/Azuro-protocol/example-app).

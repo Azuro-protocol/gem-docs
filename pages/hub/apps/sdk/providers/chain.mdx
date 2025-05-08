@@ -1,10 +1,12 @@
 import { Callout } from 'components'
 
-`ChainProvider` is used for storing information about application chain as well as to provide network change functionality.
+# ChainProvider
 
-#### Usage
+`ChainProvider` manages the application's active blockchain network and exposes functionality to switch between supported chains.
 
-Wrap your application in `ChainProvider`.
+## Usage
+
+Wrap your app with `ChainProvider`. It must be nested inside `WagmiProvider` and `QueryClientProvider`.
 
 ```tsx {1, 16, 18}
 import { ChainProvider } from '@azuro-org/sdk'
@@ -31,20 +33,25 @@ function Providers(props: { children: React.ReactNode }) {
 }
 ```
 
-<Callout type="warning">
-  The `ChainProvider` requires access to the Wagmi context.
-</Callout>
+<Callout type="warning"> `ChainProvider` requires `WagmiProvider` to function properly.</Callout>
 
-Get stored context data.
+**Accessing Chain Data**
 
 ```ts
 import { useChain } from '@azuro-org/sdk'
 
-const { appChain, walletChain, contracts, betToken, isRightNetwork, setAppChainId } = useChain()
+const {
+  appChain,
+  walletChain,
+  contracts,
+  betToken,
+  isRightNetwork,
+  setAppChainId
+} = useChain()
 ```
 
 <Callout type="info">
-The `ChainProvider` stores the current chain ID in a cookie under the key `appChainId` to restore `appChain`, for example, after a page refresh.
+ChainProvider stores the selected chain in a cookie under the key `appChainId`. This allows the app to restore the network after a page reload.
 
 ```tsx {10, 17}
 // Next.js example for app/layout.tsx
@@ -52,9 +59,9 @@ import { ChainProvider } from '@azuro-org/sdk'
 import { cookies } from 'next/headers'
 
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
 
   const initialChainId = cookieStore.get('appChainId')?.value
 
@@ -77,7 +84,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 ```
 </Callout>
 
-#### Props
+## Props
 
 ```ts
 {
@@ -97,7 +104,7 @@ type ChainId =
   | 84532   // Base Sepolia
 ```
 
-#### Return Value
+## Return Value
 
 ```ts
 import { type Chain } from 'wagmi'
@@ -105,8 +112,14 @@ import { type Chain } from 'wagmi'
 {
   appChain: Omit<Chain, 'id'> & { id: ChainId } // represents chain in whitch your application sends requests and receives data
   walletChain: Chain | undefined // user's wallet chain
-  contracts: Contracts // contracts data based on appChain
+  graphql: {
+    bets: string // bets subgraph url
+    feed: string // feed subgraph url
+    legacyLive: string // @deprecated v2 live feed subgraph url
+  }
+  socket: string // azuro socket url
   api: string // azuro api url
+  contracts: Contracts // contracts data based on appChain
   environment: Environment // current appChain environment for azuro api
   betToken: BetToken // bet token based on appChain
   isRightNetwork: boolean // true if appChain equeal to walletChain
@@ -119,7 +132,6 @@ enum Environment {
   GnosisDevXDAI = 'GnosisDevXDAI',
   GnosisXDAI = 'GnosisXDAI',
   PolygonUSDT = 'PolygonUSDT',
-  PolygonAmoyAZUSD = 'PolygonAmoyAZUSD',
   PolygonAmoyUSDT = 'PolygonAmoyUSDT',
   ChilizWCHZ = 'ChilizWCHZ',
   ChilizSpicyWCHZ = 'ChilizSpicyWCHZ',
@@ -129,23 +141,24 @@ enum Environment {
 
 type Contracts = {
   lp: {
-    address: `0x${string}`
+    address: Address
     abi: typeof lpAbi
   }
-  prematchCore: {
-    address: `0x${string}`
-    abi: typeof prematchCoreAbi
+  core: {
+    address: Address
+    abi: typeof coreAbi
   }
-  prematchComboCore: {
-    address: `0x${string}`
-    abi: typeof prematchComboCoreAbi
+  relayer: {
+    address: Address
+    abi: typeof relayerAbi
   }
-  proxyFront: {
-    address: `0x${string}`
-    abi: typeof proxyFrontAbi
-  }
-  liveRelayer?: {
-    address: `0x${string}`
+  azuroBet: {
+    address: Address
+    abi: typeof azuroBetAbi
+  },
+  cashout?: {
+    address: Address
+    abi: typeof cashoutAbi
   }
 }
 

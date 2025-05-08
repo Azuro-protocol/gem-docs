@@ -1,17 +1,18 @@
 import { Callout, Image } from 'components'
 
-Here, we'll configure the essential component of the SDK to enable proper functionality for the hooks.
+# Setup
+
+To enable full functionality of AzuroSDK hooks, you need to configure the SDK's main provider component.
 
 ## AzuroSDKProvider
 
-The initial step involves setting up a `AzuroSDKProvider` with the configurations. This setup is all that is required to initiate the use of SDK Hooks.
+Wrap your application with `AzuroSDKProvider` to initialize the SDK context. This is the only setup step required to start using the SDK's hooks.
 
-```tsx {1, 16, 18}
+```tsx {1, 15, 17}
 import { AzuroSDKProvider } from '@azuro-org/sdk'
 import { WagmiProvider, createConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonAmoy } from 'viem/chains'
-
 
 const wagmiConfig = createConfig(config)
 const queryClient = new QueryClient()
@@ -31,8 +32,8 @@ function Providers(props: { children: React.ReactNode }) {
 }
 ```
 
-For further details, refer to the [AzuroSDKProvider](/hub/apps/sdk/providers/sdk) section.
+You can now start using AzuroSDK hooks anywhere inside your app tree.
 
-<Callout type="warning">
-  The AzuroSDKProvider requires access to the Wagmi context.
-</Callout>
+For advanced configuration, see the [AzuroSDKProvider](/hub/apps/sdk/providers/sdk) documentation.
+
+<Callout type="warning"> `AzuroSDKProvider` **must** be used inside a valid `WagmiProvider` context. </Callout>

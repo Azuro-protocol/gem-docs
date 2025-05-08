@@ -1,8 +1,14 @@
 import { Callout } from 'components'
 
-The `BetslipProvider` serves the purpose of storing a user's bet before its execution, while additionally furnishing information regarding odds and statuses.
+# BetslipProvider
 
-#### Usage
+The `BetslipProvider` serves the purpose of storing a user's bet before its execution, while additionally furnishing information regarding odds and states.
+
+<Callout type="warning">
+Batch bet and Freebets currently unavailable!
+</Callout>
+
+## Usage
 
 Wrap your application in `BetslipProvider`.
 
@@ -23,15 +29,15 @@ function Providers(props: { children: React.ReactNode }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}> 
         <ChainProvider initialChainId={polygonAmoy.id}>
-          <LiveProvider initialLiveState={initialLiveState}>
-            <ApolloProvider>
-              <SocketProvider>
+          <FeedSocketProvider>
+            <GameUpdatesProvider>
+              <ConditionUpdatesProvider>
                 <BetslipProvider>
                   {children}
                 </BetslipProvider>
-              </SocketProvider>
-            </ApolloProvider>
-          </LiveProvider>
+              </ConditionUpdatesProvider>
+            </GameUpdatesProvider>
+          </FeedSocketProvider>
         </ChainProvider>
       </QueryClientProvider>
     </WagmiProvider>
@@ -44,123 +50,131 @@ function Providers(props: { children: React.ReactNode }) {
 </Callout>
 
 <Callout type="warning">
-  The `BetslipProvider` necessitates access to the `ChainProvider`, `ApolloProvider`, and `SocketProvider`.
+  The `BetslipProvider` necessitates access to the `ChainProvider`, `ApolloProvider`, and Socket Providers.
 </Callout>
 
-Get stored context data.
+**Accessing Betslip Context**
 
 ```ts
 import { useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
 
 const { items, addItem, removeItem, clear } = useBaseBetslip()
-const { 
-  betAmount, odds, totalOdds, maxBet, minBet, statuses, disableReason, changeBetAmount, 
-  isStatusesFetching, isOddsFetching, isBetAllowed 
-} = useDetailedBetslip()
+const { betAmount, odds} = useDetailedBetslip()
 ```
 
 <Callout type="info">
-The `useBaseBetslip` hook is employed to gain access to items and facilitate their modification, while the `useDetailedBetslip` hook is utilized for obtaining additional information such as odds and statuses.
+The `useBaseBetslip` hook is employed to gain access to items and facilitate their modification, while the `useDetailedBetslip` hook is utilized for obtaining additional information such as odds and states.
 </Callout>
 
 <Callout type="info">
 The `odds` is an object where the key combination is determined by the concatenation of `conditionId` and `outcomeId`:
+
 ```ts
 odds[`${conditionId}-${outcomeId}`]
 ```
 </Callout>
 
 <Callout type="info">
-The `statuses` is an object where the key combination corresponds to `conditionId`:
+The `states` is an object where the key combination corresponds to `conditionId`:
+
 ```ts
-statuses[conditionId]
+states[conditionId]
 ```
 </Callout>
 
-<Callout type="info">
+### Storing additional data
+
+You can extend the betslip item in your `global.d.ts` to suit your needs by adding additional fields to the BetslipItem interface. This allows you to customize the data structure and store extra information as required for your application:
+
+1. Expand a namespace in global in your `global.d.ts` file:
+
+```ts filename="global.d.ts"
+declare global {
+  namespace AzuroSDK {
+    interface BetslipItem {
+      marketName: string
+      selectionName: string
+    }
+  }
+}
+```
+
+2. That’s it! Now you can provide additional data:
+
+```ts
+const { addItem } = useBaseBetslip()
+
+addItem({
+  conditionId: '...',
+  outcomeId: '...',
+  gameId: '...',
+  isExpressForbidden: true,
+  marketName: 'FTB',
+  selectionName: '1',
+})
+```
+
+Example can be found [here](https://github.com/Azuro-protocol/example-app/blob/main/globals.d.ts#L8).
+
+{/* <Callout type="info">
 Except of Single and Combo bets for Batch bet we use different amount structure `batchBetAmounts`.
 
 The `batchBetAmounts` is an object where the key combination is determined by the concatenation of `conditionId` and `outcomeId`, the value is bet amount for outcome:
 ```ts
 const selectionAmount = batchBetAmounts[`${conditionId}-${outcomeId}`]
 ```
-</Callout>
+</Callout> */}
 
-#### Props
+## Props
 
 ```ts
 type BetslipProviderProps = {
   children: React.ReactNode
-  affiliate?: Address // only for freeBets fetching
-  isBatchBetWithSameGameEnabled?: boolean // if value is true betslip will allow to add outcomes from same game for batch bet
 }
 ```
 
-#### Return Value
+## Return Value
 
 ```ts
 type BaseBetslipContextValue = {
-  items: BetslipItem[] // betslip items
-  addItem: (itemProps: AddItemProps) => void // function for adding new items
+  items: AzuroSDK.BetslipItem[] // betslip items
+  addItem: (itemProps: AzuroSDK.BetslipItem) => void // function for adding new items
   removeItem: (itemProps: RemoveItemProps) => void // function for removing item from betslip
   clear: () => void // function for clearing betslip
 }
 
 type DetailedBetslipContextValue = {
   betAmount: string // bet amount for single and combo bet
-  batchBetAmounts: Record<string, string> // batch bet amounts
   odds: Record<string, number> // odds for each item
   totalOdds: number // total bet odds
   maxBet: number | undefined // maximum bet amount
   minBet: number | undefined // minimum bet amount
-  selectedFreeBet: FreeBet | undefined // selected freeBet
-  freeBets: FreeBet[] | undefined | null // list of freeBets
-  statuses: Record<string, ConditionStatus> // status for each item
+  states: Record<string, ConditionState> // status for each item
   disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
   changeBetAmount: (value: string) => void // function for changing bet amount
-  changeBatchBetAmount: (item: changeBatchBetAmountItem, value: string) => void // function for changing bet amount for batch bet
-  changeBatch: (value: boolean) => void // function for switching between combo and batch
-  selectFreeBet: (value?: FreeBet) => void // set freeBet as selected
-  isBatch: boolean // true if batch is enabled
-  isLiveBet: boolean // true if live outcome in the betslip
   isCombo: boolean // true if combo bet
-  isStatusesFetching: boolean // indicates statuses fetching
+  isStatesFetching: boolean // indicates states fetching
   isOddsFetching: boolean // indicates odds fetching
-  isFreeBetsFetching: boolean // indicates freeBets fetching
+  isMaxBetFetching: boolean // indicates max bet fetching
   isBetAllowed: boolean // true if bet can be placed
 }
 
 enum BetslipDisableReason {
-  ConditionStatus = 'ConditionStatus', // one or more outcomes have been removed or suspended
+  ConditionState = 'ConditionState', // one or more outcomes have been removed or suspended
   BetAmountGreaterThanMaxBet = 'BetAmountGreaterThanMaxBet', // bet amount exceeds max bet
   BetAmountLowerThanMinBet = 'BetAmountLowerThanMinBet', // bet amount lower than min bet
-  ComboWithLive = 'ComboWithLive', // live outcome can't be used in combo
   ComboWithForbiddenItem = 'ComboWithForbiddenItem', // one or more conditions can't be used in combo
   ComboWithSameGame = 'ComboWithSameGame', // outcomes from same game can't be used in combo
   PrematchConditionInStartedGame = 'PrematchConditionInStartedGame', // pre-match item in started game
-  BatchWithLive = 'BatchWithLive', // live outcome can't be used in batch
-  FreeBetWithLive = 'FreeBetWithLive', // freeBet can't be used in live
-  FreeBetWithCombo = 'FreeBetWithCombo', // freeBet can't be used in combo
-  FreeBetWithBatch = 'FreeBetWithBatch', // freeBet can't be used in batch
-  FreeBetExpired = 'FreeBetExpired', // freeBet is expired
-  FreeBetMinOdds = 'FreeBetMinOdds', // selection's odds is low for freeBet
 }
 
-type Game = {
-  gameId: string
-  title: string
-  countryName: string
-  countrySlug: string
-  leagueName: string
-  leagueSlug: string
-  participants: Array<{
-    name: string
-    image?: string
-  }>
-  startsAt: number
-  sportId: number
-  sportSlug: string
-  sportName: string
+declare global {
+  namespace AzuroSDK {
+    interface BetslipItem extends Selection {
+      gameId: string
+      isExpressForbidden: boolean
+    }
+  }
 }
 
 type Selection = {
@@ -169,27 +183,11 @@ type Selection = {
   coreAddress: string
 }
 
-type BetslipItem = {
-  lpAddress: string
-  game: Game
-  isExpressForbidden: boolean
-  marketName: string
-  selectionName: string
-} & Selection
-
 type AddItemProps = {
   gameId: string
   lpAddress: string
   isExpressForbidden: boolean
 } & Selection
 
-type RemoveItemProps = {
-  outcomeId: string
-  conditionId: string
-}
-
-type ChangeBatchBetAmountItem = {
-  outcomeId: string
-  conditionId: string
-}
+type RemoveItemProps = Selection
 ```

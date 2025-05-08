@@ -1,14 +1,19 @@
 import { Callout } from 'components'
 
-The `AzuroSDKProvider` serves as the central component that encompasses all providers:
+# AzuroSDKProvider
+
+The `AzuroSDKProvider` is the root context provider that enables all AzuroSDK functionality. It wraps and combines the following internal providers:
+
 - [ChainProvider](/hub/apps/sdk/providers/chain)
-- [ApolloProvider](/hub/apps/sdk/providers/apollo)
-- [SocketProvider](/hub/apps/sdk/providers/socket)
+- [FeedSocketProvider](/hub/apps/sdk/providers/socket#feedsocketprovider)
+- [GameUpdatesProvider](/hub/apps/sdk/providers/socket#gameupdatesprovider)
+- [ConditionUpdatesProvider](/hub/apps/sdk/providers/socket#conditionupdatesprovider)
+- [LiveStatisticsSocketProvider](/hub/apps/sdk/providers/live-statistics)
 - [BetslipProvider](/hub/apps/sdk/providers/betslip)
 
-#### Usage
+## Usage
 
-Wrap your application in `AzuroSDKProvider`.
+Wrap your app with `AzuroSDKProvider` inside a `WagmiProvider` and `QueryClientProvider`.
 
 ```tsx {1, 16, 18}
 import { AzuroSDKProvider } from '@azuro-org/sdk'
@@ -16,17 +21,16 @@ import { WagmiProvider, createConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonAmoy } from 'viem/chains'
 
-
 const wagmiConfig = createConfig(config)
-const queryClient = new QueryClient() 
+const queryClient = new QueryClient()
 
 function Providers(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
     <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}> 
-        <AzuroSDKProvider initialChainId={polygonAmoy.id} initialLiveState={true}>
+      <QueryClientProvider client={queryClient}>
+        <AzuroSDKProvider initialChainId={polygonAmoy.id}>
           {children}
         </AzuroSDKProvider>
       </QueryClientProvider>
@@ -35,27 +39,25 @@ function Providers(props: { children: React.ReactNode }) {
 }
 ```
 
-<Callout type="warning">
-  The `AzuroSDKProvider` requires access to the Wagmi context.
+<Callout type="warning"> 
+`AzuroSDKProvider` must be used inside a `WagmiProvider`. Without Wagmi context, the SDK will not function. 
 </Callout>
 
-Following the setup, you gain access to all the data provided by the providers:
+After setup, you can access AzuroSDK data and functionality using hooks:
+
 ```ts
-import { useChain, useApolloClients, useSocket, useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
+import { useChain, useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
 
 const { ... } = useChain()
-const { ... } = useApolloClients()
-const { ... } = useSocket()
 const { ... } = useBaseBetslip()
 const { ... } = useDetailedBetslip()
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   children: React.ReactNode
-  affiliate?: Address // only for freeBets fetching in betslip context
   initialChainId: ChainId // your initial chain id
 }
 ```

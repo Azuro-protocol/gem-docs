@@ -8,9 +8,9 @@
   "useActiveConditions": "useActiveConditions",
   "useActiveMarkets": "useActiveMarkets",
   "useResolvedMarkets": "useResolvedMarkets",
-  "usePrematchBets": "usePrematchBets",
-  "useLiveBets": "useLiveBets",
-  "useLiveBetFee": "useLiveBetFee",
+  "useBets": "useBets",
+  "useLegacyBets": "useLegacyBets",
+  "useBetFee": "useBetFee",
   "useBetsSummary": "useBetsSummary",
   "useBetsSummaryBySelection": "useBetsSummaryBySelection",
   "useFreeBets": "useFreeBets"

@@ -3,37 +3,45 @@ import { Callout, Image } from 'components'
 # Installation
 
 <Callout type="info">
-There're two ways to use AzuroSDK:
-1. The first is for those who want to take a sample dApp we created and build on top of it.
-2. The second is for those who don't need an example project and can make a dApp from ground up that interacts with Azuro protocol as easily as our pre-built example.
+There are two ways to use AzuroSDK:
 
-Below, you'll find guides to install AzuroSDK for each of these cases.
+1. Use our sample dApp as a starting point and customize it to your needs.
+2. Integrate AzuroSDK directly into your own project from scratch.
+
+Below are setup guides for both approaches.
 </Callout>
 
-## 1. To build on top of our sample dApp
+## 1. Build on top of our sample dApp
 
-1. **Clone the Azuro SDK**: Use Git to clone the repository from GitHub with `git clone https://github.com/Azuro-protocol/sdk.git` in your terminal.
-2. **Go to the Example Directory**: Navigate into the example directory with `cd sdk/examples/nextjs`.
-3. **Install Dependencies**: Run `npm install` to install all necessary dependencies for running the example. Note that the SDK itself does not require a separate installation.
-4. **Run the Development Server**: Start the development server using `npm run dev`. This will get your example application up and running.
-5. **Access the Application**: Open your web browser and go to `http://localhost:3000` to view the application.
+1. **Clone the SDK repository**:
+```bash copy
+  git clone https://github.com/Azuro-protocol/example-app
+```
+2. **Install Dependencies**:
+```bash copy
+  npm install
+```
+3. **Run the development server**:
+```bash copy
+  npm run dev
+```
+4. **Open the appn**:  
+   Visit http://localhost:3000 in your browser.
 
-<Image
+{/* <Image
   src="/images/sdk/setupSDK.gif"
   width={1152}
   height={648}
-/>
+/> */}
 
-## 2. To use SDK in your original project
+## 2. Use SDK in your own project
 
-1. **Install the SDK Package**:  `npm install @azuro-org/sdk`.
-2. **Install Peer Dependencies**:
-
+1. **Install the SDK**:
+```bash copy
+  npm install @azuro-org/sdk
 ```
-@apollo/client@^3.8.0-beta.7
-@azuro-org/dictionaries@^3.0.20
-graphql@^16.8.1
-react@^18.2.0
-viem@^2.21.7
-wagmi@^2.12.11
+2. **Install required peer dependencies**:
+
+```bash copy
+npm install @azuro-org/dictionaries@^3.0.26 graphql@^16.11.0 viem@^2.29.0 wagmi@^2.14.16
 ```

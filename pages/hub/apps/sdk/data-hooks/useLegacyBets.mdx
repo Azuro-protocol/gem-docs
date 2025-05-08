@@ -1,22 +1,27 @@
 import { Callout } from 'components'
 
-This hook is used to fetch pre-match betting history of a specific bettor.
+# useLegacyBets
 
-Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
-
-#### Usage
-
-```ts
-import { usePrematchBets } from '@azuro-org/sdk'
-
-const { loading, error, bets } = usePrematchBets(props)
-```
+The `useLegacyBets` hook is used to fetch pre-match betting history of a specific bettor.
 
 <Callout type="warning">
-  The hook won't be called while `bettor` value is nullish.
+  The `useLegacyBets` hook is only for fetching old **v2 Azuro Protocol** bets if you need to show full betting history.
 </Callout>
 
-#### Props
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useInfiniteQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useInfiniteQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
+
+```ts
+import { useLegacyBets } from '@azuro-org/sdk'
+
+const { data, hasNextPage, isFetching } = useLegacyBets(props)
+const { pages } = data || {}
+```
+
+## Props
 
 ```ts
 {
@@ -24,11 +29,11 @@ const { loading, error, bets } = usePrematchBets(props)
     bettor: string // bettor address
     affiliate?: string // affiliate address
     type?: BetType // bet type
-    limit?: number // limit the number of rows returned from a query
-    offset?: number // omit a specified number of rows before the beginning of the result set
   }
+  itemsPerPage?: number
   orderBy?: Bet_OrderBy // default: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
+  query?: InfiniteQueryParameters<QueryResult>
 }
 ```
 
@@ -39,41 +44,25 @@ enum BetType {
   Settled = 'settled', // resolved bets
   CashedOut = 'cashedOut', // cashed out bets
 }
-```
 
-#### Custom query options
-
-To accommodate additional arguments within your GraphQL query, the optimal approach is to create a custom hook. This can be achieved by leveraging the fundamental Apollo `useQuery` hook as your starting point.
-
-```ts
-import { useQuery } from '@apollo/client'
-import { PrematchBetsDocument, PrematchBetsQueryResult, PrematchBetsQueryVariables, useApolloClients } from '@azuro-org/sdk'
-
-const { prematchClient } = useApolloClients()
-
-const options = {
-  // your options
-  client: prematchClient
-}
-
-const { loading, error, data } = useQuery<PrematchBetsQueryResult, PrematchBetsQueryVariables>(PrematchBetsDocument, options)
-```
-
-#### Return Value
-
-```ts
-{
-  loading: boolean
-  error: Error | null
-  bets: Bet[]
+type QueryResult = {
+  bets: Bet[],
+  nextPage: number | undefined,
 }
 ```
 
+## Return Value
+
 ```ts
+UseInfiniteQueryResult<QueryResult>
+```
+
+```ts
+import { type UseInfiniteQueryResult } from '@tanstack/react-query'
+
 type Selection = {
   conditionId: string
   outcomeId: string
-  coreAddress: string
 }
 
 type BetOutcome = {

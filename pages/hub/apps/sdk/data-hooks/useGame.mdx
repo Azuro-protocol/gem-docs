@@ -1,26 +1,31 @@
 import { Callout } from 'components'
 
-Hook is used for fetch specific game data.
+# useGame
 
-Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+The `useGame` hook is used for fetch specific game data.
 
-#### Usage
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
 
 ```ts
 import { useGame } from '@azuro-org/sdk'
 
-const { loading, error, data: game } = useGame(props)
+const { data, isFetching, error } = useGame(props)
 ```
 
 <Callout type="info">
   The `useGame` hook automatically fetches a live game and returns it, otherwise, it returns the pre-match game.
 </Callout>
 
-#### Props
+## Props
 
 ```ts
 {
   gameId: string | bigint
+  query?: QueryParameter<GameQuery['game']> // useQuery params
 }
 ```
 
@@ -30,50 +35,60 @@ const { loading, error, data: game } = useGame(props)
   ```ts
   import { useGame } from '@azuro-org/sdk'
 
-  const { loading, error, games } = useGames()
+  const { data: games } = useGames()
 
   const gameId = games?.[0]?.gameId
 
-  const { loading, error, game } = useGame({ gameId })
+  const { data } = useGame({ gameId })
   ```
 </Callout>
 
-#### Return Value
-```ts
-{ 
-  loading: boolean
-  error: Error | null
-  isGameInLive: boolean // true if the game exists in the live.
-  game: { 
-    id: string
-    gameId: number
-    title?: string | null
-    startsAt: number
-    status: GraphGameStatus
-    sport: { 
-      sportId: string
-      slug: string
-      name: string 
-    }
-    league: {
-      slug: string
-      name: string
-      country: { 
-        slug: string
-        name: string 
-      } 
-    }
-    participants: Array<{ 
-      image?: string | null
-      name: string 
-    }>
-  } 
-}
+## Return Value
 
-enum GraphGameStatus {
-  Canceled = 'Canceled',
-  Created = 'Created',
-  Paused = 'Paused',
-  Resolved = 'Resolved'
+```ts
+UseQueryResult<GameQuery['game']>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type GameQuery = {
+    __typename?: 'Query'
+    game?: {
+        __typename?: 'Game'
+        id: string
+        gameId: string
+        slug: string
+        title: string
+        startsAt: string
+        state: Types.GameState
+        turnover: string
+        sport: {
+            __typename?: 'Sport'
+            sportId: string
+            slug: string
+            name: string
+            sporthub: {
+                __typename?: 'SportHub'
+                id: string
+                slug: string
+            }
+        }
+        league: {
+            __typename?: 'League'
+            slug: string
+            name: string
+        }
+        country: {
+            __typename?: 'Country'
+            slug: string
+            name: string
+        }
+        participants: Array<{
+            __typename?: 'Participant'
+            image?: string | null
+            name: string
+        }>
+    } | null
 }
 ```

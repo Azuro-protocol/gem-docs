@@ -1,33 +1,37 @@
 import { Callout } from 'components'
 
-This hook is used to fetch sports with pre-match and live games.
+# useSports
 
-Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+The `useSports` hook is used to fetch sports with pre-match and live games.
 
-You can find the list of available sports [here](https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3/graphql?query=%7B%0A++sports+%7B%0A++++name%0A++%7D%0A%7D).
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
 
-#### Usage
+## Usage
 
 ```ts
 import { useSports } from '@azuro-org/sdk'
 
-const { loading, error, sports } = useSports(props)
+const { data, isFetching, error } = useSports(props)
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   filter?: {
     limit?: number // limit the number of games returned from a query for each sport
-    sportHub?: SportHub // returns games from specific hub
-    sportSlug?: string // returns games from specific sport
-    countrySlug?: string // returns games from specific country
-    leaglueSlug?: string // returns games from specific league
+    sportHub?: SportHub
+    sportSlug?: string
+    countrySlug?: string
+    leagueSlug?: string
+    sportIds?: Array<string | number>
   }
   gameOrderBy?: Game_OrderBy.Turnover | Game_OrderBy.StartsAt // default: Game_OrderBy.StartsAt`
   orderDir?: OrderDirection // order direction: asc, desc
   isLive?: boolean // if `true`, the hook will retrieve live sports
+  query?: QueryParameter<SportsQuery['sports']> // useQuery params
 }
 
 enum SportHub {
@@ -37,73 +41,72 @@ enum SportHub {
 }
 ```
 
-#### Custom query options
-
-To accommodate additional arguments within your GraphQL query, the optimal approach is to create a custom hook. This can be achieved by leveraging the fundamental Apollo `useQuery` hook as your starting point.
+## Return Value
 
 ```ts
-import { useQuery } from '@apollo/client'
-import type { SportsDocument, SportsQueryResult, SportsQueryVariables, useApolloClients } from '@azuro-org/sdk'
-
-const { prematchClient, liveClient } = useApolloClients()
-
-const options = {
-  // your options
-  client: prematchClient // or, use liveClient if you require games specifically from the live
-}
-
-const { loading, error, data } = useQuery<SportsQueryResult, SportsQueryVariables>(SportsDocument, options)
+UseQueryResult<SportsQuery['sports']>
 ```
 
-#### Return Value
 ```ts
-{
-  loading: boolean
-  error: Error | null
-  sports: Array<{
-    slug: string;
-    name: string;
-    countries: Array<{
-        slug: string;
-        name: string;
-        turnover: string;
-        leagues: Array<{
-            slug: string;
-            name: string;
-            turnover: string;
-            games: Array<{
-              id: string
-              gameId: string
-              title?: string | null
-              startsAt: string
-              status: GraphGameStatus
-              sport: {
-                sportId: string
-                slug: string
-                name: string 
-              }
-              league: {
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type SportsQuery = {
+    __typename?: 'Query'
+    sports: Array<{
+        __typename?: 'Sport'
+        id: string
+        slug: string
+        name: string
+        sportId: string
+        turnover: string
+        countries: Array<{
+            __typename?: 'Country'
+            slug: string
+            name: string
+            turnover: string
+            leagues: Array<{
+                __typename?: 'League'
                 slug: string
                 name: string
-                country: { 
-                  slug: string
-                  name: string 
-                } 
-              }
-              participants: Array<{ 
-                image?: string | null
-                name: string 
-              }>
-            }> 
+                turnover: string
+                games: Array<{
+                    __typename?: 'Game'
+                    id: string
+                    gameId: string
+                    slug: string
+                    title: string
+                    startsAt: string
+                    state: Types.GameState
+                    turnover: string
+                    sport: {
+                        __typename?: 'Sport'
+                        sportId: string
+                        slug: string
+                        name: string
+                        sporthub: {
+                            __typename?: 'SportHub'
+                            id: string
+                            slug: string
+                        }
+                    }
+                    league: {
+                        __typename?: 'League'
+                        slug: string
+                        name: string
+                    }
+                    country: {
+                        __typename?: 'Country'
+                        slug: string
+                        name: string
+                    }
+                    participants: Array<{
+                        __typename?: 'Participant'
+                        image?: string | null
+                        name: string
+                    }>
+                }>
+            }>
         }>
     }>
-  }>
-}
-
-enum GraphGameStatus {
-  Canceled = 'Canceled',
-  Created = 'Created',
-  Paused = 'Paused',
-  Resolved = 'Resolved'
 }
 ```

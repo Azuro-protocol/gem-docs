@@ -2,7 +2,6 @@
   "sdk": "AzuroSDK",
   "chain": "Chain",
   "live": "Live",
-  "apollo": "Apollo",
   "socket": "Socket",
   "betslip": "Betslip"
 }

@@ -1,26 +1,27 @@
 import { Callout } from 'components'
 
-Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions) for getting active conditions.
+# useActiveConditions
 
-#### Usage
+The useActiveConditions hook is wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions) for getting active conditions.
+
+## Usage
 
 ```ts
 import { useActiveConditions } from '@azuro-org/sdk'
 
-const { loading, error, conditions } = useActiveConditions(props)
+const { data, isFetching, error } = useActiveConditions(props)
 ```
 
-#### Props
+## Props
 
 ```ts
 {
-  gameId: string
-  isLive: boolean // if the flag is set to true, useConditions will retrieve live conditions.
+  gameId: string | bigint
   filter?: {
     outcomeIds?: string[]
-    maxMargin?: number // max marginality
+    maxMargin?: number | string
   }
-  livePollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
+  query?: QueryParameter<ConditionsQuery['conditions']> // useQuery params
 }
 ```
 
@@ -30,21 +31,50 @@ const { loading, error, conditions } = useActiveConditions(props)
   ```ts
   import { useGame } from '@azuro-org/sdk'
 
-  const { loading, error, games } = useGames()
+  const { data: games } = useGames()
 
   const gameId = games?.[0]?.gameId
   ```
 </Callout>
 
 
-#### Return Value
+## Return Value
 
 ```ts
-import { type PrematchConditionsQuery, type LiveConditionsQuery } from '@azuro-org/toolkit'
+UseQueryResult<ConditionsQuery['conditions']>
+```
 
-{
-  loading: boolean
-  error: Error | null
-  conditions: (PrematchConditionsQuery | LiveConditionsQuery)['conditions']
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type ConditionsQuery = {
+    __typename?: 'Query'
+    conditions: Array<{
+        __typename?: 'Condition'
+        wonOutcomeIds?: Array<string> | null
+        id: string
+        conditionId: string
+        state: Types.ConditionState
+        title?: string | null
+        isExpressForbidden: boolean
+        isPrematchEnabled: boolean
+        isLiveEnabled: boolean
+        margin: string
+        outcomes: Array<{
+            __typename?: 'Outcome'
+            title?: string | null
+            outcomeId: string
+            odds: string
+        }>
+        game: {
+            __typename?: 'Game'
+            gameId: string
+            sport: {
+                __typename?: 'Sport'
+                sportId: string
+            }
+        }
+    }>
 }
 ```
+

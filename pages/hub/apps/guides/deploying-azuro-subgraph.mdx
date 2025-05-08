@@ -34,13 +34,13 @@ Before deploying your subgraph, ensure that you have the following tools and dep
 
 ### 1. Install the graph-cli
 
-```bash
+```bash copy
 npm install -g @graphprotocol/graph-cli
 ```
 
 ### 2. Install Required Packages
 
-```bash
+```bash copy
 npm ci
 ```
 
@@ -48,7 +48,7 @@ npm ci
 
 Run the following command to create the `subgraph.yaml` file and perform code generation:
 
-```bash
+```bash copy
 CONFIG=<NETWORK> npm run generate
 ```
 
@@ -58,7 +58,7 @@ Alternatively, you can use predefined tasks from the `package.json` file.
 
 Run the following command to initialize the subgraph:
 
-```bash
+```bash copy
 graph create <SUBGRAPH_NAME> --node <NODE_URL> --deploy-key <DEPLOY_KEY>
 ```
 
@@ -66,7 +66,7 @@ graph create <SUBGRAPH_NAME> --node <NODE_URL> --deploy-key <DEPLOY_KEY>
 
 Run the following command to deploy the subgraph:
 
-```bash
+```bash copy
 graph deploy <SUBGRAPH_NAME> --version-label <VERSION_NAME> --node <NODE_URL> --ipfs <IPFS_NODE_URL> --deploy-key <DEPLOY_KEY>
 ```
 

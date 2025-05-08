@@ -1,14 +1,16 @@
-Wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions). It obtains resolved conditions and groups prematch and live markets. Should be used to show game results.
+# useResolvedMarkets
 
-#### Usage
+The `useResolvedMarkets` hook is wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions). It obtains resolved conditions and groups prematch and live markets. Should be used to show game results.
+
+## Usage
 
 ```ts
 import { useResolvedMarkets } from '@azuro-org/sdk'
 
-const { loading, error, groupedMarkets, prematchMarkets, liveMarkets } = useResolvedMarkets({ gameId: '...' })
+const { data, isFetching, error } = useResolvedMarkets({ gameId: '...' })
 ```
 
-#### Props
+## Props
 
 ```ts
 {
@@ -17,39 +19,42 @@ const { loading, error, groupedMarkets, prematchMarkets, liveMarkets } = useReso
 ```
 
 
-#### Return Value
+## Return Value
 
 ```ts
-{
-  loading: boolean
-  error: Error | null
-  groupedMarkets: Market[] // grouped prematch and live markets
-  prematchMarkets: Market[]
-  liveMarkets: Market[]
-}
+UseQueryResult<GameMarkets>
 ```
 
 ```ts
-type Selection = {
-  conditionId: string | bigint
-  outcomeId: string | bigint
-  coreAddress: string
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type GameMarkets = Market[]
+
+type Market = {
+  marketKey: string
+  name: string
+  description: string
+  conditions: Condition[]
+}
+
+type Condition = {
+  conditionId: string
+  state: ConditionState
+  margin: string
+  isExpressForbidden: boolean
+  outcomes: MarketOutcome[]
 }
 
 type MarketOutcome = {
   selectionName: string
-  odds?: number
-  lpAddress: string
-  coreAddress: string
-  status: ConditionStatus
+  odds: number
   gameId: string
   isExpressForbidden: boolean
   isWon?: boolean
 } & Selection
 
-type Market = {
-  name: string
-  description: string
-  outcomeRows: MarketOutcome[][]
+type Selection = {
+  conditionId: string
+  outcomeId: string
 }
 ```
