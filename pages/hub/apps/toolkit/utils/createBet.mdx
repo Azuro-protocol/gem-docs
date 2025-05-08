@@ -1,0 +1,71 @@
+Sends live bet order.
+
+#### Usage
+
+```ts
+import { getBetTypedData, createBet } from '@azuro-org/toolkit'
+
+
+const typedData = getBetTypedData({
+  account: '0xlkns...',
+  clientData: {...},
+  bet: {...},
+})
+
+const signature = await walletClient.data.signTypedData(typedData)
+
+const createdOrder = await createBet({
+  clientData: {...},
+  bet: {...},
+  signature,
+})
+```
+
+#### Props
+
+```ts
+{
+  clientData: BetClientData
+  bet: {
+    conditionId: string | bigint
+    outcomeId: string | number | bigint
+    minOdds: string | bigint
+    amount: string | bigint
+    nonce: string | number | bigint
+  }
+  signature: Hex // signed typed data
+}
+```
+
+```ts
+type BetClientData = {
+  attention: string
+  affiliate: Address
+  core: Address
+  expiresAt: number
+  chainId: ChainId
+  relayerFeeAmount: string
+  isBetSponsored: boolean
+  isFeeSponsored: boolean
+  isSponsoredBetReturnable: boolean
+}
+```
+
+#### Return Value
+
+```ts
+type CreateLiveBetResponse = {
+  id: string
+  state: BetState
+  errorMessage?: string
+  error?: string
+}
+
+enum LiveBetState {
+  Created = 'Created',
+  Pending = 'Pending',
+  Sent = 'Sent',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected'
+}
+```

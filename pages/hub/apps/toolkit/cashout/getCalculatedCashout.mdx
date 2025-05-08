@@ -18,7 +18,6 @@ const cashout = await getCalculatedCashout({
   betCoreAddress: '0x...',
   account: '0x...',
   graphBetId: id,
-  isLive: false,
 })
 ```
 
@@ -29,12 +28,18 @@ const cashout = await getCalculatedCashout({
   chainId: ChainId
   account: Address
   graphBetId: string // bet id from graph
-  isLive: boolean
 }
 ```
 
 ```ts
-type ChainId = 100 | 137 | 80002 | 88888 | 88882 | 8453 | 84532
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
 
 import { type Address } from 'viem'
 ```
@@ -48,7 +53,7 @@ type GetCalculatedCashout = {
   environment: Environment
   tokenId: string // bet token id from graph
   cashoutAmount: string
-  multiplier: string
+  cashoutOdds: string
   expiredAt: number // cashout expired at
   approveExpiredAt: number // sigh cashout type data expired at
   isLive: boolean

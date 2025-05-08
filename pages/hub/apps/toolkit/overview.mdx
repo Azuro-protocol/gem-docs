@@ -2,29 +2,31 @@ import { Callout } from 'components'
 
 # Overview
 
-This framework-agnostic package offers utilities to help you build applications using the Azuro Protocol
+This framework-agnostic package provides essential utilities for building applications on the **Azuro Protocol**.
 
-## Npm Package
+## NPM Package
 
-https://www.npmjs.com/package/@azuro-org/toolkit
+**Link**: [@azuro-org/toolkit](https://www.npmjs.com/package/@azuro-org/toolkit)
 
 ## Installation
 
-1. **Install the SDK Package**:  `npm install @azuro-org/toolkit`.
-2. **Install Peer Dependencies**:
+### 1. Install the core package
 
+```bash
+npm install @azuro-org/toolkit
 ```
-@azuro-org/dictionaries@^3.0.26
-graphql-tag@^2.12.6
-@wagmi/core@^2.17.1
-viem@^2.29.0
+
+### 2. Install peer dependencies
+
+```bash
+npm install @azuro-org/dictionaries@^3.0.26 graphql-tag@^2.12.6 @wagmi/core@^2.17.1 viem@^2.29.0
 ```
 
 
 <Callout type="info">
-In the future, you may come across the following types often enough, so we've decided to explain them from the get-go:
+You’ll frequently encounter the following types throughout the toolkit. Here’s a quick overview:
 
-- **Selection**: Represents the user's choice, main data for bet and odds calculation, etc.
+- **Selection**: Represents a user’s choice, typically used for placing bets and calculating odds.
 
 ```ts
 type Selection = {
@@ -33,7 +35,7 @@ type Selection = {
 }
 ```
 
-- **ChainData**: Chain data with endpoints and contracts, etc.
+- **ChainData**: Contains chain-specific data, such as endpoints and smart contract references.
 
 ```ts
 type ChainData = {
@@ -56,15 +58,12 @@ type BetToken = {
   decimals: number
 }
 ```
+
+- **Contracts** — Azuro Protocol contract addresses with their ABIs.
 ```ts
 import { type Chain } from 'viem/chains'
 import { type Address, erc721Abi } from 'viem'
 
-type BetToken = {
-  address: Address
-  symbol: string
-  decimals: number
-}
 
 type Contracts = {
   lp: {
@@ -89,6 +88,16 @@ type Contracts = {
   }
 }
 
+type BetToken = {
+  address: Address
+  symbol: string
+  decimals: number
+}
+```
+
+- **Environments**: Available environments for creating bet orders.
+
+```ts
 enum Environment {
   GnosisDevXDAI = 'GnosisDevXDAI',
   GnosisXDAI = 'GnosisXDAI',
@@ -127,12 +136,92 @@ import {
 import { lpAbi, coreAbi, azuroBetAbi, cashoutAbi, relayerAbi, freeBetAbi } from '@azuro-org/toolkit'
 ```
 
-## GraphQL
+## GraphQL Utilities
 
-Queries and Fragments for sending GraphQL request.
+The toolkit provides ready-to-use queries and fragments for interacting with Azuro subgraphs.
+
+### Feed Queries and Fragments
 
 ```ts
 import {
-  
+  type ConditionFragment,
+  ConditionFragmentDoc,
+
+  type GameInfoFragment,
+  GameInfoFragmentDoc,
+
+  type ConditionQueryVariables,
+  type ConditionQuery,
+  ConditionDocument,
+
+  type ConditionsQueryVariables,
+  type ConditionsQuery,
+  ConditionsDocument,
+
+  type GameQueryVariables,
+  type GameQuery,
+  GameDocument,
+
+  type GamesQueryVariables,
+  type GamesQuery,
+  GamesDocument,
+
+  type NavigationQueryVariables,
+  type NavigationQuery,
+  NavigationDocument,
+
+  type SportsNavigationQueryVariables,
+  type SportsNavigationQuery,
+  SportsNavigationDocument,
+
+  type SportsQueryVariables,
+  type SportsQuery,
+  SportsDocument,
+} from '@azuro-org/toolkit'
+```
+
+
+### Bets Queries and Fragments
+
+```ts
+import {
+  type BettorFragment,
+  BettorFragmentDoc,
+
+  type LegacyLiveBetFragment,
+  LegacyLiveBetFragmentDoc,
+
+  type LegacyPrematchBetFragment,
+  LegacyPrematchBetFragmentDoc,
+
+  type BetFragment,
+  BetFragmentDoc,
+
+  type BetFragment,
+  BetFragmentDoc,
+
+  type BettorsQueryVariables,
+  type BettorsQuery,
+  BettorsDocument,
+
+  type LegacyBetsQueryVariables,
+  type LegacyBetsQuery,
+  LegacyBetsDocument,
+
+  type BetsQueryVariables,
+  type BetsQuery,
+  BetsDocument,
+} from '@azuro-org/toolkit'
+```
+
+
+### Legacy Live Feed Queries and Fragments
+Use these to fetch game info related to legacy v2 live bets
+
+```ts
+import {
+  type LegacyLiveGamesQueryVariables,
+  type LegacyLiveGamesQuery,
+  LegacyLiveGamesDocument,
 } from '@azuro-org/toolkit'
 ```

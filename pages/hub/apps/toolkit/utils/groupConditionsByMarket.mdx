@@ -3,20 +3,16 @@ Creates markets from subgraph conditions.
 #### Usage
 
 ```ts
-import { groupConditionsByMarket, PrematchConditionsQuery } from '@azuro-org/toolkit'
+import { groupConditionsByMarket, ConditionsQuery } from '@azuro-org/toolkit'
 
-const conditions: PrematchConditionsQuery['conditions'] = [...]
+const conditions: ConditionsQuery['conditions'] = [...]
 
 const markets = groupConditionsByMarket(conditions)
 ```
 
 #### Props
 ```ts
-type ConditionsQuery = (PrematchConditionsQuery | LiveConditionsQuery)['conditions']
-```
-
-```ts
-import { PrematchConditionsQuery, LiveConditionsQuery } from '@azuro-org/toolkit'
+type ConditionsQuery = ConditionsQuery['conditions']
 ```
 
 #### Return Value
@@ -30,15 +26,20 @@ type Market = {
   marketKey: string
   name: string
   description: string
-  outcomeRows: MarketOutcome[][]
+  conditions: Condition[]
+}
+
+type Condition = {
+  conditionId: string
+  state: ConditionState
+  margin: string
+  isExpressForbidden: boolean
+  outcomes: MarketOutcome[]
 }
 
 type MarketOutcome = {
   selectionName: string
-  odds?: number
-  lpAddress: string
-  coreAddress: string
-  status: ConditionStatus
+  odds: number
   gameId: string
   isExpressForbidden: boolean
   isWon?: boolean
@@ -47,6 +48,5 @@ type MarketOutcome = {
 type Selection = {
   conditionId: string
   outcomeId: string
-  coreAddress: string
 }
 ```

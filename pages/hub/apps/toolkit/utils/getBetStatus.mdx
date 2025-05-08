@@ -22,20 +22,17 @@ enum BetStatus {
 }
 ```
 
-
 #### Usage
 
 ```ts
 import { type Bet } from '@azuro-org/sdk'
 import { getBetStatus, BetStatus } from '@azuro-org/toolkit'
 
-const { outcomes, status, coreAddress } = bet as Bet // bet's data from `usePrematchBets` or `useLiveBets`
-const liveCoreAddress = '0xsdf123...'
+const { outcomes, status } = bet as Bet // bet's data from `usePrematchBets` or `useLiveBets`
 
 const betStatus = getBetStatus({
   graphStatus: status,
   games: outcomes.map(({ game }) => game),
-  isLiveBet: coreAddress.toLowerCase() === liveCoreAddress.toLowerCase(),
 })
 ```
 
@@ -45,7 +42,6 @@ const betStatus = getBetStatus({
 {
   graphStatus: BetStatus // bet's status from subgraph
   games: GameQuery['games'][]
-  isLiveBet: boolean
 }
 ```
 
