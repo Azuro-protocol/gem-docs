@@ -689,7 +689,10 @@ If you want to allow any changes to the odds during the betting process for the 
       "core": "string",
       "expiresAt": 0,
       "chainId": 0,
-      "relayerFeeAmount": "string"
+      "relayerFeeAmount": "string",
+      "isFeeSponsored": false,
+      "isBetSponsored": false,
+      "isSponsoredBetReturnable": false
     },
     "bet": {
       "conditionId": "string",
@@ -721,11 +724,14 @@ If you want to allow any changes to the odds during the betting process for the 
       "core": "string",
       "expiresAt": 0,
       "chainId": 0,
-      "relayerFeeAmount": "string"
+      "relayerFeeAmount": "string",
+      "isFeeSponsored": false,
+      "isBetSponsored": false,
+      "isSponsoredBetReturnable": false
     },
+    "minOdds": "string",
     "amount": "string",
     "nonce": "string",
-    "minOdds": "string",
     "bets": [
       {
         "conditionId": "string",
