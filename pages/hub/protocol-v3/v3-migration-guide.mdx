@@ -480,7 +480,7 @@ Unified query structure with type filtering:
 
 ```graphql
 query V3Bets {
-  v3_Bets {
+  v3Bets {
     id
     betId
     type # Ordinar or Express
@@ -502,7 +502,7 @@ Example query to fetch games for bets:
 ```graphql
 # First, get bets from API graph
 query MyBets {
-  v3_Bets(where: { bettor: "0x..." }) {
+  v3Bets(where: { bettor: "0x..." }) {
     id
     betId
     amount
@@ -779,6 +779,10 @@ There have been changes in cashout requests. Changes:
 
 - **New endpoint:** `/api/v1/public/cashout/get-available`
 
+<Callout type="info">
+IMPORTANT: Pre-calculation formula has changed. Old version of pre-calculation does not work. Please [see]((/hub/apps/guides/cashout/use-cashout)) updated documentation on cashouts
+</Callout>
+
 The updated documentation is available here: [Use cashout](/hub/apps/guides/cashout/use-cashout)
 
 ## Complete System Flow
@@ -852,7 +856,7 @@ socket.send(JSON.stringify({
 - **Source:** Client Subgraphs
 - **Purpose:** Display user’s bet history
 - **Flow:**
-    1. Query `v3_Bets` from client subgraph
+    1. Query `v3Bets` from client subgraph
     2. For each bet, fetch game details from data-feed graph. We recommend to use batch request for better performance.
     3. Combine data for display
 
