@@ -82,8 +82,8 @@ event ConditionCreated(
 ```
 
 ## Payout on winning bet (same as in V2)
-If the bet wins, the user withdraw payout executing `lp.withdrawPayout(address core, uint256 tokenId)`
-The winnings are paid to the owner of the bet token and the BettorWin() event is emitted
+If the bet wins, the user withdraw payout executing `lp.withdrawPayout(address core, uint256 tokenId)` for single bet or use batch analog `withdrawPayouts(address core, uint256[] calldata tokenIds)` 
+The winnings are paid to the owner of the bet token and the BettorWin() event is emitted for each token
 ```solidity
 event BettorWin(
     address indexed core,
