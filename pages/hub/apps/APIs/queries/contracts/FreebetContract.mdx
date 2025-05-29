@@ -1,0 +1,16 @@
+# FreebetContract Entity
+
+## Description
+
+Created by Azuro ad hoc for the active frontends/affiliates. It manages the details of freebets, including any affiliate programs, and allows end users to place freebets within the system.
+
+## Attributes
+
+| **Attribute** | **Type** | **Description** |
+| --- | --- | --- |
+| `id` | `ID!` | Unique identifier for the freebet contract. |
+| `liquidityPool` | `LiquidityPoolContract!` | Reference to the associated liquidity pool. |
+| `address` | `String!` | On-chain address of the freebet contract. |
+| `name` | `String` | Name of the freebet contract. |
+| `affiliate` | `String` | Affiliate information linked to the freebet contract. |
+| `manager` | `String` | Address of the freebet contract manager. |

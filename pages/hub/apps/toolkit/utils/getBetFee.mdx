@@ -1,0 +1,48 @@
+import { Callout } from 'components'
+
+Returns the relayer fee data for live bets.
+
+<Callout type="info">
+  For more information check [Relayer fee](/hub/apps/guides/advanced/live/prepare-for-betting#relayer-fee) section.
+</Callout>
+
+#### Usage
+
+```ts
+import { getBetFee } from '@azuro-org/toolkit'
+
+const { relayerFeeAmount } = await getBetFee(80002)
+```
+
+#### Props
+
+`chainId: ChainId`
+
+```ts
+
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+#### Return Value
+
+```ts
+Promise<{
+  gasLimit: number,
+  gasPrice: number,
+  betTokenRate: number, // bet token / native token rate
+  gasPriceInBetToken: number,
+  slippage: number,
+  gasAmount: number, // gasLimit * gasPrice * (1  + slippage)
+  relayerFeeAmount: string, // gasAmount * betTokenRate
+  beautyRelayerFeeAmount: string, // formatUnits(relayerFeeAmount, decimals)
+  symbol: string,
+  decimals: number
+}>
+```

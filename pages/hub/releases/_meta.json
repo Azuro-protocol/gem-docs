@@ -1,26 +1,66 @@
 {
-  "26-sdk-v5.4.0": "01/21 SDK v5.4 & Toolkit v4.5",
-  "25-sdk-social-login": "11/06 SDK: Social login + gasless",
+  "26-sdk-v5.4.0": {
+    "title": "01/21 SDK v5.4 & Toolkit v4.5",
+    "type": "hidden"
+  },
+  "25-sdk-social-login": {
+    "title": "11/06 SDK: Social login + gasless",
+    "type": "hidden"
+  },
   "24-custom-markets": "08/1 Political / Social markets",
-  "23-sdk-v5": "07/15 SDK v5 & Toolkit v4",
-  "22-sdk-v4.1": "06/26 SDK v4.1",
-  "21-sdk-v4": "05/28 SDK v4",
+  "23-sdk-v5": {
+    "title": "07/15 SDK v5 & Toolkit v4",
+    "type": "hidden"
+  },
+  "22-sdk-v4.1": {
+    "title": "06/26 SDK v4.1",
+    "type": "hidden"
+  },
+  "21-sdk-v4": {
+    "title": "05/28 SDK v4",
+    "type": "hidden"
+  },
   "20-live-mainnet": "04/24 Live betting on Polygon & Gnosis mainnet",
-  "19-sdk-v3.5": "04/26 SDK v3.5",
-  "18-sdk-v3.4": "04/25 SDK v3.4",
-  "17-sdk-v3.3": "04/24 SDK v3.3",
-  "16-sdk-v3.2": "04/15 SDK v3.2",
-  "15-sdk-v3.1": "04/03 SDK v3.1",
+  "19-sdk-v3.5": {
+    "title": "04/26 SDK v3.5",
+    "type": "hidden"
+  },
+  "18-sdk-v3.4": {
+    "title": "04/25 SDK v3.4",
+    "type": "hidden"
+  },
+  "17-sdk-v3.3": {
+    "title": "04/24 SDK v3.3",
+    "type": "hidden"
+  },
+  "16-sdk-v3.2": {
+    "title": "04/15 SDK v3.2",
+    "type": "hidden"
+  },
+  "15-sdk-v3.1": {
+    "title": "04/03 SDK v3.1",
+    "type": "hidden"
+  },
   "14-proxy-front": "03/20 Proxy Front Update",
-  "13-sdk-v3": "02/20 SDK v3",
-  "12-sdk-v2": "02/19 SDK v2",
+  "13-sdk-v3": {
+    "title": "02/20 SDK v3",
+    "type": "hidden"
+  },
+  "12-sdk-v2": {
+    "title": "02/19 SDK v2",
+    "type": "hidden"
+  },
   "11-live-testnet-updates": "01/25 Live Testnet Updates",
-  "10-sdk-v1": "12/13 SDK v1",
+  "10-sdk-v1.0.0": {
+    "title": "12/13 SDK v1",
+    "type": "hidden"
+  },
   "9-live-betting-in-testnet": {
     "title": "11/20 Live betting in Polygon Mumbai testnet"
   },
   "8-sdk": {
-    "title": "11/13 SDK"
+    "title": "11/13 SDK",
+    "type": "hidden"
   },
   "7-claimable-freebets-and-esports": {
     "title": "10/02 Claimable Freebets and eSports"

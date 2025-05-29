@@ -1,9 +1,11 @@
 import { Callout } from 'components'
 
+# LiveProvider
+
 The `LiveProvider` is employed to store the live state and subsequently distribute this state to other components within the application.
 
 <Callout type="info">
-Starting with v4, `LiveProvider` is optional and [`useSports`](/hub/apps/sdk/data-hooks/useSports), [`useGames`](/hub/apps/sdk/data-hooks/useGames) and [`useSportsNavigation`](/hub/apps/sdk/data-hooks/useSportsNavigation) don't use it any more. You can create your own source of truth, such as the URL /live in your application.
+The `LiveProvider` is optional. You can create your own source of truth, such as the URL `/live` in your application.
 </Callout>
 
 #### Usage
@@ -40,23 +42,13 @@ function Providers(props: { children: React.ReactNode }) {
   The `LiveProvider` requires access to the ChainProvider context.
 </Callout>
 
-Get stored context data.
+**Accessing Live State**
 
 ```ts
 import { useLive } from '@azuro-org/sdk'
 
 const { isLive, changeLive } = useLive()
 ```
-
-<Callout type="info">
-  The `isLive` state can only be `true` in supported chains. If you change the `appChain` to a different chain, `isLive` will automatically become `false`. Also, if you set the state of `isLive` to `true`, it will automatically switch the appChain to applicable network.
-</Callout>
-<Callout type="info">
-  Supported chains: 
-  - `Gnosis Mainnet`
-  - `Polygon Mainnet`
-  - `Polygon Amoy Testnet`
-</Callout>
 
 <Callout type="info">
 The `LiveProvider` stores the current state in a cookie under the key `live` to restore `isLive` state, for example, after a page refresh.
@@ -67,9 +59,9 @@ import { ChainProvider, LiveProvider } from '@azuro-org/sdk'
 import { cookies } from 'next/headers'
 
 
-export default function RootLayout(props: { children: React.ReactNode }) {
+export default async function RootLayout(props: { children: React.ReactNode }) {
   const { children } = props
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
 
   const initialChainId = cookieStore.get('appChainId')?.value
   const initialLiveState = JSON.parse(cookieStore.get('live')?.value || '')

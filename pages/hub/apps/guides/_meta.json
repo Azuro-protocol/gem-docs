@@ -1,4 +1,7 @@
 {
+  "advanced": {
+    "title": "Advanced integration"
+  },
   "app-building-guide": {
     "title": "App Building Guide",
     "display": "hidden"
@@ -22,9 +25,6 @@
   },
   "custom-markets": {
     "title": "Custom markets"
-  },
-  "political-markets": {
-    "title": "How to add political / social markets"
   },
   "social-login": {
     "title": "How to add Social login for web2 users"

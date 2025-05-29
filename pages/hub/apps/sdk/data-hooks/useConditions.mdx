@@ -1,32 +1,30 @@
 import { Callout } from 'components'
 
-This hook is used to fetch pre-match and live [`Conditions`](/knowledge-hub/how-azuro-works/components/conditions) of a specific game.
+# useConditions
 
-Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+The `useConditions` hook is used to fetch [`Conditions`](/knowledge-hub/how-azuro-works/components/conditions) of a specific game.
 
-#### Usage
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
 
 ```ts
 import { useConditions } from '@azuro-org/sdk'
 
-const { loading, error, prematchConditions, liveConditions } = useConditions(props)
+const { data, isFetching, error } = useConditions(props)
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   gameId: string | bigint
-  livePollInterval?: number
   filter?: Condition_Filter
-  prematchQuery?: QueryProps
-  liveQuery?: QueryProps
-}
-```
-```ts
-type QueryProps = {
-  pollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
-  skip?: boolean
+  orderBy?: Condition_OrderBy
+  orderDir?: OrderDirection
+  query?: QueryParameter<ConditionsQuery['conditions']> // useQuery params
 }
 ```
 
@@ -36,23 +34,50 @@ type QueryProps = {
   ```ts
   import { useGame } from '@azuro-org/sdk'
 
-  const { loading, error, data } = useGames()
+  const { data: games } = useGames()
 
-  const gameId = data?.games[0]?.gameId
+  const gameId = games[0]?.gameId
 
-  const {} = useConditions({ gameId })
+  const { data } = useConditions({ gameId })
   ```
 </Callout>
 
-#### Return Value
+## Return Value
 
 ```ts
-import { type PrematchConditionsQuery, type LiveConditionsQuery } from '@azuro-org/toolkit'
+UseQueryResult<ConditionsQuery['conditions']>
+```
 
-{
-  loading: boolean
-  error: Error | null
-  prematchCnditions: PrematchConditionsQuery['conditions'] | undefined,
-  liveCnditions: LiveConditionsQuery['conditions'] | undefined,
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type ConditionsQuery = {
+    __typename?: 'Query'
+    conditions: Array<{
+        __typename?: 'Condition'
+        wonOutcomeIds?: Array<string> | null
+        id: string
+        conditionId: string
+        state: Types.ConditionState
+        title?: string | null
+        isExpressForbidden: boolean
+        isPrematchEnabled: boolean
+        isLiveEnabled: boolean
+        margin: string
+        outcomes: Array<{
+            __typename?: 'Outcome'
+            title?: string | null
+            outcomeId: string
+            odds: string
+        }>
+        game: {
+            __typename?: 'Game'
+            gameId: string
+            sport: {
+                __typename?: 'Sport'
+                sportId: string
+            }
+        }
+    }>
 }
 ```

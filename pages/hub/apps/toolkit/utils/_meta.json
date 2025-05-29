@@ -2,20 +2,17 @@
   "setupContracts": "setupContracts",
   "getEndpoints": "Endpoints",
   "calcMinOdds": "calcMinOdds",
-  "calcPrematchOdds": "calcPrematchOdds",
-  "calcLiveOdds": "calcLiveOdds",
-  "getGameStatus": "getGameStatus",
   "getBetStatus": "getBetStatus",
-  "getLiveBetFee": "getLiveBetFee",
-  "getPrematchBetDataBytes": "getPrematchBetDataBytes",
   "groupConditionsByMarket": "groupConditionsByMarket",
-  "getFreeBets": "getFreeBets",
-  "getLiveBetTypedData": "getLiveBetTypedData",
-  "createLiveBet": "createLiveBet",
-  "getLiveBet": "getLiveBet",
-  "getPrecalculatedCashouts": "getPrecalculatedCashouts",
-  "getCalculatedCashout": "getCalculatedCashout",
-  "getCashoutTypedData": "getCashoutTypedData",
-  "createCashout": "createCashout",
-  "getCashout": "getCashout"
+  "getFreeBets": {
+    "title": "getFreeBets",
+    "type": "hidden"
+  },
+  "getBetFee": "getBetFee",
+  "getMaxBet": "getMaxBet",
+  "getBetTypedData": "getBetTypedData",
+  "getComboBetTypedData": "getComboBetTypedData",
+  "createBet": "createBet",
+  "createComboBet": "createComboBet",
+  "getBet": "getBet"
 }

@@ -1,0 +1,210 @@
+import { Callout } from 'components'
+
+# Get Bets History
+
+## Bet Info
+
+To get information about the user-placed bets, you can use the following GraphQL query
+
+```graphql
+query Bets(
+  $first: Int,
+  $skip: Int,
+  $where: Bet_filter!,
+  $orderBy: Bet_orderBy,
+  $orderDirection: OrderDirection
+) {
+  bets(
+    first: $first,
+    skip: $skip,
+    where: $where,
+    orderBy: $orderBy,
+    orderDirection: $orderDirection
+    subgraphError: allow
+  ) {
+    id
+    type
+    tokenId: betId
+    amount
+    status
+    payout
+    potentialPayout
+    result
+    isRedeemable
+    isRedeemed
+    odds
+    settledOdds
+    createdAt: createdBlockTimestamp
+    txHash: createdTxHash
+    core {
+      address
+    }
+    selections {
+      odds
+      result
+      outcome {
+        outcomeId
+        wonOutcomeIds
+        condition {
+          conditionId
+          game {
+            ...MainGameInfo
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment MainGameInfo on Game {
+  sport {
+    name
+  }
+  league {
+    name
+    country {
+      name
+    }
+  }
+  participants {
+    name
+    image
+  }
+  startsAt
+}
+```
+
+```ts
+useQuery(QUERY, {
+  variables: {
+    where: {
+      actor_starts_with_nocase: userWalletAddress,
+    },
+  },
+})
+```
+
+Each `bets` item represents the result of a transaction, and this transaction can contain several bets at once in the case of an combo bet.
+To preserve consistency, there is a `selections` field in the data that contains an array of data about each bet.
+For single bets, this field will contain one element.
+
+
+## Bet Status
+
+The `status` field value is of type enum and has three states: `Accepted`, `Canceled`, and `Resolved`. Note that there is no
+middle status similar to `Pending`. Until the outcome the bet was made on is resolved, the status of the bet will be
+`Accepted`. If you need to have a status on when a game is in progress - `Live` then you need to extend status value
+with using game `startsAt`.
+
+```ts
+const isGameStarted = Date.now() / 1000 >= +bet.game.startsAt
+const isLive = isGameStarted && bet.status === BetStatus.Accepted
+```
+
+It's important to check if bet status is `Accepted` to handle the situation when game is finished and the results are resolved.
+Note that in current version of the protocol there is no way to understand when game is finished. So the `Live` status will be
+active until the game to be resolved.
+
+
+## Bet Result
+
+The `result` field value is of type enum and has three states: `Won`, `Lost`.
+
+```ts
+const isWon = bet.result === BetResult.Won
+const isLost = bet.result === BetResult.Lost
+```
+
+Note that until the outcome is resolved `result` will be `null`.
+
+## Market and Selection Names
+
+```ts
+import { getMarketName, getSelectionName } from '@azuro-org/dictionaries'
+
+const marketName = getMarketName({ outcomeId })
+const selectionName = getSelectionName({ outcomeId })
+```
+
+Read more about dictionaries [here](https://www.npmjs.com/package/@azuro-org/dictionaries).
+
+
+## Pagination
+
+There can be a lot of bets from one user and there can be a problem with fetching all of them at once.
+
+<Callout type="warning">
+  From ["GraphQL" section](/subgraph/highlights#limits):
+
+  TheGraph has a limit of returning a maximum of 1000 elements per request, with a default of 100 elements. Keep this
+  limit in mind when building your queries. [Read how to paginate](https://thegraph.com/docs/en/querying/graphql-api/#pagination).
+</Callout>
+
+```graphql
+query BetsHistory($first: Int!, $skip: Int!) {
+  bets(first: $first, skip: $skip, subgraphError: allow) {
+    ...Bet
+  }
+}
+```
+
+```ts
+const PAGE_SIZE = 100
+
+const [ page, setPage ] = useState(1)
+
+useQuery(QUERY, {
+  variables: {
+    skip: (page - 1) * PAGE_SIZE,
+    first: PAGE_SIZE,
+  },
+})
+```
+
+## Combo bets specificity
+
+Key fields:
+```graphql
+query {
+  bets(...) {
+    payout
+    settledOdds
+    result
+    selections {
+      result
+      ...
+    }
+    ...
+  }
+}
+```
+
+Combo bets have type = `Express` and several selections.
+It's possible that one of selection can be canceled, in such case combo bet is still active, but `payout` and final odds (`settledOdds` field) are recalculated.
+
+As for this possible case, `payout` and `settledOdss` fields are `null` until the entire bet is resolved.
+
+## Freebets specificity
+
+Key fields:
+
+```graphql
+query {
+  bets(...) {
+    freebet {
+      freebetId
+      freebetContractAddress
+    }
+    ...
+  }
+}
+```
+If `freebet` field isn't `null`, than this bet is a freebet. It affects how to show payouts: customer will only receive a profit from the winning bet.
+
+Example: Customer got a freebet for 5 USDT (`freebetAmount`) and made a bet. In case of win they will only receive a difference of `potentialPayout - freebetAmount`.
+
+
+{/* ## Try it yourself
+
+[Playground](https://stackblitz.com/edit/react-ts-vhqcph?file=App.tsx)<br />
+[Subgraph](https://api.thegraph.com/subgraphs/name/azuro-protocol/azuro-api-gnosis/graphql?query=query+Games%28%24owner%3A+String%21%29+%7B%0A++bets%28first%3A+2%2C+where%3A+%7Bactor%3A+%24owner%7D%29+%7B%0A++++createdTxHash%0A++++betId%0A++++amount%0A++++odds%0A++++potentialPayout%0A++++status%0A++++result%0A++++isRedeemable%0A++++isRedeemed%0A++++createdBlockTimestamp%0A++++outcome+%7B%0A++++++outcomeId%0A++++++condition+%7B%0A++++++++wonOutcome+%7B%0A++++++++++outcomeId%0A++++++++%7D%0A++++++%7D%0A++++%7D%0A++++game+%7B%0A++++++...Game%0A++++%7D%0A++%7D%0A%7D%0A%0Afragment+Game+on+Game+%7B%0A++sport+%7B%0A++++name%0A++%7D%0A++league+%7B%0A++++name%0A++++country+%7B%0A++++++name%0A++++%7D%0A++%7D%0A++participants+%7B%0A++++name%0A++++image%0A++%7D%0A++startsAt%0A++status%0A%7D&operationName=MyQuery) */}

@@ -1,0 +1,115 @@
+import { Callout } from 'components'
+
+# Redeem Bets
+
+When a user places a bet on Azuro, their tokens are transferred to the [LP](/contracts/lp) contract, and they receive
+a non-fungible token (NFT) called `AzuroBet-NFT` as proof of their bet.
+
+Once the outcome is resolved, users whose bets have won can redeem their winnings by calling the `withdrawPayout` function
+in the LP contract and providing the `betId` of the bet they want to redeem. If a game or a specific condition on the
+outcome of which a bet was made is canceled, users can retrieve their tokens back by calling the same function.
+
+The bet NFT also serves as a way to display users' betting history and allows them to track their bets and winnings.
+
+
+## General required structure
+
+```ts
+withdrawPayout(
+  core: string,
+  tokenId: BigNumberish,
+  overrides?: Overrides & { from?: string }
+): Promise<ContractTransaction>
+```
+
+```graphql
+query Bets {
+  bets {
+    betId
+    payout
+    amount
+    status
+    result
+    isRedeemable
+    isRedeemed
+    core {
+      address
+      liquidityPool {
+        address
+      }
+    }
+    freebet {
+      freebetId
+      freebetContractAddress
+    }
+  }
+}
+```
+
+## Regular bets
+
+Customer can redeem bet if it was canceled (`bet.status = BetStatus.Canceled`) or if `result = BetResult.Win`.
+There are two flags to simplify the process: `bet.isRedeemable` (customer can redeem) & `bet.isRedeemed` (already redeemed)
+
+You should ensure that `freebet` field is `null`. If it exists, use [freebet redeem](#freebet-redeem)
+
+```ts
+const isFreebet = Boolean(bet.freebet)
+
+if (!isFreebet && bet.isRedeemable) {
+  const tx = await lpContract.connect(signer).withdrawPayout(
+    bet.core.address,
+    bet.betId,
+  )
+}
+```
+
+`coreAddress` is required to specify on which `Core` contract user wants to redeem the bet.
+
+
+## Batch Redeem
+
+<Callout type="alert">
+    Please be advised of a critical issue with the `withdrawPayouts` method on the [ProxyFront](/contracts/proxy-front) smart contract.
+    Ensure that **ONLY** non-freebet bets are redeemed using this function. We are working on fixing this problem!
+</Callout>
+
+To redeem multiple bets at once, you can use `withdrawPayouts` method on the [ProxyFront](/contracts/proxy-front) smart contract.
+
+```ts
+withdrawPayouts(
+  data: Array<{
+    core: string,
+    tokenId: BigNumberish,
+    // @deprecated
+    isNative: false // param exists in current version of contract but doesn't work with combo bets.
+  }>
+)
+```
+
+```ts
+const data = bets.map(({ coreAddress, betId }) => ({
+  core: coreAddress,
+  tokenId: betId,
+  isNative: false,
+}))
+
+const tx = await proxyFrontContract.connect(signer).withdrawPayouts(data)
+```
+
+## Freebet redeem
+
+Note that customer will only receive profit from the bet: `bet.payout - bet.amount`, the body of bet (amount) will be returned to freebet contract.
+
+To redeem freebet use freebet contract.
+
+
+```ts
+const isFreebet = Boolean(bet.freebet)
+
+if (isFreebet) {
+  const freebetContract = new Contract(bet.freebet.freebetContractAddress, freebetABI)
+
+  const tx = await freebetContract.connect(signer).withdrawPayout(bet.freebet.freebetId)
+}
+```

@@ -21,54 +21,54 @@ type ContractName =
 const config: Record<ContractName, { title: string, link?: string }> = {
   factory: {
     title: 'Factory',
-    link: '/contracts/factory',
+    // link: '/contracts/factory',
   },
   lp: {
     title: 'LP',
-    link: '/contracts/lp',
+    // link: '/contracts/lp',
   },
   vault: {
     title: 'Vault',
-    link: '/contracts/vault',
+    // link: '/contracts/vault',
   },
   prematchCore: {
     title: 'PrematchCore',
-    link: '/contracts/prematch-core',
+    // link: '/contracts/prematch-core',
   },
   expressCore: {
     title: 'BetExpress',
-    link: '/contracts/bet-express',
+    // link: '/contracts/bet-express',
   },
   proxyFront: {
     title: 'ProxyFront',
-    link: '/contracts/proxy-front',
+    // link: '/contracts/proxy-front',
   },
   betToken: {
     title: 'Bet Token (ERC20)',
   },
   access: {
     title: 'Access',
-    link: '/contracts/access',
+    // link: '/contracts/access',
   },
   azuroBet: {
     title: 'AzuroBet',
-    link: '/contracts/azuro-bet',
+    // link: '/contracts/azuro-bet',
   },
   hostCore: {
     title: 'HostCore',
-    link: '/contracts/live-host-core',
+    // link: '/contracts/live-host-core',
   },
   clientCore: {
     title: 'ClientCore',
-    link: '/contracts/live-client-core',
+    // link: '/contracts/live-client-core',
   },
   relayer: {
     title: 'Relayer',
-    link: '/contracts/live-relayer',
+    // link: '/contracts/live-relayer',
   },
   cashout: {
     title: 'Cashout',
-    link: '/contracts/cashout',
+    // link: '/contracts/cashout',
   },
 }
 

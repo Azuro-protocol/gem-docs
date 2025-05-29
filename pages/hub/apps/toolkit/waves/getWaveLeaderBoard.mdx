@@ -1,4 +1,4 @@
-Returns the [Wave Total Leaderboard](/hub/apps/guides/azuro-waves#fetch-total-leaderboard) data or [Wave Leaderboard for Specific Period](/hub/apps/guides/azuro-waves#fetch-leaderboard-for-specific-period).
+Returns the [Wave Total Leaderboard](/hub/apps/guides/azuro-waves#fetch-total-leaderboard) or the [Wave Leaderboard for Specific Period](/hub/apps/guides/azuro-waves#fetch-leaderboard-for-specific-period).
 
 #### Usage
 
@@ -22,7 +22,14 @@ const periods = await getWaveLeaderBoard()
 ```ts
 type WaveId = number | 'active'
 
-type ChainId =  100 | 137 | 80002 | 88888 | 88882 | 8453 | 84532
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
 ```
 
 #### Return Value

@@ -1,0 +1,48 @@
+Returns max bet amount for provided selections.
+
+#### Usage
+
+```ts
+import { getMaxBet } from '@azuro-org/toolkit'
+
+
+const { maxBet } = await getMaxBet({
+  chainId: 100,
+  selections: [ {...} ]
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  selections: Selection[]
+}
+```
+
+```ts
+type Selection = {
+  outcomeId: string
+  conditionId: string
+  coreAddress: string
+}
+
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+#### Return Value
+
+```ts
+{
+  maxBet: string
+  maxPayout: string
+}
+```

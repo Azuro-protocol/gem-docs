@@ -1,0 +1,64 @@
+import { Callout } from 'components'
+
+# Adding Live. Step 6: Get Live Bets History
+
+
+## Show Live Bets in UI.
+
+To understand how it works, refer to the ["Get Bets History" docs](/hub/apps/guides/advanced/live/get-bets-history).
+
+Live bets are stored separately, so to display them, you need to include the `liveBets` query from the same subgraph endpoint that used for fetching prematch `bets`.
+However, live bets lack specific game information because live games are exclusively stored within the [`LiveDataFeed`](/subgraph/overview#live-endpoints) subgraph,
+providing access only to the `gameId`.
+
+In the SDK, we have a hook called useLiveBets ([source code](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/src/hooks/useLiveBets.ts)),
+which handles live bets and retrieves their game information, normalizing the result to align with the schema for prematch bets data.
+
+Feel free to reuse it.
+
+Once live bets fetching is added, sort them alongside prematch bets if you wish to display them together in one list.
+You can observe how this is implemented in the [SDK Example App](https://github.com/Azuro-protocol/sdk/blob/v3.1.0/examples/nextjs/src/app/bets/page.tsx).
+
+```ts copy filename="BetsHistoryPage"
+export default function Bets() {
+  const { address } = useAccount()
+
+  const props = {
+    filter: {
+      bettor: address!,
+    },
+    orderDir: OrderDirection.Desc,
+  }
+
+  const { loading: isPrematchLoading, bets: prematchBets } = usePrematchBets(props)
+  const { loading: isLiveLoading, bets: liveBets } = useLiveBets(props)
+
+  const bets = useMemo(() => {
+    return [...liveBets, ...prematchBets].sort((betA, betB) => betB.createdAt - betA.createdAt)
+  }, [ prematchBets, liveBets ])
+
+  if (isLiveLoading || isPrematchLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (!bets?.length) {
+    return <div>You don't have bets yet</div>
+  }
+
+  return (
+    <div>
+      <RedeemAll bets={bets} />
+      {
+        bets.map(bet => (
+          <BetCard key={`${bet.createdAt}-${bet.tokenId}`} bet={bet} />
+        ))
+      }
+    </div>
+  )
+}
+```
+
+## Redeem Live Bets
+
+Great news! The flow remains unchanged, so you don't need to make any adjustments here :)
+

@@ -1,0 +1,58 @@
+Returns live bet order.
+
+#### Usage
+
+```ts
+import { getBet } from '@azuro-org/toolkit'
+
+
+const order = await getBet({
+  chainId: appChain.id,
+  orderId,
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  orderId: string
+}
+```
+
+#### Return Value
+
+```ts
+export type GetBetResponse = {
+  txHash: string
+  odds: number
+  clearOdds: number
+  betId: number
+  createdAt: string
+  updatedAt: string
+  core: string
+  bettor: string
+  affiliate: string
+  stake: number
+  maxStake: number
+  environment: Environment
+} & CreateBetResponse
+```
+
+```ts
+type CreateBetResponse = {
+  id: string
+  state: BetState
+  errorMessage?: string
+  error?: string
+}
+
+enum LiveBetState {
+  Created = 'Created',
+  Pending = 'Pending',
+  Sent = 'Sent',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected'
+}
+```

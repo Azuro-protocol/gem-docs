@@ -1,0 +1,98 @@
+import { Callout } from 'components'
+
+# useBets
+
+The `useBets` hook is used to fetch pre-match betting history of a specific bettor.
+
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useInfiniteQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useInfiniteQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
+
+```ts
+import { useBets } from '@azuro-org/sdk'
+
+const { data, hasNextPage, isFetching } = useBets(props)
+const { pages } = data || {}
+```
+
+## Props
+
+```ts
+{
+  filter: {
+    bettor: string // bettor address
+    affiliate?: string // affiliate address
+    type?: BetType // bet type
+  }
+  itemsPerPage?: number
+  orderBy?: Bet_OrderBy // default: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
+  orderDir?: OrderDirection // order direction: asc, desc
+  query?: InfiniteQueryParameters<QueryResult>
+}
+```
+
+```ts
+enum BetType {
+  Unredeemed = 'unredeemed', // ready to redeem bets
+  Accepted = 'accepted', // not resolved bets
+  Settled = 'settled', // resolved bets
+  CashedOut = 'cashedOut', // cashed out bets
+}
+
+type QueryResult = {
+  bets: Bet[],
+  nextPage: number | undefined,
+}
+```
+
+## Return Value
+
+```ts
+UseInfiniteQueryResult<QueryResult>
+```
+
+```ts
+import { type UseInfiniteQueryResult } from '@tanstack/react-query'
+
+type Selection = {
+  conditionId: string
+  outcomeId: string
+}
+
+type BetOutcome = {
+  selectionName: string
+  odds: number
+  marketName: string
+  game: GameQuery['games'][0] // game on which the bet is placed
+  isWin: boolean | null
+  isLose: boolean | null
+  isCanceled: boolean
+} & Selection
+
+type Bet = {
+  affiliate: string // affiliate address
+  tokenId: string // id of the bet's NFT
+  freebetId?: string | null // id of the freebet's NFT
+  freebetContractAddress?: Address // freebet contract address
+  totalOdds: number // total odds of the bet
+  coreAddress: Address // core contract address
+  lpAddress: Address // lp contract address
+  outcomes: BetOutcome[] // bet's outcomes list
+  txHash: string // bet's transaction hash
+  status: BetStatus // subgraph bet status
+  amount: string // bet's amount in USDT
+  possibleWin: number // possible win amount in USDT
+  payout: number | null // actual payout amount in USDT
+  cashout: string | null // cashout amount in USDT
+  createdAt: number // created date
+  isWin: boolean // flag indicates the bet's win
+  isLose: boolean // flag indicates the bet's lose
+  isRedeemable: boolean // flag indicates the possibility of redeeming the bet
+  isRedeemed: boolean // flag indicates whether the bet has been redeemed
+  isCanceled: boolean // flag indicates whether the bet has been canceled
+  isLive: boolean // flag indicates whether the bet is live
+  isCashedOut: boolean // flag indicates whether the bet is cashed out
+}
+```

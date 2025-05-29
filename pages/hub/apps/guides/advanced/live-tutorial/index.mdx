@@ -1,0 +1,46 @@
+import { Callout } from 'components'
+
+# Tutorial "Add Live to Existing Prematch dApp"
+
+In this tutorial, we've outlined the minimal changes required for an existing betting dApp that has already manually implemented Prematch betting.
+
+We highly recommend reading the **[Live docs](/hub/apps/guides/advanced/live)** to understand how it functions.
+Additionally, familiarize yourself with the logic implemented in the SDK and
+the [Example dApp](https://github.com/Azuro-protocol/sdk/tree/v3.1.0/examples/nextjs).
+Feel free to reuse it.
+
+## About this tutorial
+
+<div className="mt-6">
+  <Callout type="warning">
+    This tutorial assumes you have already launched prematch dApp which is based on manual implementation (not SDK).
+  </Callout>
+</div>
+
+## Join the Conversation
+
+If you have questions about anything related to Azuro Protocol or this tutorial, you're welcome to ask our community
+on [Discord](https://discord.gg/azuro). Use [#tech-talks](https://discord.com/channels/880927413742219374/1088132731604578314) channel.
+
+## Tutorial contents
+
+1. **[Configure Live Environment](/hub/apps/guides/advanced/live-tutorial/config)**
+    - Integrate Live constants into your app config.
+    - Adjust Apollo Context (if used) to accommodate multiple clients.
+
+2. **[Fetch Live Data](/hub/apps/guides/advanced/live-tutorial/data-retrieval)**
+    - Retrieve Live events
+
+3. Handle  **[Realtime Live Markets Updates](/hub/apps/guides/advanced/live-tutorial/realtime-market-updates)**
+    - Receive Live condition realtime updates to use in Market list UI and Betslip.
+
+4. **[Prepare the Betslip for Live Betting](/hub/apps/guides/advanced/live-tutorial/prepare-for-betting)**
+    - Update the Betslip to distinguish between Prematch and Live events.
+    - Handle any encountered errors effectively.
+
+6. **[Placing a live bet](/hub/apps/guides/advanced/live-tutorial/place-a-bet)**
+    - Develop the necessary logic for users to place live bets on selected sports events.
+
+6. **[Integrate Live Bets into the Bet History](/hub/apps/guides/advanced/live-tutorial/get-bets-history)**
+    - Include live bets in the users' bet history.
+    - Implement functionality for users to claim winnings from successful live bets.

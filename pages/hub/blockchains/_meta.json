@@ -1,6 +1,7 @@
 {
   "get-started": "Getting Started",
-  "architecture": {
-    "title": "Azuro Architecture"
-}
+  "architecture": "Azuro Architecture",
+  "deployment-addresses": "Deployment Addresses",
+  "audits": "Audits",
+  "errors-handling": "Errors Handling"
 }

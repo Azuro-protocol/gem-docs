@@ -1,0 +1,79 @@
+import { Callout } from 'components'
+
+Submits a cashout order.
+
+<Callout type="info">
+  You can find more information [Here](/hub/apps/guides/cashout/overview).
+</Callout>
+
+#### Usage
+
+```ts {4, 5, 14-16, 19, 23, 25}
+import { getCalculatedCashout, getCashoutTypedData, createCashout } from '@azuro-org/toolkit'
+
+
+const { id, tokenId } = bet // user's bet
+const { calculationId, cashoutOdds, expiredAt } = await getCalculatedCashout({
+  chainId: 137,
+  account: '0x...',
+  graphBetId: id,
+})
+const typedData = getCashoutTypedData({
+  chainId: 137,
+  account: '0x...',
+  attention: '...',
+  tokenId,
+  cashoutOdds,
+  expiredAt,
+})
+
+const signature = await walletClient.data.signTypedData(typedData)
+
+const createdOrder = await createCashout({
+  chainId: 137,
+  calculationId,
+  attention: '...',
+  signature,
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  calculationId: string // precalculated cashout id from getCalculatedCashout
+  attention: string
+  signature: Hex // signed typed data
+}
+```
+
+```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
+import { type Hex, type Address } from 'viem'
+```
+
+#### Return Value
+
+```ts
+type CreateCashoutResponse = {
+  id: string
+  state: CashoutState
+  errorMessage?: string
+}
+
+enum CashoutState {
+  Processing = 'PROCESSING',
+  Accepted = 'ACCEPTED',
+  Rejected = 'REJECTED',
+  Open = 'OPEN'
+}
+```

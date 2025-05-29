@@ -1,0 +1,53 @@
+Returns a typed data for live bet typed signature.
+
+#### Usage
+
+```ts
+import { getComboBetTypedData } from '@azuro-org/toolkit'
+
+
+const typedData = getComboBetTypedData({
+  account: '0xlkns...',
+  minOdds: '...',
+  amount: '...',
+  nonce: '...',
+  clientData: {...},
+  bets: [ {...}, {...} ],
+})
+
+const signature = await walletClient.data.signTypedData(typedData)
+```
+
+#### Props
+
+```ts
+{
+  account: Address
+  minOdds: string | bigint
+  amount: string | bigint
+  nonce: string | bigint
+  clientData: BetClientData
+  bets: {
+    conditionId: string | bigint
+    outcomeId: string | bigint
+  }[]
+}
+```
+
+```ts
+type BetClientData = {
+  attention: string
+  affiliate: Address
+  core: Address
+  expiresAt: number
+  chainId: ChainId
+  relayerFeeAmount: string
+  isBetSponsored: boolean
+  isFeeSponsored: boolean
+  isSponsoredBetReturnable: boolean
+}
+```
+
+#### Return Value
+
+`SignTypedDataParameters<typeof COMBO_BET_DATA_TYPES>`

@@ -1,35 +1,27 @@
 import { Callout } from 'components'
 
-Wrapper over [`useActiveConditions`](hub/apps/sdk/data-hooks/useActiveConditions) for groupping active conditions by market.
+# useActiveMarkets
 
-#### Usage
+The `useActiveMarkets` hook is wrapper over [`useActiveConditions`](hub/apps/sdk/data-hooks/useActiveConditions) for groupping active conditions by market.
+
+## Usage
 
 ```ts
 import { useActiveMarkets } from '@azuro-org/sdk'
 
-const { loading, error, markets } = useActiveMarkets(props)
+const { data, isFetching, error } = useActiveMarkets(props)
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   gameId: string
-  gameStatus: GameStatus // game status from `useGameStatus` hook or 'getGameStatus' function
   filter?: {
     outcomeIds?: string[]
-    maxMargin?: number // max marginality
+    maxMargin?: number
   }
-  livePollInterval?: number // live conditions could be created at any time, and here, you can specify how frequently to check for new live conditions **measured in milliseconds**
-}
-
-enum GameStatus {
-  Created,
-  Live,
-  Resolved,
-  Canceled,
-  Paused,
-  PendingResolution,
+  query?: QueryParameter<ConditionsQuery['conditions']> // useQuery params
 }
 ```
 
@@ -39,42 +31,49 @@ enum GameStatus {
   ```ts
   import { useGame } from '@azuro-org/sdk'
 
-  const { loading, error, games } = useGames()
+  const { data: games } = useGames()
 
   const gameId = games?.[0]?.gameId
   ```
 </Callout>
 
 
-#### Return Value
+## Return Value
 
 ```ts
-{
-  loading: boolean
-  error: Error | null
-  markets: Market[]
-}
+UseQueryResult<GameMarkets>
 ```
 
 ```ts
-type Selection = {
-  conditionId: string | bigint
-  outcomeId: string | bigint
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type GameMarkets = Market[]
+
+type Market = {
+  marketKey: string
+  name: string
+  description: string
+  conditions: Condition[]
+}
+
+type Condition = {
+  conditionId: string
+  state: ConditionState
+  margin: string
+  isExpressForbidden: boolean
+  outcomes: MarketOutcome[]
 }
 
 type MarketOutcome = {
   selectionName: string
-  odds?: number
-  lpAddress: string
-  coreAddress: string
-  status: ConditionStatus
+  odds: number
   gameId: string
   isExpressForbidden: boolean
+  isWon?: boolean
 } & Selection
 
-type Market = {
-  name: string
-  description: string
-  outcomeRows: MarketOutcome[][]
+type Selection = {
+  conditionId: string
+  outcomeId: string
 }
 ```

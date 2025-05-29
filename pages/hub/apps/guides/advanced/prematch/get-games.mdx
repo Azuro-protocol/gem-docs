@@ -1,0 +1,204 @@
+import { Callout } from 'components'
+
+# Get Games
+
+<Callout type="advice">
+  Before you begin working with GraphQL queries, please read the [Highlights](/subgraph/highlights) and [Request Optimizations](/subgraph/request-optimizations) articles.
+</Callout>
+
+## Fetch games
+
+To fetch data you should use [Azuro Subgraph](/subgraph/overview). The following query represents main fields required
+to present a game info and its markets with outcomes.
+
+Use the `startsAt` field in your query to filter and display only ongoing or future games.
+For example, you could modify the query to only retrieve games that are scheduled to start in the future:
+
+```graphql
+query Games($where: Game_filter!) {
+  games(
+    first: 1000
+    where: $where
+    subgraphError: allow
+  ) {
+    id
+    gameId
+    slug
+    startsAt
+    league {
+      name
+      slug
+      country {
+        name
+        slug
+      }
+    }
+    sport {
+      name
+      slug
+    }
+    participants {
+      image
+      name
+    }
+  }
+}
+```
+
+```ts
+useQuery(GAMES_QUERY, {
+  variables: {
+    where: {
+      startsAt_gt: Math.floor(Date.now() / 1000),
+      hasActiveConditions: true,
+      liquidityPool: LP_ADDRESS.toLowerCase()
+    },
+  },
+})
+```
+
+[Try it yourself in GraphiQL](https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3/graphql?query=query+Games%28%24where%3A+Game_filter%21%29+%7B%0A++games%28%0A++++first%3A+1000%0A++++where%3A+%24where%0A++++orderBy%3A+turnover%0A++++orderDirection%3A+de%0A++++subgraphError%3A+allow%0A++%29+%7B%0A++++gameId%0A++++slug%0A++++status%0A++++startsAt%0A++++league+%7B%0A++++++name%0A++++++slug%0A++++++country+%7B%0A++++++++name%0A++++++++slug%0A++++++%7D%0A++++%7D%0A++++sport+%7B%0A++++++name%0A++++++slug%0A++++%7D%0A++++participants+%7B%0A++++++image%0A++++++name%0A++++%7D%0A++++conditions+%7B%0A++++++conditionId%0A++++++isExpressForbidden%0A++++++status%0A++++++outcomes+%7B%0A++++++++currentOdds%0A++++++++outcomeId%0A++++++%7D%0A++++%7D%0A++%7D%0A%7D&variables=%22%7B%5Cn++%5C%22where%5C%22%3A+%7B%5Cn++++%5C%22startsAt_gt%5C%22%3A+%5C%221695956812%5C%22%2C%5Cn++++%5C%22hasActiveConditions%5C%22%3A+true%2C%5Cn++++%5C%22liquidityPool%5C%22%3A+%5C%220x7043e4e1c4045424858ecbced80989feafc11b36%5C%22%5Cn++%7D%5Cn%7D%22&operationName=Games)
+
+
+### Parameters
+
+```graphql {3-5}
+query Games($where: Game_filter!) {
+  games(
+    first: 1000
+    where: $where
+    subgraphError: allow
+  ) {
+    ...GameFields
+  }
+```
+
+#### `first`
+&mdash; Limit of returning games, default (if not set) is `100`, maximum is `1000`. [Details](/subgraph/highlights#limits)
+
+#### `where`
+&mdash; `Game_filter` allow you to filter result by any field exists in Game. Most required variables described below in ["where" filters section](#where-common-filters).
+
+#### `subgraphError: allow`
+&mdash; Allows to get data even if the subgraph has indexing errors. It's better to keep this parameter with every subgraph query. [Details](/subgraph/highlights#indexing-errors)
+
+
+### "`where`" common filters
+
+There is most required filters to show list of active games:
+```ts {4-6}
+useQuery(GAMES_QUERY, {
+  variables: {
+    where: {
+      startsAt_gt: Math.floor(Date.now() / 1000),
+      hasActiveConditions: true,
+      liquidityPool: LP_ADDRESS.toLowerCase(),
+    },
+  },
+})
+```
+
+#### `startsAt_gt`
+&mdash; Filter out games which already started. It will be changed in the future, but right now we support only pre-match markets.
+
+We recommend always using it in game lists, as requesting all games without such filters,
+even those that have already concluded, can impose unnecessary load on the GraphQL node and potentially lead to performance issues.
+In general, it's advisable to request only the data essential for your application's functionality.
+
+<Callout type="info">
+  Values of `startsAt` fields are calculated in seconds
+</Callout>
+
+#### `hasActiveConditions: true`
+&mdash; Get games which have at least one active condition. This ensures that only games with available betting options
+are returned in the query results. Most likely you will always use this parameter.
+
+#### `liquidityPool: lp_address`
+&mdash; filter games by `LP` address.
+
+Since Subgraphs contain data from different `LP` contracts, it's possible to have duplicated games across multiple
+`LP` contracts. In order to avoid issues related to duplicated data, it's important to identify which `LP` contract
+your application will interact with and use the corresponding address to filter the data. This ensures that only relevant
+data is retrieved and reduces the risk of conflicts and errors. It's recommended to carefully consider which `LP`
+contract to use based on your specific use case and business requirements.
+[Get more information](/apis/subgraph/highlights#entity-duplications).
+
+<Callout type="info">
+  From ["GraphQL" section](/subgraph/highlights#addresses):
+
+  _When working with Subgraphs, all address values are stored in lowercase. This means that when passing variables to
+  queries, it's important to convert the transmitted value to lowercase, or use the `_contains_nocase` postfix._
+</Callout>
+
+
+### Sorting parameters
+There are two optional parameters to sort query result:
+```graphql {6-7}
+query Games($where: Game_filter!) {
+  games(
+    first: 1000
+    where: $where
+    subgraphError: allow
+    orderBy: startsAt
+    orderDirection: asc
+  ) {
+    ...GameFields
+  }
+```
+#### `orderBy`
+&mdash; It may be any field from the game entity - `gameId`, `startsAt`, `turnover`, etc.
+#### `orderDirection`
+&mdash; How to sort - "A-Z" or "Z-A". Values: `asc` (default) or `desc`.
+
+### Examples
+#### Top-10 games with the highest volume of bets
+```graphql {3, 6-7}
+query Games($where: Game_filter!) {
+  games(
+    first: 10
+    where: $where
+    subgraphError: allow
+    orderBy: turnover
+    orderDirection: desc
+  ) {
+    ...GameFields
+  }
+```
+
+#### Specific sport games
+In the top of the chapter we defined `slug` field in some fields (sport, league, country). You can build a url structure by them, and use to filter games:
+```graphql
+query Games($where: Game_filter!) {
+  games(
+    first: 1000
+    where: $where
+    subgraphError: allow
+  ) {
+    ...GameFields
+  }
+```
+```ts {9-11}
+import { useSearchParams } from 'next/navigation'
+
+const { query } = useSearchParams()
+const sportSlug = query.get('sport') // e.g. "football"
+
+useQuery(QUERY, {
+  variables: {
+    where: {
+      sport_: {
+        slug: sportSlug,
+      },
+      startsAt_gt: Math.floor(Date.now() / 1000),
+      hasActiveConditions: true,
+      liquidityPool: LP_ADDRESS.toLowerCase(),
+    },
+  },
+})
+```
+
+<Callout type="info">
+  Please pay attention, that Azuro protocol can release a new sport (e.g. esports, cricket, etc).
+  We don't recommend to build navigation by raw usage of `sports` query from the subgraph.
+  It's better to keep filter by sports which are supported in your app.
+</Callout>

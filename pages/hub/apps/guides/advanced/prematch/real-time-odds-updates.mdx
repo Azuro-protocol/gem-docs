@@ -1,0 +1,109 @@
+import { Callout } from 'components'
+
+# Real-time Odds Updates
+
+## Subscribe for odds update
+
+Whenever a bet is placed on an LP (Liquidity Provider) contract, a `NewBet` event is created, causing odds values to change.
+By subscribing to this event, the updated odds can be obtained.
+
+In order to display updated odds for each outcome button in the user interface, there is a way to subscribe to
+the `NewBet` event for each button.
+
+```ts copy filename="subscriber.ts"
+const coreContract = new Contract(CORE_ADDRESS, CORE_ABI, RPC_PROVIDER)
+
+coreContract.on('NewBet', async (...args) => {
+  const [ bettor, affiliate, conditionId, tokenId, outcomeId, amount, odds, funds ] = args
+
+  eventEmitter.dispatch('OddsUpadted', {
+    coreAddress: CORE_ADDRESS,
+    conditionId,
+  })
+})
+
+coreContract.on('OddsChanged', async (...args) => {
+  const [ bettor, affiliate, conditionId, tokenId, outcomeId, amount, odds, funds ] = args
+
+  eventEmitter.dispatch('OddsUpadted', {
+    coreAddress: CORE_ADDRESS,
+    conditionId,
+  })
+})
+
+coreContract.on('ConditionStopped', async (...args) => {
+  const [ rawConditionId, isStopped ] = args
+  const conditionId = String(rawConditionId)
+
+  eventEmitter.dispatch('ConditionStopped', {
+    coreAddress: CORE_ADDRESS,
+    conditionId,
+    isStopped,
+  })
+})
+
+```
+
+```ts copy filename="OutcomeButton.ts"
+type Outcome = {
+  outcomeId: string
+  condition: {
+    conditionId: string
+    coreAddress: string
+  }
+}
+
+const outcome: Outcome = ...
+
+eventEmitter.subscribe('OddsUpadted', (event) => {
+  if (
+    event.coreAddress === outcome.condition.coreAddress
+    && event.conditionId === outcome.condition.conditionId
+  ) {
+    // Fetch new odds value
+  }
+})
+
+eventEmitter.subscribe('ConditionStopped', (event) => {
+  if (
+    event.coreAddress === outcome.condition.coreAddress
+    && event.conditionId === outcome.condition.conditionId
+  ) {
+    // Based on event.isStopped, disable or enable outcome buttons
+  }
+})
+```
+
+<Callout type="warning">
+  It's important to note that the `conditionId` and `outcomeId` values on different Core contracts may match.
+  Therefore, it's important to do a check at the Core contract address.
+</Callout>
+
+<Callout type="info">
+  You don't need to subscribe to express core contract. It calls `OddsChanged` event on core contract with every combo bet.
+</Callout>
+
+The information on how to fetch odds values can be found in ["Get Odds Values"](/hub/apps/guides/advanced/prematch/get-odds-values)
+section.
+
+
+## Core Contracts
+
+It is highly probable that you will interact with multiple core contracts simultaneously. In such cases, multiple
+subscribers will be required. GraphQL can be utilized to obtain a list of core contract addresses.
+
+<Callout type="info">
+  Filter core contracts from graphql by type. Current active type for prematch core is `pre-match-v3`
+</Callout>
+
+```graphql copy
+query CoreContracts{
+  coreContracts(
+    where: { liquidityPool: "<LP_ADDRESS_LOWERCASE>", type: "pre-match-v3" }
+    subgraphError: allow
+  ) {
+    address
+    type
+  }
+}
+```

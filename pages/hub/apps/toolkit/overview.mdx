@@ -2,46 +2,48 @@ import { Callout } from 'components'
 
 # Overview
 
-This package provides helpers to develop an app using Azuro Protocol.
+This framework-agnostic package provides essential utilities for building applications on the **Azuro Protocol**.
 
-## Npm Package
+## NPM Package
 
-https://www.npmjs.com/package/@azuro-org/toolkit
+**Link**: [@azuro-org/toolkit](https://www.npmjs.com/package/@azuro-org/toolkit)
 
 ## Installation
 
-1. **Install the SDK Package**:  `npm install @azuro-org/toolkit`.
-2. **Install Peer Dependencies**:
+### 1. Install the core package
 
+```bash copy
+npm install @azuro-org/toolkit
 ```
-@apollo/client@^3.8.0-beta.7
-@azuro-org/dictionaries@^3.0.12
-viem@^2.17.3
-@wagmi/core@^2.11.7
+
+### 2. Install peer dependencies
+
+```bash copy
+npm install @azuro-org/dictionaries@^3.0.27 graphql-tag@^2.12.6 @wagmi/core@^2.17.2 viem@^2.30.4
 ```
 
 
 <Callout type="info">
-In the future, you may come across the following types often enough, so we've decided to explain them from the get-go:
+You’ll frequently encounter the following types throughout the toolkit. Here’s a quick overview:
 
-- **Selection**: Represents the user's choice, main data for bet and odds calculation, etc.
+- **Selection**: Represents a user’s choice, typically used for placing bets and calculating odds.
 
 ```ts
 type Selection = {
   outcomeId: string
   conditionId: string
-  coreAddress: string
 }
 ```
 
-- **ChainData**: Chain data with endpoints and contracts, etc.
+- **ChainData**: Contains chain-specific data, such as endpoints and smart contract references.
 
 ```ts
 type ChainData = {
-  chain: Chain,
+  chain: Omit<Chain, 'id'> & { id: ChainId }
   graphql: {
-    prematch: string,
-    live: string,
+    bets: string
+    feed: string
+    legacyLive: string // @deprecated Only for v2 feed
   }
   socket: string
   api: string
@@ -49,55 +51,65 @@ type ChainData = {
   contracts: Contracts
   betToken: BetToken
 }
-```
-```ts
-import { type Chain } from 'viem/chains'
-import { type Address, erc721Abi } from 'viem'
 
 type BetToken = {
   address: Address
   symbol: string
   decimals: number
 }
+```
+
+- **Contracts** — Azuro Protocol contract addresses with their ABIs.
+```ts
+import { type Chain } from 'viem/chains'
+import { type Address, erc721Abi } from 'viem'
+
 
 type Contracts = {
   lp: {
     address: Address
     abi: typeof lpAbi
   }
-  prematchCore: {
+  core: {
     address: Address
-    abi: typeof prematchCoreAbi
+    abi: typeof coreAbi
   }
-  prematchComboCore: {
+  relayer: {
     address: Address
-    abi: typeof prematchComboCoreAbi
+    abi: typeof relayerAbi
   }
-  proxyFront: {
+  vault: {
     address: Address
-    abi: typeof proxyFrontAbi
+    abi: typeof vaultAbi
+  }
+  paymaster: {
+    address: Address
+    abi: typeof paymasterAbi
   }
   azuroBet: {
     address: Address
-    abi: typeof erc721Abi
-  }
-  liveRelayer?: {
-    address: Address
-  }
-  liveCore?: {
-    address: Address
-    abi: typeof liveCoreAbi
-  }
+    abi: typeof azuroBetAbi
+  },
   cashout?: {
     address: Address
+    abi: typeof cashoutAbi
   }
 }
 
+type BetToken = {
+  address: Address
+  symbol: string
+  decimals: number
+}
+```
+
+- **Environments**: Available environments for creating bet orders.
+
+```ts
 enum Environment {
   GnosisDevXDAI = 'GnosisDevXDAI',
   GnosisXDAI = 'GnosisXDAI',
   PolygonUSDT = 'PolygonUSDT',
-  PolygonAmoyAZUSD = 'PolygonAmoyAZUSD',
   PolygonAmoyUSDT = 'PolygonAmoyUSDT',
   ChilizWCHZ = 'ChilizWCHZ',
   ChilizSpicyWCHZ = 'ChilizSpicyWCHZ',
@@ -107,33 +119,21 @@ enum Environment {
 ```
 </Callout>
 
-## Development mode
-To enable Development mode set the `AZURO_UNSTABLE_DEV_ENABLED` env variable to `true` it will change `polygonAmoy` and `gnosis` to dev mode:
-- contracts addresses to [dev mode](https://gem.azuro.org/contracts/deployment-addresses#contracts-development)
-- all endpoint getters to [dev mode](https://gem.azuro.org/subgraph/overview#development-30)
-
 ## Constants
 
 ```ts
 import {
-  MARGIN_DECIMALS, // marginality decimals
   ODDS_DECIMALS, // odds decimals
-  MIN_LIVE_BET_AMOUNT, // min amount for live bet
-  LIVE_BET_DATA_TYPES, // live bet data types for sign typed data
-  LIVE_TYPED_DATA_DOMAIN_NAME, // live bet typed data domain name
-  LIVE_TYPED_DATA_DOMAIN_VERSION, // live bet typed data domain version
+  BET_DATA_TYPES, // single bet data types for sign typed data
+  COMBO_BET_DATA_TYPES, // combo bet data types for sign typed data
+  TYPED_DATA_DOMAIN_NAME, // bet typed data domain name
+  TYPED_DATA_DOMAIN_VERSION, // bet typed data domain version
   CASHOUT_DATA_TYPES, // cashout data types for sign typed data
   CASHOUT_TYPED_DATA_DOMAIN_NAME, // cashout typed data domain name
   CASHOUT_TYPED_DATA_DOMAIN_VERSION, // cashout typed data domain version
 
-  deBridgeUrl, // deBridge api endpoint for creating order
-  deBridgeTxUrl, // deBridge tx api endpoint for checking order status
-
-  liveHostAddress, // address of HostCore contract
-  liveSupportedChains, // array of chain ids that supported live betting
   chainsData, // supported chains data with endpoints, contracts and etc.
-
-
+  chainsDataByEnv, // chain data by environment
   environments, // environments by chain id
 } from '@azuro-org/toolkit'
 ```
@@ -141,101 +141,95 @@ import {
 ## ABI
 
 ```ts
-import { lpAbi, liveCoreAbi, prematchComboCoreAbi, prematchCoreAbi, proxyFrontAbi, freeBetAbi } from '@azuro-org/toolkit'
+import { lpAbi, coreAbi, azuroBetAbi, cashoutAbi, relayerAbi, vaultAbi, paymasterAbi } from '@azuro-org/toolkit'
 ```
 
-## GraphQL
+## GraphQL Utilities
 
-Queries and Fragments for sending GraphQL request.
+The toolkit provides ready-to-use queries and fragments for interacting with Azuro subgraphs.
 
-```ts {2-14, 17-58, 61-88}
+### Feed Queries and Fragments
+
+```ts
 import {
-  // Only for live QraphQL endpoint
-  type LiveConditionFragment,
-  LiveConditionFragmentDoc,
+  type ConditionFragment,
+  ConditionFragmentDoc,
 
-  type LiveConditionQueryVariables,
-  type LiveConditionQuery,
-  type LiveConditionQueryResult,
-  LiveConditionDocument,
+  type GameInfoFragment,
+  GameInfoFragmentDoc,
 
-  type LiveConditionsQueryVariables,
-  type LiveConditionsQuery,
-  type LiveConditionsQueryResult,
-  LiveConditionsDocument,
+  type ConditionQueryVariables,
+  type ConditionQuery,
+  ConditionDocument,
 
-
-  // Only for prematch QraphQL endpoint
-  type PrematchConditionFragment,
-  PrematchConditionFragmentDoc,
-
-  type BettorFragment,
-  BettorFragmentDoc,
-
-  type LiveBetFragment,
-  LiveBetFragmentDoc,
-
-  type PrematchBetFragment,
-  PrematchBetFragmentDoc,
-
-  type BettorsQueryVariables,
-  type BettorsQuery,
-  type BettorsQueryResult,
-  BettorsDocument,
-
-  type PrematchConditionQueryVariables,
-  type PrematchConditionQuery,
-  type PrematchConditionQueryResult,
-  PrematchConditionDocument,
-
-  type PrematchConditionsQueryVariables,
-  type PrematchConditionsQuery,
-  type PrematchConditionsQueryResult,
-  PrematchConditionsDocument,
-
-  type GameBetsQueryVariables,
-  type GameBetsQuery,
-  type GameBetsQueryResult,
-  GameBetsDocument,
-
-  type LiveBetsQueryVariables,
-  type LiveBetsQuery,
-  type LiveBetsQueryResult,
-  LiveBetsDocument,
-
-  type PrematchBetsQueryVariables,
-  type PrematchBetsQuery,
-  type PrematchBetsQueryResult,
-  PrematchBetsDocument,
-
-
-  // Could be use for live and prematch QraphQL endpoints
-  type MainGameInfoFragment,
-  MainGameInfoFragmentDoc,
+  type ConditionsQueryVariables,
+  type ConditionsQuery,
+  ConditionsDocument,
 
   type GameQueryVariables,
   type GameQuery,
-  type GameQueryResult,
   GameDocument,
 
   type GamesQueryVariables,
   type GamesQuery,
-  type GamesQueryResult,
   GamesDocument,
-  
+
   type NavigationQueryVariables,
   type NavigationQuery,
-  type NavigationQueryResult,
   NavigationDocument,
-
-  type SportsQueryVariables,
-  type SportsQuery,
-  type SportsQueryResult,
-  SportsDocument,
 
   type SportsNavigationQueryVariables,
   type SportsNavigationQuery,
-  type SportsNavigationQueryResult,
   SportsNavigationDocument,
+
+  type SportsQueryVariables,
+  type SportsQuery,
+  SportsDocument,
+} from '@azuro-org/toolkit'
+```
+
+
+### Bets Queries and Fragments
+
+```ts
+import {
+  type BettorFragment,
+  BettorFragmentDoc,
+
+  type LegacyLiveBetFragment,
+  LegacyLiveBetFragmentDoc,
+
+  type LegacyPrematchBetFragment,
+  LegacyPrematchBetFragmentDoc,
+
+  type BetFragment,
+  BetFragmentDoc,
+
+  type BetFragment,
+  BetFragmentDoc,
+
+  type BettorsQueryVariables,
+  type BettorsQuery,
+  BettorsDocument,
+
+  type LegacyBetsQueryVariables,
+  type LegacyBetsQuery,
+  LegacyBetsDocument,
+
+  type BetsQueryVariables,
+  type BetsQuery,
+  BetsDocument,
+} from '@azuro-org/toolkit'
+```
+
+
+### Legacy Live Feed Queries and Fragments
+Use these to fetch game info related to legacy v2 live bets
+
+```ts
+import {
+  type LegacyLiveGamesQueryVariables,
+  type LegacyLiveGamesQuery,
+  LegacyLiveGamesDocument,
 } from '@azuro-org/toolkit'
 ```

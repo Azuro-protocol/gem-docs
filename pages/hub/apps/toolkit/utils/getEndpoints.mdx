@@ -1,18 +1,36 @@
 #### Usage
 ```ts
-import { getPrematchGraphqlEndpoint, getLiveGraphqlEndpoint, getSocketEndpoint, getApiEndpoint } from '@azuro-org/toolkit'
+import { 
+  getFeedGraphqlEndpoint, 
+  getBetsGraphqlEndpoint, 
+  getLegacyLiveGraphqlEndpoint, 
+  getSocketEndpoint, 
+  getApiEndpoint 
+} from '@azuro-org/toolkit'
 
 const chainId = 100
 
-const prematchGraphqlEndpoint = getPrematchGraphqlEndpoint(chainId)
-const liveGraphqlEndpoint = getLiveGraphqlEndpoint(chainId)
+const feedGraphqlEndpoint = getFeedGraphqlEndpoint(chainId)
+
+const betsGraphqlEndpoint = getBetsGraphqlEndpoint(chainId)
+
+const legacyLiveGraphqlEndpoint = getLegacyLiveGraphqlEndpoint(chainId)
+
 const socketEndpoint = getSocketEndpoint(chainId)
+
 const apiEndpoint = getApiEndpoint(chainId)
 ```
 
 #### Props
 ```ts
-type ChainId =  100 | 137 | 80002 | 88888 | 88882 | 8453 | 84532
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
 ```
 
 #### Return Value

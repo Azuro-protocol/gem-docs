@@ -1,0 +1,36 @@
+import { Callout } from 'components'
+
+This hook is used to fetch the relayer fee amount for a bet.
+
+<Callout type="info">
+  For more information check [Relayer fee](/hub/apps/guides/advanced/live/prepare-for-betting#relayer-fee) section.
+</Callout>
+
+#### Usage
+
+```ts
+import { useBetFee } from '@azuro-org/sdk'
+
+const { data, isFetching, error } = useBetFee()
+const { formattedRelayerFeeAmount } = data
+```
+
+#### Props
+
+```ts
+{
+  enabled?: boolean // default value is true
+} | undefined
+```
+
+#### Return Value
+
+```ts
+{
+  gasAmount: bigint | undefined // transaction fee in native token
+  relayerFeeAmount: bigint | undefined // live bet fee in bet token
+  formattedRelayerFeeAmount: string | undefined
+  refetch: (options?: RefetchOptions | undefined) => Promise
+  loading: boolean
+}
+```

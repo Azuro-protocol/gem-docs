@@ -1,29 +1,32 @@
 import { Callout } from 'components'
 
-Hook is used for fetch full sports navigation data with countries and leagues.
+# useNavigation
 
-Hook represents a logic wrapper over standard Apollo's `useQuery` hook. Explore [Apollo's docs](https://www.apollographql.com/docs/react/api/react/hooks#usequery) to understand what data the hooks return.
+The `useNavigation` hook is used for fetch full sports navigation data with countries and leagues.
 
-You can find the list of available sports [here](https://thegraph.azuro.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3/graphql?query=%7B%0A++sports+%7B%0A++++name%0A++%7D%0A%7D).
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
 
-#### Usage
+## Usage
 
 ```ts
 import { useNavigation } from '@azuro-org/sdk'
 
 
-const { loading, sports } = useNavigation(props)
+const { data, isFetching, error } = useNavigation(props)
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   filter?: {
     sportHub?: SportHub
+    sportIds?: Array<string | number>
   }
-  withGameCount?: boolean // adds the lightweight games data to sport for counting
   isLive?: boolean // if `true`, the hook will retrieve live navigation
+  query?: QueryParameter<NavigationQuery['sports']>
 }
 ```
 
@@ -35,29 +38,51 @@ enum SportHub {
 }
 ```
 
-#### Return Value
+## Return Value
+
 ```ts
-{ 
-  loading: boolean
-  error: Error | null
-  sports {
-    id: string
-    slug: string
-    name: string
-    countries {
-      id: string
-      slug: string
-      name: string
-      leagues {
+UseQueryResult<NavigationQuery['sports']>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type NavigationQuery = {
+    __typename?: 'Query'
+    sports: Array<{
+        __typename?: 'Sport'
         id: string
         slug: string
         name: string
-        // if `withGameCount` props is true includes games data
-        games {
-          id: string
+        sportId: string
+        activeGamesCount: number
+        activeLiveGamesCount: number
+        activePrematchGamesCount: number
+        sporthub: {
+            __typename?: 'SportHub'
+            id: string
+            slug: string
         }
-      }
-    }
-  }
+        countries: Array<{
+            __typename?: 'Country'
+            id: string
+            slug: string
+            name: string
+            turnover: string
+            activeGamesCount: number
+            activeLiveGamesCount: number
+            activePrematchGamesCount: number
+            leagues: Array<{
+                __typename?: 'League'
+                id: string
+                slug: string
+                name: string
+                turnover: string
+                activeGamesCount: number
+                activeLiveGamesCount: number
+                activePrematchGamesCount: number
+            }>
+        }>
+    }>
 }
 ```

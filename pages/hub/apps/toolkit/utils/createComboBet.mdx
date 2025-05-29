@@ -1,0 +1,79 @@
+Sends live bet order.
+
+#### Usage
+
+```ts
+import { getComboBetTypedData, createBet } from '@azuro-org/toolkit'
+
+
+const typedData = getComboBetTypedData({
+  account: '0xlkns...',
+  minOdds: '...',
+  amount: '...',
+  nonce: '...',
+  clientData: {...},
+  bets: [ {...}, {...} ],
+})
+
+const signature = await walletClient.data.signTypedData(typedData)
+
+const createdOrder = await createBet({
+  account: '0xlkns...',
+  minOdds: '...',
+  amount: '...',
+  nonce: '...',
+  clientData: {...},
+  bets: [ {...}, {...} ],
+  signature,
+})
+```
+
+#### Props
+
+```ts
+{
+  account: Address
+  amount: string | bigint
+  minOdds: string | bigint
+  nonce: string | number | bigint
+  clientData: BetClientData
+  bets: {
+    conditionId: string | bigint
+    outcomeId: string | number | bigint
+  }[]
+  signature: Hex // signed typed data
+}
+```
+
+```ts
+type BetClientData = {
+  attention: string
+  affiliate: Address
+  core: Address
+  expiresAt: number
+  chainId: ChainId
+  relayerFeeAmount: string
+  isBetSponsored: boolean
+  isFeeSponsored: boolean
+  isSponsoredBetReturnable: boolean
+}
+```
+
+#### Return Value
+
+```ts
+type CreateLiveBetResponse = {
+  id: string
+  state: BetState
+  errorMessage?: string
+  error?: string
+}
+
+enum LiveBetState {
+  Created = 'Created',
+  Pending = 'Pending',
+  Sent = 'Sent',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected'
+}
+```

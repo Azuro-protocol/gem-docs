@@ -1,0 +1,9 @@
+{
+  "index": "Overview",
+  "config": "Step 1: Config",
+  "data-retrieval": "Step 2: Data Retrieval",
+  "realtime-market-updates": "Step 3: Realtime Market Updates",
+  "prepare-for-betting": "Step 4: Prepare the Betslip",
+  "place-a-bet": "Step 5: Place a Live Bet",
+  "get-bets-history": "Step 6: Get Live Bets History"
+}
