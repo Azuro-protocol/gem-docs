@@ -19,7 +19,7 @@ npm install @azuro-org/toolkit
 ### 2. Install peer dependencies
 
 ```bash copy
-npm install @azuro-org/dictionaries@^3.0.26 graphql-tag@^2.12.6 @wagmi/core@^2.17.1 viem@^2.29.0
+npm install @azuro-org/dictionaries@^3.0.27 graphql-tag@^2.12.6 @wagmi/core@^2.17.2 viem@^2.30.4
 ```
 
 
@@ -78,6 +78,14 @@ type Contracts = {
     address: Address
     abi: typeof relayerAbi
   }
+  vault: {
+    address: Address
+    abi: typeof vaultAbi
+  }
+  paymaster: {
+    address: Address
+    abi: typeof paymasterAbi
+  }
   azuroBet: {
     address: Address
     abi: typeof azuroBetAbi
@@ -133,7 +141,7 @@ import {
 ## ABI
 
 ```ts
-import { lpAbi, coreAbi, azuroBetAbi, cashoutAbi, relayerAbi, freeBetAbi } from '@azuro-org/toolkit'
+import { lpAbi, coreAbi, azuroBetAbi, cashoutAbi, relayerAbi, vaultAbi, paymasterAbi } from '@azuro-org/toolkit'
 ```
 
 ## GraphQL Utilities

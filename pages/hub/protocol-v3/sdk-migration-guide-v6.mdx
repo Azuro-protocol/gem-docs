@@ -448,6 +448,7 @@ type UseBetProps = {
   odds: Record<string, number>
   totalOdds: number
 - freeBet?: FreeBet
++ freebet?: FreeBet
   liveEIP712Attention?: string
   deadline?: number
   onSuccess?(receipt?: TransactionReceipt): void
@@ -513,6 +514,82 @@ const { data: bonuses } = useBonuses({
   affiliate: '0x...', // your affiliate address
 })
 ```
+
+### Freebet Usage
+
+To use freebet provide it's data to the `useBet` hook
+
+```ts
+
+const freebet: Freebet = {...}
+
+const { submit } = useBet({
+  ...,
+  freebet
+})
+
+submit()
+```
+
+<Callout type="info">
+  The `isSponsoredBetReturnable` field indicates whether the value of the freebet will be included in the winning amount. If it is `true`, the freebet amount will be paid as part of the winnings. If it is `false`, only the profit (excluding the freebet value) will be paid out.
+
+  Taking this into account, here’s an example of how to calculate a bet’s possible win:
+
+  ```ts
+    const diff = freebet && freebet.params.isSponsoredBetReturnable ? +freebet.amount : 0
+    const possibleWin = totalOdds * +betAmount - diff
+  ```
+</Callout>
+
+### Retrieve Placed Bets with Freebets
+
+To identify bets placed using freebets, use the `useBets` hook. Each bet item includes a `freebetId` field—if this field is present, the bet was placed with a freebet. This allows you to differentiate between regular and free bet transactions
+
+```diff
+type Bet = {
+  actor: Address
+  affiliate: Address
+  tokenId: string
++ freebetId: string | null
++ isFreebetAmountReturnable: boolean | null
++ paymaster: Address | null
+  totalOdds: number
+  coreAddress: Address
+  lpAddress: Address
+  outcomes: BetOutcome[]
+  txHash: Hex
+  redeemedTxHash: Hex | null
+  status: GraphBetStatus
+  amount: string
+  possibleWin: number
+  payout: number | null
+  createdAt: number
+  resolvedAt: number | null
+  cashout?: string
+  isWin: boolean
+  isLose: boolean
+  isRedeemable: boolean
+  isRedeemed: boolean
+  isCanceled: boolean
+  isCashedOut: boolean
+}
+```
+
+<Callout type="info">
+  The `isFreebetAmountReturnable` field indicates whether the value of the freebet will be included in the winning amount. If it is `true`, the freebet amount will be paid as part of the winnings. If it is `false`, only the profit (excluding the freebet value) will be paid out.
+
+  Taking this into account, here’s an example of how to calculate a bet’s possible win:
+
+  ```ts
+    const { amount, settledOdds, odds, freebetId, isFreebetAmountReturnable } = bet
+
+    const isFreebet = Boolean(freebetId)
+    const betDiff = isFreebet && isFreebetAmountReturnable ? amount : 0
+    const totalOdds = settledOdds ? +settledOdds : +odds
+    const possibleWin = +amount * totalOdds - +betDiff // bet possible win based on isFreebetAmountReturnable field
+  ```
+</Callout>
 
 ## Batch Bet
 
