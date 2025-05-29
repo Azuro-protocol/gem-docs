@@ -460,6 +460,10 @@ Usage for `useBet` hook remain unchanged
 
 ## Freebets
 
+<Callout type="warning">
+  Will be available in production from June 2nd.
+</Callout>
+
 The `useFreeBets` hook has been renamed to `useAvailableFreebets`. This updated hook returns all `freebets` that can be used based on the provided bet information (`selections`).
 
 ```ts
@@ -538,6 +542,8 @@ submit()
 
   ```ts
     const diff = freebet && freebet.params.isSponsoredBetReturnable ? +freebet.amount : 0
+
+    // bet possible win based on isSponsoredBetReturnable field
     const possibleWin = totalOdds * +betAmount - diff
   ```
 </Callout>
@@ -587,7 +593,9 @@ type Bet = {
     const isFreebet = Boolean(freebetId)
     const betDiff = isFreebet && isFreebetAmountReturnable ? amount : 0
     const totalOdds = settledOdds ? +settledOdds : +odds
-    const possibleWin = +amount * totalOdds - +betDiff // bet possible win based on isFreebetAmountReturnable field
+
+    // bet possible win based on isFreebetAmountReturnable field
+    const possibleWin = +amount * totalOdds - +betDiff
   ```
 </Callout>
 
