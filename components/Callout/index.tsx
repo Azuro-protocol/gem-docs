@@ -5,11 +5,12 @@ import cx from 'clsx'
 type Props = {
   icon?: string
   className?: string
+  contentClassName?: string
   type: 'info' | 'warning' | 'alert' | 'feature' | 'advice' | 'reference'
 }
 
 export function Callout(props: React.PropsWithChildren<Props>) {
-  let { className, children, icon, type } = props
+  let { className, contentClassName, children, icon, type } = props
 
   const rootClassName = cx('flex items-start mt-4 first:mt-0 p-4 border rounded-md shadow-sm', {
     'bg-blue-50 border-blue-300 text-blue-900 dark:bg-blue-900/40 dark:border-blue-800 dark:text-blue-200': type === 'info',
@@ -31,7 +32,7 @@ export function Callout(props: React.PropsWithChildren<Props>) {
   return (
     <div className={rootClassName}>
       <div className="mr-4 text-xl font-bold">{icon}</div>
-      <div>
+      <div className={cx("w-full", contentClassName)}>
         {children}
       </div>
     </div>

@@ -61,8 +61,17 @@ const isConditionsInActiveState = useMemo(() => {
   initialStates?: Record<string, ConditionState> // key is conditionId
 }
 ```
+
 <Callout type="info">
-  The `initialStates` is optional. If it's not provided, the `useConditionsState` hook will automatically retrieve the initial value.
+The `states` is an object where the key combination corresponds to `conditionId`:
+
+```ts
+states[conditionId]
+```
+</Callout>
+
+<Callout type="info">
+The `initialStates` is optional. If it's not provided, the `useConditionsState` hook will automatically retrieve the initial value.
 </Callout>
 
 ```ts
