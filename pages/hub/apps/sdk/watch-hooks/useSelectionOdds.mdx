@@ -1,0 +1,108 @@
+import { Callout } from 'components'
+
+# useSelectionOdds
+
+The `useSelectionOdds` hook is used for maintain updated odds for a selection and also monitors the suspension of bets for that selection.
+
+Whenever a bet is placed on the Azuro protocol, the system updates the odds related to the outcomes influenced by this bet. Utilize this hook to subscribe to the updated odds for the outcomes displayed in your UI. This ensures that bettors can observe the current changes and make informed betting decisions.
+
+{/* [Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a status that indicates their current state. For instance, `ConditionStatus.Created` signifies the condition is available for betting, while `ConditionStatus.Paused` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this outcome is currently possible or not. */}
+
+## Usage
+
+<Callout type="warning">
+  Before utilizing `useSelectionOdds`, it is essential to initialize the `FeedSocketProvider` and `ConditionUpdatesProvider`:
+
+  ```tsx
+    import { ChainProvider, FeedSocketProvider, ConditionUpdatesProvider, useWatchers } from '@azuro-org/sdk'
+
+    function Providers(props: { children: React.ReactNode }) {
+      const { children } = props
+
+      return (
+        <ChainProvider>
+          <FeedSocketProvider>
+            <ConditionUpdatesProvider>
+              {children}
+            </ConditionUpdatesProvider>
+          </FeedSocketProvider>
+        </ChainProvider>
+      )
+    }
+  ```
+</Callout>
+
+Subscribe to changes in your outcome.
+
+```ts
+import { useSelectionOdds } from '@azuro-org/sdk'
+import { type MarketOutcome } from '@azuro-org/toolkit'
+
+const outcome: MarketOutcome = {...}
+
+const { data: odds, isFetching } = useSelectionOdds({
+  selection: outcome,
+  initialOdds: outcome.odds,
+})
+```
+
+<Callout type="info">
+Example of usage: Outcome button.<br/>
+
+We've retrieved markets with outcomes and rendered a button for each outcome. The `useSelectionOdds` hook offers a method to maintain updated odds for the outcome button. [Full Example](https://github.com/Azuro-protocol/example-app/blob/main/src/compositions/OutcomeButton/utils/useButton.ts#L18)
+
+```ts
+import { useSelectionOdds } from '@azuro-org/sdk'
+import { type MarketOutcome } from '@azuro-org/toolkit'
+
+type OutcomeProps = {
+  outcome: MarketOutcome
+}
+
+export function OutcomeButton(props: OutcomeProps) {
+  const { outcome } = props
+
+  const { data: odds, isFetching } = useSelectionOdds({
+    selection: outcome,
+    initialOdds: outcome.odds,
+  })
+
+  return (
+    <button>
+      <span>{outcome.selectionName}</span>
+      <span>{odds}</span>
+    </button>
+  )
+}
+```
+</Callout>
+
+
+## Props
+
+```ts
+{
+  selection: Selection
+  initialOdds?: number
+}
+```
+
+<Callout type="info">
+  The `initialOdds` is optional. If it's not provided, the `useSelectionOdds` hook will automatically retrieve the initial value.
+</Callout>
+
+```ts
+type Selection = {
+  conditionId: string
+  outcomeId: string
+}
+```
+
+## Return Value
+
+```ts
+{
+  data: number, // outcome's odds
+  isFetching, // flag indicates initial odds fetching
+}
+```

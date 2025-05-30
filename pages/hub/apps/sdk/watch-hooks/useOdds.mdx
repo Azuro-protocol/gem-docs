@@ -1,51 +1,48 @@
 import { Callout } from 'components'
 
-This hook is used to calculate the total odds before a bet is placed. These are the odds at which the bet will be placed, not accounting for slippage. The total odds vary based on the bet amount and the chosen selections, as each selection can have its own settings for reinforcement and margin.
+# useOdds
 
-#### Usage
+The `useOdds` hook is used to calculate the total odds before a bet is placed. These are the odds at which the bet will be placed, not accounting for slippage. The total odds vary based on chosen selections, as each selection can have its own settings for reinforcement and margin.
+
+## Usage
 
 <Callout type="warning">
-  Before utilizing `useOdds`, it is essential to initialize event watchers and the `SocketProvider`:
+  Before utilizing `useOdds`, it is essential to initialize the `FeedSocketProvider` and `ConditionUpdatesProvider`:
 
   ```tsx
-    import { ChainProvider, SocketProvider, useWatchers } from '@azuro-org/sdk'
-
-    export function Watchers() {
-      useWatchers()
-
-      return null
-    }
+    import { ChainProvider, FeedSocketProvider, ConditionUpdatesProvider } from '@azuro-org/sdk'
 
     function Providers(props: { children: React.ReactNode }) {
       const { children } = props
 
       return (
         <ChainProvider>
-          <SocketProvider>
-            {children}
-          </SocketProvider>
-          <Watchers />
+          <FeedSocketProvider>
+            <ConditionUpdatesProvider>
+              {children}
+            </ConditionUpdatesProvider>
+          </FeedSocketProvider>
         </ChainProvider>
       )
     }
   ```
 </Callout>
 
-Provide selections and bet amount for calculating.
+Provide selections for calculating.
 
 ```ts
 import { useOdds } from '@azuro-org/sdk'
 
-const { odds, totalOdds, maxBet, loading } = useOdds({
-  betAmount: '10',
+const { data, isFetching } = useOdds({
   selections: [
     {
       conditionId: '486903008559711340',
       outcomeId: '29',
-      coreAddress: '0x34nsf41f...',
     },  
   ],
 })
+
+const { odds, totalOdds } = data
 ```
 
 <Callout type="info">
@@ -55,32 +52,31 @@ odds[`${conditionId}-${outcomeId}`]
 ```
 </Callout>
 
-<Callout type="info">
+{/* <Callout type="info">
 Except of Single and Combo bets for Batch bet we use different amount structure `batchBetAmounts`.
 
 The `batchBetAmounts` is an object where the key combination is determined by the concatenation of `conditionId` and `outcomeId`, the value is bet amount for outcome:
 ```ts
 const selectionAmount = batchBetAmounts[`${conditionId}-${outcomeId}`]
 ```
-</Callout>
+</Callout> */}
 
 <Callout type="info">
 Example of usage: Obtain the total odds for the provided selections.
 
 ```tsx
-import { type MarketOutcome, useOdds } from '@azuro-org/sdk'
+import { useOdds } from '@azuro-org/sdk'
+import { type MarketOutcome } from '@azuro-org/toolkit'
 
 
 type TotalOddsProps = {
   outcomes: MarketOutcome[]
-  betAmount: string
 }
 
 function TotalOdds(props: TotalOddsProps) {
-  const { outcomes, betAmount } = props
+  const { outcomes } = props
 
   const { totalOdds } = useOdds({
-    betAmount,
     selections: outcomes,
   })
 
@@ -91,13 +87,10 @@ function TotalOdds(props: TotalOddsProps) {
 ```
 </Callout>
 
-#### Props
-
+## Props
 ```ts
 {
   selections: Selection[]
-  betAmount?: string
-  batchBetAmounts?: Record<string, string>
 }
 ```
 
@@ -105,17 +98,17 @@ function TotalOdds(props: TotalOddsProps) {
 type Selection = {
   conditionId: string
   outcomeId: string
-  coreAddress: string
 }
 ```
 
-#### Return Value
+## Return Value
 
 ```ts
 {
-  loading: boolean
-  odds: Record<string, number>
-  totalOdds: number
-  maxBet?: number
+  data: {
+    odds: Record<string, number>
+    totalOdds: number
+  }
+  isFetching: boolean
 }
 ```

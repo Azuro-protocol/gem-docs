@@ -1,0 +1,89 @@
+import { Callout } from 'components'
+
+Retrieves all of a user's bonuses (currently limited to freebets).
+
+<Callout type="warning">
+  Available in version `5.1.0-beta.1`
+</Callout>
+
+<Callout type="info">
+  You can find more information [Here](/hub/apps/guides/cashout/overview).
+</Callout>
+
+#### Usage
+
+```ts
+import { getBonuses } from '@azuro-org/toolkit'
+
+const bonuses = await getBonuses({
+  chainId: 137
+  account: '0x...'
+  affiliate: '0x...'
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  account: Address // user's address
+  affiliate: Address // your affiliate address
+}
+```
+
+```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
+import { type Address } from 'viem'
+```
+
+#### Return Value
+
+<Callout type="info">
+Currently, the only available bonus type is freebet.
+</Callout>
+
+```ts
+Promise<Bonus[] | null>
+```
+
+```ts
+enum BonusType {
+  FreeBet = 'FreeBet',
+}
+
+enum BonusStatus {
+  Used = 'Used',
+  Available = 'Available',
+}
+
+type BonusBase = {
+  id: string
+  type: BonusType,
+  amount: string
+  status: BonusStatus
+  chainId: ChainId
+  expiresAt: number
+  usedAt: number
+  createdAt: number
+}
+
+type Freebet = {
+  type: BonusType.FreeBet,
+  params: {
+    isBetSponsored: boolean,
+    isFeeSponsored: boolean,
+    isSponsoredBetReturnable: boolean
+  }
+} & BonusBase
+
+type Bonus = Freebet
+```

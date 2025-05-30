@@ -2,7 +2,11 @@ import { Callout } from 'components'
 
 # useBets
 
-The `useBets` hook is used to fetch pre-match betting history of a specific bettor.
+The `useBets` hook is used to fetch betting history of a specific bettor.
+
+<Callout type="warning">
+  If you need to get older bets from **v2 Azuro Protocol** use [`useLegacyBets`](useLegacyBets)
+</Callout>
 
 <Callout type="info">
 Hook represents a logic wrapper over TanStack Query's `useInfiniteQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useInfiniteQuery) to understand what data the hook returns.
@@ -10,11 +14,28 @@ Hook represents a logic wrapper over TanStack Query's `useInfiniteQuery` hook. E
 
 ## Usage
 
-```ts
+```tsx
 import { useBets } from '@azuro-org/sdk'
 
-const { data, hasNextPage, isFetching } = useBets(props)
+const { data, hasNextPage, isFetching, fetchNextPage } = useBets(props)
 const { pages } = data || {}
+
+// render pages
+<>
+  {
+    pages?.map(({ bets, nextPage }) => {
+      return (
+        <React.Fragment key={`${nextPage}`}>
+          {
+            bets.map(bet => (
+              <BetComponent key={`${bet.createdAt}-${bet.tokenId}`} bet={bet} />
+            ))
+          }
+        </React.Fragment>
+      )
+    })
+  }
+<>
 ```
 
 ## Props

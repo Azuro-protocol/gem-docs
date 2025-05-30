@@ -17,8 +17,26 @@ Hook represents a logic wrapper over TanStack Query's `useInfiniteQuery` hook. E
 ```ts
 import { useLegacyBets } from '@azuro-org/sdk'
 
-const { data, hasNextPage, isFetching } = useLegacyBets(props)
+const { data, hasNextPage, isFetching, fetchNextPage } = useLegacyBets(props)
 const { pages } = data || {}
+
+// render pages
+<>
+  {
+    pages?.map(({ bets, nextPage }) => {
+      return (
+        <React.Fragment key={`${nextPage}`}>
+          {
+            bets.map(bet => (
+              <BetComponent key={`${bet.createdAt}-${bet.tokenId}`} bet={bet} />
+            ))
+          }
+        </React.Fragment>
+      )
+    })
+  }
+<>
+```
 ```
 
 ## Props

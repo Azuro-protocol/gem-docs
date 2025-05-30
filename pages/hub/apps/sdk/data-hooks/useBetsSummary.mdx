@@ -1,38 +1,60 @@
 import { Callout } from 'components'
 
-This hook is used to fetch bets summary information for user's address.
+# useBetsSummary
 
-#### Usage
+The `useBetsSummary` is used to fetch bets summary information for user's address.
+
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
 
 ```ts
 import { useBetsSummary } from '@azuro-org/sdk'
 
-const { loading, error, toPayout, inBets } = useBetsSummary({
+const { data, isFetching, error } = useBetsSummary({
   account: '0xlknqk123...'
 })
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   account: string // user's address
   affiliates?: string[] // array of affiliate addresses that will be included in data
+  query?: QueryParameter<BettorsQuery['bettors']>
 }
 ```
 
-#### Return Value
+```ts
+type BettorsQuery = {
+  __typename?: 'Query'
+  bettors: Array<{
+      __typename?: 'Bettor'
+      id: string
+      rawToPayout: string
+      rawInBets: string
+      rawTotalPayout: string
+      rawTotalProfit: string
+      betsCount: number
+      wonBetsCount: number
+      lostBetsCount: number
+  }>
+}
+```
+
+## Return Value
 
 ```ts
-{
-  loading: boolean
-  error: Error | null
-  toPayout: string // summary redeem amount
-  inBets: string // summary pending bets amount
-  totalPayout: string // sum of total winnins ( includes unredeemed bets )
-  totalProfit: string // sum of total profits
-  betsCount: number // number of all bets
-  wonBetsCount: number // number of won bets
-  lostBetsCount: number // number of lost bets
-}
+UseQueryResult<{
+  toPayout: string
+  inBets: string
+  totalPayout: string
+  totalProfit: string
+  betsCount: number
+  wonBetsCount: number
+  lostBetsCount: number
+}>
 ```

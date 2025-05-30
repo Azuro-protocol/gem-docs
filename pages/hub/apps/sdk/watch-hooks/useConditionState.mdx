@@ -1,0 +1,106 @@
+import { Callout } from 'components'
+
+# useConditionState
+
+The `useConditionState` hook is used for maintain updated state for a condition.
+
+[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. For instance, `ConditionState.Created` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this condition is currently possible or not.
+
+## Usage
+
+<Callout type="warning">
+  Before utilizing `useConditionState`, it is essential to initialize the `FeedSocketProvider` and `ConditionUpdatesProvider`:
+
+  ```tsx
+    import { ChainProvider, FeedSocketProvider, ConditionUpdatesProvider, useWatchers } from '@azuro-org/sdk'
+
+    function Providers(props: { children: React.ReactNode }) {
+      const { children } = props
+
+      return (
+        <ChainProvider>
+          <FeedSocketProvider>
+            <ConditionUpdatesProvider>
+              {children}
+            </ConditionUpdatesProvider>
+          </FeedSocketProvider>
+        </ChainProvider>
+      )
+    }
+  ```
+</Callout>
+
+<Callout type="info">
+Example of usage: Condition wrapper around Outcome buttons.<br/>
+
+We've retrieved markets with outcomes and rendered a button for each outcome and need to make sure that condition in a state to accept bets. The `useConditionState` hook offers a method to react to changes in the condition state. [Full Example](https://github.com/Azuro-protocol/example-app/blob/main/src/compositions/event/Markets/Markets.tsx#L63)
+
+```tsx
+import { useConditionState } from '@azuro-org/sdk'
+import { type Market } from '@azuro-org/toolkit'
+
+type ConditionProps = {
+  condition: Market['conditions'][0]
+}
+
+const Condition: React.FC<ConditionProps> = (props) => {
+  const { condition } = props
+  const { conditionId, outcomes, state: initialState } = condition
+
+  const { data: state, isLocked } = useConditionState({
+    conditionId,
+    initialState,
+  })
+
+  return (
+    <div className="flex justify-between">
+      <div className="flex gap-2 w-full">
+        {
+          outcomes.map((outcome) => {
+            return (
+              <OutcomeButton
+                key={outcome.outcomeId}
+                outcome={outcome}
+                isLocked={isLocked}
+              />
+            )
+          })
+        }
+      </div>
+    </div>
+  )
+}
+```
+</Callout>
+
+
+## Props
+
+```ts
+{
+  conditionId: string
+  initialState?: ConditionState
+}
+```
+<Callout type="info">
+  The `initialState` is optional. If it's not provided, the `useConditionState` hook will automatically retrieve the initial value.
+</Callout>
+
+```ts
+enum ConditionState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Removed = 'Removed',
+  Resolved = 'Resolved',
+  Stopped = 'Stopped'
+}
+```
+
+## Return Value
+
+```ts
+{
+  data: ConditionState
+  isFetching // flag indicates initial state fetching
+}
+```

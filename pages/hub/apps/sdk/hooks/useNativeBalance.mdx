@@ -1,20 +1,38 @@
-Returns native token balance based on [`appChain.id`](/guides/sdk/providers/chain#return-value).
+import { Callout } from 'components'
 
-#### Usage
+# useNativeBalance
+
+Returns native balance based on [`appChain.id`](/hub/apps/sdk/providers/chain#return-value).
+
+<Callout type="info">
+Hook represents a logic wrapper over Wagmi's `useBalance` hook. Explore [useBalance](https://wagmi.sh/react/api/hooks/useBalance#usebalance) to understand what data the hook returns.
+</Callout>
+
+## Usage
 
 ```ts
 import { useNativeBalance } from '@azuro-org/sdk'
 
-const { balance, rawBalance, loading, error } = useNativeBalance()
+const { data, isFetching } = useNativeBalance()
+
+const { rawBalance, balance } = data
 ```
 
-#### Return Value
+
+## Props
 
 ```ts
 {
-  balance: string | undefined
-  rawBalance: bigint | undefined
-  loading: boolean
-  error: Error | null
+  chainId?: ChainId
+  query?: UseBalanceParameters['query']
 }
+```
+
+## Return Value
+
+```ts
+UseBalanceReturnType<{
+  rawBalance: bigint;
+  balance: string;
+}>
 ```

@@ -1,6 +1,9 @@
 {
   "useSelection": "useSelection",
   "useOdds": "useOdds",
-  "useStatuses": "useStatuses",
+  "useSelectionOdds": "useSelectionOdds",
+  "useConditionState": "useConditionState",
+  "useConditionsState": "useConditionsState",
+  "useGameState": "useGameState",
   "useLiveStatistics": "useLiveStatistics"
 }

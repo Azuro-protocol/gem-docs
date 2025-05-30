@@ -12,6 +12,5 @@
   "useLegacyBets": "useLegacyBets",
   "useBetFee": "useBetFee",
   "useBetsSummary": "useBetsSummary",
-  "useBetsSummaryBySelection": "useBetsSummaryBySelection",
-  "useFreeBets": "useFreeBets"
+  "useBetsSummaryBySelection": "useBetsSummaryBySelection"
 }

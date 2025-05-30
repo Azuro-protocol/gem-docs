@@ -1,5 +1,7 @@
 import { Callout } from 'components'
 
+# useLiveStatistics
+
 The `useLiveStatistics` hook is used to retrieve updated live statistics for an live event.
 
 <Callout type="warning">
@@ -31,25 +33,24 @@ The `useLiveStatistics` hook is used to retrieve updated live statistics for an 
   ```
 </Callout>
 
-#### Usage
+## Usage
 
 Subscribe to changes for game.
 
 ```ts
-import { useGameStatus, useLiveStatistics, type BasketballScoreBoard } from '@azuro-org/sdk'
+import { useGameState, useLiveStatistics, type BasketballScoreBoard } from '@azuro-org/sdk'
 
 
-const { gameId, status: graphStatus, startsAt, sport: { sportId } } = game // game from live subgraph
-const { status } = useGameStatus({
-  graphStatus,
-  startsAt: +startsAt,
-  isGameExistInLive: true,
+const { gameId, state: graphState, startsAt, sport: { sportId } } = game // game from live subgraph
+const { data: state } = useGameState({
+  gameId,
+  initialState: graphState,
 })
 
 const { statistics, isFetching } = useLiveStatistics({
   gameId,
   sportId,
-  gameStatus: status,
+  gameState: state,
 })
 
 const { q1, q2, q3, q4, state } = (statistics?.scoreBoard as BasketballScoreBoard)
@@ -59,7 +60,7 @@ const { q1, q2, q3, q4, state } = (statistics?.scoreBoard as BasketballScoreBoar
   You can find a usage example in our [demo](https://github.com/Azuro-protocol/example-app/blob/main/src/compositions/LiveStatistics/LiveStatistics.tsx#L43).
 </Callout>
 
-#### Props
+## Props
 
 ```ts
 {
@@ -81,7 +82,7 @@ enum GameStatus {
 }
 ```
 
-#### Return Value
+## Return Value
 
 ```ts
 {
