@@ -1,4 +1,13 @@
 {
+  "29-cashouts": {
+    "title": "05/23/25 Cashouts are live!"
+  },
+  "28-dictionaries-3.0.27": {
+    "title": "05/21/25 Minor dictionary update"
+  },
+  "27-protocol-v3": {
+    "title": "05/06/25 Azuro V3"
+  },
   "26-sdk-v5.4.0": {
     "title": "01/21 SDK v5.4 & Toolkit v4.5",
     "type": "hidden"
