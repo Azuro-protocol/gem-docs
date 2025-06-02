@@ -107,7 +107,7 @@ const {...} = useBet({
   affiliate: Address // your affiliate address
   odds: Record<string, number>, // odds
   totalOdds: number, // total odds
-  freebet?: FreeBet // freeBet info
+  freebet?: Pick<Freebet, 'id' | 'params'> // freeBet info
   betGas?: Pick<SendTransactionParameters, 'gas' | 'gasPrice' | 'maxFeePerGas' | 'maxFeePerBlobGas' | 'maxPriorityFeePerGas'> // transaction gas parameters, prematch only
   selections: Selection[] // user's choice for bet
   liveEIP712Attention?: string // attention text for eip-712 sign (up to 160 chars)

@@ -68,6 +68,21 @@ enum BonusStatus {
   Available = 'Available',
 }
 
+enum FreebetType {
+  OnlyWin = 'OnlyWin',
+  AllWin = 'AllWin',
+}
+
+enum BetRestrictionType {
+  Ordinar = 'Ordinar',
+  Combo = 'Combo',
+}
+
+enum EventRestrictionState {
+  Live = 'Live',
+  Prematch = 'Prematch',
+}
+
 type BonusBase = {
   id: string
   type: BonusType,
@@ -80,11 +95,24 @@ type BonusBase = {
 }
 
 type Freebet = {
-  type: BonusType.FreeBet,
+  type: BonusType.FreeBet
   params: {
-    isBetSponsored: boolean,
-    isFeeSponsored: boolean,
+    isBetSponsored: boolean
+    isFeeSponsored: boolean
     isSponsoredBetReturnable: boolean
+  }
+  settings: {
+    type: FreebetType
+    feeSponsored: boolean
+    betRestriction: {
+      type: BetRestrictionType | undefined
+      minOdds: string
+      maxOdds: string | undefined
+    }
+    eventRestriction: {
+      state: EventRestrictionState | undefined
+    }
+    periodOfValidityMs: number
   }
 } & BonusBase
 ```
