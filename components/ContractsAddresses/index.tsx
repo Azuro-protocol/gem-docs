@@ -16,6 +16,7 @@ type ContractName =
   | 'hostCore'
   | 'clientCore'
   | 'relayer'
+  | 'paymaster'
   | 'cashout'
 
 const config: Record<ContractName, { title: string, link?: string }> = {
@@ -66,6 +67,9 @@ const config: Record<ContractName, { title: string, link?: string }> = {
     title: 'Relayer',
     // link: '/contracts/live-relayer',
   },
+  paymaster: {
+    title: 'PayMaster',
+  },
   cashout: {
     title: 'Cashout',
     // link: '/contracts/cashout',
@@ -85,6 +89,7 @@ const rows: ContractName[] = [
   'hostCore',
   'clientCore',
   'relayer',
+  'paymaster',
   'cashout'
 ]
 
