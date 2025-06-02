@@ -4,7 +4,7 @@ import { Callout } from 'components';
 
 The `useBet` hook is used for users to place bets and approve the use tokens for payment when needed.
 
-#### Usage
+## Usage
 
 ```ts
 import { useBet } from '@azuro-org/sdk'
@@ -98,7 +98,7 @@ const {...} = useBet({
 ```
 </Callout> */}
 
-#### Props
+## Props
 
 ```ts
 {
@@ -108,6 +108,7 @@ const {...} = useBet({
   odds: Record<string, number>, // odds
   totalOdds: number, // total odds
   freebet?: Pick<Freebet, 'id' | 'params'> // freeBet info
+  chainId?: ChainId
   betGas?: Pick<SendTransactionParameters, 'gas' | 'gasPrice' | 'maxFeePerGas' | 'maxFeePerBlobGas' | 'maxPriorityFeePerGas'> // transaction gas parameters, prematch only
   selections: Selection[] // user's choice for bet
   liveEIP712Attention?: string // attention text for eip-712 sign (up to 160 chars)
@@ -119,6 +120,15 @@ const {...} = useBet({
 
 ```ts
 import { type SendTransactionParameters } from 'viem'
+
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
 
 type Selection = {
   conditionId: string
@@ -147,7 +157,7 @@ type Freebet = {
 } & BonusBase
 ```
 
-#### Return Value
+## Return Value
 
 ```ts
 {

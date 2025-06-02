@@ -32,8 +32,20 @@ const { data, isFetching, error } = useGames(props)
   orderBy?: Game_OrderBy // default: Game_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
   isLive?: boolean // if `true`, the hook will retrieve live games
+  chainId?: ChainId
   query?: QueryParameter<GamesQuery['games']> // useQuery params
 }
+```
+
+```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
 
 enum SportHub {
   Sports = 'sports',

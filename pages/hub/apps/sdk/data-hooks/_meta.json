@@ -8,6 +8,7 @@
   "useActiveConditions": "useActiveConditions",
   "useActiveMarkets": "useActiveMarkets",
   "useResolvedMarkets": "useResolvedMarkets",
+  "useMaxBet": "useMaxBet",
   "useBets": "useBets",
   "useLegacyBets": "useLegacyBets",
   "useBetFee": "useBetFee",

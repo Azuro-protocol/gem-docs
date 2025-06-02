@@ -6,7 +6,7 @@ Hook is used to get the [Wave User Stats](/hub/apps/guides/azuro-waves#get-user-
   This hook is a wrapper around [getWaveStats](/hub/apps/toolkit/waves/getWaveStats) function.
 </Callout>
 
-#### Usage
+## Usage
 
 ```ts
 import { useWaveStats } from '@azuro-org/sdk'
@@ -16,20 +16,31 @@ const { data } = useWaveStats({
 })
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   account: Address
   waveId?: WaveId
+  chainId?: ChainId
+  query?: QueryParameter<WaveStats | null>
 }
 ```
 
 ```ts
 type WaveId = number | 'active'
+
+type WaveStats = {
+  isActivated: boolean
+} & WaveStatsResponse
 ```
 
-#### Return Value
+```ts
+import { type WaveStatsResponse } from '@azuro-org/toolkit'
+```
+
+
+## Return Value
 
 ```ts
 UseQueryResult<WaveStats>

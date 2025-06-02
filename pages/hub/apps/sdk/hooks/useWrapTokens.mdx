@@ -6,7 +6,7 @@ The `useWrapTokens` hook to handle wrapping and unwrapping tokens on the Gnosis 
   The `useWrapTokens` uses chain settings from [ChainProvider](/hub/apps/sdk/providers/chain).
 </Callout>
 
-#### Usage
+## Usage
 
 ```ts
 import { useWrapTokens } from '@azuro-org/sdk'
@@ -17,7 +17,26 @@ wrap('0.1') // wrap 0.1 XDAI to 0.1 WXDAI
 unwrap('0.1') // unwrap 0.1 WXDAI to 0.1 XDAI
 ```
 
-#### Return Value
+## Props
+
+```ts
+{
+  chainId?: ChainId
+}
+```
+
+```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+## Return Value
 
 ```ts
 {

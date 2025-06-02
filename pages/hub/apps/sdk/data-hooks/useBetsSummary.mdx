@@ -23,12 +23,22 @@ const { data, isFetching, error } = useBetsSummary({
 ```ts
 {
   account: string // user's address
+  chainId?: ChainId
   affiliates?: string[] // array of affiliate addresses that will be included in data
   query?: QueryParameter<BettorsQuery['bettors']>
 }
 ```
 
 ```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
 type BettorsQuery = {
   __typename?: 'Query'
   bettors: Array<{
@@ -57,4 +67,8 @@ UseQueryResult<{
   wonBetsCount: number
   lostBetsCount: number
 }>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
 ```
