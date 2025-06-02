@@ -8,18 +8,17 @@ This hook retrieves a list of approximate precalculated cashouts for a specific 
 
 #### Usage
 
-```ts {4, 6-8}
+```ts
 import { usePrecalculatedCashouts } from '@azuro-org/sdk'
 
 
-const { status, outcomes, possibleWin, tokenId } = bet // bet from subgraph
-const { cashouts, totalMultiplier, isCashoutAvailable, isFetching } = usePrecalculatedCashouts({
-  tokenId,
-  selections: outcomes,
-  graphBetStatus: status,
+const bet = {...}
+
+const { data, isFetching: isCashoutFetching } = usePrecalculatedCashouts({
+  bet
 })
 
-const cashoutAmount = possibleWin * +totalMultiplier
+const { cashoutAmount, isAvailable: isCashoutAvailable } = data
 ```
 
 <Callout type="info">
@@ -29,37 +28,44 @@ const cashoutAmount = possibleWin * +totalMultiplier
 #### Props
 
 ```ts
-  selections: Selection[] // user's bet selections
-  graphBetStatus: GraphBetStatus
-  enabled?: boolean
+  bet: Pick<Bet, 'tokenId' | 'amount' | 'outcomes' | 'status' | 'totalOdds' | 'freebetId'>
+  chainId?: ChainId
+  query?: QueryParameter<PrecalculatedCashoutsQueryData>
 ```
 
 ```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
+type PrecalculatedCashoutsQueryData = {
+  margin: string,
+  minMargin: string,
+  cashouts: Record<string, PrecalculatedCashout>
+} | undefined
+
+type PrecalculatedCashout = {
+  isAvailable: boolean
+  odds: string
+} & Selection
+
 type Selection = {
-  tokenId: string
-  conditionId: string
   outcomeId: string
-  coreAddress: string
+  conditionId: string
 }
 ```
 
 #### Return Value
 
 ```ts
-{
-  cashouts: Record<string, GetPrecalculatedCashouts>
-  totalMultiplier: number // total multiplier for cashout
-  isCashoutAvailable: boolean // Indicates whether cashout is available for the provided condition
-  isFetching: boolean
-}
+UseQueryResult<{ isAvailable: boolean, cashoutAmount: number | undefined }>
 ```
+
 ```ts
-type GetPrecalculatedCashouts = {
-  conditionId: string
-  available: boolean
-  outcomes: {
-    outcomeId: number
-    multiplier: string
-  }[]
-}[] | null
+import { type UseQueryResult } from '@tanstack/react-query'
 ```

@@ -1,20 +1,49 @@
+import { Callout } from 'components'
+
+# useBetTokenBalance
+
 Returns bet token balance based on [`appChain.id`](/hub/apps/sdk/providers/chain#return-value).
 
-#### Usage
+<Callout type="info">
+Hook represents a logic wrapper over Wagmi's `useReadContract` hook. Explore [useReadContract](https://wagmi.sh/react/api/hooks/useReadContract#usereadcontract) to understand what data the hook returns.
+</Callout>
+
+## Usage
 
 ```ts
 import { useBetTokenBalance } from '@azuro-org/sdk'
 
-const { balance, rawBalance, loading, error } = useBetTokenBalance()
+const { data, isFetching } = useBetTokenBalance()
+
+const { rawBalance, balance } = data
 ```
 
-#### Return Value
+## Props
 
 ```ts
 {
-  balance: string | undefined
-  rawBalance: bigint | undefined
-  loading: boolean
-  error: Error | null
+  chainId?: ChainId
+  query?: UseReadContractParameters<typeof erc20Abi, 'balanceOf'>['query']
 }
+```
+
+```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+## Return Value
+
+```ts
+UseReadContractReturnType<typeof erc20Abi, 'balanceOf', any, Balance>
+```
+
+```ts
+type Balance = { rawBalance: BigInt, balance: string }
 ```

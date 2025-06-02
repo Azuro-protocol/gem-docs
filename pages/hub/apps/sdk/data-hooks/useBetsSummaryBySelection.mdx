@@ -1,39 +1,49 @@
 import { Callout } from 'components'
 
-This Hook should use if you want to show user's bets results on the game page for resolved markets, check [`useResolvedMarkets`](useResolvedMarkets).
+# useBetsSummaryBySelection
 
-#### Usage
+The `useBetsSummaryBySelection` Hook should use if you want to show user's bets results on the game page for resolved markets, check [`useResolvedMarkets`](useResolvedMarkets).
+
+## Usage
 
 ```ts
 import { useBetsSummaryBeSelection } from '@azuro-org/sdk'
 
-const { betsSummary, loading, error } = useBetsSummaryBeSelection({
+const { data, isFetching } = useBetsSummaryBeSelection({
   account: '...',
   gameId: '...',
-  gameStatus: GameStatus.Resolved
+  gameState: GameState.Resolved
 })
 ```
 
-#### Props
+## Props
 ```ts
 {
   account: Address
   gameId: string
-  gameStatus: GameStatus
-  keyStruct?: 'outcomeId' | 'conditionId-outcomeId' // the key in betsSummary object
+  gameState: GameState
+  chainId?: ChainId
+  query?: QueryParameter<GameBetsQuery>
 }
 ```
 
-<Callout type="info">
-  If you use `groupedMarkets` from [`useResolvedMarkets`](useResolvedMarkets) the `keyStruct` should be `outcomeId` otherwise `conditionId-outcomeId`.
-</Callout>
-
-
-#### Return Value
 ```ts
-{
-  loading: boolean
-  error: Error | null
-  betsSummary: Record<string, string>
-}
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+
+## Return Value
+```ts
+UseQueryResult<Record<outcomeId, string>>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
 ```

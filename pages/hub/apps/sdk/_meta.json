@@ -14,7 +14,8 @@
   "watch-hooks": {
     "title": "Watch Hooks"
   },
-  "waves": "Azuro Waves",
-  "cashout": "cashout",
+  "bonus": "Freebet",
+  "waves": "Waves",
+  "cashout": "Cashout",
   "hooks": "Other Hooks"
 }

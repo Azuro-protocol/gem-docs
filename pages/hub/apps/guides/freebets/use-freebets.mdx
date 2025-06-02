@@ -4,174 +4,520 @@ import { Tab, Tabs } from 'nextra-theme-docs'
 # Use Freebets
 
 To use a freebet, the user needs:
+
 1. See available freebet list (fetched from the azuro api) in the UI.
-2. Call the `bet` function on the Freebet contract with data from available freebet.
-3. To claim their winnings or refunds if the condition was canceled users should call the `withdrawPayout` function.
+2. Create a bet with selected freebet.
+3. Claim winnings.
+
+## Fetch available freebets
+
+<Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
+  <Tab>
+    1. To retrieve all user's `bonuses` use the [`useBonuses`](/hub/apps/sdk/bonus/useBonuses) hook:
+
+    ```tsx copy
+    'use client'
+
+    import { useBonuses } from '@azuro-org/sdk'
+    import { BonusStatus } from '@azuro-org/toolkit'
+    import { useAccount } from 'wagmi'
 
 
-### Fetch available freebets
-Use the [Azuro Freebets API](https://api.azuro.org/api/v1/public/freebets/docs/static/index.html) to get info about new freebets distributed for the customers.
+    const NewFreeBetsChecker: React.FC = () => {
+      const { address } = useAccount()
 
-```ts copy
-type Address = `0x${string}`
-type Hex = `0x${string}`
+      const { data: bonuses } = useBonuses({
+        account: address!,
+        affiliate: '0x...', // your affiliate address
+        query: {
+          enabled: Boolean(address),
+        },
+      })
 
-enum RestFreebetStatus {
-  New = 'New',
-  Claimed = 'Claimed',
-  Redeemed = 'Redeemed',
-  Canceled = 'Canceled',
-  Reissued = 'Reissued',
-  Withdrawn = 'Withdrawn',
-}
+      const activeFreebets = bonuses?.filter((freebet) => {
+        return freebet.status === BonusStatus.Available
+      })
 
-type RestFreebet = {
-  id: number
-  owner: Address
-  amount: string // raw '10000000'
-  minOdds: string // raw '10000000'
-  contractId: number
-  signature: Hex
-  expiresAt: number // unix timestamp in seconds
-  campaign: string
-  status: RestFreebetStatus
-  contract: {
-    id: number
-    affiliate: Address
-    chainId: string
-    freebetContractAddress: Address
-    decimals: number
-  }
-}
+      return (
+        // render freebets
+      )
+    }
+    ```
 
-const freebetFetcher = async (bettorAddress: string): Promise<RestFreebet[]> => {
-  const response = await axios.get<RestFreebet[]>('https://api.azuro.org/api/v1/public/freebets/list', {
-    params: {
-      owner: bettorAddress.toLowerCase(),
-      affiliate: '0x...', // your affiliate address
-    },
-  })
+    2. To get all `freebets` that can be used based on the provided bet information (`selections`) use the [`useAvailableFreebets`](/hub/apps/sdk/bonus/useAvailableFreebets) hook:
 
-  return response.data || []
-}
-```
+    ```tsx copy
+    'use client'
 
-Api returns all available to claim freebets for specified bettor (status: `New` | `Reissued`).
+    import { useAvailableFreebets } from '@azuro-org/sdk'
+    import { useAccount } from 'wagmi'
 
-<Callout type="warning">
-  If you work in several chains, pay attention to handle it, api returns all available freebets from all supported chains.
-  You must validate that `freebet.contract.chainId` is the same as current app chain before suggesting to use it for a bet.
-  Also validate that odds of selected outcome (including slippage) satisfies `freebet.minOdds`.
-</Callout>
 
-<Callout type="alert">
-  Freebets are not acceptable for combo bets.
-</Callout>
+    const AvailableFreebets: React.FC = () => {
+      const { address } = useAccount()
 
-### Use freebet to place a bet
+      const items = [...] // your stored betslip items
 
-If you're not familiar with generic logic around placing a bet, please read [Guides section](/hub/apps/guides/advanced/prematch/place-a-bet) first.
+      const { data: freebets } = useAvailableFreebets({
+        account: address!,
+        affiliate: '0x...', // your affiliate address
+        selections: items,
+        query: {
+          enabled: Boolean(address),
+        },
+      })
 
-<Callout type="warning">
-  To apply freebet, `outcome.rawMinOdds` should be greater than `freebet.minOdds`. The bet should be single - freebets aren't applicable to combo bets.
-</Callout>
+      return (
+        // render available freebets
+      )
+    }
+    ```
 
-<Callout type="warning">
-  Please note that we provide you with the flexibility to distribute Freebets without a budget limitation.
-  However, if your customers claim Freebets for an amount exceeding the freebet contract balance,
-  they will encounter an error during the smart contract execution call.
-</Callout>
+    <Callout type="info">
+      Using [`BetslipProvider`](/hub/apps/sdk/providers/betslip):
 
-<Tabs items={[ 'Ethers', 'Wagmi' ]}>
-<Tab>
-```ts
-import { ethers } from 'ethers'
+      ```tsx copy
+      import { useDetailedBetslip } from '@azuro-org/sdk'
 
-if (BigInt(outcome.rawMinOdds) <  BigInt(freebet.minOdds)) {
-  // outcome minOdds should be greater than freebet.minOdds
-  return
-}
+      const SelectFreebet: React.FC = () => {
+        const { 
+          freebets, selectedFreebet, selectFreebet, 
+          isFreebetsFetching,
+        } = useDetailedBetslip()
 
-const data = ethers.utils.defaultAbiCoder.encode(
-  [ 'tuple(uint256, uint64)' ],
-  [ { conditionId, outcomeId } ]
-)
+        // select specific freebet
+        const handleClick = () => {
+          selectFreebet(freebets[0])
+        }
 
-const freebetContract = new Contract(freebet.contract.freebetContractAddress, freebetABI)
+        return (
+          // render available freebets
+        )
+      }
+      ```
+    </Callout>
+    
+  </Tab>
+  <Tab>
+    1. To retrieve all user's `bonuses` use the [`getBonuses`](/hub/apps/toolkit/bonus/getBonuses) function:
 
-freebetContract.bet(
-  {
-    chainId: freebet.contract.chainId,
-    expiresAt: freebet.expiresAt,
-    amount: freebet.amount,
-    freeBetId: freebet.id,
-    minOdds: freebet.minOdds,
-    owner: account,
-  },
-  freebet.signature,
-  coreAddress,
-  conditionId,
-  outcomeId,
-  deadline,
-  outcome.rawMinOdds
-)
-```
-</Tab>
-<Tab>
-```ts
-import { useContractWrite, encodeAbiParameters } from 'wagmi'
+    ```ts
+    import { getBonuses } from '@azuro-org/toolkit'
 
-if (BigInt(outcome.rawMinOdds) <  BigInt(freebet.minOdds)) {
-  // outcome minOdds should be greater than freebet.minOdds
-  return
-}
+    const bonuses = await getBonuses({
+      chainId: 137
+      account: '0x...' // user's address
+      affiliate: '0x...' // your affiliate address
+    })
+    ```
 
-const data = encodeAbiParameters(
-  parseAbiParameters('uint256, uint64'),
-  [
-    BigInt(conditionId),
-    BigInt(outcomeId),
-  ]
-)
+    2. To get all `freebets` that can be used based on the provided bet information (`selections`) use the [`getAvailableFreebets`](/hub/apps/toolkit/bonus/getAvailableFreebets) function:
 
-useContractWrite({
-  address: freebet.contract.freebetContractAddress,
-  abi: freebetABI,
-  functionName: 'bet',
-  args: [
-    {
-      chainId: freebet.contract.chainId,
-      expiresAt: freebet.expiresAt,
-      amount: freebet.amount,
-      freeBetId: freebet.id,
-      minOdds: freebet.minOdds,
-      owner: account,
-    },
-    freebet.signature,
-    coreAddress,
-    BigInt(conditionId),
-    BigInt(outcomeId),
-    BigInt(deadline),
-    outcome.rawMinOdds
-  ],
-})
-```
-</Tab>
+    ```ts
+    import { getAvailableFreebets } from '@azuro-org/toolkit'
+
+    const freebets = await getAvailableFreebets({
+      chainId: 137
+      account: '0x...' // user's address
+      affiliate: '0x...' // your affiliate address
+      selections: [{...}]
+    })
+    ```
+  </Tab>
+  <Tab>
+    1. To retrieve all user's `bonuses` use the [Bonus Public API](https://dev-api.onchainfeed.org/api/v1/public/gateway/docs#/Bonus%20Public/BonusPublicController_getBonusesByAddresses):
+
+    ```ts
+    type Bonus = {
+      id: string
+      bonusType: BonusType
+      freebetParam: {
+        isBetSponsored: true,
+        isFeeSponsored: true,
+        isSponsoredBetReturnable: true
+      },
+      address: string
+      amount: string
+      status: BonusStatus
+      network: string
+      currency: string
+      expiresAt: string
+      usedAt: string
+      createdAt: string
+    }
+
+    type GetBonusesResponse = {
+      bonuses: Bonus[]
+    }
+
+    const api = 'https://dev-api.onchainfeed.org/api/v1/public' // development
+    const api = 'https://api.onchainfeed.org/api/v1/public' // production
+
+    const account = '0x...' // user's address
+    const affiliate = '0x...' // affiliate address
+
+    const response = await fetch(`${api}/bonus/get-by-addresses`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        bettorAddress: account,
+        poolAddress: affiliate,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Status ${response.status}: ${response.statusText}`)
+    }
+
+    const { bonuses }: GetBonusesResponse = await response.json()
+    ```
+
+    2. To get all `freebets` that can be used based on the provided bet information (`selections`) use the [Bonus Public API](https://dev-api.onchainfeed.org/api/v1/public/gateway/docs#/Bonus%20Public/BonusPublicController_getBonusesByAddresses):
+
+
+    ```ts
+    export type GetFreebetsResponse = {
+      bonuses: Bonus[]
+    }
+
+    enum Environment {
+      GnosisDevXDAI = 'GnosisDevXDAI',
+      GnosisXDAI = 'GnosisXDAI',
+      PolygonUSDT = 'PolygonUSDT',
+      PolygonAmoyUSDT = 'PolygonAmoyUSDT',
+      ChilizWCHZ = 'ChilizWCHZ',
+      ChilizSpicyWCHZ = 'ChilizSpicyWCHZ',
+      BaseWETH = 'BaseWETH',
+      BaseSepoliaWETH = 'BaseSepoliaWETH'
+    }
+
+    const api = 'https://dev-api.onchainfeed.org/api/v1/public' // development
+    const api = 'https://api.onchainfeed.org/api/v1/public' // production
+
+    const environment = Environment.PolygonUSDT
+    const account = '0x...' // user's address
+    const affiliate = '0x...' // affiliate address
+    const selections = [{
+      conditionId: '123',
+      outcomeId: 123
+    }]
+
+    const response = await fetch(`${api}/bonus/freebet/get-available`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        environment,
+        bettorAddress: account,
+        poolAddress: affiliate,
+        selections,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`Status ${response.status}: ${response.statusText}`)
+    }
+
+    const { bonuses }: GetFreebetsResponse = await response.json()
+    ```
+  </Tab>
 </Tabs>
 
+## Use freebet to place a bet
 
-### Withdraw a winning freebet
+<Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
+  <Tab>
+    Pass selected freebet to the [`useBet`](/hub/apps/sdk/write-hooks/useBet) hook:
+
+    ```tsx copy
+    import { useDetailedBetslip, useBet } from '@azuro-org/sdk'
+
+    const BetButton: React.FC<BetButtonProps> = () => {
+      const { selectedFreebet } = useDetailedBetslip()
+
+      const { submit } = useBet({
+        ..., // other props
+        freebet: selectedFreebet,
+      })
+
+      return (
+        <button onClick={submit}>Bet</button>
+      )
+    }
+    ```
+  </Tab>
+  <Tab>
+    Construct the bet data with the selected freebet, sign it, and pass the complete bet information to the [`createBet`](/hub/apps/toolkit/utils/createBet) function to process a single bet. For creating a combo bet, use the [`createComboBet`](/hub/apps/toolkit/utils/createComboBet) function instead.
+
+    ```ts copy {1, 14-16, 36}
+    import { type Freebet, getBetTypedData, createBet } from '@azuro-org/toolkit'
+
+    const freebet: Freebet = {...}
+
+    const betData = {
+      account: '0x...', // user's address
+      clientData: {
+        attention: '', // attention text
+        affiliate: '0x...', // your affiliate address
+        core: '0x...', // core address
+        expiresAt, // bet expired date
+        chainId: 137,
+        relayerFeeAmount: '0', // currently pass 0
+        isBetSponsored: freebet?.params?.isBetSponsored || false,
+        isFeeSponsored: freebet?.params?.isFeeSponsored || false,
+        isSponsoredBetReturnable: freebet?.params?.isSponsoredBetReturnable || false,
+      },
+      bet: {
+        conditionId: '123',
+        outcomeId: '123',
+        amount: 1000000,
+        minOdds: 124123...,
+        nonce: String(Date.now()),
+      },
+    }
+
+    // create typed data for signatire
+    const typedData = getBetTypedData(betData)
+
+    // sign typed data with wallet client
+    const signature = await walletClient!.data!.signTypedData(typedData)
+
+
+    const createdOrder = await createBet({
+      ...betData,
+      bonusId: freebet.id, // pass freebet id
+      signature,
+    })
+
+    const {
+      id,
+      state,
+      errorMessage,
+    } = createdOrder!
+    ```
+  </Tab>
+  <Tab>
+    1. Construct the bet data with the selected freebet:
+    ```ts
+    const freebet = { ... }
+
+    const betData = {
+      account: '0x...', // user's address
+      clientData: {
+        attention: '', // attention text
+        affiliate: '0x...', // your affiliate address
+        core: '0x...', // core address
+        expiresAt, // bet expired date
+        chainId: 137,
+        relayerFeeAmount: '0', // currently pass 0
+        isBetSponsored: freebet?.params?.isBetSponsored || false,
+        isFeeSponsored: freebet?.params?.isFeeSponsored || false,
+        isSponsoredBetReturnable: freebet?.params?.isSponsoredBetReturnable || false,
+      },
+      bet: {
+        conditionId: '123',
+        outcomeId: '123',
+        amount: 1000000,
+        minOdds: 124123...,
+        nonce: String(Date.now()),
+      },
+    }
+    ```
+
+    2. Sign bet data using user's wallet:
+    ```ts
+    import { type SignTypedDataParameters, type TypedDataDomain } from 'viem'
+
+    export const CLIENT_DATA_TYPES = [
+      { name: 'attention', type: 'string' },
+      { name: 'affiliate', type: 'address' },
+      { name: 'core', type: 'address' },
+      { name: 'expiresAt', type: 'uint256' },
+      { name: 'chainId', type: 'uint256' },
+      { name: 'relayerFeeAmount', type: 'uint256' },
+      { name: 'isFeeSponsored', type: 'bool' },
+      { name: 'isBetSponsored', type: 'bool' },
+      { name: 'isSponsoredBetReturnable', type: 'bool' },
+    ] as const
+
+    export const BET_DATA_TYPES = {
+      ClientBetData: [
+        { name: 'clientData', type: 'ClientData' },
+        { name: 'bets', type: 'SubBet[]' },
+      ],
+      ClientData: CLIENT_DATA_TYPES,
+      SubBet: [
+        { name: 'conditionId', type: 'uint256' },
+        { name: 'outcomeId', type: 'uint128' },
+        { name: 'minOdds', type: 'uint64' },
+        { name: 'amount', type: 'uint128' },
+        { name: 'nonce', type: 'uint256' },
+      ],
+    } as const
+
+    const { account, clientData, bet } = betData
+    const { chainId, core } = clientData
+
+    const EIP712Domain: TypedDataDomain = {
+      name: TYPED_DATA_DOMAIN_NAME,
+      version: TYPED_DATA_DOMAIN_VERSION,
+      chainId,
+      verifyingContract: core,
+    }
+
+    const typedData: SignTypedDataParameters<typeof BET_DATA_TYPES> = {
+      account: account,
+      domain: EIP712Domain,
+      primaryType: 'ClientBetData',
+      types: BET_DATA_TYPES,
+      message: {
+        clientData: {
+          attention: clientData.attention,
+          affiliate: clientData.affiliate,
+          core: clientData.core,
+          expiresAt: BigInt(clientData.expiresAt),
+          chainId: BigInt(clientData.chainId),
+          relayerFeeAmount: BigInt(clientData.relayerFeeAmount),
+          isBetSponsored: clientData.isBetSponsored,
+          isFeeSponsored: clientData.isFeeSponsored,
+          isSponsoredBetReturnable: clientData.isSponsoredBetReturnable,
+        },
+        bets: [
+          {
+            conditionId: BigInt(bet.conditionId),
+            outcomeId: BigInt(bet.outcomeId),
+            minOdds: BigInt(bet.minOdds),
+            amount: BigInt(bet.amount),
+            nonce: BigInt(bet.nonce),
+          },
+        ],
+      },
+    }
+
+    // sign typed data with wallet client
+    const signature = await walletClient!.data!.signTypedData(typedData)
+    ```
+
+    3. Send all following data to bet [API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Bet%20Public/BetController_createOrderOrdinar): 
+    ```ts
+    type CreateBetResponse = {
+      id: string
+      state: BetState
+      errorMessage?: string
+      error?: string
+    }
+
+    enum Environment {
+      GnosisDevXDAI = 'GnosisDevXDAI',
+      GnosisXDAI = 'GnosisXDAI',
+      PolygonUSDT = 'PolygonUSDT',
+      PolygonAmoyUSDT = 'PolygonAmoyUSDT',
+      ChilizWCHZ = 'ChilizWCHZ',
+      ChilizSpicyWCHZ = 'ChilizSpicyWCHZ',
+      BaseWETH = 'BaseWETH',
+      BaseSepoliaWETH = 'BaseSepoliaWETH'
+    }
+
+    const api = 'https://dev-api.onchainfeed.org/api/v1/public' // development
+    const api = 'https://api.onchainfeed.org/api/v1/public' // production
+
+    const bonusId = freebet.id
+    const environment = Environment.PolygonUSDT
+    const { account, clientData, bet } = betData
+
+    const { chainId } = clientData
+
+    const signedBet = {
+      environment,
+      bonusId,
+      bettor: account.toLowerCase(),
+      betOwner: account.toLowerCase(),
+      clientBetData: {
+        clientData,
+        bet: {
+          conditionId: String(bet.conditionId),
+          outcomeId: Number(bet.outcomeId),
+          minOdds: String(bet.minOdds),
+          amount: String(bet.amount),
+          nonce: String(bet.nonce),
+        },
+      },
+      bettorSignature: signature,
+    }
+
+    const response = await fetch(`${api}/bet/orders/ordinar`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(signedBet),
+    })
+
+    if (response.status === 404) {
+      return null
+    }
+
+    const data: CreateBetResponse = await response.json()
+
+    const {
+      id,
+      state,
+      errorMessage,
+    } = data
+    ```
+  </Tab>
+</Tabs>
+
+## Withdraw a winning freebet
 
 When customer placed a freebet, it will become regular bet in their bet history.
+
 <Callout type="info">
-  The customer will only receive profit from the bet: `bet.payout - bet.amount`, the body of bet (amount) will be returned to the freebet contract
+  The `isSponsoredBetReturnable` of freebet field indicates whether the value of the freebet will be included in the winning amount. If it is `true`, the freebet amount will be paid as part of the winnings. If it is `false`, only the profit (excluding the freebet value) will be paid out.
+
+  Taking this into account, here’s an example of how to calculate a bet’s possible win:
+
+  ```ts
+    const diff = freebet && freebet.params.isSponsoredBetReturnable ? +freebet.amount : 0
+
+    // bet possible win based on isSponsoredBetReturnable field
+    const possibleWin = totalBetOdds * +betAmount - diff
+  ```
 </Callout>
-To redeem a winning freebet, you should call freebet contract:
-```ts
-const freebetContract = new Contract(bet.freebet.freebetContractAddress, freebetABI)
 
-const tx = await freebetContract.connect(signer).withdrawPayout(bet.freebet.freebetId)
-```
 
-All details about bet history and base logic of redeem, please read in Guides section:
-[Bet history](/hub/apps/guides/advanced/prematch/get-bets-history) & [Redeem Bets](/hub/apps/guides/advanced/prematch/redeem-bets)
+<Tabs items={[ 'SDK', 'Manual' ]}>
+  <Tab>
+    To redeem winning freebet, you need to use the [`useRedeemBet`](/hub/apps/sdk/write-hooks/useRedeemBet) hook
+    ```ts
+    import { type Bet, useRedeemBet } from '@azuro-org/sdk'
+
+    const { submit, isPending, isProcessing } = useRedeemBet()
+
+    const bet: Bet = {...}
+
+    const handleRedeem = async () => {
+      try {
+        await submit({ bets: [ bet ] })
+      }
+      catch {}
+    }
+    ```
+  </Tab>
+  <Tab>
+    To redeem a winning freebet, you should call paymaster contract:
+    ```ts
+    import { paymasterAbi } from '@azuro-org/sdk'
+
+    const paymasterContract = new Contract(bet.paymasterContractAddress, paymasterAbi)
+
+    const tx = await paymasterContract.connect(signer).withdrawPayouts(bet.freebetId)
+    ```
+  </Tab>
+</Tabs>

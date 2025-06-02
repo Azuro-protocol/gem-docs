@@ -6,7 +6,7 @@ Hook is used to get the [Wave Total Leaderboard](/hub/apps/guides/azuro-waves#fe
   This hook is a wrapper around [getWaveLeaderBoard](/hub/apps/toolkit/waves/getWaveLeaderBoard) function.
 </Callout>
 
-#### Usage
+## Usage
 
 ```ts
 import { useWaveLeaderBoard } from '@azuro-org/sdk'
@@ -14,22 +14,32 @@ import { useWaveLeaderBoard } from '@azuro-org/sdk'
 const { data } = useWaveLeaderBoard()
 ```
 
-#### Props
+## Props
 
 ```ts
 {
   waveId?: WaveId
   account?: Address
   startsAt?: number // startsAt of specific period
-  enabled?: boolean
+  chainId?: ChainId
+  query?: QueryParameter<WaveLeaderBoardItem[] | null>
 }
 ```
 
 ```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
 type WaveId = number | 'active'
 ```
 
-#### Return Value
+## Return Value
 
 ```ts
 UseQueryResult<WaveLeaderBoardItem[]>

@@ -25,8 +25,20 @@ const { data, isFetching, error } = useGame(props)
 ```ts
 {
   gameId: string | bigint
+  chainId?: ChainId
   query?: QueryParameter<GameQuery['game']> // useQuery params
 }
+```
+
+```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
 ```
 
 <Callout type="warning">

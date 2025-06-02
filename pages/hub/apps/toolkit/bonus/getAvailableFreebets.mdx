@@ -1,0 +1,118 @@
+import { Callout } from 'components'
+
+Returns `freebets` that can be used based on the provided bet information (`selections`).
+
+<Callout type="warning">
+  Available in version `5.1.0-beta.1`
+</Callout>
+
+<Callout type="info">
+  You can find more information [Here](/hub/apps/guides/cashout/overview).
+</Callout>
+
+#### Usage
+
+```ts
+import { getAvailableFreebets } from '@azuro-org/toolkit'
+
+const freebets = await getAvailableFreebets({
+  chainId: 137
+  account: '0x...'
+  affiliate: '0x...'
+  selections: [{...}]
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId
+  account: Address // user's address
+  affiliate: Address // your affiliate address
+  selections: [{...}]
+}
+```
+
+```ts
+type Selection = {
+  outcomeId: string
+  conditionId: string
+}
+
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
+import { type Address } from 'viem'
+```
+
+#### Return Value
+
+```ts
+Promise<Freebet[] | null>
+```
+
+```ts
+enum BonusType {
+  FreeBet = 'FreeBet',
+}
+
+enum BonusStatus {
+  Used = 'Used',
+  Available = 'Available',
+}
+
+enum FreebetType {
+  OnlyWin = 'OnlyWin',
+  AllWin = 'AllWin',
+}
+
+enum BetRestrictionType {
+  Ordinar = 'Ordinar',
+  Combo = 'Combo',
+}
+
+enum EventRestrictionState {
+  Live = 'Live',
+  Prematch = 'Prematch',
+}
+
+type BonusBase = {
+  id: string
+  type: BonusType,
+  amount: string
+  status: BonusStatus
+  chainId: ChainId
+  expiresAt: number
+  usedAt: number
+  createdAt: number
+}
+
+type Freebet = {
+  type: BonusType.FreeBet
+  params: {
+    isBetSponsored: boolean
+    isFeeSponsored: boolean
+    isSponsoredBetReturnable: boolean
+  }
+  settings: {
+    type: FreebetType
+    feeSponsored: boolean
+    betRestriction: {
+      type: BetRestrictionType | undefined
+      minOdds: string
+      maxOdds: string | undefined
+    }
+    eventRestriction: {
+      state: EventRestrictionState | undefined
+    }
+    periodOfValidityMs: number
+  }
+} & BonusBase
+```

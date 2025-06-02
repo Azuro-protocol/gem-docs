@@ -1,0 +1,87 @@
+import { Callout } from 'components'
+
+# useGameState
+
+The `useGameState` hook is used for maintain updated state for a game.
+
+a Game have a `state` field that indicates their current state. For instance, `GameState.Prematch` signifies the condition is currently in prematch state, while `GameState.Stopped` indicates it has temporarily stopped accepting bets.
+
+## Usage
+
+<Callout type="warning">
+  Before utilizing `useGameState`, it is essential to initialize the `FeedSocketProvider` and the `GameUpdatesProvider`:
+
+  ```tsx
+    import { ChainProvider, FeedSocketProvider, GameUpdatesProvider, useWatchers } from '@azuro-org/sdk'
+
+    function Providers(props: { children: React.ReactNode }) {
+      const { children } = props
+
+      return (
+        <ChainProvider>
+          <FeedSocketProvider>
+            <GameUpdatesProvider>
+              {children}
+            </GameUpdatesProvider>
+          </FeedSocketProvider>
+        </ChainProvider>
+      )
+    }
+  ```
+</Callout>
+
+<Callout type="info">
+Example of usage: Condition wrapper around Outcome buttons.<br/>
+
+We've retrieved markets with outcomes and rendered a button for each outcome and need to make sure that condition in a state to accept bets. The `useGameState` hook offers a method to react to changes in the condition state. [Full Example](https://github.com/Azuro-protocol/example-app/blob/main/src/app/%5BsportSlug%5D/%5BcountrySlug%5D/%5BleagueSlug%5D/%5BgameId%5D/page.tsx#L18)
+
+```tsx
+import { useGameState } from '@azuro-org/sdk'
+import { GameQuery } from '@azuro-org/toolkit'
+
+type ContentProps = {
+  game: NonNullable<GameQuery['game']>
+}
+
+const Content: React.FC<ContentProps> = ({ game }) => {
+  const { data: state } = useGameState({
+    gameId: game.gameId,
+    initialState: game.state,
+  })
+
+  return (
+    <>
+      <EventInfo game={game} state={state} />
+      <Markets game={game} gameState={state} />
+    </>
+  )
+}
+```
+</Callout>
+
+
+## Props
+
+```ts
+{
+  gameId: string
+  initialState: GameState
+}
+```
+
+```ts
+enum GameState {
+  Finished = "Finished",
+  Live = "Live",
+  Prematch = "Prematch",
+  Stopped = "Stopped"
+}
+```
+
+## Return Value
+
+```ts
+{
+  data: GameState
+}
+```

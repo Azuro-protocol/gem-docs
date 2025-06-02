@@ -17,8 +17,26 @@ Hook represents a logic wrapper over TanStack Query's `useInfiniteQuery` hook. E
 ```ts
 import { useLegacyBets } from '@azuro-org/sdk'
 
-const { data, hasNextPage, isFetching } = useLegacyBets(props)
+const { data, hasNextPage, isFetching, fetchNextPage } = useLegacyBets(props)
 const { pages } = data || {}
+
+// render pages
+<>
+  {
+    pages?.map(({ bets, nextPage }) => {
+      return (
+        <React.Fragment key={`${nextPage}`}>
+          {
+            bets.map(bet => (
+              <BetComponent key={`${bet.createdAt}-${bet.tokenId}`} bet={bet} />
+            ))
+          }
+        </React.Fragment>
+      )
+    })
+  }
+<>
+```
 ```
 
 ## Props
@@ -33,11 +51,21 @@ const { pages } = data || {}
   itemsPerPage?: number
   orderBy?: Bet_OrderBy // default: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
+  chainId?: ChainId
   query?: InfiniteQueryParameters<QueryResult>
 }
 ```
 
 ```ts
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+  
 enum BetType {
   Unredeemed = 'unredeemed', // ready to redeem bets
   Accepted = 'accepted', // not resolved bets

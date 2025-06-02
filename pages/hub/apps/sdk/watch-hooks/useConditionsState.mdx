@@ -1,0 +1,94 @@
+import { Callout } from 'components'
+
+# useConditionsState
+
+The `useConditionsState` hook is used for maintain updated states for a conditions.
+
+[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. For instance, `ConditionState.Created` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this condition is currently possible or not.
+
+## Usage
+
+<Callout type="warning">
+  Before utilizing `useConditionsState`, it is essential to initialize the `FeedSocketProvider` and `ConditionUpdatesProvider`:
+
+  ```tsx
+    import { ChainProvider, FeedSocketProvider, ConditionUpdatesProvider, useWatchers } from '@azuro-org/sdk'
+
+    function Providers(props: { children: React.ReactNode }) {
+      const { children } = props
+
+      return (
+        <ChainProvider>
+          <FeedSocketProvider>
+            <ConditionUpdatesProvider>
+              {children}
+            </ConditionUpdatesProvider>
+          </FeedSocketProvider>
+        </ChainProvider>
+      )
+    }
+  ```
+</Callout>
+
+<Callout type="info">
+Example of usage: Betslip.<br/>
+
+We've stored user's selections and need to make sure that conditions in a state to accept bets. The `useConditionsState` hook offers a method to react to changes in the condition states.
+
+```tsx
+import { useConditionsState } from '@azuro-org/sdk'
+import { ConditionState } from '@azuro-org/tookit'
+import { useMemo } from 'react'
+
+const items = [{...}]
+
+const { data: states, isFetching: isStatesFetching } = useConditionsState({
+  conditionIds: items.map(({ conditionId }) => conditionId),
+})
+
+const isConditionsInActiveState = useMemo(() => {
+  return Object.values(states).every(state => state === ConditionState.Active)
+}, [ states ])
+```
+</Callout>
+
+
+## Props
+
+```ts
+{
+  conditionIds: string[]
+  initialStates?: Record<string, ConditionState> // key is conditionId
+}
+```
+
+<Callout type="info">
+The `states` is an object where the key combination corresponds to `conditionId`:
+
+```ts
+states[conditionId]
+```
+</Callout>
+
+<Callout type="info">
+The `initialStates` is optional. If it's not provided, the `useConditionsState` hook will automatically retrieve the initial value.
+</Callout>
+
+```ts
+enum ConditionState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Removed = 'Removed',
+  Resolved = 'Resolved',
+  Stopped = 'Stopped'
+}
+```
+
+## Return Value
+
+```ts
+{
+  data: Record<string, ConditionState> // key is conditionId
+  isFetching // flag indicates initial states fetching
+}
+```

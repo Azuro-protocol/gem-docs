@@ -1,5 +1,8 @@
 {
   "overview": "Overview",
-  "distribute-freebets": "Distribute Freebets",
+  "distribute-freebets": {
+    "title": "Distribute Freebets",
+    "type": "hidden"
+  },
   "use-freebets": "Use Freebets"
 }

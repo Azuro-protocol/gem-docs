@@ -1,11 +1,13 @@
 import { Callout } from 'components';
 
-This hook is used for users to place bets and approve the use tokens for payment when needed.
+# useBet
 
-#### Usage
+The `useBet` hook is used for users to place bets and approve the use tokens for payment when needed.
+
+## Usage
 
 ```ts
-import { usePrepareBet } from '@azuro-org/sdk'
+import { useBet } from '@azuro-org/sdk'
 
 // using BetslipProvider
 import { useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
@@ -26,7 +28,7 @@ const {
   submit,
   approveTx,
   betTx,
-} = usePrepareBet({
+} = useBet({
   betAmount,
   slippage: 10, // 10%
   affiliate: '0x...', // your affiliate address
@@ -45,7 +47,7 @@ submit()
 When allowing users to place express (or combo) bets, you can pass multiple selections, each for different outcomes across various events, and combine them into one larger bet.
 
 ```ts
-const {...} = usePrepareBet({
+const {...} = useBet({
   betAmount: '10',
   slippage: 5,
   affiliate: '0x...',
@@ -67,11 +69,11 @@ const {...} = usePrepareBet({
 ```
 </Callout>
 
-<Callout type="info">
+{/* <Callout type="info">
 To perform batch bet you need to provide object with amounts for each selection, key is concatenation of `conditionId` and `outcomeId`:
 
 ```ts
-const {...} = usePrepareBet({
+const {...} = useBet({
   betAmount: {
     '486903008559711340-29': 1,
     '486903008559711341-30': 10,
@@ -94,9 +96,9 @@ const {...} = usePrepareBet({
   totalOdds,
 })
 ```
-</Callout>
+</Callout> */}
 
-#### Props
+## Props
 
 ```ts
 {
@@ -105,7 +107,8 @@ const {...} = usePrepareBet({
   affiliate: Address // your affiliate address
   odds: Record<string, number>, // odds
   totalOdds: number, // total odds
-  freeBet?: FreeBet // freeBet info
+  freebet?: Pick<Freebet, 'id' | 'params'> // freeBet info
+  chainId?: ChainId
   betGas?: Pick<SendTransactionParameters, 'gas' | 'gasPrice' | 'maxFeePerGas' | 'maxFeePerBlobGas' | 'maxPriorityFeePerGas'> // transaction gas parameters, prematch only
   selections: Selection[] // user's choice for bet
   liveEIP712Attention?: string // attention text for eip-712 sign (up to 160 chars)
@@ -118,27 +121,43 @@ const {...} = usePrepareBet({
 ```ts
 import { type SendTransactionParameters } from 'viem'
 
+type ChainId = 
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
 type Selection = {
   conditionId: string
   outcomeId: string
   coreAddress: string
 }
 
-type FreeBet = {
-  id: number
-  contractAddress: Address
-  signature: Hex
-  expiresAt: number
+type BonusBase = {
+  id: string
+  type: BonusType,
   amount: string
-  rawAmount: bigint
-  minOdds: string
-  rawMinOdds: bigint
-  campaign: string
+  status: BonusStatus
   chainId: ChainId
+  expiresAt: number
+  usedAt: number
+  createdAt: number
 }
+
+type Freebet = {
+  type: BonusType.FreeBet,
+  params: {
+    isBetSponsored: boolean,
+    isFeeSponsored: boolean,
+    isSponsoredBetReturnable: boolean
+  }
+} & BonusBase
 ```
 
-#### Return Value
+## Return Value
 
 ```ts
 {
