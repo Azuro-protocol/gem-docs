@@ -2,7 +2,8 @@
   "overview": "Overview",
   "distribute-freebets": {
     "title": "Distribute Freebets",
-    "type": "hidden"
+    "type": "hidden",
+    "display": "hidden"
   },
   "use-freebets": "Use Freebets"
 }

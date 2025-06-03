@@ -9,21 +9,9 @@
       "toc": false
     }
   },
-  "tutorial": {
-    "title": "Tutorial",
-    "type": "page"
-  },
   "knowledge-hub": {
     "title": "Knowledge Hub",
     "type": "page"
-  },
-  "contracts": {
-    "title": "Contracts",
-    "type": "hidden"
-  },
-  "subgraph": {
-    "title": "Subgraph",
-    "type": "hidden"
   },
   "hub": {
     "title": "Developer Hub",

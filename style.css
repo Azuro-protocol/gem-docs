@@ -85,11 +85,6 @@ body {
   opacity: 0.5;
 }
 
-/* Hide "Tutorial" from menu */
-.nextra-nav-container nav a:nth-child(2) {
-  display: none !important;
-}
-
 .nextra-nav-container nav a:last-child {
   margin-right: 0 !important;
 }
