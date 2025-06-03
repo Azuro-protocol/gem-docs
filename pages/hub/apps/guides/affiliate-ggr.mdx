@@ -10,7 +10,7 @@ The GraphQL query used to retrieve the necessary data for calculating Pool Reven
 
 ```graphql
 query Bets {
-  bets(
+  v3Bets(
     where: {
       status_in: [Resolved, Canceled],
       affiliate: $affiliate
@@ -22,7 +22,7 @@ query Bets {
     odds
     amount
     payout
-    _isFreebet
+    isFreebet
   }
 }
 ```
