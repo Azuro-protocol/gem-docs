@@ -3,103 +3,340 @@ import { Tab, Tabs } from 'nextra-theme-docs'
 
 # Use Cashout
 
-### Get available
+## Get available
 Provides availability of cashout for conditions and outcomes.
-Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-available) to get available.
 
-```ts copy
+<Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
+  <Tab>
+    Using the [`usePrecalculatedCashouts`](http://localhost:5009/hub/apps/sdk/cashout/usePrecalculatedCashouts) hook:
 
-type AvailableResponse = {
- margin: string,
- marginMin: string,
- availables: {
-   conditionId: string;
-   gameStartAt: number;
-   gameState: string; // for information only. May have delays in updating.
-   available: boolean; // cashout availability flag by condition
-   outcomes: {
-     outcomeId: number;
-     price: string; // current price
-   }[];
- }[];
+    ```tsx copy
+    import { usePrecalculatedCashouts, type Bet } from '@azuro-org/sdk'
 
-const cashoutGetAvailableFetcher = async (conditionIds: string[]): Promise<AvailableResponse> => {
-  const response = await axios.post<AvailableResponse>('https://api.azuro.org/api/v1/public/cashout/get-available', {
-      conditionIds, // Condition ids
-    },
-  })
+    type BetProps = {
+      bet: Bet
+    }
 
-  return response.data || []
-}
-```
-<Callout type="info">
-  To pre-calculate cashout, you need to:<br/>
-  <b>amount[bet] * (odds[bet] / odds[prices from available]) * margin[available]</b><br/><br/>
-  If <b>odds[bet] = odds[price available]</b> then you need to use <b>marginMin</b>
-</Callout>
+    const Bet: React.FC<BetProps> = ({ bet }) => {
+      const {
+        createdAt, status: graphBetStatus, amount, outcomes,
+        payout, cashout, possibleWin, freebetId, txHash,
+        isWin, isLose, isCanceled, isRedeemed, isCashedOut,
+      } = bet
 
-### Get calculation
-Calculates the exact cashout amount based on the bet in the contract. Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/get-calculation) to get calculation.
 
-```ts copy
+      const { data: cashoutData } = usePrecalculatedCashouts({
+        bet,
+      })
 
-type CalculationRequest = {
-    environment: string; // Crypto network type
-    owner: string; // Bet owner address
-    betId: string; // Bet ID from the Graph
-}
+      const { cashoutAmount, isAvailable: isCashoutAvailable } = cashoutData || {}
 
-type CalculationResponse = {
-    calculationId: string; // Requirements for creating a cashout
-    owner: string;
-    environment: string;
-    betId: string;
-    cashoutAmount: string; // Сalculated cashout amount
-    cashoutOdds: string; // Calculated cashout as a coefficient
-    expiredAt: number; // The time during which the transaction must be completed, taking into account the execution on the contract
-    approveExpiredAt: number; // The time within which a request to create a cashout must be sent
-    isLive: true;
-}
+      return (
+        // render
+      )
+    }
+    ```
 
-const cashoutGetСalculationFetcher = async (data: CalculationRequest): Promise<CalculationResponse> => {
-  const response = await axios.post<MultipliersResponse>('https://api.azuro.org/api/v1/public/cashout/get-calculation', {
-    ...data
-  })
+  </Tab>
+  <Tab>
+    Using the [`getPrecalculatedCashouts`](http://localhost:5009/hub/apps/toolkit/cashout/getPrecalculatedCashouts) function:
 
-  return response.data || []
-}
-```
+    ```ts copy
+    import { getPrecalculatedCashouts } from '@azuro-org/toolkit'
 
-### Create cashout
-Creates a cashout based on the calculation
-Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/create) to create cashout.
+    const { margin, marginMin, availables } = await getPrecalculatedCashouts({
+      chainId: 137,
+      conditionIds: [{...}]
+    })
 
-```ts copy
+    // check if all conditions available for cashout
+    const isAvailable = availables.every(({ isAvailable }) => isAvailable)
+    ```
+    <Callout type="info">
+      To pre-calculate cashout, you need to:<br/>
+      <b>amount[bet] * (odds[bet] / odds[prices from available]) * margin[available]</b><br/><br/>
+      If <b>odds[bet] = odds[price available]</b> then you need to use <b>marginMin</b>
+    </Callout>
+  </Tab>
+  <Tab>
+    Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_getAvailable):
 
-type CreateRequest = {
-  calculationId: string;
-  signature: {
-    verifyingContract: string; // Cashout contract
-    bettingContract: string; // Bet contract
-    attention: string;
-    chainId: number;
-    ownerSignature: number;
-  }
-}
+    ```ts copy
+    type AvailableResponse = {
+      margin: string
+      marginMin: string
+      availables: {
+        conditionId: string
+        available: boolean // cashout availability flag by condition
+        outcomes: {
+          outcomeId: number
+          price: string // current price
+        }[]
+      }[]
+    }
 
-type CreateResponse = {
-  id: string; // Cashout ID
-  state: // Order state (PROCESSING, ACCEPTED, REJECTED, OPEN)
-}
+    const response = await fetch('https://api.onchainfeed.org/api/v1/public/cashout/get-available', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        conditionIds,
+      }),
+    })
 
-const cashoutСreateCashoutFetcher = async (data: CreateRequest): Promise<CreateResponse> => {
-  const response = await axios.post<MultipliersResponse>('https://api.azuro.org/api/v1/public/cashout/create', {
-    ...data
-  })
+    const { margin, marginMin, availables }: AvailableResponse = await response.json()
 
-  return response.data || []
-}
-```
+    // check if all conditions available for cashout
+    const isAvailable = availables.every(({ isAvailable }) => isAvailable)
+    ```
+    <Callout type="info">
+      To pre-calculate cashout, you need to:<br/>
+      <b>amount[bet] * (odds[bet] / odds[prices from available]) * margin[available]</b><br/><br/>
+      If <b>odds[bet] = odds[price available]</b> then you need to use <b>marginMin</b>
+    </Callout>
+  </Tab>
+</Tabs>
+
+
+## Get calculation
+
+To perform a cashout, you first need to retrieve the calculation that includes detailed information about the cashout amount.
+
+<Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
+  <Tab>
+    Using the [`useCashout`](http://localhost:5009/hub/apps/sdk/cashout/useCashout) hook:
+
+    ```tsx copy
+    import { useCashout, type Bet } from '@azuro-org/sdk'
+
+    export type CashoutModalProps = {
+      bet: Bet
+    }
+
+    const CashoutModal: CashoutModalProps = (props) => {
+      const { bet } = props
+
+      const { calculationQuery } = useCashout({
+        bet
+      })
+
+      const { data, error, isFetching: isCalculationFetching, refetch } = calculationQuery
+      const { cashoutAmount, approveExpiredAt } = data || {}
+
+      return (
+        // render
+      )
+    }
+    ```
+  </Tab>
+  <Tab>
+    Using the [`getCalculatedCashout`](http://localhost:5009/hub/apps/toolkit/cashout/getCalculatedCashout) function:
+
+    ```ts copy
+    import { getCalculatedCashout } from '@azuro-org/toolkit'
+
+    const data = getCalculatedCashout({
+      chainId: 137,
+      account: '0x...',
+      account: '0x...', // Bet owner address
+      graphBetId: '...', // Bet ID from the Graph
+    })
+    ```
+  </Tab>
+  <Tab>
+    Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_getCalculation):
+
+    ```ts copy
+    enum Environment {
+      GnosisDevXDAI = 'GnosisDevXDAI',
+      GnosisXDAI = 'GnosisXDAI',
+      PolygonUSDT = 'PolygonUSDT',
+      PolygonAmoyUSDT = 'PolygonAmoyUSDT',
+      ChilizWCHZ = 'ChilizWCHZ',
+      ChilizSpicyWCHZ = 'ChilizSpicyWCHZ',
+      BaseWETH = 'BaseWETH',
+      BaseSepoliaWETH = 'BaseSepoliaWETH'
+    }
+
+    type CalculationResponse = {
+        calculationId: string // Requirements for creating a cashout
+        owner: string
+        environment: string
+        betId: string
+        cashoutAmount: string // Сalculated cashout amount
+        cashoutOdds: string // Calculated cashout as a coefficient
+        expiredAt: number // The time during which the transaction must be completed, taking into account the execution on the contract
+        approveExpiredAt: number // The time within which a request to create a cashout must be sent
+        isLive: true
+    }
+
+    const response = await fetch(`${api}/cashout/get-calculation`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        environment: Environment.Polygon,
+        owner: '0x...', // Bet owner address
+        betId: '...', // Bet ID from the Graph
+      }),
+    })
+
+    const data: CalculationResponse = await response.json()
+    ```
+  </Tab>
+</Tabs>
+
+## Create cashout
+
+Create a cashout based on the calculation from previous step.
+
+<Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
+  <Tab>
+    Using the [`useCashout`](http://localhost:5009/hub/apps/sdk/cashout/useCashout) hook:
+
+    ```tsx copy
+    import { useCashout, type Bet } from '@azuro-org/sdk'
+
+    export type CashoutModalProps = {
+      bet: Bet
+    }
+
+    const CashoutModal: CashoutModalProps = (props) => {
+      const { bet } = props
+
+      const { submit } = useCashout({
+        bet
+      })
+
+      return (
+        <button onClick={submit}>Cashout</button>
+      )
+    }
+    ```
+  </Tab>
+  <Tab>
+    1. Create signature using the [`getCashoutTypedData`](http://localhost:5009/hub/apps/toolkit/cashout/getCashoutTypedData) function:
+    
+    ```ts copy
+    import { getCashoutTypedData } from '@azuro-org/toolkit'
+
+    const typedData = getCashoutTypedData({
+      chainId: 137,
+      account: '0x...', // user's wallet address
+      attention: 'By signing this transaction, I agree to cash out on \'Azuro Example',
+      tokenId: 234n, // bet tokenId
+      cashoutOdds: 3135243n, // cashout odds from calculation
+      expiredAt: 2348238n, // cashout expiry date
+    })
+
+    // sign typed data with wallet client
+    const signature = await walletClient!.data!.signTypedData(typedData)
+    ```
+
+    2. Send all following data using the [`createCashout`](http://localhost:5009/hub/apps/toolkit/cashout/createCashout) function:
+    ```ts copy
+    import { createCashout } from '@azuro-org/toolkit'
+
+    const createdCashout = await createCashout({
+      chainId: 137,
+      calculationId: '...', // calculation id from prev step
+      attention:  'By signing this transaction, I agree to cash out on \'Azuro Example',
+      signature,
+    })
+    ```
+  </Tab>
+  <Tab>
+    Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_createOrder):
+
+    1. Create signature:
+
+    ```ts copy
+    import { type SignTypedDataParameters, type TypedDataDomain } from 'viem'
+
+    export const CASHOUT_DATA_TYPES = {
+      CashOutItem: [
+        { name: 'betId', type: 'uint256' },
+        { name: 'bettingContract', type: 'address' },
+        { name: 'minOdds', type: 'uint64' },
+      ],
+      CashOutOrder: [
+        { name: 'attention', type: 'string' },
+        { name: 'chainId', type: 'uint256' },
+        { name: 'items', type: 'CashOutItem[]' },
+        { name: 'expiresAt', type: 'uint64' },
+      ],
+    } as const
+    export const CASHOUT_TYPED_DATA_DOMAIN_NAME = 'Cash Out'
+    export const CASHOUT_TYPED_DATA_DOMAIN_VERSION = '1.0.0'
+
+    const EIP712Domain: TypedDataDomain = {
+      name: CASHOUT_TYPED_DATA_DOMAIN_NAME,
+      version: CASHOUT_TYPED_DATA_DOMAIN_VERSION,
+      chainId: 137,
+      verifyingContract: '0x...', // cashout contract address
+    }
+
+    const typedData: SignTypedDataParameters<typeof CASHOUT_DATA_TYPES> = {
+      account: '0x...', // user's wallet address
+      domain: EIP712Domain,
+      primaryType: 'CashOutOrder',
+      types: CASHOUT_DATA_TYPES,
+      message: {
+        attention: attention || 'By signing this transaction, I agree to cash out on \'Azuro SDK Example',
+        chainId: BigInt(chainId),
+        items: [
+          {
+            betId: 1283n, // bet tokenId
+            bettingContract: '0x...', // core contract address
+            minOdds: 100n // cashout odds from calculation
+          },
+        ],
+        expiresAt: BigInt(142384), // cashout expiry date
+      },
+    }
+
+    // sign typed data with wallet client
+    const signature = await walletClient!.data!.signTypedData(typedData)
+    ```
+
+    2. Send all following data to the API
+  
+    ```ts copy
+    type CreateRequest = {
+      calculationId: string // calculation id from prev step
+      signature: {
+        verifyingContract: string // cashout contract address
+        bettingContract: string // core contract address
+        attention: string
+        chainId: number
+        ownerSignature: string // signed cashout data
+      }
+    }
+
+    type CreateResponse = {
+      id: string; // Cashout ID
+      state: // Order state (PROCESSING, ACCEPTED, REJECTED, OPEN)
+    }
+
+    const signedCashout: CreateRequest = {...}
+
+    const response = await fetch(`${api}/cashout/create`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(signedCashout),
+    })
+
+    const createdCashout: CreateResponse = await response.json()
+    ```
+  </Tab>
+</Tabs>
 
 Exceptions:
 ```ts
@@ -155,26 +392,39 @@ export const CashoutExceptionResponses = {
 };
 ```
 
-### Get cashout order
-Gives cashout to the horde by ID
-Use the [Azuro Cashout API](https://api.azuro.org/api/v1/public/cashout/{id}) to get cashout order.
+## Get cashout order
 
-```ts copy
+<Tabs items={[ 'Toolkit', 'Manual' ]}>
+  <Tab>
+    Using the [`getCashout`](http://localhost:5009/hub/apps/toolkit/cashout/getCashout) function:
 
-type OrderResponse = {
-  id: string; // Cashout ID
-  state: // Order state (PROCESSING, ACCEPTED, REJECTED, OPEN)
-  txHash: string; // Transaction id
-  error?: string; // Error code
-  errorMessage?: string; // // Error message
-}
+    ```ts copy
+    import { getCashout } from '@azuro-org/toolkit'
 
-const cashoutGetOrderFetcher = async (cashoutId: string): Promise<OrderResponse> => {
-  const response = await axios.get<OrderResponse>('https://api.azuro.org/api/v1/public/cashout/{id}')
+    const cashout = await getCashout({
+      chainId: 137,
+      orderId: createdCashout.id,
+    })
+    ```
+  </Tab>
+  <Tab>
+    Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_getOrder):
 
-  return response.data || []
-}
-```
+    ```ts copy
+    type OrderResponse = {
+      id: string; // Cashout ID
+      state: // Order state (PROCESSING, ACCEPTED, REJECTED, OPEN)
+      txHash: string; // Transaction id
+      error?: string; // Error code
+      errorMessage?: string; // // Error message
+    }
+
+    const response = await fetch(`${api}/cashout/${orderId}`)
+
+    const cashout: OrderResponse = await response.json()
+    ```
+  </Tab>
+</Tabs>
 
 Error codes:
 ```ts

@@ -63,7 +63,7 @@ type RestTransaction = {
 }
 
 const transactionFetcher = async (userAddress: string, comment: string, offerId: string, campaignId: string): Promise<RestTransaction> => {
-  const response = await axios.post<RestTransaction>('https://api.azuro.org/api/v1/public/cashback/transaction/create', {
+  const response = await axios.post<RestTransaction>('https://api.onchainfeed.org/api/v1/public/cashback/transaction/create', {
     params: {
       userAddress, // user wallet address
       comment, // user wallet address
