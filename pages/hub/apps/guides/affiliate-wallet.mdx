@@ -1,23 +1,41 @@
 import { Callout } from 'components'
 
-## Getting Rewards to your Affiliate wallet
+# Getting Rewards to your Affiliate wallet
 
-To direct rewards to your wallet address, include it as the `affiliate` parameter in bet transactions. [Read about rewards distribution here](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
+To direct rewards to your wallet address, include it as the `affiliate` parameter in [`bet order API`](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Bet%20Public/BetController_createOrderOrdinar). [Read about rewards distribution here](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
 
-```
+```ts {1, 10}
 const AFFILIATE_ADDRESS = '0x...' // Your wallet address to earn rewards
 
-lp.bet(
-  core,
-  amount,
-  deadline,
-  {
-    affiliate: AFFILIATE_ADDRESS,
-    data,
-    minOdds
-  }
-)
+const signedBet = {
+  environment: '...',
+  bettor: '0x...',
+  betOwner: '0x...',
+  clientBetData: {
+    clientData: {
+      attention: '...'
+      affiliate: AFFILIATE_ADDRESS
+      core: '0x...'
+      expiresAt: 23401293
+      chainId: 137
+      relayerFeeAmount: '...'
+      isBetSponsored: false
+      isFeeSponsored: false
+      isSponsoredBetReturnable: false
+    },
+    bet: {...},
+  },
+  bettorSignature: '0x...',
+}
 
+const response = await fetch('https://api.onchainfeed.org/api/v1/public/bet/orders/ordinar', {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(signedBet),
+})
 ```
 
 <Callout type="warning">

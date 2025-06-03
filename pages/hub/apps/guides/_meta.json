@@ -1,24 +1,25 @@
 {
   "advanced": {
-    "title": "Advanced integration"
+    "title": "Advanced integration",
+    "type": "hidden"
   },
   "app-building-guide": {
     "title": "App Building Guide",
-    "display": "hidden"
+    "type": "hidden"
   },
   "freebets": {
-    "title": "Freebets",
-    "display": "hidden"
+    "title": "Freebets"
   },
   "cashback": {
-    "title": "Cashback"
+    "title": "Cashback",
+    "type": "hidden"
   },
   "cashout": {
     "title": "Cashout"
   },
   "wrap-unwrap": {
     "title": "How to Wrap and Unwrap Tokens",
-    "display": "hidden"
+    "type": "hidden"
   },
   "---": {
     "type": "separator"
@@ -33,7 +34,8 @@
     "title": "How to get rewards: affiliate wallet"
   },
   "deploying-azuro-subgraph": {
-    "title": "How to deploy Azuro subgraph"
+    "title": "How to deploy Azuro subgraph",
+    "type": "hidden"
   },
   "affiliate-ggr": {
     "title": "How to calculate affiliate's gaming revenue"
@@ -46,7 +48,7 @@
   },
   "azuro-score": {
     "title": "How to get Azuro Score leaderboard",
-    "display": "hidden"
+    "type": "hidden"
   },
   "live-statistics": "Live statistics"
 }

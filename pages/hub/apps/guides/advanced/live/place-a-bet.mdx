@@ -208,7 +208,7 @@ const signedOrder: SignedByBettorOrderSpec = {
 // For pre-production
 const apiUrl = 'https://preprod-api.azuro.org/api/v1/public/orders'
 // For production
-const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
+const apiUrl = 'https://api.onchainfeed.org/api/v1/public/orders'
 
 const response = await fetch(apiUrl, {
   method: 'POST',
@@ -291,7 +291,7 @@ export interface UpdatedOrderSpec extends OrderResponseSpec {
 // For pre-production
 const apiUrl = 'https://preprod-api.azuro.org/api/v1/public/orders'
 // For production
-const apiUrl = 'https://api.azuro.org/api/v1/public/orders'
+const apiUrl = 'https://api.onchainfeed.org/api/v1/public/orders'
 
 const response = await fetch(`${apiUrl}/${orderId}`);
 

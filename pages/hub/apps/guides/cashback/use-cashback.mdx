@@ -10,7 +10,7 @@ To use cashback, the user needs to:
 
 ### Fetch the available cashback
 Public Request.
-Use the [Azuro Cashback API](https://api.azuro.org/api/v1/public/cashback) to retrieve cashback information for the user.
+Use the [Azuro Cashback API](https://api.onchainfeed.org/api/v1/public/cashback) to retrieve cashback information for the user.
 
 ```ts copy
 type Address = `0x${string}`
@@ -32,7 +32,7 @@ type RestBalance = {
 }
 
 const cashbackFetcher = async (userAddress: string, affiliateAddress: string, networks?: string[]): Promise<RestBalance[]> => {
-  const response = await axios.get<RestBalance[]>('https://api.azuro.org/api/v1/public/cashback/public/user-balance', {
+  const response = await axios.get<RestBalance[]>('https://api.onchainfeed.org/api/v1/public/cashback/public/user-balance', {
     params: {
       userAddress, // User wallet address
       affiliateAddress, // Affiliate wallet address
@@ -73,7 +73,7 @@ type RestCashback = {
 }
 
 const cashbackFetcher = async (userAddress: string, affiliateAddress: string, network: RestNetwork, currency: RestCurrency, expiresAt: Date): Promise<RestCashback> => {
-  const response = await axios.get<RestCashback>('https://api.azuro.org/api/v1/public/cashback/public/cashback', {
+  const response = await axios.get<RestCashback>('https://api.onchainfeed.org/api/v1/public/cashback/public/cashback', {
     params: {
       userAddress, // User wallet address
       affiliateAddress, // Affiliate wallet address
@@ -114,7 +114,7 @@ type RestCashbackHistory = {
 }
 
 const cashbackFetcher = async (userAddress: string, affiliateAddress: string, networks?: RestNetwork[]): Promise<RestCashbackHistory[]> => {
-  const response = await axios.get<RestCashbackHistory[]>('https://api.azuro.org/api/v1/public/cashback/public/user-transactions', {
+  const response = await axios.get<RestCashbackHistory[]>('https://api.onchainfeed.org/api/v1/public/cashback/public/user-transactions', {
     params: {
       userAddress, // User wallet address
       affiliateAddress, // Affiliate wallet address

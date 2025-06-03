@@ -176,12 +176,12 @@ To work with Azuro Waves data, we'll use the public API. The base URL is:
 
 ```ts copy
 const waveId: number | 'active' = 'active'
-const baseUrl = `https://api.azuro.org/api/v1/public/waves/${waveId}`
+const baseUrl = `https://api.onchainfeed.org/api/v1/public/waves/${waveId}`
 
 // waveId
 // e.g.
-// https://api.azuro.org/api/v1/public/waves/1
-// https://api.azuro.org/api/v1/public/waves/active
+// https://api.onchainfeed.org/api/v1/public/waves/1
+// https://api.onchainfeed.org/api/v1/public/waves/active
 ```
 
 We recommend using the `active` key for the `waveId` parameter to retrieve current wave data and keep it up-to-date always.
@@ -192,7 +192,7 @@ Please follow the [UI Guidelines](#ui-guidelines) to display a widget with user 
 
 ```ts copy
 const fetchAzuroWavesUserStats = async (userAddress: `0x${string}`) => {
-  const url = `https://api.azuro.org/api/v1/public/waves/active/participants/${userAddress.toLowerCase()}/stats`
+  const url = `https://api.onchainfeed.org/api/v1/public/waves/active/participants/${userAddress.toLowerCase()}/stats`
   const response = await fetch(url)
 
   // 404 means user not found or there is no active wave at this moment
@@ -225,7 +225,7 @@ This action calls an API endpoint:
 
 ```ts copy
 const activateAzuroWavesUser = async (userAddress: `0x${string}`) => {
-  const url = `https://api.azuro.org/api/v1/public/waves/active/participants/${userAddress.toLowerCase()}/activate`
+  const url = `https://api.onchainfeed.org/api/v1/public/waves/active/participants/${userAddress.toLowerCase()}/activate`
   // GET method, not POST
   const response = await fetch(url)
   const result: ActivateResponse = await response.json()
@@ -264,8 +264,8 @@ Please use the color scheme for levels outlined in the [UI Guidelines](#ui-guide
  */
 const fetchAzuroWavesTotalLeaderboard = async (userAddress?: `0x${string}`) => {
   const url = userAddress
-    ? `https://api.azuro.org/api/v1/public/waves/active/leaderboard?address=${userAddress.toLowerCase()}`
-    : 'https://api.azuro.org/api/v1/public/waves/active/leaderboard'
+    ? `https://api.onchainfeed.org/api/v1/public/waves/active/leaderboard?address=${userAddress.toLowerCase()}`
+    : 'https://api.onchainfeed.org/api/v1/public/waves/active/leaderboard'
 
   const response = await fetch(url)
 
@@ -299,7 +299,7 @@ type WavesTotalResponse = WavesTotalItem[]
   * Returns all periods of the Wave, DESC sorted.
   */
 const fetchAzuroWavesPeriods = async () => {
-  const response = await fetch('https://api.azuro.org/api/v1/public/waves/active/periods')
+  const response = await fetch('https://api.onchainfeed.org/api/v1/public/waves/active/periods')
 
   // 404 means there is no active wave at this moment
   if (response.status === 404) {
@@ -347,8 +347,8 @@ The prefix "expected" is used to emphasize that this value is not final for an a
  */
 const fetchAzuroWavesPeriodLeaderboard = async (periodStartsAt: number, userAddress?: `0x${string}`) => {
   const url = userAddress
-    ? `https://api.azuro.org/api/v1/public/waves/active/periods/${periodStartsAt}/leaderboard?address=${userAddress.toLowerCase()}`
-    : `https://api.azuro.org/api/v1/public/waves/active/periods/${periodStartsAt}/leaderboard`
+    ? `https://api.onchainfeed.org/api/v1/public/waves/active/periods/${periodStartsAt}/leaderboard?address=${userAddress.toLowerCase()}`
+    : `https://api.onchainfeed.org/api/v1/public/waves/active/periods/${periodStartsAt}/leaderboard`
 
   const response = await fetch(url)
 
@@ -392,7 +392,7 @@ If you intend to display a table listing all existing levels, use this endpoint:
   * Returns all Levels sorted from Grey to Royal.
   */
 const fetchAzuroWavesLevels = async () => {
-  const url = 'https://api.azuro.org/api/v1/public/waves/active/levels'
+  const url = 'https://api.onchainfeed.org/api/v1/public/waves/active/levels'
   const response = await fetch(url)
 
   // 404 means there is no active wave at this moment
