@@ -22,16 +22,16 @@ The Factory is the starting point in Azuro's architecture, allowing for the crea
 
 The LP contract manages the pools and contains the logic for the betting system, empowering users to engage confidently in the ecosystem. 
 
-Key functions within this contract handle the creation and cancellation of games, the addition of liquidity, the placing of bets, and the payout processes. 
+Key functions within this contract handle the addition of liquidity, the placing of bets, the payout processes and fee accumulating. 
 
-This contract is an integration point for various other contracts in the Azuro architecture, including the Factory, Access, and Betting Engines, indicating its critical position in the overall system. It showcases the ability to interact with other components like data providers and affiliates, demonstrating the modular and interconnected nature of Azuro's smart contract ecosystem.
-
+This contract is an integration point for various other contracts in the Azuro architecture, including the Factory, Access, and Betting Core Engine, Vault, indicating its critical position in the overall system. It showcases the ability to interact with other components like data providers and affiliates, demonstrating the modular and interconnected nature of Azuro's smart contract ecosystem.
 #### Access Contract
 
 The Access contract in Azuro's architecture is a critical component designed to manage access control to various functionalities within the ecosystem. 
 
 The contract uses a token-based system where each token represents a role with associated permissions. The binding of roles to contract functions and the assignment of roles to user accounts are central features that enforce the access control logic. 
 
+[Access](https://github.com/Azuro-protocol/Access) contract is standalone open source project created and backed by Azuro team.
 #### Prediction Engines
 
 A Prediction Engine (aka Betting Engine) is a collective term for contracts that encompass the logic of creating [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions), accepting bets, computing payouts for bets, and calculating [App rewards](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
