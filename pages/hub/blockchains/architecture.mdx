@@ -46,3 +46,17 @@ The LiveCore contract is a contracts that encompass the logic of creating [Cond
 These contracts are plugged into the [Pool](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) by its owner via the [Factory](/hub/blockchains/architecture#factory-contract), and access to place bets and withdraw payouts is only granted through the [LP](/hub/blockchains/architecture#lp-contract) contract for which it was deployed or through PayMaster for freebets case.
 
 The LiveCore contract supports pre-match and live betting condition types and ordinary/combo bets kinds.
+
+#### Relayer contract
+
+The Relayer contract is entry point for executing all types protocol bets. 
+
+The Relayer contract gets (if needed) sponsored transaction fee and sponsored amounts for the bet from the PayMaster contract. 
+
+Bettor not executes bet transaction by itself, he fills up bet parameters and sign it, next prepared bet order executes on the Relayer contract by special relayer-executor - this approach allow make bets totally free. 
+
+#### PayMaster contract
+
+The PayMaster contract combines sponsored fee vaults and freebet vaults for all affiliates, so every affiliate can manage (deposit/withdraw) its owned vaults in the contract. 
+
+Also PayMaster in case of provided freebets completely manage it, because of freebet bets belongs PayMaster, so all freebet payouts must be done in PayMaster.
