@@ -25,6 +25,12 @@ The LP contract manages the pools and contains the logic for the betting system,
 Key functions within this contract handle the addition of liquidity, the placing of bets, the payout processes and fee accumulating. 
 
 This contract is an integration point for various other contracts in the Azuro architecture, including the Factory, Access, and Betting Core Engine, Vault, indicating its critical position in the overall system. It showcases the ability to interact with other components like data providers and affiliates, demonstrating the modular and interconnected nature of Azuro's smart contract ecosystem.
+
+#### Vault Contract
+The Vault contract is a liquidity store that manages the addition/removal of deposits and distributes protocol's profits/losses fairly.
+
+Vault based on open source standalone project [LiquidityTree](https://github.com/Azuro-protocol/LiquidityTree) created and backed by Azuro team.
+
 #### Access Contract
 
 The Access contract in Azuro's architecture is a critical component designed to manage access control to various functionalities within the ecosystem. 
