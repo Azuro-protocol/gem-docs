@@ -29,7 +29,7 @@ This contract is an integration point for various other contracts in the Azuro a
 #### Vault Contract
 The Vault contract is a liquidity store that manages the addition/removal of deposits and distributes protocol's profits/losses fairly.
 
-Vault based on open source standalone project [LiquidityTree](https://github.com/Azuro-protocol/LiquidityTree) created and backed by Azuro team.
+Vault based on [LiquidityTree](https://gem.azuro.org/knowledge-hub/how-azuro-works/liquidity-tree).
 
 #### Access Contract
 
@@ -38,10 +38,11 @@ The Access contract in Azuro's architecture is a critical component designed to 
 The contract uses a token-based system where each token represents a role with associated permissions. The binding of roles to contract functions and the assignment of roles to user accounts are central features that enforce the access control logic. 
 
 [Access](https://github.com/Azuro-protocol/Access) contract is standalone open source project created and backed by Azuro team.
-#### Prediction Engines
 
-A Prediction Engine (aka Betting Engine) is a collective term for contracts that encompass the logic of creating [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions), accepting bets, computing payouts for bets, and calculating [App rewards](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
+#### LiveCore contract
 
-These contracts are plugged into the [Pool](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) by its owner via the [Factory](/hub/blockchains/architecture#factory-contract), and access to place bets and withdraw payouts is only granted through the [LP](/hub/blockchains/architecture#lp-contract) contract for which it was deployed.
+The LiveCore contract is a contracts that encompass the logic of creating [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions), accepting bets, computing payouts for bets, and calculating [App rewards](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
 
-A Betting Engine can inherit the [CoreBase](https://gem.azuro.org/contracts/core-base) contract that contains the fundamental logic to facilitate the betting process on multi-outcome Conditions.
+These contracts are plugged into the [Pool](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) by its owner via the [Factory](/hub/blockchains/architecture#factory-contract), and access to place bets and withdraw payouts is only granted through the [LP](/hub/blockchains/architecture#lp-contract) contract for which it was deployed or through PayMaster for freebets case.
+
+The LiveCore contract supports pre-match and live betting condition types and ordinary/combo bets kinds.
