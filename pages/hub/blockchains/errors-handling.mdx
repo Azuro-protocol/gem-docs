@@ -171,7 +171,7 @@ Occurs when attempting to place a bet with a potential payout that exceeds the a
     Place a bet with a smaller amount or betting odds or use another **Core**.
 </Callout>
 
-## PrematchCore
+## LiveCore
 
 ### [0xd70a0e30] `AlreadyPaid()`
 Raised when attempting to withdraw or view the payout for a bet that has already been paid out.
@@ -180,24 +180,18 @@ Raised when attempting to withdraw or view the payout for a bet that has already
     Use the ID of a bet that is has not already been paid.
 </Callout>
 
+### [0x24db0ba5] `AlreadyRejected()`
+Raised when attempting to reject bet again.
+
+<Callout type="advice">
+    Check bet id to be rejected.
+</Callout>
+
 ### [0xf67321e5] `BetNotExists()`
 Occurs when attempting to withdraw or view payout for a bet that does not exist.
 
 <Callout type="advice">
     Use the ID of an existing bet.
-</Callout>
-
-### [0x17d65839] `CantChangeFlag()`
-Triggered when attempting to:
-- Pause or resume a **Condition** that has already been resolved or canceled, or the **Game** associated with it has been canceled.
-- Pause a **Condition** that is paused.
-- Resume a **Condition** that is not paused.
--
-<Callout type="advice">
-    Follow these rules for changing the pause/resume status of a **Condition**:
-    - Do not pause or resume a **Condition** that has already been resolved or canceled.
-    - Do not pause a **Condition** that is already paused.
-    - Do not resume a **Condition** that is not paused.
 </Callout>
 
 ### [0xa9e7a90b] `ConditionAlreadyCreated()`
@@ -236,6 +230,20 @@ Occurs when trying to place a bet on a **Condition** that:
 
 <Callout type="advice">
     Make sure you do not attempt to place a bet on a **Condition** that falls into one of the mentioned scenarios. Ensure that the **Condition** is in a valid state for placing bets.
+</Callout>
+
+### [0xeafd377b] `CobmoBetNotResolved`
+Thrown when trying to view/withdraw payouts of not complete resolved combo bet, cause of none of subbets is resolved.
+
+<Callout type="advice">
+    Ensure all sub bets of combo bet is resolved.
+</Callout>
+
+### [0x3ef97a7b] `ComboBetResolvedPartially`
+Thrown when trying to view/withdraw payouts of not complete resolved combo bet, cause of some of subbets is not resolved.
+
+<Callout type="advice">
+    Ensure all sub bets of combo bet is resolved.
 </Callout>
 
 ### [0x1d8a6830] `DuplicateOutcomes(uint64 outcomeId)`
@@ -278,17 +286,24 @@ Occurs when:
 </Callout>
 
 ### [0xd2326e2b] `IncorrectOutcomesCount()`
-Occurs when attempting to create a **Condition** with the number of outcomes not within the range of 2 to 20.
+Occurs when attempting to create a **Condition** with zero number of outcomes.
 
 <Callout type="advice">
-    Create a **Condition** with a number of outcomes between 2 and 20.
+    Create a **Condition** with a number of outcomes more than zero.
 </Callout>
 
-### [0xbd2b46cb] `IncorrectReinforcement()`
-Occurs when attempting to change a reinforcement of a **Condition** in a way that would insufficiently cover the maximum potential payouts for bets placed on the **Condition**.
+### [0xb945a9a1] `IncorrectSettleDate()`
+Occurs when attempting to resolve a **Condition** with a future datetime (more than current block time).
 
 <Callout type="advice">
-    Ensure that changes to a **Condition's** reinforcement provide sufficient coverage for the maximum potential payouts of bets placed on that **Condition**.
+    Check passed parameter `settledAt`.
+</Callout>
+
+### [0x51a622a3] `IncorrectSubBetsToReset()`
+Occurs when attempting to reject incorrect combo subbets.
+
+<Callout type="advice">
+    Check passed combo subbets.
 </Callout>
 
 ### [0x5e52656b] `IncorrectWinningOutcomesCount()`
@@ -298,29 +313,29 @@ Occurs when the specified winning outcomes for a **Condition** is not in the ran
     To address this error, when specifying winning outcomes for a **Condition**, make sure they fall within the range from one to one less than the total outcomes of the **Condition**.
 </Callout>
 
-### [0xd44b3c62] `InsufficientFund()`
-Occurs when attempting to change a reinforcement of a **Condition** in a way that would insufficiently cover the funds of the **Condition**.
+### [0xf09f2ba1] `InvalidBettorSignature()`
+Occurs when the specified `order.bettorSignature` is not correct according passed order parameters check signature.
 
 <Callout type="advice">
-    Ensure that any changes to the reinforcement of a **Condition** provide adequate coverage for the funds associated with that **Condition**.
+    Check passed order parameters and bettor signature.
 </Callout>
 
-### [0x7bcde10b] `NoPendingReward()`
-Thrown when attempting to claim a reward, but there is no pending reward to claim.
+### [0x7a47c9a2] `InvalidChainId()`
+Occurs when the specified in order `clientData.chainId` is not equal the current chain id.
 
 <Callout type="advice">
-    Make sure there is a pending reward available before attempting to claim it.
+    Check passed order parameter `clientData.chainId`.
 </Callout>
 
-### [0x06923abf] `NothingChanged()`
-Occurs when attempting to change a reinforcement of a **Condition** to the same value.
+### [0x2f58c7cd] `InvalidOracleSignature()`
+Occurs when the specified `order.oracleSignature` is not correct according passed order parameters check signature.
 
 <Callout type="advice">
-    Ensure that any changes made to the reinforcement are different from the current value.
+    Check passed order parameters and oracle signature.
 </Callout>
 
 ### [0xdad84f8f] `OnlyLp()`
-Indicates that a function can only be called by the **Liquidity Pool** to which the **PrematchCore** belongs.
+Indicates that a function can only be called by the **Liquidity Pool**.
 
 <Callout type="advice">
     Do not try to call this function.
@@ -333,18 +348,32 @@ Raised when to resolve **Condition** by an address that is not it's oracle.
     Ensure that you resolving a **Condition** from an address that crated it.
 </Callout>
 
+### [0xfaac76d0] `PotentialLossLimit()`
+Occurs when the passed in order `conditionData.potentialLossLimit` is lower than potential bet payout.
+
+<Callout type="advice">
+    Try reduce bet amount, odds or increase `conditionData.potentialLossLimit`.
+</Callout>
+
+### [0x86ef1788] `SubBetDuplicated()`
+Occurs when subbets passed in order `data.comboParts` have duplicated outcomes in one combo bet.
+
+<Callout type="advice">
+    Check combobet subbets outcomes uniqueness.
+</Callout>
+
+### [0x73158c1a] `SubBetConditionResolved(uint256 conditionId)`
+Raised when rejecting subbet with resolved condition.
+
+<Callout type="advice">
+    Ensure that you rejecting subbet with not resolved condition.
+</Callout>
+
 ### [0xb6f9f890] `OutcomesAndOddsCountDiffer()`
 Occurs when the number of outcomes and odds provided for a **Condition** do not match.
 
 <Callout type="advice">
     Ensure that the number of outcomes specified for a **Condition** matches the number of odds provided.
-</Callout>
-
-### [0x131d0781] `ResolveTooEarly(uint64 waitTime)`
-Thrown when attempting to resolve a **Condition** before its **Game** start time plus one minute has passed.
-
-<Callout type="advice">
-    Wait until at least one minute after the **Game** start time before attempting to resolve a **Condition**.
 </Callout>
 
 ### [0x8218e4b2] `WrongOutcome()`
@@ -353,114 +382,6 @@ This error is raised when trying to interact with non-existent outcome of a **Co
 <Callout type="advice">
     Verify that the outcome you are trying to interact with exists within the **Condition**.
 </Callout>
-
-### [0xe1df1b79] `ZeroOdds()`
-Occurs when the odds provided for a **Condition** is zero.
-
-<Callout type="advice">
-    Do not specify odds of zero for a **Condition**.
-</Callout>
-
-
-## BetExpress
-
-### [0xd70a0e30] `AlreadyPaid()`
-Raised when attempting to withdraw or view the payout for a combo bet that has already been paid out.
-
-<Callout type="advice">
-   Ensure that you do not attempt to withdraw or view the payout for a combo bet that has already been paid out.
-</Callout>
-
-### [0xf67321e5] `BetNotExists()`
-Occurs when attempting to withdraw or view payout for a combo bet that does not exist.
-
-<Callout type="advice">
-    Make sure the combo bet you are trying to access exists.
-</Callout>
-
-### [0x816ea2d4] `ConditionNotFinished(uint256 conditionId)`
-Thrown when trying to withdraw or view payout for a combo bet, but the **Condition** with ID `conditionId` in the combo has not yet concluded.
-
-<Callout type="advice">
-    Ensure that each **Condition** has resolved or canceled or associated with game is canceled before accessing the combo bet payout.
-</Callout>
-
-### [0x0912073c] `ConditionNotForExpress()`
-Occurs when trying to place a combo bet with a **Condition** that is marked as forbidden for it.
-
-<Callout type="advice">
-    Only use **Conditions** that have a property `isForExpress = true` when creating a combo bet.
-</Callout>
-
-### [0xec8043e0] `ConditionNotRunning(uint256 conditionId)`
-Occurs when trying to place a combo bet with a **Condition** with ID `conditionId` that:
-- Has been resolved, canceled or paused.
-- The **Game** associated with it is already started.
-- The **Game** associated with it has been canceled.
--
-<Callout type="advice">
-  Do not include **Conditions** that have been resolved, canceled, or associated with games that are already in progress or canceled.
-</Callout>
-
-### [0x7c36c886] `IncorrectMaxOdds()`
-Thrown when trying to make the maximum odds value for combo bets less than 1e12 (1.000000000000).
-
-<Callout type="advice">
-    Ensure that the maximum odds value for combo bets is set to a value equal to or greater than 1e12 (1.000000000000).
-</Callout>
-
-### [0x4b4dc673] `LargeOdds()`
-Occurs when the odds for a combo bet exceeding the established maximum odds value.
-
-<Callout type="advice">
-    Ensure that the odds for combo bets do not exceed the maximum odds value.
-</Callout>
-
-### [0xdad84f8f] `OnlyLp()`
-Indicates that a function can only be called by the **Liquidity Pool** to which the **BetExpress** belongs.
-
-<Callout type="advice">
-    Do not try to call this function.
-</Callout>
-
-### [0x24d2b6d6] `SameGameIdsNotAllowed()`
-Thrown when in a combo bet there are multiple sub-bets for **Conditions** with the same **Game** ID.
-
-<Callout type="advice">
-    Ensure that there are no multiple sub-bets within a combo bet that are associated with **Conditions** having the same **Game** ID.
-</Callout>
-
-### [0xfd25ed88] `SmallOdds()`
-Odds calculated for a combo bet is less than the minimum odds value provided with that bet.
-
-<Callout type="advice">
-    Make sure that the calculated odds for a combo bet are equal to or greater than the minimum odds value specified as the minimum odds.
-</Callout>
-
-### [0x46980695] `TooLargeReinforcement(uint256 conditionId)`
-Occurs when the payouts depending on the outcome of the **Condition** with ID `conditionId` exceed the maximum value as a result of placing a combo bet.
-
-<Callout type="advice">
-    Place a combo bet with smaller amount or odds or do not use a Condition with ID `conditionId` in your bet.
-</Callout>
-
-### [0xb70028af] `TooFewSubbets()`
-Raised when the number of sub-bets within a combo bet is less than two.
-
-<Callout type="advice">
-    Ensure that a combo bet includes a minimum of two sub-bets.
-</Callout>
-
-
-## ProxyFront
-
-### [0xd2ade556] `IncorrectValue()`
-This error is raised when the value sent in the bet function doesn't match the total amount of bids to be paid. The total value should match the total amount of bets.
-
-<Callout type="advice">
-    Verify that the amount you're sending is correct and aligned with the total value of the bets you intend to place.
-</Callout>
-
 
 ## Access
 
