@@ -382,6 +382,36 @@ This error is raised when trying to interact with non-existent outcome of a **Co
     Verify that the outcome you are trying to interact with exists within the **Condition**.
 </Callout>
 
+##PayMaster
+
+### [0xd70a0e30] `AlreadyPaid()`
+This error is raised when trying to withdraw already paid freebet.
+
+<Callout type="advice">
+    Check passed parameter freebet id to `withdrawPayouts(uint256[] calldata freeBetIds)` 
+</Callout>
+
+### [0x7f36fbaa] `BetDoesNotExist()`
+This error is raised when trying to withdraw non exists freebet.
+
+<Callout type="advice">
+    Check passed parameter freebet id to `withdrawPayouts(uint256[] calldata freeBetIds)` 
+</Callout>
+
+### [0x4b6c541a] `InsufficientFeeFund()`
+This error is raised when trying to payout amount greater than fee fund amount.
+
+<Callout type="advice">
+    Check requested fee amount and available fee funds amount
+</Callout>
+
+### [0x340cbe81] `InsufficientFreeBetFund()`
+This error is raised when trying to payout amount greater than freebet fund amount.
+
+<Callout type="advice">
+    Check requested freebet amount and available freebet funds amount
+</Callout>
+
 ## Access
 
 ### [0x694f23ea] `AccessNotGranted()`
