@@ -5,5 +5,6 @@
     "type": "hidden",
     "display": "hidden"
   },
-  "use-freebets": "Use Freebets"
+  "use-freebets": "Use Freebets",
+  "types": "Data types"
 }

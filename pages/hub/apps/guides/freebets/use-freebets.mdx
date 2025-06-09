@@ -125,31 +125,13 @@ To use a freebet, the user needs:
     ```
   </Tab>
   <Tab>
+  <Callout type="info">
+    Please refer to the [GetClientBonusesResponse](/hub/apps/guides/freebets/types#getclientbonusesresponse) data type for details.
+  </Callout>
+
     1. To retrieve all user's `bonuses` use the [Bonus Public API](https://dev-api.onchainfeed.org/api/v1/public/gateway/docs#/Bonus%20Public/BonusPublicController_getBonusesByAddresses):
 
     ```ts
-    type Bonus = {
-      id: string
-      bonusType: BonusType
-      freebetParam: {
-        isBetSponsored: true,
-        isFeeSponsored: true,
-        isSponsoredBetReturnable: true
-      },
-      address: string
-      amount: string
-      status: BonusStatus
-      network: string
-      currency: string
-      expiresAt: string
-      usedAt: string
-      createdAt: string
-    }
-
-    type GetBonusesResponse = {
-      bonuses: Bonus[]
-    }
-
     const api = 'https://dev-api.onchainfeed.org/api/v1/public' // development
     const api = 'https://api.onchainfeed.org/api/v1/public' // production
 
@@ -172,17 +154,13 @@ To use a freebet, the user needs:
       throw new Error(`Status ${response.status}: ${response.statusText}`)
     }
 
-    const { bonuses }: GetBonusesResponse = await response.json()
+    const { bonuses }: GetClientBonusesResponse = await response.json()
     ```
 
     2. To get all `freebets` that can be used based on the provided bet information (`selections`) use the [Bonus Public API](https://dev-api.onchainfeed.org/api/v1/public/gateway/docs#/Bonus%20Public/BonusPublicController_getBonusesByAddresses):
 
 
     ```ts
-    export type GetFreebetsResponse = {
-      bonuses: Bonus[]
-    }
-
     enum Environment {
       GnosisDevXDAI = 'GnosisDevXDAI',
       GnosisXDAI = 'GnosisXDAI',
@@ -223,7 +201,7 @@ To use a freebet, the user needs:
       throw new Error(`Status ${response.status}: ${response.statusText}`)
     }
 
-    const { bonuses }: GetFreebetsResponse = await response.json()
+    const { bonuses }: GetClientBonusesResponse = await response.json()
     ```
   </Tab>
 </Tabs>

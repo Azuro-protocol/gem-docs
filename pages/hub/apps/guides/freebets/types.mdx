@@ -1,0 +1,309 @@
+import { Callout } from 'components'
+import { Tab, Tabs } from 'nextra-theme-docs'
+
+# Data types
+
+  <Callout type="info">
+  This diagram serves as a supplement to the api documentation.
+  The up-to-date diagrams can be found in the documentation.
+  </Callout>
+
+#### Development
+https://dev-api.onchainfeed.org/api/v1/public/gateway/docs
+#### Production
+https://api.onchainfeed.org/api/v1/public/gateway/docs
+
+
+## Enums
+
+### BonusType
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **FreeBet** | Represents a free bet bonus type |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum BonusType {
+      FreeBet = 'FreeBet'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusStatus
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **Used** | The bonus has been used |
+| **Available** | The bonus is available for use |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum BonusStatus {
+      Used = 'Used',
+      Available = 'Available'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### FreebetBonusType
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **OnlyWin** | The bettor receives only the winnings; the stake amount is returned to the pool. `isSponsoredBetReturnable = true` |
+| **AllWin** | The bettor receives both the full stake and the winnings; the stake amount is not returned to the pool. `isSponsoredBetReturnable = false` |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum FreebetBonusType {
+      OnlyWin = 'OnlyWin',
+      AllWin = 'AllWin'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BetRestrictionBetType
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **All** | All bet types are allowed |
+| **Ordinar** | Only ordinar bets are allowed |
+| **Combo** | Only combo bets are allowed |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum BetRestrictionBetType {
+      All = 'All',
+      Ordinar = 'Ordinar',
+      Combo = 'Combo'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### EventRestrictionEventStatus
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **All** | All event statuses are allowed |
+| **Live** | Only live events are allowed |
+| **Prematch** | Only prematch events are allowed |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum EventRestrictionEventStatus {
+      All = 'All',
+      Live = 'Live',
+      Prematch = 'Prematch'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Common types
+
+### FreebetSettings
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **bonusType** | [FreebetBonusType](#freebetbonustype) | Type of the freebet bonus | Yes |
+| **feeSponsored** | boolean | Indicates if fee is sponsored | Yes |
+| **betRestriction** | [BetRestriction](#betrestriction) | Restrictions applied to bets | Yes |
+| **eventRestriction** | [EventRestriction](#eventrestriction) | Restrictions applied to events | Yes |
+| **periodOfValidityMs** | number | Period of validity in milliseconds | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface FreebetSettings {
+      bonusType: FreebetBonusType;
+      feeSponsored: boolean;
+      betRestriction: BetRestriction;
+      eventRestriction: EventRestriction;
+      periodOfValidityMs: number;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BetRestriction
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **betType** | [BetRestrictionBetType](#betrestrictionbettype) | Type of bet restriction | Yes |
+| **minOdds** | string | Minimum odds allowed | Yes |
+| **maxOdds** | string | Maximum odds allowed | No |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BetRestriction {
+      betType: BetRestrictionBetType;
+      minOdds: string;
+      maxOdds?: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### EventRestriction
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **eventStatus** | [EventRestrictionEventStatus](#eventrestrictioneventstatus) | Status of event restriction | Yes |
+| **eventFilter** | [EventFilter](#eventfilter) | Filter for events | No |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface EventRestriction {
+      eventStatus: EventRestrictionEventStatus;
+      eventFilter?: EventFilter;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### EventFilter
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **exclude** | boolean | If `exclude = true`, it means `"allow all, except."`. If `exclude = false`, it means `"deny all, except."` | Yes |
+| **filter** | [FilterItem](#filteritem)[] | List of filter items | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface EventFilter {
+      exclude: boolean;
+      filter: FilterItem[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### FilterItem
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **sportId** | string | ID of the sport | Yes |
+| **leagues** | string[] | List of leagues | No |
+| **markets** | [Market](#market)[] | List of markets | No |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface FilterItem {
+      sportId: string;
+      leagues?: string[];
+      markets?: Market[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Market
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **marketId** | number | ID of the market | Yes |
+| **gamePeriodId** | number | ID of the game period | Yes |
+| **gameTypeId** | number | ID of the game type | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface Market {
+      marketId: number;
+      gamePeriodId: number;
+      gameTypeId: number;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Public types
+
+### GetClientBonusesResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **bonuses** | [ClientBonus](#clientbonus)[] | Array of bonus objects | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface GetClientBonusesResponse {
+      bonuses: ClientBonus[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### ClientBonus
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | Unique identifier of the bonus | Yes |
+| **bonusType** | [BonusType](#bonustype) | Type of the bonus | Yes |
+| **freebetParam** | [FreebetParam](#freebetparam) | Parameters specific to freebet | Yes |
+| **publicCustomData** | object | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. | No |
+| **address** | string | Wallet address | Yes |
+| **amount** | string | Bonus amount | Yes |
+| **status** | [BonusStatus](#bonusstatus) | Current status of the bonus | Yes |
+| **network** | string | Blockchain network | Yes |
+| **currency** | string | Currency code | Yes |
+| **expiresAt** | string | Expiration timestamp | Yes |
+| **usedAt** | string | Usage timestamp | Yes |
+| **createdAt** | string | Creation timestamp | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface ClientBonus {
+      id: string;
+      bonusType: BonusType;
+      freebetParam: FreebetParam;
+      publicCustomData?: Record<string, any>;
+      address: string;
+      amount: string;
+      status: BonusStatus;
+      network: string;
+      currency: string;
+      expiresAt: string;
+      usedAt?: string;
+      createdAt: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### FreebetParam
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **isBetSponsored** | boolean | Is bet sponsored | Yes |
+| **isFeeSponsored** | boolean | Is fee sponsored | Yes |
+| **isSponsoredBetReturnable** | boolean | Is sponsored bet returnable | Yes |
+| **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface FreebetParam {
+      isBetSponsored: boolean;
+      isFeeSponsored: boolean;
+      isSponsoredBetReturnable: boolean;
+      settings: FreebetSettings;
+    }
+    ```
+  </Tab>
+</Tabs>
