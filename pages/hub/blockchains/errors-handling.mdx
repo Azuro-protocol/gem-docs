@@ -91,21 +91,21 @@ Occurs when attempting to withdraw liquidity from a deposit that is not owned.
     Use the ID of a liquidity deposit that you own.
 </Callout>
 
-### [0x780b79cc] `error LockedBetToken(uint256 tokenId)`
+### [0x780b79cc] `LockedBetToken(uint256 tokenId)`
 Occurs when attempting to withdraw payout of bet provided by Paymaster free bets mechanics, in case of freebet - the bet is locked at Paymaster.
 
 <Callout type="advice">
     Use `withdrawPayouts(uint256[] calldata freeBetIds)` at contract Paymaster.
 </Callout>
 
-### [0x955b812c] `error LockedLiquidityLimitReached()`
+### [0x955b812c] `LockedLiquidityLimitReached()`
 Occurs when reached maximum locked liquidity for ordinary bet.
 
 <Callout type="advice">
     Try to reduce ordinary bet amount or increase liquidity limit or increase protocol liquidity amounts
 </Callout>
 
-### [0x46b9cd39] `error LockedLiquidityComboLimitReached()`
+### [0x46b9cd39] `LockedLiquidityComboLimitReached()`
 Occurs when reached maximum locked liquidity for combo bet.
 
 <Callout type="advice">
