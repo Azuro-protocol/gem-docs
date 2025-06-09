@@ -382,7 +382,7 @@ This error is raised when trying to interact with non-existent outcome of a **Co
     Verify that the outcome you are trying to interact with exists within the **Condition**.
 </Callout>
 
-##PayMaster
+## PayMaster
 
 ### [0xd70a0e30] `AlreadyPaid()`
 This error is raised when trying to withdraw already paid freebet.
@@ -410,6 +410,15 @@ This error is raised when trying to payout amount greater than freebet fund amou
 
 <Callout type="advice">
     Check requested freebet amount and available freebet funds amount
+</Callout>
+
+## Relayer
+
+### [0x827ab0f2] `OnlyPaymaster()`
+This error is raised when not PayMaster address trying to call `betOrder`.
+
+<Callout type="advice">
+    Illegal cal 
 </Callout>
 
 ## Access
