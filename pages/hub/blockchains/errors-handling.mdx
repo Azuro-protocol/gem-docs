@@ -460,3 +460,89 @@ Indicates that a function can only be called by the **Core** to which the **Azur
 <Callout type="advice">
     Do not try to call this function.
 </Callout>
+
+## CashOut
+
+### [0x756eeec9] `BetAlreadyPaid()`
+Raised when an attempt to cashout already paid bet.
+
+<Callout type="advice">
+    Check bet id.
+</Callout>
+
+### [0x000bce44] `BetAlreadyResolved()`
+Raised when an attempt to cashout already resolved bet.
+
+<Callout type="advice">
+    Check bet id.
+</Callout>
+
+### [0xdf86ecd4] `BetNotOwned()`
+Raised when an attempt to cashout not owned bet.
+
+<Callout type="advice">
+    Check bet id.
+</Callout>
+
+### [0xe9313359] `BetOwnerSignatureExpired()`
+Raised when an attempt to cashout not owned bet.
+
+<Callout type="advice">
+    Check bet id.
+</Callout>
+
+### [0x6b372233] `BettingContractNotAllowed()`
+Raised when an attempt to cashout not supported betting contract (AzuroBet).
+
+<Callout type="advice">
+    Check bet id.
+</Callout>
+
+### [0xcc696b5b] `ComboBetResolving()`
+Raised when an attempt to cashout partially resolved combo bet - some of subbets already resolved.
+
+<Callout type="advice">
+    Check bet id.
+</Callout>
+
+### [0xf4d678b8] `InsufficientBalance()`
+Raised when an attempt to cashout with insufficient cashout balance.
+
+<Callout type="advice">
+    Fill up cashout contract balance.
+</Callout>
+
+### [0x90cccb0c] `InvalidBetOwnerSignature()`
+Raised when an attempt to cashout with incorrect passed parameter `betOwnerSignature` as signature for the `order`.
+
+<Callout type="advice">
+    Check `order` and `betOwnerSignature` parameters correctness.
+</Callout>
+
+### [0x7a47c9a2] `InvalidChainId()`
+Raised when an attempt to cashout with passed parameter `order.chainId` is not equal to the `block.chainId`.
+
+<Callout type="advice">
+    Check `order.chainId` parameter correctness.
+</Callout>
+
+### [0xfdfffca7] `InvalidOdds()`
+Raised when an attempt to cashout with passed parameter `odds` is lower passed `item.minOdds`.
+
+<Callout type="advice">
+    Check `odds` parameter correctness.
+</Callout>
+
+### [0x7ab84302] `InvalidOddsCount()`
+Raised when an attempt to cashout with passed parameters count of `odds` is not equal count of `item.minOdds`.
+
+<Callout type="advice">
+    Check `odds` parameter correctness.
+</Callout>
+
+### [0x2f58c7cd] `InvalidOracleSignature()`
+Raised when an attempt to cashout with incorrect Oracle address.
+
+<Callout type="advice">
+    Check `oracleSignature` parameter correctness.
+</Callout>
