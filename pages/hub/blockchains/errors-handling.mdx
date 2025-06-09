@@ -22,13 +22,6 @@ Occurs when attempting to plug a new **Core** into an address that is not a **Li
 
 ## LP
 
-### [0xf41de086] `BetExpired()`
-Triggered when the specified by user bet placement deadline has elapsed.
-
-<Callout type="advice">
-    Make sure to place bets before the specified deadline or specify new, later deadline.
-</Callout>
-
 ### [0x61e278f4] `ClaimTimeout(uint64 waitTime)`
 Occurs if a reward is claimed before the required waiting time (`waitTime`) has passed.
 
@@ -43,41 +36,6 @@ Signifies an operation attempt by a non-active **Core** within the **Liquidity P
     Use another **Core**.
 </Callout>
 
-### [0xc7c9660f] `DepositDoesNotExist()`
-Encountered when attempting to donate liquidity to non-existent liquidity deposit.
-
-<Callout type="advice">
-    Use the ID of an existing liquidity deposit.
-</Callout>
-
-### [0xc076a8db] `GameAlreadyCanceled()`
-Arises when canceling a **Game** that already canceled.
-
-<Callout type="advice">
-    Do not attempt to cancel a **Game** that has already been marked as canceled.
-</Callout>
-
-### [0x46a9b15d] `GameAlreadyCreated()`
-Arises when creating a **Game** with already registered ID.
-
-<Callout type="advice">
-    Ensure that you use a unique and unregistered ID when creating a new **Game**.
-</Callout>
-
-### [0x9b830337] `GameCanceled_()`
-Arises when creating a **Condition** attached to a canceled **Game**.
-
-<Callout type="advice">
-    Use the ID of the registered **Game** that has not been canceled
-</Callout>
-
-### [0x87aeb83d] `GameNotExists()`
-Signifies an attempt to interact with a non-existent **Game**.
-
-<Callout type="advice">
-    Use the ID of the **Game** that was previously registered.
-</Callout>
-
 ### [0x5b10d6dd] `IncorrectCoreState()`
 Raised when an incorrect core state is provided.
 
@@ -85,18 +43,18 @@ Raised when an incorrect core state is provided.
     Specify one of these states: **1** (ACTIVE) or **2** (INACTIVE).
 </Callout>
 
+### [0x69640e72] `IncorrectAmount()`
+Raised when zero amount provided to add liquidity.
+
+<Callout type="advice">
+    Check liquidity amounts.
+</Callout>
+
 ### [0xcd3cb2bb] `IncorrectFee()`
 Occurs when attempting to change the Fee in such a way that the total sum of all Fees exceeds 100%.
 
 <Callout type="advice">
     Ensure that the total sum of fees in the **Liquidity Pool** does not exceed 1e12 (100%).
-</Callout>
-
-### [0xe3b4aa3e] `IncorrectGameId()`
-Arises when creating a **Game** with ID zero.
-
-<Callout type="advice">
-    Ensure that the ID provided when creating a **Game** is greater than zero. Zero is not a valid ID for a **Game**.
 </Callout>
 
 ### [0xcad66eef] `IncorrectMinBet()`
@@ -120,34 +78,39 @@ Occurs when the reinforcement ability of a **Core** is changing to a value large
     Specify the lower reinforcement ability value.
 </Callout>
 
-### [0x686c69fd] `IncorrectTimestamp()`
-Triggered when attempting to:
-- Create a **Game** with a starting time that has already passed.
-- Change a **Game**'s starting time to zero.
+### [0xbc7dd1b6] `IncorrectRelayer()`
+Occurs when function called with `msg.sender` is not Relayer address.
 
 <Callout type="advice">
-    Specify a higher starting time value.
+    Make correct function call or specify correct relayer settings.
 </Callout>
 
-### [0x6bac637f] `LiquidityIsLocked()`
-Arises when there is insufficient liquidity remaining in the **Liquidity Pool** to cover the maximum potential payout for previously placed bets.
-
-<Callout type="advice">
-    Specify a lower amount of liquidity for withdrawal.
-</Callout>
-
-### [0x79c416b2:] `LiquidityNotOwned()`
+### [0x79c416b2] `LiquidityNotOwned()`
 Occurs when attempting to withdraw liquidity from a deposit that is not owned.
 
 <Callout type="advice">
     Use the ID of a liquidity deposit that you own.
 </Callout>
 
-### [0x4323a555] `NotEnoughLiquidity()`
-Occurs when attempting to place a bet with a potential payout that exceeds the available liquidity limit in the **Liquidity Pool** or the constraints on utilizing free liquidity within the **Core** used for the bet.
+### [0x780b79cc] `error LockedBetToken(uint256 tokenId)`
+Occurs when attempting to withdraw payout of bet provided by Paymaster free bets mechanics, in case of freebet - the bet is locked at Paymaster.
 
 <Callout type="advice">
-    Place a bet with a smaller amount or betting odds or use another **Core**.
+    Use `withdrawPayouts(uint256[] calldata freeBetIds)` at contract Paymaster.
+</Callout>
+
+### [0x955b812c] `error LockedLiquidityLimitReached()`
+Occurs when reached maximum locked liquidity for ordinary bet.
+
+<Callout type="advice">
+    Try to reduce ordinary bet amount or increase liquidity limit or increase protocol liquidity amounts
+</Callout>
+
+### [0x46b9cd39] `error LockedLiquidityComboLimitReached()`
+Occurs when reached maximum locked liquidity for combo bet.
+
+<Callout type="advice">
+    Try to reduce combo bet amount or increase liquidity limit or increase protocol liquidity amounts
 </Callout>
 
 ### [0x0c6d42ae] `OnlyFactory()`
@@ -171,13 +134,6 @@ Occurs when attempting to deposit liquidity with an amount lower than the establ
      Specify a higher deposit amount.
 </Callout>
 
-### [0x5c9ff7c5] `SmallDonation()`
-Occurs when attempting to donate zero amount of liquidity.
-
-<Callout type="advice">
-     Specify a higher donation amount.
-</Callout>
-
 ### [0xace41f2c] `UnknownCore()`
 Occurs when an operation is attempted with an unknown **Core** in the **Liquidity Pool**.
 
@@ -192,6 +148,28 @@ Triggered when attempting to withdraw liquidity before the waiting time (`waitTi
     Wait for the specified waiting time (`waitTime`) to elapse before attempting to withdraw liquidity from a deposit.
 </Callout>
 
+## Vault
+
+### [0xc7c9660f] `DepositDoesNotExist()`
+Encountered when attempting to donate liquidity to non-existent liquidity deposit.
+
+<Callout type="advice">
+    Use the ID of an existing liquidity deposit.
+</Callout>
+
+### [0x6bac637f] `LiquidityIsLocked()`
+Arises when there is insufficient liquidity remaining in the **Liquidity Pool** to cover the maximum potential payout for previously placed bets.
+
+<Callout type="advice">
+    Specify a lower amount of liquidity for withdrawal.
+</Callout>
+
+### [0x4323a555] `NotEnoughLiquidity()`
+Occurs when attempting to place a bet with a potential payout that exceeds the available liquidity limit in the **Liquidity Pool** or the constraints on utilizing free liquidity within the **Core** used for the bet.
+
+<Callout type="advice">
+    Place a bet with a smaller amount or betting odds or use another **Core**.
+</Callout>
 
 ## PrematchCore
 
