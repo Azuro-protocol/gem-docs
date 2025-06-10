@@ -1,0 +1,98 @@
+import { Callout } from 'components'
+
+## Placing bet and paying out
+
+Placing a bet occurs in several stages:
+- bettor approves token spending (for the bet) for the *Relayer contract* (entry point for bets)
+- bettor forms the bet parameters and signs (using EIP-712 standard) it in the WEB3 wallet. *All betting is done, using the EIP-712 parameters signing*
+- bettor transfers the signed data to the oracle via API
+- oracle signs received data, forms and transfers the order to the executor (Relayer Executor)
+- the executor (Relayer Executor) execute transaction call of `function betFor(OrderData[] orders)` method of *Relayer contract*, `orders` contains the user's bet data, placing the bet
+```solidity
+struct OrderData {
+    address betOwner;
+    ConditionData[] conditionDatas;
+    BetType betType;
+    address oracle;
+    bytes clientBetData;
+    bytes bettorSignature;
+    bytes oracleSignature;
+}
+
+struct ConditionData {
+    uint256 gameId;
+    uint256 conditionId;
+    ConditionKind conditionKind;
+    uint64[] odds;
+    uint128[] outcomes;
+    uint128 potentialLossLimit;
+    uint8 winningOutcomesCount;
+}
+
+enum BetType {
+    ORDINARY,
+    COMBO
+}
+
+enum ConditionKind {
+    PREMATCH,
+    LIVE
+}
+```
+- after placing a bet (transaction executed), the `NewLiveBet()` event is emitted, and bettor receives a bet token (azurobet)
+```solidity
+event NewLiveBet(
+    uint256 indexed tokenId,
+    address indexed bettor,
+    address indexed affiliate,
+    BetType betType,
+    uint256 nonce,
+    uint128 amount,
+    SubBetData[] betDatas, // one record for ordinary, many records for combo
+    uint128 potentialLossLimit
+);
+
+struct SubBetData {
+    uint256 gameId;
+    uint256 conditionId;
+    ConditionKind conditionKind;
+    uint128 outcomeId;
+    uint64 odds;
+}
+```
+- while betFor() execution, if the condition (in bet params) was not registered, it is register with the emiting of the `ConditionCreated()` event
+```solidity
+event ConditionCreated(
+    uint256 indexed gameId,
+    uint256 indexed conditionId,
+    uint128[] outcomes,
+    uint64[] odds,
+    uint8 winningOutcomesCount
+)
+```
+
+## Payout on winning bet placed
+
+If the bet wins, the user withdraw payout.
+### without freebets
+User withdraw payout executing `LP.withdrawPayout(address core, uint256 tokenId)` for single bet or use batch analog `withdrawPayouts(address core, uint256[] calldata tokenIds)` 
+The winnings are paid to the owner of the bet token and the BettorWin() event is emitted for each token
+```solidity
+event BettorWin(
+    address indexed core,
+    address indexed bettor,
+    uint256 tokenId,
+    uint256 amount
+)
+```
+### using freebet funds
+User withdraw payout executing batch function `PayMaster.withdrawPayouts(uint256[] calldata freeBetIds)` passing freebet ids.
+The winnings are paid to freebet ids owner and the BettorWin() event is emitted for each freebet id
+```solidity
+event BettorWin(
+    address indexed core,
+    address indexed bettor,
+    uint256 indexed freeBetId,
+    uint256 amount
+)
+```

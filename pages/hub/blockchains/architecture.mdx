@@ -22,9 +22,14 @@ The Factory is the starting point in Azuro's architecture, allowing for the crea
 
 The LP contract manages the pools and contains the logic for the betting system, empowering users to engage confidently in the ecosystem. 
 
-Key functions within this contract handle the creation and cancellation of games, the addition of liquidity, the placing of bets, and the payout processes. 
+Key functions within this contract handle the addition of liquidity, the placing of bets, the payout processes and fee accumulating. 
 
-This contract is an integration point for various other contracts in the Azuro architecture, including the Factory, Access, and Betting Engines, indicating its critical position in the overall system. It showcases the ability to interact with other components like data providers and affiliates, demonstrating the modular and interconnected nature of Azuro's smart contract ecosystem.
+This contract is an integration point for various other contracts in the Azuro architecture, including the Factory, Access, and Betting Core Engine, Vault, indicating its critical position in the overall system. It showcases the ability to interact with other components like data providers and affiliates, demonstrating the modular and interconnected nature of Azuro's smart contract ecosystem.
+
+#### Vault Contract
+The Vault contract is a liquidity store that manages the addition/removal of deposits and distributes protocol's profits/losses fairly.
+
+Vault based on [LiquidityTree](https://gem.azuro.org/knowledge-hub/how-azuro-works/liquidity-tree).
 
 #### Access Contract
 
@@ -32,10 +37,26 @@ The Access contract in Azuro's architecture is a critical component designed to 
 
 The contract uses a token-based system where each token represents a role with associated permissions. The binding of roles to contract functions and the assignment of roles to user accounts are central features that enforce the access control logic. 
 
-#### Prediction Engines
+[Access](https://github.com/Azuro-protocol/Access) contract is standalone open source project created and backed by Azuro team.
 
-A Prediction Engine (aka Betting Engine) is a collective term for contracts that encompass the logic of creating [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions), accepting bets, computing payouts for bets, and calculating [App rewards](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
+#### LiveCore contract
 
-These contracts are plugged into the [Pool](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) by its owner via the [Factory](/hub/blockchains/architecture#factory-contract), and access to place bets and withdraw payouts is only granted through the [LP](/hub/blockchains/architecture#lp-contract) contract for which it was deployed.
+The LiveCore contract is a contracts that encompass the logic of creating [Conditions](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/conditions), accepting bets, computing payouts for bets, and calculating [App rewards](https://gem.azuro.org/knowledge-hub/how-azuro-works/reward-distribution).
 
-A Betting Engine can inherit the [CoreBase](https://gem.azuro.org/contracts/core-base) contract that contains the fundamental logic to facilitate the betting process on multi-outcome Conditions.
+These contracts are plugged into the [Pool](https://gem.azuro.org/knowledge-hub/how-azuro-works/components/pools) by its owner via the [Factory](/hub/blockchains/architecture#factory-contract), and access to place bets and withdraw payouts is only granted through the [LP](/hub/blockchains/architecture#lp-contract) contract for which it was deployed or through PayMaster for freebets case.
+
+The LiveCore contract supports pre-match and live betting condition types and ordinary/combo bets kinds.
+
+#### Relayer contract
+
+The Relayer contract is entry point for executing all types protocol bets. 
+
+The Relayer contract gets (if needed) sponsored transaction fee and sponsored amounts for the bet from the PayMaster contract. 
+
+Bettor not executes bet transaction by itself, he fills up bet parameters and sign it, next prepared bet order executes on the Relayer contract by special relayer-executor - this approach allow make bets totally free. 
+
+#### PayMaster contract
+
+The PayMaster contract combines sponsored fee vaults and freebet vaults for all affiliates, so every affiliate can manage (deposit/withdraw) its owned vaults in the contract. 
+
+Also PayMaster in case of provided freebets completely manage it, because of freebet bets belongs PayMaster, so all freebet payouts must be done in PayMaster.
