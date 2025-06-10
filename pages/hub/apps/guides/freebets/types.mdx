@@ -1,0 +1,748 @@
+import { Callout } from 'components'
+import { Tab, Tabs } from 'nextra-theme-docs'
+
+# Data types
+
+  <Callout type="info">
+  This diagram serves as a supplement to the api documentation.
+  The up-to-date diagrams can be found in the documentation.
+  </Callout>
+
+#### Development
+https://dev-api.onchainfeed.org/api/v1/public/gateway/docs
+#### Production
+https://api.onchainfeed.org/api/v1/public/gateway/docs
+
+
+## Enums
+
+### BonusType
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **FreeBet** | Represents a free bet bonus type |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum BonusType {
+      FreeBet = 'FreeBet'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusStatus
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **Used** | The bonus has been used |
+| **Available** | The bonus is available for use |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum BonusStatus {
+      Used = 'Used',
+      Available = 'Available'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### FreebetBonusType
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **OnlyWin** | The bettor receives only the winnings; the stake amount is returned to the pool. `isSponsoredBetReturnable = true` |
+| **AllWin** | The bettor receives both the full stake and the winnings; the stake amount is not returned to the pool. `isSponsoredBetReturnable = false` |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum FreebetBonusType {
+      OnlyWin = 'OnlyWin',
+      AllWin = 'AllWin'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BetRestrictionBetType
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **All** | All bet types are allowed |
+| **Ordinar** | Only ordinar bets are allowed |
+| **Combo** | Only combo bets are allowed |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum BetRestrictionBetType {
+      All = 'All',
+      Ordinar = 'Ordinar',
+      Combo = 'Combo'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### EventRestrictionEventStatus
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Value | Description |
+|-------|-------------|
+| **All** | All event statuses are allowed |
+| **Live** | Only live events are allowed |
+| **Prematch** | Only prematch events are allowed |
+  </Tab>
+  <Tab>
+    ```typescript
+    enum EventRestrictionEventStatus {
+      All = 'All',
+      Live = 'Live',
+      Prematch = 'Prematch'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Common types
+
+### FreebetSettings
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **bonusType** | [FreebetBonusType](#freebetbonustype) | Type of the freebet bonus | Yes |
+| **feeSponsored** | boolean | Indicates if fee is sponsored | Yes |
+| **betRestriction** | [BetRestriction](#betrestriction) | Restrictions applied to bets | Yes |
+| **eventRestriction** | [EventRestriction](#eventrestriction) | Restrictions applied to events | Yes |
+| **periodOfValidityMs** | number | Period of validity in milliseconds | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface FreebetSettings {
+      bonusType: FreebetBonusType;
+      feeSponsored: boolean;
+      betRestriction: BetRestriction;
+      eventRestriction: EventRestriction;
+      periodOfValidityMs: number;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BetRestriction
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **betType** | [BetRestrictionBetType](#betrestrictionbettype) | Type of bet restriction | Yes |
+| **minOdds** | string | Minimum odds allowed | Yes |
+| **maxOdds** | string | Maximum odds allowed | No |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BetRestriction {
+      betType: BetRestrictionBetType;
+      minOdds: string;
+      maxOdds?: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### EventRestriction
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **eventStatus** | [EventRestrictionEventStatus](#eventrestrictioneventstatus) | Status of event restriction | Yes |
+| **eventFilter** | [EventFilter](#eventfilter) | Filter for events | No |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface EventRestriction {
+      eventStatus: EventRestrictionEventStatus;
+      eventFilter?: EventFilter;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### EventFilter
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **exclude** | boolean | If `exclude = true`, it means `"allow all, except."`. If `exclude = false`, it means `"deny all, except."` | Yes |
+| **filter** | [FilterItem](#filteritem)[] | List of filter items | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface EventFilter {
+      exclude: boolean;
+      filter: FilterItem[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### FilterItem
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **sportId** | string | ID of the sport | Yes |
+| **leagues** | string[] | List of leagues | No |
+| **markets** | [Market](#market)[] | List of markets | No |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface FilterItem {
+      sportId: string;
+      leagues?: string[];
+      markets?: Market[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Market
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **marketId** | number | ID of the market | Yes |
+| **gamePeriodId** | number | ID of the game period | Yes |
+| **gameTypeId** | number | ID of the game type | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface Market {
+      marketId: number;
+      gamePeriodId: number;
+      gameTypeId: number;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Public types
+
+### GetClientBonusesResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **bonuses** | [ClientBonus](#clientbonus)[] | Array of bonus objects | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface GetClientBonusesResponse {
+      bonuses: ClientBonus[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### ClientBonus
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | Unique identifier of the bonus | Yes |
+| **bonusType** | [BonusType](#bonustype) | Type of the bonus | Yes |
+| **freebetParam** | [FreebetParam](#freebetparam) | Parameters specific to freebet | Yes |
+| **publicCustomData** | object | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. | No |
+| **address** | string | Wallet address | Yes |
+| **amount** | string | Bonus amount | Yes |
+| **status** | [BonusStatus](#bonusstatus) | Current status of the bonus | Yes |
+| **network** | string | Blockchain network | Yes |
+| **currency** | string | Currency code | Yes |
+| **expiresAt** | string | Expiration timestamp | Yes |
+| **usedAt** | string | Usage timestamp | Yes |
+| **createdAt** | string | Creation timestamp | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface ClientBonus {
+      id: string;
+      bonusType: BonusType;
+      freebetParam: FreebetParam;
+      publicCustomData?: Record<string, any>;
+      address: string;
+      amount: string;
+      status: BonusStatus;
+      network: string;
+      currency: string;
+      expiresAt: string;
+      usedAt?: string;
+      createdAt: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### FreebetParam
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **isBetSponsored** | boolean | Is bet sponsored | Yes |
+| **isFeeSponsored** | boolean | Is fee sponsored | Yes |
+| **isSponsoredBetReturnable** | boolean | Is sponsored bet returnable | Yes |
+| **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface FreebetParam {
+      isBetSponsored: boolean;
+      isFeeSponsored: boolean;
+      isSponsoredBetReturnable: boolean;
+      settings: FreebetSettings;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Private types
+
+### CreateFreebetOfferDto
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **name** | string | Name of the freebet offer | Yes |
+| **key** | string | Unique key for the offer | Yes |
+| **publicCustomData** | object | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. | No |
+| **description** | string | Description of the offer | No |
+| **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface CreateFreebetOfferDto {
+      authId: string;
+      name: string;
+      key: string;
+      publicCustomData?: object;
+      description?: string;
+      settings: FreebetSettings;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | The ID of the bonus | Yes |
+| **operatorId** | string | The ID of the operator | Yes |
+| **productId** | string | The ID of the product | Yes |
+| **poolId** | string | The ID of the pool | Yes |
+| **offerId** | string | The ID of the offer | Yes |
+| **address** | string | The address of the bonus | Yes |
+| **amount** | string | The amount of the bonus | Yes |
+| **status** | enum | The status of the bonus | Yes |
+| **campaignGroup** | string | The campaign group of the bonus | Yes |
+| **network** | string | The network of the bonus | Yes |
+| **currency** | string | The currency of the bonus | Yes |
+| **expiresAt** | Date | The expiration date of the bonus | No |
+| **usedAt** | Date | The date when the bonus was used | No |
+| **createdAt** | Date | The creation date of the bonus | Yes |
+| **offer** | [OfferResponse](#offerresponse) | Offer model | Yes |
+| **pool** | [PoolResponse](#poolresponse) | Pool model | Yes |
+| **operator** | [OperatorResponse](#operatorresponse) | Operator model | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BonusResponse {
+      id: string;
+      operatorId: string;
+      productId: string;
+      poolId: string;
+      offerId: string;
+      address: string;
+      amount: string;
+      status: BonusStatuses;
+      campaignGroup: string;
+      network: string;
+      currency: string;
+      expiresAt?: Date;
+      usedAt?: Date;
+      createdAt: Date;
+      offer: OfferResponse;
+      pool: PoolResponse;
+      operator: OperatorResponse;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusesResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **bonuses** | [BonusResponse](#bonusresponse)[] | List of bonuses | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BonusesResponse {
+      bonuses: BonusResponse[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### OfferResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | Offer id | Yes |
+| **operatorId** | string | Operator id | Yes |
+| **productId** | string | Product id | Yes |
+| **type** | enum | Type of bonus offer | Yes |
+| **name** | string | Name of the offer | Yes |
+| **key** | string | Unique key for the offer | Yes |
+| **description** | string | Description of the offer | Yes |
+| **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
+| **publicCustomData** | object | Custom data for public use | No |
+| **createdAt** | Date | Creation timestamp | Yes |
+| **operator** | [OperatorResponse](#operatorresponse) | Operator model | No |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface OfferResponse {
+      id: string;
+      operatorId: string;
+      productId: string;
+      type: BonusOfferTypes;
+      name: string;
+      key: string;
+      description: string | null;
+      settings: FreebetSettings;
+      publicCustomData: object | null;
+      createdAt: Date;
+      operator?: OperatorResponse;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### OffersResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **offers** | [OfferResponse](#offerresponse)[] | List of offers | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface OffersResponse {
+      offers: OfferResponse[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### PoolResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | The ID of the pool | Yes |
+| **address** | string | The address of the pool | Yes |
+| **network** | string | The network of the pool | Yes |
+| **currency** | string | The currency of the pool | Yes |
+| **token** | string | The token of the pool | Yes |
+| **chainId** | number | The chain ID of the pool | Yes |
+| **productId** | string | The ID of the product | Yes |
+| **status** | string | The status of the pool | Yes |
+| **createdAt** | Date | The creation date of the pool | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface PoolResponse {
+      id: string;
+      address: string;
+      network: string;
+      currency: string;
+      token: string;
+      chainId: number;
+      productId: string;
+      status: string;
+      createdAt: Date;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### PoolsResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **pools** | [PoolResponse](#poolresponse)[] | List of pools | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface PoolsResponse {
+      pools: PoolResponse[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### OperatorResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | The ID of the operator | Yes |
+| **userName** | string | The username of the operator | Yes |
+| **email** | string | The email of the operator | Yes |
+| **productId** | string | The ID of the product | Yes |
+| **role** | string | The role of the operator | Yes |
+| **status** | enum | The status of the operator | Yes |
+| **createdAt** | Date | The creation date of the operator | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface OperatorResponse {
+      id: string;
+      userName: string;
+      email: string;
+      productId: string;
+      role: string;
+      status: OperatorStatuses;
+      createdAt: Date;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### OperatorsResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **operators** | [OperatorResponse](#operatorresponse)[] | List of operators | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface OperatorsResponse {
+      operators: OperatorResponse[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### CreateBonusRecipientsDto
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **address** | string | Wallet address of the bonus recipient | Yes |
+| **amount** | string | Amount of the bonus to be distributed | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface CreateBonusRecipientsDto {
+      address: string;
+      amount: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### CreateBonusDto
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **offerId** | string | ID of the offer to create bonuses for | Yes |
+| **poolId** | string | ID of the pool to create bonuses in | Yes |
+| **recipients** | [CreateBonusRecipientsDto](#createbonusrecipientsdto)[] | List of bonus recipients | Yes |
+| **campaignGroup** | string | Campaign group identifier | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface CreateBonusDto {
+      authId: string;
+      offerId: string;
+      poolId: string;
+      recipients: CreateBonusRecipientsDto[];
+      campaignGroup: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusStatisticsByCampaignItem
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **createdAt** | string | Created date | Yes |
+| **campaign** | string | Campaign name | Yes |
+| **offerId** | string | Offer ID | Yes |
+| **poolId** | string | Pool ID | Yes |
+| **amountSum** | string | Total amount sum | Yes |
+| **amountSumUsed** | string | Used amount sum | Yes |
+| **amountSumUsedPercent** | string | Percentage of used amount sum | Yes |
+| **amountCount** | string | Total amount count | Yes |
+| **amountCountUsed** | string | Used amount count | Yes |
+| **amountCountUsedPercent** | string | Percentage of used amount count | Yes |
+| **userUniqCount** | string | Unique users count | Yes |
+| **userCount** | string | Total users count | Yes |
+| **userCountUsed** | string | Count of users who used bonus | Yes |
+| **userCountUsedPercent** | string | Percentage of users who used bonus | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BonusStatisticsByCampaignItem {
+      createdAt: string;
+      campaign: string;
+      offerId: string;
+      poolId: string;
+      amountSum: string;
+      amountSumUsed: string;
+      amountSumUsedPercent: string;
+      amountCount: string;
+      amountCountUsed: string;
+      amountCountUsedPercent: string;
+      userUniqCount: string;
+      userCount: string;
+      userCountUsed: string;
+      userCountUsedPercent: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusStatisticsByCampaignResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **statistics** | [BonusStatisticsByCampaignItem](#bonusstatisticsbycampaignitem)[] | Bonus statistics items | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BonusStatisticsByCampaignResponse {
+      statistics: BonusStatisticsByCampaignItem[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusStatisticsByPoolItem
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | The ID of the pool | Yes |
+| **address** | string | The address of the pool | Yes |
+| **network** | string | The network of the pool | Yes |
+| **currency** | string | The currency of the pool | Yes |
+| **token** | string | The token of the pool | Yes |
+| **chainId** | number | The chain ID of the pool | Yes |
+| **productId** | string | The ID of the product | Yes |
+| **status** | string | The status of the pool | Yes |
+| **createdAt** | Date | The creation date of the pool | Yes |
+| **amountSum** | string | Total amount sum | Yes |
+| **amountSumUsed** | string | Used amount sum | Yes |
+| **amountCount** | string | Total amount count | Yes |
+| **amountCountUsed** | string | Used amount count | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BonusStatisticsByPoolItem extends PoolResponse {
+      amountSum: string;
+      amountSumUsed: string;
+      amountCount: string;
+      amountCountUsed: string;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### BonusStatisticsByPoolResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **statistics** | [BonusStatisticsByPoolItem](#bonusstatisticsbypoolitem)[] | Bonus statistics items | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface BonusStatisticsByPoolResponse {
+      statistics: BonusStatisticsByPoolItem[];
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### SportsUniqueMarketsCombinationsResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **[key: string]** | array | Object with market combinations grouped by key | Yes |
+| **[key: string][].marketId** | number | Market ID | Yes |
+| **[key: string][].gamePeriodId** | number | Game period ID | Yes |
+| **[key: string][].gameTypeId** | number | Game type ID | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface SportsUniqueMarketsCombinationsResponse {
+      [key: string]: Array<{
+        marketId: number;
+        gamePeriodId: number;
+        gameTypeId: number;
+      }>;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### ActualSportIdsResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **[index]** | number[] | Array of sport IDs | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    type ActualSportIdsResponse = number[];
+    ```
+  </Tab>
+</Tabs>
+
+### ActualLeaguesResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **[sportId: string]** | array | Object with leagues grouped by sport ID | Yes |
+| **[sportId: string][].country** | string | Country name | Yes |
+| **[sportId: string][].league** | string | League name | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface ActualLeaguesResponse {
+      [sportId: string]: Array<{
+        country: string;
+        league: string;
+      }>;
+    }
+    ```
+  </Tab>
+</Tabs>
