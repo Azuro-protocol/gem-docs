@@ -688,3 +688,61 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
     ```
   </Tab>
 </Tabs>
+
+### SportsUniqueMarketsCombinationsResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **[key: string]** | array | Object with market combinations grouped by key | Yes |
+| **[key: string][].marketId** | number | Market ID | Yes |
+| **[key: string][].gamePeriodId** | number | Game period ID | Yes |
+| **[key: string][].gameTypeId** | number | Game type ID | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface SportsUniqueMarketsCombinationsResponse {
+      [key: string]: Array<{
+        marketId: number;
+        gamePeriodId: number;
+        gameTypeId: number;
+      }>;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### ActualSportIdsResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **[index]** | number[] | Array of sport IDs | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    type ActualSportIdsResponse = number[];
+    ```
+  </Tab>
+</Tabs>
+
+### ActualLeaguesResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **[sportId: string]** | array | Object with leagues grouped by sport ID | Yes |
+| **[sportId: string][].country** | string | Country name | Yes |
+| **[sportId: string][].league** | string | League name | Yes |
+  </Tab>
+  <Tab>
+    ```typescript
+    interface ActualLeaguesResponse {
+      [sportId: string]: Array<{
+        country: string;
+        league: string;
+      }>;
+    }
+    ```
+  </Tab>
+</Tabs>
