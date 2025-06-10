@@ -1,6 +1,6 @@
 import { Callout } from 'components'
 
-Partners (affiliates) can sponsor bettor's transaction fees and bet amounts (free bets). 
+Partners (affiliates) can sponsor bettor's transaction fees and bet amounts (freebets). 
 To use this option for their respective bettors fee vault and freebet vault must be funded. 
 Partner (affiliate) manage its vaults by themselves - deposite, withdraw from own vaults. 
 
@@ -17,7 +17,7 @@ mapping(address => uint256) public freeBetsFund;
 ```
 In bet parameters `ClientData.affiliate` is affiliate address mapped to it's vaults  
 
-Affiliate funds uses to sponsor transaction fees and free bets.    
+Affiliate funds uses to sponsor transaction fees and freebets.    
 Bet parameter `ClientData.affiliate` is affiliate address to be mapped to its funds.
 ```solidity
 struct ClientData {
@@ -37,8 +37,8 @@ If `ClientData.isFeeSponsored = true` affiliate's `feeFund` will be used to pay 
 If `ClientData.isBetSponsored = true` affiliate's `freeBetsFund` will be used to provide bet amount and bettor not charged for bet amount.
 
 `isSponsoredBetReturnable` extended parameter for `isBetSponsored = true`:
-- true, provided free bet funds not returns to affiliate free bet fund (in case of winning payout)
-- false, provided free bet funds will be returned to affiliate free bet fund (in case of winning payout)
+- true, provided freebet funds not returns to affiliate freebet fund (in case of winning payout)
+- false, provided freebet funds will be returned to affiliate freebet fund (in case of winning payout)
 
 ## Deposite funds
 To deposite affiliate funds used permissionless  function `depositFor()`
@@ -65,5 +65,5 @@ For winning freebets payouts use permissionless function
 ```solidity
 function withdrawPayouts(uint256[] calldata freeBetIds) 
 ```
-Winning payouts will be transfered to bet owners, if free bet is "returnable", 
-payout value will be reduced by sponsored freebet amount, freebet returned to free bet fund and reduced payout transfered to bettor
+Winning payouts will be transfered to bet owners, if freebet is "returnable", 
+payout value will be reduced by sponsored freebet amount, freebet returned to freebet fund and reduced payout transfered to bettor
