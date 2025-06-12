@@ -256,7 +256,7 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **id** | string | Unique identifier of the bonus | Yes |
 | **bonusType** | [BonusType](#bonustype) | Type of the bonus | Yes |
 | **freebetParam** | [FreebetParam](#freebetparam) | Parameters specific to freebet | Yes |
-| **publicCustomData** | object | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. | No |
+| **publicCustomData** | object (JSON) | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. `Max length 500` | No |
 | **address** | string | Wallet address | Yes |
 | **amount** | string | Bonus amount | Yes |
 | **status** | [BonusStatus](#bonusstatus) | Current status of the bonus | Yes |
@@ -317,7 +317,7 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 |-------|------|-------------|----------|
 | **name** | string | Name of the freebet offer | Yes |
 | **key** | string | Unique key for the offer | Yes |
-| **publicCustomData** | object | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. | No |
+| **publicCustomData** | object (JSON) | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. `Max length 500` | No |
 | **description** | string | Description of the offer | No |
 | **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
   </Tab>
@@ -412,7 +412,7 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **key** | string | Unique key for the offer | Yes |
 | **description** | string | Description of the offer | Yes |
 | **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
-| **publicCustomData** | object | Custom data for public use | No |
+| **publicCustomData** | object (JSON) | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. `Max length 500` | No |
 | **createdAt** | Date | Creation timestamp | Yes |
 | **operator** | [OperatorResponse](#operatorresponse) | Operator model | No |
   </Tab>
