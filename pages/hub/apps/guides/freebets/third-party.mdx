@@ -1,0 +1,225 @@
+# Third-Party integration overview
+
+You can manage the configuration and issuance of free bets through our admin panel. Additionally, we provide a special API that allows for third-party integration with your systems without the need to use our admin panel.
+
+Please refer to the **Bonus External** section in the [documentation](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Bonus%20External/BonusExternalController_createFreebetOffer).
+
+
+## Authorization
+Access to the API is provided via an API token, which should be included in the `x-bonus-api-token` header. To obtain a token, please [contact us](https://azuro.typeform.com/to/v80viKml).
+
+Example:
+```bash
+curl -X 'POST' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/offer/freebet/create' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api-token' \
+  -H 'Content-Type: application/json'
+```
+
+## General methods
+
+### Create freebet offer
+**Endpoint:** `/api/v1/public/bonus/external/offer/freebet/create`
+
+**Request:** [CreateFreebetOfferDto](/hub/apps/guides/freebets/types#createfreebetofferdto)
+
+**Response:** [OfferResponse](/hub/apps/guides/freebets/types#offerresponse)
+
+**Example:**
+```bash
+curl -X 'POST' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/offer/freebet/create' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "name": "Offer Name",
+  "key": "offer_key",
+  "publicCustomData": {
+    "color": 2321,
+    "publicName": "Test freebet"
+  },
+  "description": "description text",
+  "settings": {
+    "bonusType": "AllWin",
+    "feeSponsored": true,
+    "betRestriction": {
+      "betType": "All",
+      "minOdds": "1.5",
+      "maxOdds": "2.0"
+    },
+    "eventRestriction": {
+      "eventStatus": "All",
+      "eventFilter": {
+        "exclude": false,
+        "filter": [
+          {
+            "sportId": "1",
+            "leagues": [
+              "Premier League",
+              "La Liga"
+            ],
+            "markets": [
+              {
+                "marketId": 1,
+                "gamePeriodId": 1,
+                "gameTypeId": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "periodOfValidityMs": 86400000
+  }
+}'
+```
+
+### Create bonus by offer
+**Endpoint:** `/api/v1/public/bonus/external/create`
+
+**Request:** [CreateBonusDto](/hub/apps/guides/freebets/types#createbonusdto)
+
+**Response:** [BonusesResponse](/hub/apps/guides/freebets/types#bonusesresponse)
+
+**Example:**
+```bash
+curl -X 'POST' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/create' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "offerId": "f3f2e850-b5d4-11ef-ac7e-96584d5248b5",
+  "poolId": "5cf0db52-1a86-46d3-abbf-df262c5be39c",
+  "recipients": [
+    {
+      "address": "f3f2e850-b5d4-11ef-ac7e-96584d5248b5",
+      "amount": "100"
+    }
+  ],
+  "campaignGroup": "campaign-group-1"
+}'
+```
+
+### Get offers list
+**Endpoint:** `/api/v1/public/bonus/external/offer/list`
+
+**Response:** [OffersResponse](/hub/apps/guides/freebets/types#offersresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/offer/list' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+### Get bonuses
+**Endpoint:** `/api/v1/public/bonus/external/list`
+
+**Response:** [BonusesResponse](/hub/apps/guides/freebets/types#bonusesresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/list' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+## Statistic methods
+
+These methods display statistics on the bonuses issued
+
+### Get bonus statistics by campaign
+
+**Endpoint:** `/api/v1/public/bonus/external/statistics/freebet/by-campaign`
+
+**Response:** [BonusStatisticsByCampaignResponse](/hub/apps/guides/freebets/types#bonusstatisticsbycampaignresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/statistics/freebet/by-campaign' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+### Get bonus statistics by pool
+**Endpoint:** `/api/v1/public/bonus/external/statistics/freebet/by-pool`
+
+**Response:** [BonusStatisticsByPoolResponse](/hub/apps/guides/freebets/types#bonusstatisticsbypoolresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/statistics/freebet/by-pool' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+### Get pools list
+**Endpoint:** `/api/v1/public/bonus/external/pool/list`
+
+**Response:** [PoolsResponse](/hub/apps/guides/freebets/types#poolsresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/pool/list' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+## Utils methods
+
+These methods function as utilities for collecting supplementary information required when constructing an eventFilter
+
+### Get unique markets combinations
+**Endpoint:** `/api/v1/public/bonus/external/utils/markets-combinations`
+
+**Parameters:**
+- `sportId` (required): Sport ID
+
+**Response:** [SportsUniqueMarketsCombinationsResponse](/hub/apps/guides/freebets/types#sportsuniquemarketscombinationsresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/utils/markets-combinations?sportId=33' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+### Get actual sport IDs
+**Endpoint:** `/api/v1/public/bonus/external/utils/markets-combinations/sports`
+
+**Response:** [ActualSportIdsResponse](/hub/apps/guides/freebets/types#actualsportidsresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/utils/markets-combinations/sports' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+### Get actual leagues
+**Endpoint:** `/api/v1/public/bonus/external/utils/leagues`
+
+**Parameters:**
+- `sportIds` (optional): Array of sport IDs
+- `startsAtFrom` (optional): From time (timestamp)
+- `startsAtTo` (optional): To time (timestamp)
+
+**Response:** [ActualLeaguesResponse](/hub/apps/guides/freebets/types#actualleaguesresponse)
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/utils/leagues?sportIds=33&startsAtFrom=1742216019000&startsAtTo=1743339219000' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
