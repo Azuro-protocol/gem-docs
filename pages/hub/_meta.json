@@ -1,11 +1,5 @@
 {
   "index": "🚀 Developer Hub",
-  "protocol-v3": {
-    "title": "Azuro Protocol V3",
-    "theme": {
-      "collapsed": false
-    }
-  },
   "apps": {
     "title":"🔮 For applications",
     "theme": {

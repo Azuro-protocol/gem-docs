@@ -1,0 +1,310 @@
+import { Callout } from 'components'
+
+# How to use
+
+## Connecting to WebSocket
+
+To connect to the WebSocket API, you can use the WebSocket API available in modern browsers or a WebSocket client library:
+
+```javascript
+// For development
+const socketUrl = "wss://dev-streams.onchainfeed.org/v1/streams/feed";
+// For production
+// const socketUrl = "wss://streams.onchainfeed.org/v1/streams/feed";
+
+const socket = new WebSocket(socketUrl);
+
+socket.onopen = () => {
+  console.log("WebSocket connection established");
+};
+
+socket.onerror = (error) => {
+  console.error("WebSocket error:", error);
+};
+
+socket.onclose = () => {
+  console.log("WebSocket connection closed");
+};
+```
+
+## Subscribing to Updates
+
+### Subscribing to Condition Updates
+
+To receive real-time updates for specific conditions:
+
+```javascript
+// Subscribe to condition updates
+socket.send(JSON.stringify({
+  event: "SubscribeConditions",
+  data: {
+    conditionIds: ["300610060000000000643869810000000000000075712122"],
+    environment: "PolygonAmoyUSDT"
+  }
+}));
+
+// Handle condition updates
+socket.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+
+  if (data.event === "ConditionUpdated") {
+    const conditionData = data.data;
+    console.log("Condition updated:", conditionData);
+
+    // Update UI with new condition data
+    updateConditionInUI(conditionData);
+  }
+};
+```
+
+### Subscribing to Game Updates
+
+To receive real-time updates for specific games:
+
+```javascript
+// Subscribe to game updates
+socket.send(JSON.stringify({
+  event: "SubscribeGames",
+  data: {
+    gameIds: ["789", "101112"],
+    environment: "PolygonAmoyUSDT"
+  }
+}));
+
+// Handle game updates
+socket.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+
+  if (data.event === "GameUpdated") {
+    const gameData = data.data;
+    console.log("Game updated:", gameData);
+
+    // Update UI with new game data
+    updateGameInUI(gameData);
+  }
+};
+```
+
+## Handling Multiple Subscriptions
+
+You can subscribe to multiple types of updates and handle them in a single message handler:
+
+```javascript
+// Subscribe to both condition and game updates
+socket.send(JSON.stringify({
+  event: "SubscribeConditions",
+  data: {
+    conditionIds: ["300610060000000000643869810000000000000075712122"],
+    environment: "PolygonAmoyUSDT"
+  }
+}));
+
+socket.send(JSON.stringify({
+  event: "SubscribeGames",
+  data: {
+    gameIds: ["789", "101112"],
+    environment: "PolygonAmoyUSDT"
+  }
+}));
+
+// Handle all updates
+socket.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+
+  switch (data.event) {
+    case "ConditionUpdated":
+      const conditionData = data.data;
+      console.log("Condition updated:", conditionData);
+      updateConditionInUI(conditionData);
+      break;
+    case "GameUpdated":
+      const gameData = data.data;
+      console.log("Game updated:", gameData);
+      updateGameInUI(gameData);
+      break;
+    default:
+      console.log("Unknown event:", data.event);
+  }
+};
+```
+
+## Unsubscribing from Updates
+
+To stop receiving updates for specific conditions or games:
+
+```javascript
+// Unsubscribe from condition updates
+socket.send(JSON.stringify({
+  event: "UnsubscribeConditions",
+  data: {
+    conditionIds: ["300610060000000000643869810000000000000075712122"],
+    environment: "PolygonAmoyUSDT"
+  }
+}));
+
+// Unsubscribe from game updates
+socket.send(JSON.stringify({
+  event: "UnsubscribeGames",
+  data: {
+    gameIds: ["789", "101112"],
+    environment: "PolygonAmoyUSDT"
+  }
+}));
+```
+
+## Reconnection Strategy
+
+WebSocket connections can be interrupted for various reasons. It's important to implement a reconnection strategy to ensure your application maintains a connection to the WebSocket API:
+
+```javascript
+function connectWebSocket() {
+  const socket = new WebSocket(socketUrl);
+
+  socket.onopen = () => {
+    console.log("WebSocket connection established");
+    // Resubscribe to updates if needed
+    subscribeToUpdates(socket);
+  };
+
+  socket.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
+
+  socket.onclose = () => {
+    console.log("WebSocket connection closed");
+    // Reconnect after a delay
+    setTimeout(() => {
+      console.log("Attempting to reconnect...");
+      connectWebSocket();
+    }, 5000); // 5 seconds delay
+  };
+
+  socket.onmessage = handleMessage;
+
+  return socket;
+}
+
+function subscribeToUpdates(socket) {
+  // Subscribe to condition updates
+  socket.send(JSON.stringify({
+    event: "SubscribeConditions",
+    data: {
+      conditionIds: ["300610060000000000643869810000000000000075712122"],
+      environment: "PolygonAmoyUSDT"
+    }
+  }));
+
+  // Subscribe to game updates
+  socket.send(JSON.stringify({
+    event: "SubscribeGames",
+    data: {
+      gameIds: ["789", "101112"],
+      environment: "PolygonAmoyUSDT"
+    }
+  }));
+}
+
+function handleMessage(event) {
+  const data = JSON.parse(event.data);
+
+  switch (data.event) {
+    case "ConditionUpdated":
+      const conditionData = data.data;
+      console.log("Condition updated:", conditionData);
+      updateConditionInUI(conditionData);
+      break;
+    case "GameUpdated":
+      const gameData = data.data;
+      console.log("Game updated:", gameData);
+      updateGameInUI(gameData);
+      break;
+    default:
+      console.log("Unknown event:", data.event);
+  }
+}
+
+// Initial connection
+const socket = connectWebSocket();
+```
+
+## Update Data Structure
+
+### Condition Update Data
+
+When a condition is updated, the WebSocket API sends a message with the following structure:
+
+```json
+{
+  "event": "ConditionUpdated",
+  "data": {
+    "id": "300610060000000000643869810000000000000075712122",
+    "conditionId": "300610060000000000643869810000000000000075712122",
+    "title": "Match Winner",
+    "state": "Active",
+    "isPrematchEnabled": true,
+    "isLiveEnabled": false,
+    "isExpressForbidden": false,
+    "outcomes": [
+      {
+        "id": "300610060000000000643869810000000000000075712122-1",
+        "outcomeId": 1,
+        "title": "Team A",
+        "currentOdds": "2.5"
+      },
+      {
+        "id": "300610060000000000643869810000000000000075712122-2",
+        "outcomeId": 2,
+        "title": "Team B",
+        "currentOdds": "1.8"
+      }
+    ]
+  }
+}
+```
+
+### Game Update Data
+
+When a game is updated, the WebSocket API sends a message with the following structure:
+
+```json
+{
+  "event": "GameUpdated",
+  "data": {
+    "id": "789",
+    "gameId": "789",
+    "title": "Team A vs Team B",
+    "startsAt": "1630000000",
+    "state": "Live",
+    "sport": {
+      "name": "Football",
+      "slug": "football"
+    },
+    "league": {
+      "name": "Premier League",
+      "country": {
+        "name": "England"
+      }
+    },
+    "participants": [
+      {
+        "name": "Team A",
+        "image": "https://example.com/team-a.png",
+        "sortOrder": 1
+      },
+      {
+        "name": "Team B",
+        "image": "https://example.com/team-b.png",
+        "sortOrder": 2
+      }
+    ],
+    "score": {
+      "home": 1,
+      "away": 0
+    }
+  }
+}
+```
+
+<Callout type="info">
+    The WebSocket API is designed to work in conjunction with The Graph API. While The Graph API provides historical data and bet information, the WebSocket API provides real-time updates for games and conditions.
+</Callout>

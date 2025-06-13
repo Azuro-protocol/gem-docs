@@ -1,0 +1,32 @@
+import { Callout } from 'components'
+
+# Backend API
+
+The Backend API is a centralized service that provides critical functionality for the Azuro Protocol, including bet calculation, order management, and cashout processing.
+
+## Overview
+
+The Backend API serves as an intermediary between the frontend applications and the blockchain, handling complex operations that would be inefficient or impractical to perform on-chain. It provides the following key services:
+
+- **Bet Calculation**: Calculates odds, limits, and potential payouts for bets
+- **Order Management**: Processes bet orders and submits them to the blockchain
+- **Gas Estimation**: Provides gas information for transactions
+- **Freebet Management**: Manages freebets and their distribution. [See guide](/hub/apps/guides/cashout/overview)
+- **Cashout Processing**: Handles early cashout requests for active bets. [See guide](/hub/apps/guides/cashout/overview)
+
+## API Endpoints
+
+### Development Environment
+
+- **API Documentation**: [https://dev-api.onchainfeed.org/api/v1/public/gateway/docs](https://dev-api.onchainfeed.org/api/v1/public/gateway/docs)
+- **Base URL**: `https://dev-api.onchainfeed.org/api/v1/public`
+
+### Production Environment
+
+- **API Documentation**: [https://api.onchainfeed.org/api/v1/public/gateway/docs](https://api.onchainfeed.org/api/v1/public/gateway/docs)
+- **Base URL**: `https://api.onchainfeed.org/api/v1/public`
+
+## Authentication
+
+Most endpoints in the Backend API do not require authentication, as they are designed to be used by frontend applications. However, some endpoints may require a signature from the user's wallet to verify their identity.
+

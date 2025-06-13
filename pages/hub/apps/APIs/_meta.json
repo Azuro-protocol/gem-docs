@@ -1,7 +1,13 @@
 {
   "overview": "Overview",
-  "highlights": "Highlights",
-  "queries": "GraphQL Queries",
+  "backend": "Backend API",
+  "graph": "Graph API",
+  "websocket": "WebSocket API",
+  "queries": {
+    "title": "GraphQL Queries",
+    "type": "hidden",
+    "display": "hidden"
+  },
   "---": {
     "type": "separator"
   }

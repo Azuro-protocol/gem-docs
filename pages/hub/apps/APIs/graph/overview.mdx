@@ -1,0 +1,52 @@
+import { Callout } from 'components'
+
+# The Graph API
+
+Azuro Protocol uses The Graph service to index and organize data from its smart contracts, making it efficient and intuitive to query blockchain data.
+
+## Overview
+
+The Graph API is a critical component of the Azuro Protocol ecosystem, providing access to historical data, bet information, game details, and current odds. In V3, Azuro uses multiple subgraphs to organize different types of data:
+
+1. **Client Subgraphs** - For bet history and transaction-related data
+2. **Data-Feed Subgraphs** - For current odds, game information, and condition states
+
+<Callout type="warning">
+IMPORTANT: All feed data (games, conditions, outcomes with current odds) should now be fetched exclusively from the data-feed graph. The client API graph should only be used for bet history and other transaction-related data. Never query the API graph for feed data as it no longer contains this information.
+</Callout>
+
+## Client Subgraphs
+
+Client subgraphs contain bet history and transaction-related data. In V3, they include new `V3_*` entities that unify prematch and live bets.
+
+### Development Endpoints
+
+- Polygon Amoy: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-polygon-amoy-dev-v3
+- Gnosis Dev: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-dev-v3
+- Base Sepolia: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-base-sepolia-dev-v3
+- Chiliz Spicy: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-chiliz-spicy-dev-v3
+
+### Production Endpoints
+
+- Polygon: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3
+- Gnosis: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-gnosis-v3
+- Base: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-base-v3
+- Chiliz: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-chiliz-v3
+
+## Data-Feed Subgraphs
+
+Data-feed subgraphs contain current odds, game information, and condition states. In V3, all feed data has been moved to these subgraphs.
+
+### Development Endpoints
+
+- Polygon Amoy: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-polygon-amoy-dev
+- Gnosis Dev: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-gnosis-dev
+- Base Sepolia: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-base-sepolia-dev
+- Chiliz Spicy: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-chiliz-spicy-dev
+
+### Production Endpoints
+
+- Polygon: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-polygon
+- Gnosis: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-gnosis
+- Base: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-base
+- Chiliz: https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-chiliz

@@ -1,0 +1,409 @@
+import { Callout } from 'components'
+
+# How to use
+
+## Client Setup
+
+To use The Graph API in your application, you'll need to set up a GraphQL client. Here's an example using Apollo Client:
+
+```javascript
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+
+// Client subgraph client
+const clientSubgraphClient = new ApolloClient({
+  link: new HttpLink({
+    uri: 'https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-polygon-v3',
+  }),
+  cache: new InMemoryCache(),
+});
+
+// Data-feed subgraph client
+const dataFeedSubgraphClient = new ApolloClient({
+  link: new HttpLink({
+    uri: 'https://thegraph-1.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-data-feed-polygon',
+  }),
+  cache: new InMemoryCache(),
+});
+```
+
+## Performance Optimization
+
+<Callout type="info">
+    Don't forget to [optimize requests](/hub/apps/APIs/graph/request-optimizations) and load game data faster in your frontend.
+</Callout>
+
+
+
+## Client Subgraphs
+
+### Key Entities
+
+The client subgraphs include the following key entities:
+
+```graphql
+type V3_Bet @entity {
+  "Core contract address + Bet Id"
+  id: ID!
+  core: CoreContract!
+  betId: BigInt!
+  bettor: String!
+  nonce: BigInt
+  owner: String!
+  actor: String!
+  affiliate: String!
+  type: BetType!
+  _conditions: [V3_Condition!]!
+  _conditionIds: [BigInt!]!
+  rawAmount: BigInt!
+  amount: BigDecimal!
+  _tokenDecimals: Int!
+  rawPotentialPayout: BigInt!
+  potentialPayout: BigDecimal!
+  rawPayout: BigInt
+  payout: BigDecimal
+  rawPayoutLimit: BigInt!
+  payoutLimit: BigDecimal!
+  rawOdds: BigInt!
+  odds: BigDecimal!
+  _oddsDecimals: Int!
+  rawSettledOdds: BigInt
+  settledOdds: BigDecimal
+  selections: [V3_Selection!]! @derivedFrom(field: "bet")
+  _gamesIds: [String!]!
+  createdBlockNumber: BigInt!
+  createdBlockTimestamp: BigInt!
+  createdTxHash: String!
+  resolvedBlockNumber: BigInt
+  resolvedBlockTimestamp: BigInt
+  resolvedTxHash: String
+  status: BetStatus!
+  result: BetResult
+  isRedeemable: Boolean!
+  isRedeemed: Boolean!
+  redeemedBlockNumber: BigInt
+  redeemedBlockTimestamp: BigInt
+  redeemedTxHash: String
+  _subBetsCount: Int!
+  _wonSubBetsCount: Int!
+  _lostSubBetsCount: Int!
+  _canceledSubBetsCount: Int!
+  isFreebet: Boolean!
+  freebet: Freebet
+  isCashedOut: Boolean!
+  cashout: Cashout
+  _updatedAt: BigInt!
+}
+
+type V3_Selection @entity {
+  id: ID!
+  bet: V3_Bet!
+  rawOdds: BigInt!
+  odds: BigDecimal!
+  _oddsDecimals: Int!
+  result: SelectionResult
+  _outcomeId: BigInt!
+  outcome: V3_Outcome!
+  conditionKind: V3_SelectionConditionKind!
+}
+
+enum V3_SelectionConditionKind {
+  Prematch
+  Live
+}
+```
+
+## Data-Feed Subgraphs
+
+### Key Entities
+
+The data-feed subgraphs include the following key entities:
+
+```graphql
+type Game @entity {
+  id: ID!
+  gameId: BigInt!
+  title: String!
+  startsAt: BigInt!
+  state: GameState!
+  sport: Sport!
+  league: League!
+  participants: [Participant!]!
+  conditions: [Condition!]! @derivedFrom(field: "game")
+  activeConditionsCount: Int!
+  activePrematchConditionsCount: Int!
+  activeLiveConditionsCount: Int!
+  rawTurnover: BigInt!
+  turnover: BigDecimal!
+  _updatedAt: BigInt!
+}
+
+type Condition @entity {
+  id: ID!
+  conditionId: BigInt!
+  game: Game!
+  title: String!
+  state: ConditionState!
+  outcomes: [Outcome!]! @derivedFrom(field: "condition")
+  isPrematchEnabled: Boolean!
+  isLiveEnabled: Boolean!
+  isExpressForbidden: Boolean!
+  maxConditionPotentialLoss: BigDecimal!
+  maxOutcomePotentialLoss: BigDecimal!
+  rawMaxConditionPotentialLoss: BigInt!
+  rawMaxOutcomePotentialLoss: BigInt!
+  currentConditionPotentialLoss: BigDecimal!
+  rawCurrentConditionPotentialLoss: BigInt!
+  winningOutcomesCount: Int!
+  _updatedAt: BigInt!
+}
+
+enum GameState {
+  Prematch
+  Live
+  Stopped
+  Finished
+}
+
+enum ConditionState {
+  Active
+  Stopped
+  Removed
+  Canceled
+  Resolved
+}
+```
+
+## Common Queries
+
+### Feed Data Rendering
+
+To display current odds, games, and conditions from the data-feed graph:
+
+```graphql
+query Games {
+  games {
+    id
+    title
+    state
+    conditions {
+      id
+      outcomes {
+        id
+        currentOdds
+      }
+    }
+  }
+}
+```
+
+### Fetching Games
+
+To fetch games from the data-feed subgraph:
+
+```graphql
+query Games($first: Int, $skip: Int, $where: Game_filter) {
+  games(first: $first, skip: $skip, where: $where) {
+    id
+    gameId
+    title
+    startsAt
+    state
+    sport {
+      name
+      slug
+    }
+    league {
+      name
+      country {
+        name
+      }
+    }
+    participants {
+      name
+      image
+      sortOrder
+    }
+    activeConditionsCount
+    activePrematchConditionsCount
+    activeLiveConditionsCount
+  }
+}
+```
+
+Example usage:
+
+```javascript
+// Fetch prematch games
+const prematchGames = await client.query({
+  query: GAMES_QUERY,
+  variables: {
+    where: {
+      state: 'Prematch',
+      activeConditionsCount_gt: 0
+    },
+    first: 20
+  }
+});
+
+// Fetch live games
+const liveGames = await client.query({
+  query: GAMES_QUERY,
+  variables: {
+    where: {
+      state: 'Live',
+      activeConditionsCount_gt: 0
+    },
+    first: 20
+  }
+});
+```
+
+### Fetching Conditions and Odds
+
+To fetch conditions and odds for a game:
+
+```graphql
+query GameConditions($gameId: ID!) {
+  game(id: $gameId) {
+    id
+    title
+    state
+    conditions(where: { state: "Active" }) {
+      id
+      conditionId
+      title
+      state
+      isPrematchEnabled
+      isLiveEnabled
+      isExpressForbidden
+      outcomes {
+        id
+        outcomeId
+        title
+        currentOdds
+      }
+    }
+  }
+}
+```
+
+Example usage:
+
+```javascript
+const gameConditions = await client.query({
+  query: GAME_CONDITIONS_QUERY,
+  variables: {
+    gameId: "123456789"
+  }
+});
+```
+
+### Retrieving Bet History
+
+To retrieve a user's bet history, query the client subgraph:
+
+```graphql
+query UserBets($bettor: String!) {
+  v3Bets(where: { bettor: $bettor }) {
+    id
+    betId
+    type # Ordinar or Express
+    amount
+    odds
+    potentialPayout
+    payout
+    status
+    result
+    createdBlockTimestamp
+    createdTxHash
+    selections {
+      odds
+      result
+      conditionKind # Prematch or Live
+      outcome {
+        outcomeId
+        condition {
+          conditionId
+        }
+      }
+    }
+    _gamesIds
+  }
+}
+```
+
+<Callout type="warning">
+    IMPORTANT: When rendering bet history or "My Bets" sections, you'll need to fetch game data separately from the data-feed graph. The API graph only contains bet information with gameIds, but no game details.
+</Callout>
+
+Example query to fetch games for bets:
+
+```graphql
+# First, get bets from API graph
+query MyBets {
+  v3Bets(where: { bettor: "0x..." }) {
+    id
+    betId
+    amount
+    odds
+    status
+    _gamesIds  # Get the list of game IDs
+  }
+}
+
+# Then, fetch game details from data-feed graph using the game IDs
+query GamesForBets($gameIds: [ID!]!) {
+  games(where: { id_in: $gameIds }) {
+    id
+    title
+    state
+    startsAt
+    participants {
+      name
+      sortOrder
+    }
+    sport {
+      name
+    }
+    league {
+      name
+    }
+  }
+}
+```
+
+Example usage:
+
+```javascript
+const userBets = await client.query({
+  query: USER_BETS_QUERY,
+  variables: {
+    bettor: "0xYourWalletAddress"
+  }
+});
+
+// For each bet, fetch game details from data-feed graph
+const gameIds = userBets.data.v3Bets.flatMap(bet => bet._gamesIds);
+const uniqueGameIds = [...new Set(gameIds)];
+
+const gameDetails = await dataFeedClient.query({
+  query: GAMES_QUERY,
+  variables: {
+    where: {
+      id_in: uniqueGameIds
+    }
+  }
+});
+
+// Combine bet data with game details for display
+const betsWithGameDetails = userBets.data.v3Bets.map(bet => {
+  const gameDetails = gameDetails.data.games.find(game =>
+    bet._gamesIds.includes(game.id)
+  );
+
+  return {
+    ...bet,
+    gameDetails
+  };
+});
+```
