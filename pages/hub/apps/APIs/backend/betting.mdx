@@ -1,0 +1,259 @@
+import { Callout } from 'components'
+
+# How to Place a Bet in Azuro Protocol
+
+## Placing Bets Using API (Full Cycle)
+
+The process of placing a bet involves several steps:
+
+1. Calculate bet odds and limits
+2. Get gas information
+3. Create and sign a bet order
+4. Submit the order
+5. Check the order status
+
+### 1. Calculate Bet Odds and Limits
+
+Before placing a bet, you need to calculate the odds and limits:
+
+```javascript
+// Calculate odds and limits for a bet
+const calculateBet = async (environment, selections) => {
+  const response = await fetch('https://dev-api.onchainfeed.org/api/v1/public/bet/calculation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      environment: environment, // e.g., "PolygonAmoyUSDT"
+      bets: selections.map(selection => ({
+        conditionId: selection.conditionId,
+        outcomeId: selection.outcomeId
+      }))
+    })
+  });
+
+  return await response.json();
+};
+
+// Example usage
+const betCalculation = await calculateBet("PolygonAmoyUSDT", [
+  { conditionId: "300610060000000000649714110000000000000227249395", outcomeId: 29 }
+]);
+
+console.log("Odds:", betCalculation.odds);
+console.log("Max bet:", betCalculation.maxBet);
+console.log("Max payout:", betCalculation.maxPayout);
+```
+
+### 2. Get Gas Information
+
+Retrieve gas information to include in your bet order:
+
+```javascript
+// Get gas information
+const getGasInfo = async (environment) => {
+  const response = await fetch(`https://dev-api.onchainfeed.org/api/v1/public/bet/gas-info?environment=${environment}`);
+  return await response.json();
+};
+
+// Example usage
+const gasInfo = await getGasInfo("PolygonAmoyUSDT");
+console.log("Relayer fee amount:", gasInfo[0].relayerFeeAmount);
+```
+
+### 3. Create and Sign a Bet Order
+
+Create and sign a bet order using your wallet:
+
+```javascript
+// Create and sign a single bet order
+const createSingleBetOrder = async (environment, bettor, betData, signature) => {
+  const response = await fetch('https://dev-api.onchainfeed.org/api/v1/public/bet/orders/ordinar', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      environment: environment,
+      bettor: bettor,
+      betOwner: bettor,
+      clientBetData: {
+        clientData: {
+          attention: "",
+          affiliate: "",
+          core: betData.core,
+          expiresAt: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+          chainId: betData.chainId,
+          relayerFeeAmount: betData.relayerFeeAmount,
+          isFeeSponsored: false,
+          isBetSponsored: false,
+          isSponsoredBetReturnable: false
+        },
+        bet: {
+          conditionId: betData.conditionId,
+          outcomeId: betData.outcomeId,
+          minOdds: betData.minOdds || "1000000000000", // 1 in raw format
+          amount: betData.amount,
+          nonce: betData.nonce
+        }
+      },
+      bettorSignature: signature
+    })
+  });
+
+  return await response.json();
+};
+
+// Example usage (signature generation would be handled by your wallet integration)
+const betOrder = await createSingleBetOrder(
+  "PolygonAmoyUSDT",
+  "0xYourWalletAddress",
+  {
+    core: "0xCoreContractAddress",
+    chainId: 80001, // Polygon Amoy
+    relayerFeeAmount: gasInfo[0].relayerFeeAmount,
+    conditionId: "300610060000000000649714110000000000000227249395",
+    outcomeId: 29,
+    amount: "10000000", // 10 USDT with 6 decimals
+    nonce: Date.now().toString()
+  },
+  "0xYourSignature"
+);
+
+console.log("Order ID:", betOrder.id);
+```
+
+<Callout type="warning">
+Don't forget to approve token spending for the relayer address, as it is required to cover the bet transaction fee. This step must be completed before placing a bet.
+</Callout>
+
+### 4. Check Order Status
+
+Monitor the status of your bet order:
+
+```javascript
+// Check order status
+const checkOrderStatus = async (orderId) => {
+  const response = await fetch(`https://dev-api.onchainfeed.org/api/v1/public/bet/orders/${orderId}`);
+  return await response.json();
+};
+
+// Example usage
+const orderStatus = await checkOrderStatus("your-order-id");
+console.log("Order status:", orderStatus.state);
+```
+
+## Retrieving Bet History
+
+To retrieve a user's bet history, query the client subgraph:
+
+```graphql
+query UserBets($bettor: String!) {
+  v3Bets(where: { bettor: $bettor }) {
+    id
+    betId
+    type
+    amount
+    odds
+    potentialPayout
+    payout
+    status
+    result
+    createdBlockTimestamp
+    createdTxHash
+    selections {
+      odds
+      result
+      conditionKind
+      outcome {
+        outcomeId
+        condition {
+          conditionId
+        }
+      }
+    }
+    _gamesIds
+  }
+}
+```
+
+Example usage:
+
+```javascript
+const userBets = await client.query({
+  query: USER_BETS_QUERY,
+  variables: {
+    bettor: "0xYourWalletAddress"
+  }
+});
+
+// For each bet, fetch game details from data-feed graph
+const gameIds = userBets.data.v3Bets.flatMap(bet => bet._gamesIds);
+const uniqueGameIds = [...new Set(gameIds)];
+
+const gameDetails = await dataFeedClient.query({
+  query: GAMES_QUERY,
+  variables: {
+    where: {
+      id_in: uniqueGameIds
+    }
+  }
+});
+
+// Combine bet data with game details for display
+const betsWithGameDetails = userBets.data.v3Bets.map(bet => {
+  const gameDetails = gameDetails.data.games.find(game => 
+    bet._gamesIds.includes(game.id)
+  );
+
+  return {
+    ...bet,
+    gameDetails
+  };
+});
+```
+
+## Express (Combo) Bets
+
+In addition to single bets, Azuro Protocol supports express (Combo) bets, which combine multiple selections into a single bet:
+
+```javascript
+// Create and sign an express bet order
+const createExpressBetOrder = async (environment, bettor, betData, signature) => {
+  const response = await fetch('https://dev-api.onchainfeed.org/api/v1/public/bet/orders/combo', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      environment: environment,
+      bettor: bettor,
+      betOwner: bettor,
+      clientBetData: {
+        clientData: {
+          attention: "",
+          affiliate: "",
+          core: betData.core,
+          expiresAt: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+          chainId: betData.chainId,
+          relayerFeeAmount: betData.relayerFeeAmount,
+          isFeeSponsored: false,
+          isBetSponsored: false,
+          isSponsoredBetReturnable: false
+        },
+        bet: {
+          conditions: betData.conditions,
+          minOdds: betData.minOdds || "1000000000000", // 1 in raw format
+          amount: betData.amount,
+          nonce: betData.nonce
+        }
+      },
+      bettorSignature: signature
+    })
+  });
+
+  return await response.json();
+};
+```
+

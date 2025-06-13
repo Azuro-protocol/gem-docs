@@ -1,0 +1,187 @@
+import { Callout } from 'components'
+
+# Backend API
+
+The Backend API is a centralized service that provides critical functionality for the Azuro Protocol, including bet calculation, order management, and cashout processing.
+
+## Overview
+
+The Backend API serves as an intermediary between the frontend applications and the blockchain, handling complex operations that would be inefficient or impractical to perform on-chain. It provides the following key services:
+
+- **Bet Calculation**: Calculates odds, limits, and potential payouts for bets
+- **Order Management**: Processes bet orders and submits them to the blockchain
+- **Gas Estimation**: Provides gas information for transactions
+- **Freebet Management**: Manages freebets and their distribution. [See guide](/hub/apps/guides/cashout/overview)
+- **Cashout Processing**: Handles early cashout requests for active bets. [See guide](/hub/apps/guides/cashout/overview)
+
+## API Endpoints
+
+### Development Environment
+
+- **API Documentation**: [https://dev-api.onchainfeed.org/api/v1/public/gateway/docs](https://dev-api.onchainfeed.org/api/v1/public/gateway/docs)
+- **Base URL**: `https://dev-api.onchainfeed.org/api/v1/public`
+
+### Production Environment
+
+- **API Documentation**: [https://api.onchainfeed.org/api/v1/public/gateway/docs](https://api.onchainfeed.org/api/v1/public/gateway/docs)
+- **Base URL**: `https://api.onchainfeed.org/api/v1/public`
+
+## Key Endpoints
+
+### Bet Calculation
+
+Calculate odds and limits for a bet:
+
+```javascript
+// Calculate odds and limits for a bet
+const calculateBet = async (environment, selections) => {
+  const response = await fetch('https://dev-api.onchainfeed.org/api/v1/public/bet/calculation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      environment: environment, // e.g., "PolygonAmoyUSDT"
+      bets: selections.map(selection => ({
+        conditionId: selection.conditionId,
+        outcomeId: selection.outcomeId
+      }))
+    })
+  });
+
+  return await response.json();
+};
+```
+
+### Gas Information
+
+Get gas information for transactions:
+
+```javascript
+// Get gas information
+const getGasInfo = async (environment) => {
+  const response = await fetch(`https://dev-api.onchainfeed.org/api/v1/public/bet/gas-info?environment=${environment}`);
+  return await response.json();
+};
+```
+
+### Order Management
+
+Create and submit bet orders:
+
+```javascript
+// Create and sign a single bet order
+const createSingleBetOrder = async (environment, bettor, betData, signature) => {
+  const response = await fetch('https://dev-api.onchainfeed.org/api/v1/public/bet/orders/ordinar', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      environment: environment,
+      bettor: bettor,
+      betOwner: bettor,
+      clientBetData: {
+        clientData: {
+          attention: "",
+          affiliate: "",
+          core: betData.core,
+          expiresAt: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+          chainId: betData.chainId,
+          relayerFeeAmount: betData.relayerFeeAmount,
+          isFeeSponsored: false,
+          isBetSponsored: false,
+          isSponsoredBetReturnable: false
+        },
+        bet: {
+          conditionId: betData.conditionId,
+          outcomeId: betData.outcomeId,
+          minOdds: betData.minOdds || "1000000000000", // 1 in raw format
+          amount: betData.amount,
+          nonce: betData.nonce
+        }
+      },
+      bettorSignature: signature
+    })
+  });
+
+  return await response.json();
+};
+```
+
+Check order status:
+
+```javascript
+// Check order status
+const checkOrderStatus = async (orderId) => {
+  const response = await fetch(`https://dev-api.onchainfeed.org/api/v1/public/bet/orders/${orderId}`);
+  return await response.json();
+};
+```
+
+### Cashout
+
+Request an early cashout for an active bet:
+
+```javascript
+// Request cashout
+const requestCashout = async (environment, betId, minOdds, signature) => {
+  const response = await fetch('https://dev-api.onchainfeed.org/api/v1/public/bet/cashout', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      environment: environment,
+      betId: betId,
+      minOdds: minOdds,
+      signature: signature
+    })
+  });
+
+  return await response.json();
+};
+```
+
+### Freebet Management
+
+Get available freebets for a user:
+
+```javascript
+// Get available freebets
+const getFreebets = async (environment, address) => {
+  const response = await fetch(`https://dev-api.onchainfeed.org/api/v1/public/freebet/available?environment=${environment}&address=${address}`);
+  return await response.json();
+};
+```
+
+## Authentication
+
+Most endpoints in the Backend API do not require authentication, as they are designed to be used by frontend applications. However, some endpoints may require a signature from the user's wallet to verify their identity.
+
+## Error Handling
+
+The Backend API returns standard HTTP status codes to indicate the success or failure of a request. In case of an error, the response body will contain an error message and additional details to help diagnose the issue.
+
+Example error response:
+
+```json
+{
+  "error": {
+    "code": "INVALID_PARAMETER",
+    "message": "Invalid parameter: conditionId",
+    "details": {
+      "parameter": "conditionId",
+      "reason": "Condition not found"
+    }
+  }
+}
+```
+
+## Rate Limiting
+
+The Backend API implements rate limiting to prevent abuse. If you exceed the rate limit, you will receive a 429 Too Many Requests response. The response headers will include information about the rate limit and when you can retry the request.
+
+<Callout type="info">
+For detailed API documentation, including all available endpoints and parameters, refer to the [API Documentation](https://api.onchainfeed.org/api/v1/public/gateway/docs).
+</Callout>
