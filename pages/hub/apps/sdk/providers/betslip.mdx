@@ -13,7 +13,7 @@ Batch bet currently unavailable!
 Wrap your application in `BetslipProvider`.
 
 ```tsx {1, 20, 22}
-import { ChainProvider, LiveProvider, ApolloProvider, SocketProvider, BetslipProvider } from '@azuro-org/sdk'
+import { ChainProvider, LiveProvider, SocketProvider, BetslipProvider } from '@azuro-org/sdk'
 import { WagmiProvider, createConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonAmoy } from 'viem/chains'
@@ -50,7 +50,7 @@ function Providers(props: { children: React.ReactNode }) {
 </Callout>
 
 <Callout type="warning">
-  The `BetslipProvider` necessitates access to the `ChainProvider`, `ApolloProvider`, and Socket Providers.
+  The `BetslipProvider` necessitates access to the `ChainProvider`, and Socket Providers.
 </Callout>
 
 **Accessing Betslip Context**
