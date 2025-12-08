@@ -1,0 +1,20 @@
+export default {
+  'overview': 'Overview',
+  'installation': 'Installation',
+  'setup': 'Setup',
+  'providers': {
+    'title': 'Providers',
+  },
+  'data-hooks': {
+    'title': 'Data Hooks',
+  },
+  'write-hooks': {
+    'title': 'Write Hooks',
+  },
+  'watch-hooks': {
+    'title': 'Watch Hooks',
+  },
+  'bonus': 'Freebet',
+  'cashout': 'Cashout',
+  'hooks': 'Other Hooks',
+}

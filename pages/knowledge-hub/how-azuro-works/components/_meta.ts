@@ -1,0 +1,10 @@
+export default {
+  'betting-engines': 'Betting Engines',
+  'conditions': 'Conditions',
+  'reinforcement': 'Reinforcement',
+  'pools': 'Pools',
+  'odds': 'Odds',
+  'dictionaries': 'Dictionaries',
+  'virtual-funds': 'Virtual Funds',
+  'vAMM': 'vAMM',
+}

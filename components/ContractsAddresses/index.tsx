@@ -1,5 +1,5 @@
 import React from 'react'
-import { Tab, Tabs } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 import { Link } from 'components'
 
 
@@ -172,9 +172,9 @@ export const ContractsAddresses: React.FC<ContractsAddressesProps> = ({ tabs }) 
         tabs.map(({ chain, addresses }) => {
 
           return (
-            <Tab key={chain}>
+            <Tabs.Tab key={chain}>
               <ContractsTable addresses={addresses} />
-            </Tab>
+            </Tabs.Tab>
           )
         })
       }

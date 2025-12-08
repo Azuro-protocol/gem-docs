@@ -1,5 +1,5 @@
 import { Callout } from 'components'
-import { Tab, Tabs } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 # Use Cashout
 
@@ -7,7 +7,7 @@ import { Tab, Tabs } from 'nextra-theme-docs'
 Provides availability of cashout for conditions and outcomes.
 
 <Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
-  <Tab>
+  <Tabs.Tab>
     Using the [`usePrecalculatedCashouts`](http://localhost:5009/hub/apps/sdk/cashout/usePrecalculatedCashouts) hook:
 
     ```tsx copy
@@ -37,8 +37,8 @@ Provides availability of cashout for conditions and outcomes.
     }
     ```
 
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     Using the [`getPrecalculatedCashouts`](http://localhost:5009/hub/apps/toolkit/cashout/getPrecalculatedCashouts) function:
 
     ```ts copy
@@ -57,8 +57,8 @@ Provides availability of cashout for conditions and outcomes.
       <b>amount[bet] * (odds[bet] / odds[prices from available]) * margin[available]</b><br/><br/>
       If <b>odds[bet] = odds[price available]</b> then you need to use <b>marginMin</b>
     </Callout>
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_getAvailable):
 
     ```ts copy
@@ -96,7 +96,7 @@ Provides availability of cashout for conditions and outcomes.
       <b>amount[bet] * (odds[bet] / odds[prices from available]) * margin[available]</b><br/><br/>
       If <b>odds[bet] = odds[price available]</b> then you need to use <b>marginMin</b>
     </Callout>
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -105,7 +105,7 @@ Provides availability of cashout for conditions and outcomes.
 To perform a cashout, you first need to retrieve the calculation that includes detailed information about the cashout amount.
 
 <Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
-  <Tab>
+  <Tabs.Tab>
     Using the [`useCashout`](http://localhost:5009/hub/apps/sdk/cashout/useCashout) hook:
 
     ```tsx copy
@@ -130,8 +130,8 @@ To perform a cashout, you first need to retrieve the calculation that includes d
       )
     }
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     Using the [`getCalculatedCashout`](http://localhost:5009/hub/apps/toolkit/cashout/getCalculatedCashout) function:
 
     ```ts copy
@@ -144,8 +144,8 @@ To perform a cashout, you first need to retrieve the calculation that includes d
       graphBetId: '...', // Bet ID from the Graph
     })
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_getCalculation):
 
     ```ts copy
@@ -187,7 +187,7 @@ To perform a cashout, you first need to retrieve the calculation that includes d
 
     const data: CalculationResponse = await response.json()
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ## Create cashout
@@ -195,7 +195,7 @@ To perform a cashout, you first need to retrieve the calculation that includes d
 Create a cashout based on the calculation from previous step.
 
 <Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
-  <Tab>
+  <Tabs.Tab>
     Using the [`useCashout`](http://localhost:5009/hub/apps/sdk/cashout/useCashout) hook:
 
     ```tsx copy
@@ -217,10 +217,10 @@ Create a cashout based on the calculation from previous step.
       )
     }
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     1. Create signature using the [`getCashoutTypedData`](http://localhost:5009/hub/apps/toolkit/cashout/getCashoutTypedData) function:
-    
+
     ```ts copy
     import { getCashoutTypedData } from '@azuro-org/toolkit'
 
@@ -248,8 +248,8 @@ Create a cashout based on the calculation from previous step.
       signature,
     })
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_createOrder):
 
     1. Create signature:
@@ -304,7 +304,7 @@ Create a cashout based on the calculation from previous step.
     ```
 
     2. Send all following data to the API
-  
+
     ```ts copy
     type CreateRequest = {
       calculationId: string // calculation id from prev step
@@ -335,7 +335,7 @@ Create a cashout based on the calculation from previous step.
 
     const createdCashout: CreateResponse = await response.json()
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Exceptions:
@@ -395,7 +395,7 @@ export const CashoutExceptionResponses = {
 ## Get cashout order
 
 <Tabs items={[ 'Toolkit', 'Manual' ]}>
-  <Tab>
+  <Tabs.Tab>
     Using the [`getCashout`](http://localhost:5009/hub/apps/toolkit/cashout/getCashout) function:
 
     ```ts copy
@@ -406,8 +406,8 @@ export const CashoutExceptionResponses = {
       orderId: createdCashout.id,
     })
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     Using the [Azuro Cashout API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Cashout/CashoutController_getOrder):
 
     ```ts copy
@@ -423,7 +423,7 @@ export const CashoutExceptionResponses = {
 
     const cashout: OrderResponse = await response.json()
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 Error codes:

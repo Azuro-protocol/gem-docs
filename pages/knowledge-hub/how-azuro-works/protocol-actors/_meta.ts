@@ -1,0 +1,6 @@
+export default {
+  'apps': 'Apps (Frontends)',
+  'bettors': 'Bettors (Players)',
+  'liquidity-providers': 'Liquidity Providers',
+  'data-providers': 'Data Providers',
+}

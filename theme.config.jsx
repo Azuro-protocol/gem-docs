@@ -1,6 +1,6 @@
 import { ThemeSwitch, FileTree } from 'nextra-theme-docs'
 import { useRouter } from 'next/router'
-import meta from './pages/_meta.json'
+import meta from './pages/_meta.ts'
 import Footer from './components/Footer'
 
 export default {

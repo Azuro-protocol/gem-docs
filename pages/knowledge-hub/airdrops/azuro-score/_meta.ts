@@ -1,0 +1,6 @@
+export default {
+  'overview': 'Overview',
+  'changelog': 'Changelog',
+  'phase-1': 'Phase 1',
+  'phase-2': 'Phase 2',
+}
