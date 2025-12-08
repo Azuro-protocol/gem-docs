@@ -1,0 +1,6 @@
+export default {
+  'sporthub': 'SportHub Entity',
+  'sport': 'Sport Entity',
+  'league': 'League Entity',
+  'country': 'Country Entity',
+}

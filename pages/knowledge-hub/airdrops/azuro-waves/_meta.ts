@@ -1,0 +1,8 @@
+export default {
+  'overview': 'Overview',
+  'wave1': 'Wave 1',
+  'wave2': 'Wave 2',
+  'wave3': 'Wave 3',
+  'wave4': 'Wave 4',
+  'wave5': 'Wave 5',
+}

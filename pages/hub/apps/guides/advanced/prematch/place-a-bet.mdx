@@ -1,4 +1,4 @@
-import { Tabs, Tab } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 import { Callout } from 'components'
 
 # Place a Bet
@@ -9,7 +9,7 @@ import { Callout } from 'components'
 All LP works with ERC20 tokens as a bet token
 
 <Tabs items={[ 'Ethers', 'Wagmi' ]}>
-  <Tab>
+  <Tabs.Tab>
 ```ts
 import { ethers } from 'ethers'
 
@@ -29,8 +29,8 @@ lp.bet(
   }
 )
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```ts
 import { useContractWrite, encodeAbiParameters } from 'wagmi'
 
@@ -58,7 +58,7 @@ useContractWrite({
   ],
 })
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 <Callout type="warning">
@@ -108,7 +108,7 @@ To send a batch of single bets you should use [ProxyFront](/contracts/proxy-fron
 </Callout>
 
 <Tabs items={[ 'Ethers', 'Wagmi' ]}>
-  <Tab>
+  <Tabs.Tab>
 ```ts
 import { ethers } from 'ethers'
 
@@ -138,8 +138,8 @@ proxyFront.bet(
   ],
 )
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```ts
 import { useContractWrite, encodeAbiParameters } from 'wagmi'
 
@@ -177,7 +177,7 @@ useContractWrite({
   ],
 })
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 
@@ -187,7 +187,7 @@ To place a combo bet with several selections you can use any LP or [ProxyFront](
 The difference with single bet is just in `data` field (array instead of single tuple) and core address.
 
 <Tabs items={[ 'Ethers', 'Wagmi' ]}>
-  <Tab>
+  <Tabs.Tab>
 ```ts
 import { ethers } from 'ethers'
 
@@ -231,8 +231,8 @@ proxyFront.bet(
   ],
 )
 ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
 ```ts
 import { useContractWrite, encodeAbiParameters } from 'wagmi'
 
@@ -266,7 +266,7 @@ useContractWrite({
   ],
 })
 ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 <Callout type="warning">
@@ -290,7 +290,7 @@ See details on structure and how to fetch in [Use Freebets](/contracts/guides/us
 </Callout>
 
 <Tabs items={[ 'Ethers', 'Wagmi' ]}>
-<Tab>
+<Tabs.Tab>
   ```ts
   import { ethers } from 'ethers'
 
@@ -323,8 +323,8 @@ See details on structure and how to fetch in [Use Freebets](/contracts/guides/us
     outcome.rawMinOdds
   )
   ```
-</Tab>
-<Tab>
+</Tabs.Tab>
+<Tabs.Tab>
 ```ts
 import { useContractWrite, encodeAbiParameters } from 'wagmi'
 
@@ -363,7 +363,7 @@ useContractWrite({
   ],
 })
   ```
-</Tab>
+</Tabs.Tab>
 </Tabs>
 
 ## Highlights

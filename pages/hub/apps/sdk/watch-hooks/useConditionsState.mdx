@@ -12,21 +12,26 @@ The `useConditionsState` hook is used for maintain updated states for a conditio
   Before utilizing `useConditionsState`, it is essential to initialize the `FeedSocketProvider` and `ConditionUpdatesProvider`:
 
   ```tsx
-    import { ChainProvider, FeedSocketProvider, ConditionUpdatesProvider, useWatchers } from '@azuro-org/sdk'
+  import {
+    ChainProvider,
+    FeedSocketProvider,
+    ConditionUpdatesProvider,
+    useWatchers,
+  } from '@azuro-org/sdk'
 
-    function Providers(props: { children: React.ReactNode }) {
-      const { children } = props
+  function Providers(props: { children: React.ReactNode }) {
+    const { children } = props
 
-      return (
-        <ChainProvider>
-          <FeedSocketProvider>
-            <ConditionUpdatesProvider>
-              {children}
-            </ConditionUpdatesProvider>
-          </FeedSocketProvider>
-        </ChainProvider>
-      )
-    }
+    return (
+      <ChainProvider>
+        <FeedSocketProvider>
+          <ConditionUpdatesProvider>
+            {children}
+          </ConditionUpdatesProvider>
+        </FeedSocketProvider>
+      </ChainProvider>
+    )
+  }
   ```
 </Callout>
 

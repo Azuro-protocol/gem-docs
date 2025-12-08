@@ -11,7 +11,7 @@ export function PageHeadline(props: Props) {
 
   return (
     <div>
-      <div className="nx-mt-2 nx-text-4xl nx-font-bold nx-tracking-tight">{title}</div>
+      <div className="_mt-2 _text-4xl _font-bold _tracking-tight">{title}</div>
       {
         Boolean(subTitle) && (
           <div className="mt-1 text-xl text-gray-400">{subTitle}</div>

@@ -63,8 +63,16 @@ body {
 }
 
 @media (min-width: 569px) {
-  .nextra-nav-container nav a:first-child {
-    margin-right: 5rem !important;
+  .nextra-nav-container nav {
+    justify-content: flex-start;
+  }
+
+  .nextra-nav-container nav > a:first-child {
+    margin-right: 5.25rem !important;
+  }
+
+  .nextra-nav-container nav > div:first-of-type {
+    margin-right: auto !important;
   }
 }
 
@@ -93,6 +101,6 @@ body {
   margin-left: auto !important;
 }
 
-.nextra-code-block.nx-mt-6 {
+.nextra-code-block._mt-6 {
   margin-top: 0.8rem !important;
 }

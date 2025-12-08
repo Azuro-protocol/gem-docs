@@ -1,0 +1,7 @@
+export default {
+  'a-primer-on-prediction-markets': 'A Primer on Prediction Markets',
+  'the-bettor-viewer-flywheel': 'The Bettor-Viewer Flywheel',
+  'prediction-markets-v1': 'Prediction Markets, v1',
+  'the-liquidity-bottleneck': 'The Liquidity Bottleneck',
+  'crossing-the-chasm': 'Crossing the Chasm',
+}

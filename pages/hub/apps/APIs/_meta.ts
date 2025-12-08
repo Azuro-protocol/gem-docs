@@ -1,0 +1,14 @@
+export default {
+  'overview': 'Overview',
+  'backend': 'Backend API',
+  'graph': 'Graph API',
+  'websocket': 'WebSocket API',
+  'queries': {
+    'title': 'GraphQL Queries',
+    'type': 'hidden',
+    'display': 'hidden',
+  },
+  '---': {
+    'type': 'separator',
+  },
+}

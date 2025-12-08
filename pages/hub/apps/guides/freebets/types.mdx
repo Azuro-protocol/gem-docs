@@ -1,5 +1,5 @@
 import { Callout } from 'components'
-import { Tab, Tabs } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 # Data types
 
@@ -18,66 +18,66 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 
 ### BonusType
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Value | Description |
 |-------|-------------|
 | **FreeBet** | Represents a free bet bonus type |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     enum BonusType {
       FreeBet = 'FreeBet'
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BonusStatus
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Value | Description |
 |-------|-------------|
 | **Used** | The bonus has been used |
 | **Available** | The bonus is available for use |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     enum BonusStatus {
       Used = 'Used',
       Available = 'Available'
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### FreebetBonusType
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Value | Description |
 |-------|-------------|
 | **OnlyWin** | The bettor receives only the winnings; the stake amount is returned to the pool. `isSponsoredBetReturnable = true` |
 | **AllWin** | The bettor receives both the full stake and the winnings; the stake amount is not returned to the pool. `isSponsoredBetReturnable = false` |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     enum FreebetBonusType {
       OnlyWin = 'OnlyWin',
       AllWin = 'AllWin'
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BetRestrictionBetType
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Value | Description |
 |-------|-------------|
 | **All** | All bet types are allowed |
 | **Ordinar** | Only ordinar bets are allowed |
 | **Combo** | Only combo bets are allowed |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     enum BetRestrictionBetType {
       All = 'All',
@@ -85,19 +85,19 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       Combo = 'Combo'
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### EventRestrictionEventStatus
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Value | Description |
 |-------|-------------|
 | **All** | All event statuses are allowed |
 | **Live** | Only live events are allowed |
 | **Prematch** | Only prematch events are allowed |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     enum EventRestrictionEventStatus {
       All = 'All',
@@ -105,14 +105,14 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       Prematch = 'Prematch'
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ## Common types
 
 ### FreebetSettings
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **bonusType** | [FreebetBonusType](#freebetbonustype) | Type of the freebet bonus | Yes |
@@ -120,8 +120,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **betRestriction** | [BetRestriction](#betrestriction) | Restrictions applied to bets | Yes |
 | **eventRestriction** | [EventRestriction](#eventrestriction) | Restrictions applied to events | Yes |
 | **periodOfValidityMs** | number | Period of validity in milliseconds | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface FreebetSettings {
       bonusType: FreebetBonusType;
@@ -131,19 +131,19 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       periodOfValidityMs: number;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BetRestriction
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **betType** | [BetRestrictionBetType](#betrestrictionbettype) | Type of bet restriction | Yes |
 | **minOdds** | string | Minimum odds allowed | Yes |
 | **maxOdds** | string | Maximum odds allowed | No |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface BetRestriction {
       betType: BetRestrictionBetType;
@@ -151,55 +151,55 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       maxOdds?: string;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### EventRestriction
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **eventStatus** | [EventRestrictionEventStatus](#eventrestrictioneventstatus) | Status of event restriction | Yes |
 | **eventFilter** | [EventFilter](#eventfilter) | Filter for events | No |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface EventRestriction {
       eventStatus: EventRestrictionEventStatus;
       eventFilter?: EventFilter;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### EventFilter
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **exclude** | boolean | If `exclude = true`, it means `"allow all, except."`. If `exclude = false`, it means `"deny all, except."` | Yes |
 | **filter** | [FilterItem](#filteritem)[] | List of filter items | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface EventFilter {
       exclude: boolean;
       filter: FilterItem[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### FilterItem
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **sportId** | string | ID of the sport | Yes |
 | **leagues** | string[] | List of leagues | No |
 | **markets** | [Market](#market)[] | List of markets | No |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface FilterItem {
       sportId: string;
@@ -207,19 +207,19 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       markets?: Market[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### Market
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **marketId** | number | ID of the market | Yes |
 | **gamePeriodId** | number | ID of the game period | Yes |
 | **gameTypeId** | number | ID of the game type | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface Market {
       marketId: number;
@@ -227,30 +227,30 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       gameTypeId: number;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ## Public types
 
 ### GetClientBonusesResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **bonuses** | [ClientBonus](#clientbonus)[] | Array of bonus objects | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface GetClientBonusesResponse {
       bonuses: ClientBonus[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### ClientBonus
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **id** | string | Unique identifier of the bonus | Yes |
@@ -265,8 +265,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **expiresAt** | string | Expiration timestamp | Yes |
 | **usedAt** | string | Usage timestamp | Yes |
 | **createdAt** | string | Creation timestamp | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface ClientBonus {
       id: string;
@@ -283,20 +283,20 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       createdAt: string;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### FreebetParam
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **isBetSponsored** | boolean | Is bet sponsored | Yes |
 | **isFeeSponsored** | boolean | Is fee sponsored | Yes |
 | **isSponsoredBetReturnable** | boolean | Is sponsored bet returnable | Yes |
 | **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface FreebetParam {
       isBetSponsored: boolean;
@@ -305,14 +305,14 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       settings: FreebetSettings;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ## Private types
 
 ### CreateFreebetOfferDto
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **name** | string | Name of the freebet offer | Yes |
@@ -320,8 +320,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **publicCustomData** | object (JSON) | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. `Max length 500` | No |
 | **description** | string | Description of the offer | No |
 | **settings** | [FreebetSettings](#freebetsettings) | Freebet settings configuration | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface CreateFreebetOfferDto {
       authId: string;
@@ -332,12 +332,12 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       settings: FreebetSettings;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BonusResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **id** | string | The ID of the bonus | Yes |
@@ -357,8 +357,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **offer** | [OfferResponse](#offerresponse) | Offer model | Yes |
 | **pool** | [PoolResponse](#poolresponse) | Pool model | Yes |
 | **operator** | [OperatorResponse](#operatorresponse) | Operator model | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface BonusResponse {
       id: string;
@@ -380,28 +380,28 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       operator: OperatorResponse;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BonusesResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **bonuses** | [BonusResponse](#bonusresponse)[] | List of bonuses | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface BonusesResponse {
       bonuses: BonusResponse[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### OfferResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **id** | string | Offer id | Yes |
@@ -415,8 +415,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **publicCustomData** | object (JSON) | This field is custom and arbitrary, meaning it is defined by the offer creators. It is used for any additional technical information that may be needed for integration with your systems. It prohibits dangerous constructs such as `<script>` to ensure safe usage. `Max length 500` | No |
 | **createdAt** | Date | Creation timestamp | Yes |
 | **operator** | [OperatorResponse](#operatorresponse) | Operator model | No |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface OfferResponse {
       id: string;
@@ -432,28 +432,28 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       operator?: OperatorResponse;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### OffersResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **offers** | [OfferResponse](#offerresponse)[] | List of offers | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface OffersResponse {
       offers: OfferResponse[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### PoolResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **id** | string | The ID of the pool | Yes |
@@ -465,8 +465,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **productId** | string | The ID of the product | Yes |
 | **status** | string | The status of the pool | Yes |
 | **createdAt** | Date | The creation date of the pool | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface PoolResponse {
       id: string;
@@ -480,28 +480,28 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       createdAt: Date;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### PoolsResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **pools** | [PoolResponse](#poolresponse)[] | List of pools | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface PoolsResponse {
       pools: PoolResponse[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### OperatorResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **id** | string | The ID of the operator | Yes |
@@ -511,8 +511,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **role** | string | The role of the operator | Yes |
 | **status** | enum | The status of the operator | Yes |
 | **createdAt** | Date | The creation date of the operator | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface OperatorResponse {
       id: string;
@@ -524,54 +524,54 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       createdAt: Date;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### OperatorsResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **operators** | [OperatorResponse](#operatorresponse)[] | List of operators | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface OperatorsResponse {
       operators: OperatorResponse[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### CreateBonusRecipientsDto
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **address** | string | Wallet address of the bonus recipient | Yes |
 | **amount** | string | Amount of the bonus to be distributed | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface CreateBonusRecipientsDto {
       address: string;
       amount: string;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### CreateBonusDto
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **offerId** | string | ID of the offer to create bonuses for | Yes |
 | **poolId** | string | ID of the pool to create bonuses in | Yes |
 | **recipients** | [CreateBonusRecipientsDto](#createbonusrecipientsdto)[] | List of bonus recipients | Yes |
 | **campaignGroup** | string | Campaign group identifier | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface CreateBonusDto {
       authId: string;
@@ -581,12 +581,12 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       campaignGroup: string;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BonusStatisticsByCampaignItem
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **createdAt** | string | Created date | Yes |
@@ -603,8 +603,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **userCount** | string | Total users count | Yes |
 | **userCountUsed** | string | Count of users who used bonus | Yes |
 | **userCountUsedPercent** | string | Percentage of users who used bonus | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface BonusStatisticsByCampaignItem {
       createdAt: string;
@@ -623,28 +623,28 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       userCountUsedPercent: string;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BonusStatisticsByCampaignResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **statistics** | [BonusStatisticsByCampaignItem](#bonusstatisticsbycampaignitem)[] | Bonus statistics items | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface BonusStatisticsByCampaignResponse {
       statistics: BonusStatisticsByCampaignItem[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BonusStatisticsByPoolItem
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **id** | string | The ID of the pool | Yes |
@@ -660,8 +660,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **amountSumUsed** | string | Used amount sum | Yes |
 | **amountCount** | string | Total amount count | Yes |
 | **amountCountUsed** | string | Used amount count | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface BonusStatisticsByPoolItem extends PoolResponse {
       amountSum: string;
@@ -670,23 +670,23 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       amountCountUsed: string;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### BonusStatisticsByPoolResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **statistics** | [BonusStatisticsByPoolItem](#bonusstatisticsbypoolitem)[] | Bonus statistics items | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface BonusStatisticsByPoolResponse {
       statistics: BonusStatisticsByPoolItem[];
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### SportsUniqueMarketsCombinationsResponse
@@ -694,15 +694,15 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 You can find the names of the markets in the [library](https://www.npmjs.com/package/@azuro-org/dictionaries?activeTab=readme)
 
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **[key: string]** | array | Object with market combinations grouped by key | Yes |
 | **[key: string][].marketId** | number | Market ID | Yes |
 | **[key: string][].gamePeriodId** | number | Game period ID | Yes |
 | **[key: string][].gameTypeId** | number | Game type ID | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface SportsUniqueMarketsCombinationsResponse {
       [key: string]: Array<{
@@ -712,7 +712,7 @@ You can find the names of the markets in the [library](https://www.npmjs.com/pac
       }>;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### ActualSportIdsResponse
@@ -720,28 +720,28 @@ You can find the names of the markets in the [library](https://www.npmjs.com/pac
 You can find the names of the sports in the [library](https://www.npmjs.com/package/@azuro-org/dictionaries?activeTab=readme)
 
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **[index]** | number[] | Array of sport IDs | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     type ActualSportIdsResponse = number[];
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ### ActualLeaguesResponse
 <Tabs items={['Schema', 'JS']}>
-  <Tab>
+  <Tabs.Tab>
 | Field | Type | Description | Required |
 |-------|------|-------------|----------|
 | **[sportId: string]** | array | Object with leagues grouped by sport ID | Yes |
 | **[sportId: string][].country** | string | Country name | Yes |
 | **[sportId: string][].league** | string | League name | Yes |
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     ```typescript
     interface ActualLeaguesResponse {
       [sportId: string]: Array<{
@@ -750,5 +750,5 @@ You can find the names of the sports in the [library](https://www.npmjs.com/pack
       }>;
     }
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>

@@ -17,7 +17,7 @@ export function Card(props: Props) {
 
   return (
     <Link
-      className="block p-5 border dark:nx-border-neutral-700 cursor-pointer !no-underline rounded-xl shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+      className="block p-5 border dark:_border-neutral-700 cursor-pointer !no-underline rounded-xl shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
       href={href}
       to={to}
       toTab={toTab}

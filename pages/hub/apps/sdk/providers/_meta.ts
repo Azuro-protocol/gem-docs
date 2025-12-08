@@ -1,0 +1,7 @@
+export default {
+  'sdk': 'AzuroSDK',
+  'chain': 'Chain',
+  'live': 'Live',
+  'socket': 'Socket',
+  'betslip': 'Betslip',
+}

@@ -1,0 +1,17 @@
+export default {
+  'useSports': 'useSports',
+  'useGames': 'useGames',
+  'useNavigation': 'useNavigation',
+  'useSportsNavigation': 'useSportsNavigation',
+  'useGame': 'useGame',
+  'useConditions': 'useConditions',
+  'useActiveConditions': 'useActiveConditions',
+  'useActiveMarkets': 'useActiveMarkets',
+  'useResolvedMarkets': 'useResolvedMarkets',
+  'useMaxBet': 'useMaxBet',
+  'useBets': 'useBets',
+  'useLegacyBets': 'useLegacyBets',
+  'useBetFee': 'useBetFee',
+  'useBetsSummary': 'useBetsSummary',
+  'useBetsSummaryBySelection': 'useBetsSummaryBySelection',
+}

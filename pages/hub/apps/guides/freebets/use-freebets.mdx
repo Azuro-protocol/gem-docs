@@ -1,5 +1,5 @@
 import { Callout } from 'components'
-import { Tab, Tabs } from 'nextra-theme-docs'
+import { Tabs } from 'nextra/components'
 
 # Use Freebets
 
@@ -12,7 +12,7 @@ To use a freebet, the user needs:
 ## Fetch available freebets
 
 <Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
-  <Tab>
+  <Tabs.Tab>
     1. To retrieve all user's `bonuses` use the [`useBonuses`](/hub/apps/sdk/bonus/useBonuses) hook:
 
     ```tsx copy
@@ -80,8 +80,8 @@ To use a freebet, the user needs:
       import { useDetailedBetslip } from '@azuro-org/sdk'
 
       const SelectFreebet: React.FC = () => {
-        const { 
-          freebets, selectedFreebet, selectFreebet, 
+        const {
+          freebets, selectedFreebet, selectFreebet,
           isFreebetsFetching,
         } = useDetailedBetslip()
 
@@ -96,9 +96,9 @@ To use a freebet, the user needs:
       }
       ```
     </Callout>
-    
-  </Tab>
-  <Tab>
+
+  </Tabs.Tab>
+  <Tabs.Tab>
     1. To retrieve all user's `bonuses` use the [`getBonuses`](/hub/apps/toolkit/bonus/getBonuses) function:
 
     ```ts
@@ -123,8 +123,8 @@ To use a freebet, the user needs:
       selections: [{...}]
     })
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
   <Callout type="info">
     Please refer to the [GetClientBonusesResponse](/hub/apps/guides/freebets/types#getclientbonusesresponse) data type for details.
   </Callout>
@@ -203,13 +203,13 @@ To use a freebet, the user needs:
 
     const { bonuses }: GetClientBonusesResponse = await response.json()
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ## Use freebet to place a bet
 
 <Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
-  <Tab>
+  <Tabs.Tab>
     Pass selected freebet to the [`useBet`](/hub/apps/sdk/write-hooks/useBet) hook:
 
     ```tsx copy
@@ -228,8 +228,8 @@ To use a freebet, the user needs:
       )
     }
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     Construct the bet data with the selected freebet, sign it, and pass the complete bet information to the [`createBet`](/hub/apps/toolkit/utils/createBet) function to process a single bet. For creating a combo bet, use the [`createComboBet`](/hub/apps/toolkit/utils/createComboBet) function instead.
 
     ```ts copy {1, 14-16, 36}
@@ -278,8 +278,8 @@ To use a freebet, the user needs:
       errorMessage,
     } = createdOrder!
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     1. Construct the bet data with the selected freebet:
 
     ```ts
@@ -382,7 +382,7 @@ To use a freebet, the user needs:
     const signature = await walletClient!.data!.signTypedData(typedData)
     ```
 
-    3. Send all following data to bet [API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Bet%20Public/BetController_createOrderOrdinar): 
+    3. Send all following data to bet [API](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Bet%20Public/BetController_createOrderOrdinar):
     ```ts
     type CreateBetResponse = {
       id: string
@@ -450,7 +450,7 @@ To use a freebet, the user needs:
       errorMessage,
     } = data
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
 
 ## Withdraw a winning freebet
@@ -472,7 +472,7 @@ When customer placed a freebet, it will become regular bet in their bet history.
 
 
 <Tabs items={[ 'SDK', 'Manual' ]}>
-  <Tab>
+  <Tabs.Tab>
     To redeem winning freebet, you need to use the [`useRedeemBet`](/hub/apps/sdk/write-hooks/useRedeemBet) hook
     ```ts
     import { type Bet, useRedeemBet } from '@azuro-org/sdk'
@@ -488,8 +488,8 @@ When customer placed a freebet, it will become regular bet in their bet history.
       catch {}
     }
     ```
-  </Tab>
-  <Tab>
+  </Tabs.Tab>
+  <Tabs.Tab>
     To redeem a winning freebet, you should call paymaster contract:
     ```ts
     import { paymasterAbi } from '@azuro-org/sdk'
@@ -498,5 +498,5 @@ When customer placed a freebet, it will become regular bet in their bet history.
 
     const tx = await paymasterContract.connect(signer).withdrawPayouts(bet.freebetId)
     ```
-  </Tab>
+  </Tabs.Tab>
 </Tabs>
