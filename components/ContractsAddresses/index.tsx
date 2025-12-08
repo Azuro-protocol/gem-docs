@@ -100,7 +100,7 @@ type ContractsTableProps = {
 const ContractsTable: React.FC<ContractsTableProps> = ({ addresses }) => {
 
   return (
-    <table className="nx-block nx-overflow-x-scroll nextra-scrollbar nx-mt-6 nx-p-0 first:nx-mt-0">
+    <table className="_block _overflow-x-scroll nextra-scrollbar _mt-6 _p-0 first:_mt-0">
       <tbody>
       {
         rows.map((contractName, index) => {
@@ -112,10 +112,10 @@ const ContractsTable: React.FC<ContractsTableProps> = ({ addresses }) => {
           const address = addresses[contractName]
 
           return (
-            <tr key={index} className="nx-m-0 nx-border-t nx-border-gray-300 nx-p-0 dark:nx-border-gray-600 even:nx-bg-gray-100 even:dark:nx-bg-gray-600/20">
+            <tr key={index} className="_m-0 _border-t _border-gray-300 _p-0 dark:_border-gray-600 even:_bg-gray-100 even:dark:_bg-gray-600/20">
               <td
                 key={index}
-                className="nx-m-0 nx-border nx-border-gray-300 nx-px-4 nx-py-2 dark:nx-border-gray-600"
+                className="_m-0 _border _border-gray-300 _px-4 _py-2 dark:_border-gray-600"
               >
                 {
                   link ? (
@@ -133,12 +133,12 @@ const ContractsTable: React.FC<ContractsTableProps> = ({ addresses }) => {
               </td>
               <td
                 key={index}
-                className="nx-m-0 nx-border nx-border-gray-300 nx-px-4 nx-py-2 dark:nx-border-gray-600"
+                className="_m-0 _border _border-gray-300 _px-4 _py-2 dark:_border-gray-600"
               >
                 {
                   Boolean(address) ? (
                     <code
-                      className="nx-border-black nx-border-opacity-[0.04] nx-bg-opacity-[0.03] nx-bg-black nx-break-words nx-rounded-md nx-border nx-py-0.5 nx-px-[.25em] nx-text-[.9em] dark:nx-border-white/10 dark:nx-bg-white/10"
+                      className="_border-black _border-opacity-[0.04] _bg-opacity-[0.03] _bg-black _break-words _rounded-md _border _py-0.5 _px-[.25em] _text-[.9em] dark:_border-white/10 dark:_bg-white/10"
                       dir="ltr"
                     >
                       {address}
