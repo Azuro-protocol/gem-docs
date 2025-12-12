@@ -1,4 +1,4 @@
-import nextra from 'nextra'
+const nextra = require('nextra').default
 
 
 const withNextra = nextra({
@@ -66,4 +66,4 @@ const nextConfig = {
 
 const config = withNextra(nextConfig)
 
-export default config
+module.exports = config

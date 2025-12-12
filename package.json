@@ -2,8 +2,8 @@
   "name": "azuro-gem-docs",
   "version": "0.1.0",
   "engines": {
-    "node": "=16.15.1",
-    "npm": "=8.11.0"
+    "node": "=22.20.0",
+    "npm": ">=8.11.0"
   },
   "scripts": {
     "dev": "next dev -p 5009",
