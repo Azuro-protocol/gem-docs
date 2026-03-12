@@ -52,7 +52,7 @@ const minOdds = calcMinOdds({
 
 ---
 
-### 2. `getMaxBet` Removed → Use `getBetCalculation`
+### 2. `getMaxBet` Removed → Use [`getBetCalculation`](/hub/apps/toolkit/bet/getBetCalculation)
 
 The `getMaxBet` utility has been removed. Use the new `getBetCalculation` utility instead, which provides both minimum and maximum bet amounts along with maximum payout information.
 
@@ -111,6 +111,15 @@ Feed data fetching has migrated from GraphQL queries to REST API endpoints. If y
 **GraphQL Documents Removed:**
 - Feed-related GraphQL queries and fragments are no longer available in the toolkit
 - Custom feed GraphQL queries will need to be replaced with REST API utilities
+
+**REST API Endpoints Added:**
+- [`getConditionsByGameIds`](/hub/apps/toolkit/feed/getConditionsByGameIds) - replaces `Conditions` query
+- [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) - replaces `ConditionsBatch` query
+- [`getGamesByFilters`](/hub/apps/toolkit/feed/getGamesByFilters) - replaces `Games` query
+- [`getGamesByIds`](/hub/apps/toolkit/feed/getGamesByIds) - replaces `Game` query and `Games` when you need to fetch multiple games by ID
+- [`getNavigation`](/hub/apps/toolkit/feed/getNavigation) - replaces `Navigation` and `NavigationSport` queries
+- [`getSports`](/hub/apps/toolkit/feed/getSports) - replaces `Sports` query
+- [`searchGames`](/hub/apps/toolkit/feed/searchGames) - new one to search games by text query
 
 **Before (GraphQL):**
 ```ts
@@ -301,6 +310,8 @@ There are new utilities for fetching feed data via REST API:
 Fetches detailed conditions data for specific game IDs, including outcomes, odds, and game relationships.
 Returns `ConditionDetailedData[]` with the same structure as the GraphQL response of `Conditions` query.
 
+[Details](/hub/apps/toolkit/feed/getConditionsByGameIds)
+
 ```ts
 import { getConditionsByGameIds } from '@azuro-org/toolkit'
 
@@ -320,6 +331,8 @@ const conditions = await getConditionsByGameIds({
 Fetches up-to-date condition states and outcome odds for a list of conditions.
 Returns `ConditionStateData[]` with the same structure as the GraphQL response of `ConditionsBatch` query.
 
+[Details](/hub/apps/toolkit/feed/getConditionsState)
+
 ```ts
 import { getConditionsState } from '@azuro-org/toolkit'
 
@@ -336,6 +349,8 @@ const conditions = await getConditionsState({
 #### 3. `getGamesByFilters`
 
 Fetches games by applying various filters such as sport, league, or game state. Returns paginated results ideal for building sport/country/league listing pages.
+
+[Details](/hub/apps/toolkit/feed/getGamesByFilters)
 
 ```ts
 import { GameState, getGamesByFilters, GameOrderBy, OrderDirection } from '@azuro-org/toolkit'
@@ -361,6 +376,8 @@ const result = await getGamesByFilters({
 
 Fetches game data for specific game IDs, including participants, timing, and league data.
 
+[Details](/hub/apps/toolkit/feed/getGamesByIds)
+
 ```ts
 import { getGamesByIds } from '@azuro-org/toolkit'
 
@@ -379,6 +396,8 @@ const games = await getGamesByIds({
 Fetches navigation structure with sports, countries, and leagues hierarchy. Returns active game counts at each level for building navigation menus.
 Returns NavigationSportData[] with the same structure as the GraphQL response of `Navigation` query.
 Counts both Live and Prematch in a single response.
+
+[Details](/hub/apps/toolkit/feed/getNavigation)
 
 ```ts
 import { getNavigation } from '@azuro-org/toolkit'
@@ -401,6 +420,8 @@ const sports = await getNavigation({
 Fetches a complete sports hierarchy including countries, leagues, and games.
 Returns a nested structure with a number of games (controlled via prop) organized by sport, country, and league.
 
+[Details](/hub/apps/toolkit/feed/getSports)
+
 ```ts
 import { GameState, getSports } from '@azuro-org/toolkit'
 
@@ -422,6 +443,8 @@ const sports = await getSports({
 #### 7. `searchGames`
 
 Searches for games by text query across game titles, leagues, and countries. Returns paginated results. The minimum query length is 3 characters.
+
+[Details](/hub/apps/toolkit/feed/searchGames)
 
 ```ts
 import { searchGames } from '@azuro-org/toolkit'
@@ -528,9 +551,9 @@ Use this checklist to ensure a complete migration:
 - [ ] Update `BetStatus` enum usage
 - [ ] Search and replace `BetState` enum with `BetOrderState`
 - [ ] Update `getBetStatus` helper to accept `orderState`
+- [ ] Update TypeScript types and enums if using explicit imports
 - [ ] Test all betting flows
 - [ ] Test all feed data fetching
-- [ ] Update TypeScript types and enums if using explicit imports
 
 ---
 
@@ -636,7 +659,7 @@ if (minBet !== undefined && betAmount < minBet) {
 
 If you encounter issues during migration:
 
-1. Check the [Toolkit Documentation](https://gem.azuro.org/hub/apps/toolkit/overview)
+1. Check the [Toolkit Documentation](/hub/apps/toolkit/overview)
 2. Review individual utility documentation pages
 3. Join the [Azuro Discord](https://discord.gg/azuro) for community support
 4. Report bugs on [GitHub](https://github.com/Azuro-protocol/toolkit)
