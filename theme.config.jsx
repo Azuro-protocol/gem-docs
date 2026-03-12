@@ -1,7 +1,16 @@
-import { ThemeSwitch, FileTree } from 'nextra-theme-docs'
+import { ThemeSwitch, FileTree, useConfig } from 'nextra-theme-docs'
 import { useRouter } from 'next/router'
 import meta from './pages/_meta.ts'
+import hubMeta from './pages/hub/_meta.ts'
+import communityMeta from './pages/community/_meta.ts'
+import knowledgeMeta from './pages/knowledge-hub/_meta.ts'
 import Footer from './components/Footer'
+
+const level2Meta = {
+  'hub': hubMeta,
+  'community': communityMeta,
+  'knowledge-hub': knowledgeMeta,
+}
 
 export default {
   // project: {
@@ -16,27 +25,44 @@ export default {
     defaultMenuCollapseLevel: 1,
     toggleButton: false,
   },
-  head: (
-    <>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta property="og:title" content="Azuro Protocol" />
-      <meta property="og:description" content="Azuro Documentation" />
-      <link rel="icon" href="/favicon/favicon.svg" type="image/svg+xml" />
-      <link rel="icon" href="/favicon/favicon-32x32.png" type="image/png" />
-      {/*<link*/}
-      {/*  rel="icon"*/}
-      {/*  href="/favicon-dark.svg"*/}
-      {/*  type="image/svg+xml"*/}
-      {/*  media="(prefers-color-scheme: dark)"*/}
-      {/*/>*/}
-      {/*<link*/}
-      {/*  rel="icon"*/}
-      {/*  href="/favicon-dark.png"*/}
-      {/*  type="image/png"*/}
-      {/*  media="(prefers-color-scheme: dark)"*/}
-      {/*/>*/}
-    </>
-  ),
+  head() {
+    const config = useConfig()
+    const { asPath } = useRouter()
+    const [ , level1, level2 ] = asPath.split('/')
+
+    const level1Title = meta[level1]?.title
+
+    const title = [
+      config.title?.replace('Index', ''),
+      level2Meta[level1]?.[level2]?.title,
+      level1Title,
+      'Azuro Gem',
+    ].filter(Boolean).join(' | ')
+
+    return (
+      <>
+        <title>{title}</title>
+        <meta property="og:title" content={title} />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta property="og:title" content="Azuro Protocol" />
+        <meta property="og:description" content="Azuro Documentation" />
+        <link rel="icon" href="/favicon/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon/favicon-32x32.png" type="image/png" />
+        {/*<link*/}
+        {/*  rel="icon"*/}
+        {/*  href="/favicon-dark.svg"*/}
+        {/*  type="image/svg+xml"*/}
+        {/*  media="(prefers-color-scheme: dark)"*/}
+        {/*/>*/}
+        {/*<link*/}
+        {/*  rel="icon"*/}
+        {/*  href="/favicon-dark.png"*/}
+        {/*  type="image/png"*/}
+        {/*  media="(prefers-color-scheme: dark)"*/}
+        {/*/>*/}
+      </>
+    )
+  },
   logo: (
     <svg xmlns="http://www.w3.org/2000/svg" xmlSpace="preserve" id="Layer_1" x="0" y="0" style={{width: '180px'}} version="1.1" viewBox="0 0 725 145" fill="currentColor" >
       <linearGradient id="SVGID_1_" x1="1.426" x2="142.929" y1="88.159" y2="58.294" gradientTransform="matrix(1 0 0 -1 0 146)" gradientUnits="userSpaceOnUse"><stop offset=".4" style={{stopColor: "#3d67ff"}} />

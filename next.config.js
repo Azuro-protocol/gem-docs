@@ -3,6 +3,8 @@ const nextra = require('nextra').default
 
 const withNextra = nextra({
   latex: true,
+  defaultShowCopyCode: true,
+  codeHighlight: true,
   theme: 'nextra-theme-docs',
   themeConfig: './theme.config.jsx'
 })
