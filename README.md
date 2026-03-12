@@ -16,11 +16,11 @@ Website: [gem.azuro.org](https://gem.azuro.org)
 ### Contribute
 
 1. Do some changes
-2. Check that the changes look good in web view
+2. Check that the changes look good in the web view
 3. Push changes
-4. Create a PR in original repo
+4. Create a PR in the original repo
 
 
-## Other way
+## Another way
 
 If you have a small change proposal, please visit [gem.azuro.org](https://gem.azuro.org). There is an "Edit this page" link in the top right corner of each page. Click on it to open the GitHub editor. Make your changes and submit a PR. Thank you!
