@@ -1,0 +1,29 @@
+import { Callout } from 'components'
+
+Determines if a game is pending resolution after completion.
+Returns true if the game is in the Live state but has exceeded the expected resolution window (100 minutes after start).
+
+#### Usage
+
+```ts
+import { getIsPendingResolution, GameState } from '@azuro-org/toolkit'
+
+const isPending = getIsPendingResolution({
+  state: GameState.Live,
+  startsAt: gameData.startsAt,
+})
+```
+
+#### Props
+
+```ts
+type GetIsPendingResolutionParams = {
+  state: GameState
+  // unix timestamp in seconds
+  startsAt: string
+}
+```
+
+#### Return Value
+
+`boolean`

@@ -1,0 +1,133 @@
+Retrieves all bet orders for a specific bettor address with optional filtering. Supports pagination and filtering by state, result, affiliate, and redemption status.
+
+#### Usage
+
+```ts
+import { getBetsByBettor, BetOrderResult } from '@azuro-org/toolkit'
+
+const chainId = 137
+const bettor = '0x...'
+
+// Get the latest 100 bet orders in any state
+const allBets = await getBetsByBettor({ chainId, bettor })
+
+// Get only redeemable bets
+const redeemableBets = await getBetsByBettor({
+  chainId,
+  bettor,
+  result: [BetOrderResult.Won, BetOrderResult.Canceled],
+  isRedeemed: false,
+  limit: 1000,
+})
+```
+
+#### Props
+
+```ts
+type GetBetsByBettorParams = {
+  chainId: ChainId
+  bettor: Address
+  affiliate?: Address
+  result?: BetOrderResult | BetOrderResult[]
+  state?: BetOrderState | BetOrderState[]
+  isRedeemed?: boolean
+
+  offset?: number
+  /** default: 100 */
+  limit?: number
+}
+```
+
+```ts
+export enum BetOrderState {
+  /** First status when created */
+  Created = 'Created',
+  /** Bet is included in the calculation of potential loss/wins */
+  Placed = 'Placed',
+  /** The relayer has been taken into processing to send the bet to the contracts */
+  Sent = 'Sent',
+  /** Bet successfully accepted in the contracts */
+  Accepted = 'Accepted',
+  /** An error occurred during the contracts checks */
+  Rejected = 'Rejected',
+  /** The process of canceling the bet. The bet placed in the contracts still has the "GraphBetStatus.Accepted" status */
+  PendingCancel = 'PendingCancel',
+  /** Cancellation error. The bet placed in the contracts still has the "GraphBetStatus.Accepted" status */
+  CancelFailed = 'CancelFailed',
+  /** Bet is canceled */
+  Canceled = 'Canceled',
+  /** The bet is settled (won or lost) */
+  Settled = 'Settled',
+}
+
+enum BetOrderResult {
+  Won = 'Won',
+  Lost = 'Lost',
+  Canceled = 'Canceled',
+}
+```
+
+#### Return Value
+
+Returns `BetOrderData[]` array or `null` if no bets found (404 response).
+
+```ts
+type BetOrderData = {
+  id: string
+  state: BetOrderState
+  environment: Environment
+  betType: 'ORDINARY' | 'COMBO'
+  core: Address
+  bettor: Address
+  owner: Address
+  affiliate: Address
+  amount: number
+  payout: number | null
+  odds: number
+  bonusId: string | null
+  isFreebet: boolean
+  betId: number | null
+  txHash: Hex | null
+  margin: string
+  settledMargin: string | null
+  result: BetOrderResult | null
+  createdAt: ISOTimestamp
+  updatedAt: ISOTimestamp
+  settledAt: ISOTimestamp | null
+  redeemedAt: ISOTimestamp | null
+  conditions: BetOrderConditionData[]
+  meta: BetMetaData | null
+  error: string | null
+  errorMessage: string | null
+}
+```
+
+```ts
+type BetOrderConditionData = {
+  conditionId: string
+  outcomeId: number
+  orderId: string
+  gameId: string
+  /**
+   * State of the game at the moment of bet placing, to determine whether the bet is Live or not.
+   * */
+  gameState: GameState.Live | GameState.Prematch
+  conditionMargin: string
+  selectionMargin: string
+  settledSelectionMargin: string | null
+  result: BetConditionStatus | null
+  /**
+   * Formatted odds of the condition, e.g. "1.55"
+   * */
+  price: string
+  /**
+   * Formatted amount,
+   * e.g. "18.5"
+   *
+   * in COMBO bets, it can have more fractional digits than bet token decimals,
+   * e.g. "18.057553956834532374" for 6 decimals USDT
+   * */
+  potentialAmount: string | null
+  potentialLoss: string | null
+}
+```

@@ -1,0 +1,89 @@
+Searches for games by text query across game titles, leagues, and countries. The minimum query length is 3 characters. Returns paginated results.
+
+#### Usage
+
+```ts
+import { searchGames } from '@azuro-org/toolkit'
+
+
+const { games } = await searchGames({
+  chainId: 137,
+  query: 'Manchester',
+  page: 1,
+  perPage: 10,
+})
+```
+
+#### Props
+
+```ts
+type SearchGamesParams = {
+  chainId: ChainId
+  /** minimum 3 characters long */
+  query: string
+  /** 1-based, default: 1 */
+  page?: number
+  /** 1-based, default: 10 */
+  perPage?: number
+}
+```
+
+#### Return Value
+
+```ts
+type SearchGamesResult = {
+  games: GameData[]
+  page: number
+  perPage: number
+  total: number
+  totalPages: number
+}
+```
+
+```ts
+type GameData = {
+  id: string
+  gameId: string
+  slug: string
+  title: string
+  /** to align with the legacy from the subgraph, it's the unix timestamp in seconds, e.g. `"1771707600"` */
+  startsAt: string
+  state: GameState
+  turnover: string
+  sport: {
+    sportId: string
+    slug: string
+    name: string
+    sporthub: {
+      id: string
+      slug: SportHubSlug
+    }
+  }
+  league: {
+    id?: string
+    slug: string
+    name: string
+  }
+  country: {
+    id?: string
+    slug: string
+    name: string
+  }
+  participants: GameParticipant[]
+}
+
+type GameParticipant = {
+  image: string | null | undefined
+  name: string
+}
+```
+
+```ts
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped',
+  Canceled = 'Canceled',
+}
+```

@@ -21,19 +21,18 @@ const { data, isFetching, error } = useGames(props)
 ```ts
 {
   filter?: {
-    limit?: number // limit the number of rows returned from a query
-    offset?: number // omit a specified number of rows before the beginning of the result set
     sportHub?: SportHub // returns games from specific hub
     sportSlug?: string // returns games from specific sport
-    leaglueSlug?: string // returns games from specific league
-    maxMargin?: number // max marginality
-    conditionsState?: ConditionState | ConditionState[]
+    sportIds?: Array<string | number> // returns games from specific sport IDs
+    leagueSlug?: string // returns games from specific league (single value)
   }
-  orderBy?: Game_OrderBy // default: Game_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
+  page?: number // page number (1-based), default: 1
+  perPage?: number // items per page, default: 100
+  orderBy?: GameOrderBy // default: GameOrderBy.StartsAt - orders rows by passed rule
   orderDir?: OrderDirection // order direction: asc, desc
   isLive?: boolean // if `true`, the hook will retrieve live games
   chainId?: ChainId
-  query?: QueryParameter<GamesQuery['games']> // useQuery params
+  query?: QueryParameter<GetGamesByFiltersResult> // useQuery params
 }
 ```
 
@@ -57,49 +56,37 @@ enum SportHub {
 ## Return Value
 
 ```ts
-UseQueryResult<GamesQuery['games']>
+UseQueryResult<GetGamesByFiltersResult>
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 
-type GamesQuery = {
-    __typename?: 'Query'
-    games: Array<{
-        __typename?: 'Game'
-        id: string
-        gameId: string
-        slug: string
-        title: string
-        startsAt: string
-        state: Types.GameState
-        turnover: string
-        sport: {
-            __typename?: 'Sport'
-            sportId: string
-            slug: string
-            name: string
-            sporthub: {
-                __typename?: 'SportHub'
-                id: string
-                slug: string
-            }
-        }
-        league: {
-            __typename?: 'League'
-            slug: string
-            name: string
-        }
-        country: {
-            __typename?: 'Country'
-            slug: string
-            name: string
-        }
-        participants: Array<{
-            __typename?: 'Participant'
-            image?: string | null
-            name: string
-        }>
-    }>
+type GetGamesByFiltersResult = {
+  games: GameData[]
+  page: number
+  perPage: number
+  total: number
+  totalPages: number
+}
+
+type GameData = {
+  gameId: string
+  slug: string
+  title: string
+  startsAt: number
+  state: GameState
+  sportId: string
+  sportSlug: string
+  sportName: string
+  leagueId: string
+  leagueSlug: string
+  leagueName: string
+  countrySlug: string
+  countryName: string
+  participants: Array<{
+    image?: string
+    name: string
+  }>
 }
 ```

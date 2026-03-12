@@ -1,0 +1,36 @@
+# Toolkit v6 & SDK v7: Migrating to REST API
+
+We're excited to announce the release of **Toolkit v6.0.0** and **SDK v7.0.0**!
+
+These major updates bring a significant architectural change: we're migrating from GraphQL feed to REST API for improved performance and reliability.
+
+## What's New
+
+**Toolkit v6.0.0:**
+- 7 new feed REST API utilities for fetching games and conditions
+- New `getBetsByBettor` method for v3 bets history, including preparing orders
+- `getBetCalculation` replaces the deprecated `getMaxBet`
+- Improved typing system
+- Extended enum `GameState`
+- Extended enum `BetStatus` to include pending bet orders
+- Renamed and extended enum `BetState` → `BetOrderState`
+- Fixed typo: `calcMindOdds` → `calcMinOdds`
+
+**SDK v7.0.0:**
+- New `useSearchGames` hook for enhanced game discovery
+- New `useBetCalculation` hook replaces `useMaxBet`
+- Full integration with Toolkit v6's REST API methods
+- Removed deprecated `useMaxBet` hook
+
+## Migration Guides
+
+To ensure a smooth transition, please follow our comprehensive migration guides:
+
+- Toolkit v6 Migration Guide: https://gem.azuro.org/hub/apps/toolkit/migration-v6
+- SDK v7 Migration Guide: https://gem.azuro.org/hub/apps/sdk/migration-v7
+
+These guides cover all breaking changes and provide step-by-step instructions for updating your integration.
+
+## Questions?
+
+If you encounter any issues during migration or have questions, reach out to us on Telegram.

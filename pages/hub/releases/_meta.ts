@@ -1,4 +1,7 @@
 export default {
+  '31-toolkit-v6-sdk-v7': {
+    'title': '02/23/26 Toolkit v6 & SDK v7',
+  },
   '30-freebets': {
     'title': '06/02/25 Freebets are live!',
   },

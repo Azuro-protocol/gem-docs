@@ -1,10 +1,7 @@
 import { Callout } from 'components'
 
-Retrieves all of a user's bonuses (currently limited to freebets).
-
-<Callout type="info">
-  You can find more information [Here](/hub/apps/guides/cashout/overview).
-</Callout>
+Fetches all bonuses (currently limited to `freebets`) for a bettor account filtered by status.
+By default, retrieves only available (not expired) bonuses. Returns `null` if no bonuses are found.
 
 #### Usage
 
@@ -12,24 +9,25 @@ Retrieves all of a user's bonuses (currently limited to freebets).
 import { getBonuses } from '@azuro-org/toolkit'
 
 const bonuses = await getBonuses({
-  chainId: 137
-  account: '0x...'
-  affiliate: '0x...'
+  chainId: 137,
+  account: '0x...',
+  affiliate: '0x...',
 })
 ```
 
 #### Props
 
 ```ts
-{
+type GetBonusesParams = {
   chainId: ChainId
   account: Address // user's address
   affiliate: Address // your affiliate address
+  bonusStatus?: BonusStatus
 }
 ```
 
 ```ts
-type ChainId = 
+type ChainId =
   | 100     // Gnosis
   | 137     // Polygon
   | 80002   // Polygon Amoy
@@ -48,7 +46,7 @@ Currently, the only available bonus type is freebet.
 </Callout>
 
 ```ts
-Promise<Bonus[] | null>
+type GetBonusesResult = Bonus[] | null
 ```
 
 ```ts

@@ -26,8 +26,9 @@ const { data, isFetching, error } = useNavigation(props)
     sportIds?: Array<string | number>
   }
   isLive?: boolean // if `true`, the hook will retrieve live navigation
+  returnAsPrematchAndLiveMap?: boolean // if `true`, returns data as object with 'prematch', 'live', and 'all' keys
   chainId?: ChainId
-  query?: QueryParameter<NavigationQuery['sports']>
+  query?: QueryParameter<NavigationSportData[] | Record<'prematch' | 'live' | 'all', NavigationSportData[]>>
 }
 ```
 
@@ -50,49 +51,37 @@ enum SportHub {
 
 ## Return Value
 
+When `returnAsPrematchAndLiveMap` is `false` (default):
 ```ts
-UseQueryResult<NavigationQuery['sports']>
+UseQueryResult<NavigationSportData[]>
+```
+
+When `returnAsPrematchAndLiveMap` is `true`:
+```ts
+UseQueryResult<Record<'prematch' | 'live' | 'all', NavigationSportData[]>>
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 
-type NavigationQuery = {
-    __typename?: 'Query'
-    sports: Array<{
-        __typename?: 'Sport'
-        id: string
-        slug: string
-        name: string
-        sportId: string
-        activeGamesCount: number
-        activeLiveGamesCount: number
-        activePrematchGamesCount: number
-        sporthub: {
-            __typename?: 'SportHub'
-            id: string
-            slug: string
-        }
-        countries: Array<{
-            __typename?: 'Country'
-            id: string
-            slug: string
-            name: string
-            turnover: string
-            activeGamesCount: number
-            activeLiveGamesCount: number
-            activePrematchGamesCount: number
-            leagues: Array<{
-                __typename?: 'League'
-                id: string
-                slug: string
-                name: string
-                turnover: string
-                activeGamesCount: number
-                activeLiveGamesCount: number
-                activePrematchGamesCount: number
-            }>
-        }>
+type NavigationSportData = {
+  sportId: string
+  slug: string
+  name: string
+  countries: Array<{
+    slug: string
+    name: string
+    leagues: Array<{
+      slug: string
+      name: string
+      activePrematchGamesCount: number
+      activeLiveGamesCount: number
     }>
+  }>
 }
 ```
+
+When `returnAsPrematchAndLiveMap` is `true`, the data is returned as an object with three keys:
+- `prematch`: Navigation data filtered for prematch games only
+- `live`: Navigation data filtered for live games only
+- `all`: Complete navigation data without filtering

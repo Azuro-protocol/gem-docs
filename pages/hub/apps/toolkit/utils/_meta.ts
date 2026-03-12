@@ -2,17 +2,14 @@ export default {
   'setupContracts': 'setupContracts',
   'getEndpoints': 'Endpoints',
   'calcMinOdds': 'calcMinOdds',
-  'getBetStatus': 'getBetStatus',
   'groupConditionsByMarket': 'groupConditionsByMarket',
+  'getIsPendingResolution': 'getIsPendingResolution',
   'getFreeBets': {
     'title': 'getFreeBets',
     'type': 'hidden',
   },
-  'getBetFee': 'getBetFee',
-  'getMaxBet': 'getMaxBet',
-  'getBetTypedData': 'getBetTypedData',
-  'getComboBetTypedData': 'getComboBetTypedData',
-  'createBet': 'createBet',
-  'createComboBet': 'createComboBet',
-  'getBet': 'getBet',
+  'getMaxBet': {
+    'title': 'getMaxBet',
+    'type': 'hidden',
+  },
 }

@@ -1,0 +1,72 @@
+import { Callout } from 'components'
+
+# useBetCalculation
+
+The `useBetCalculation` hook calculates the minimum and maximum bet amount for given selections. This hook replaces the deprecated `useMaxBet` hook and provides both minimum and maximum bet calculations. User's account is required to provide the correct maximum bet amount.
+
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
+
+```ts
+import { useBetCalculation } from '@azuro-org/sdk'
+
+const { data, isFetching } = useBetCalculation({ selections, account })
+const { minBet, maxBet } = data || {}
+```
+
+### Example with BetslipProvider
+
+If you're using the `BetslipProvider`, you can get the same data from `useDetailedBetslip` for selections in the betslip:
+
+```ts
+import { useDetailedBetslip } from '@azuro-org/sdk'
+
+const { minBet, maxBet, isBetCalculationFetching } = useDetailedBetslip()
+```
+
+## Props
+
+```ts
+{
+  selections: Selection[] // array of selections to calculate bet for
+  chainId?: ChainId // chain ID, defaults to app chain
+  account: Address | undefined // user's wallet address
+  query?: QueryParameter<BetCalculation> // useQuery params
+}
+```
+
+```ts
+import { type Address } from 'viem'
+
+type Selection = {
+  conditionId: string
+  outcomeId: string
+}
+
+type ChainId =
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+## Return Value
+
+```ts
+UseQueryResult<BetCalculation>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type BetCalculation = {
+  minBet: string | undefined // minimum bet amount in bet token decimals
+  maxBet: string // maximum bet amount in bet token decimals
+}
+```

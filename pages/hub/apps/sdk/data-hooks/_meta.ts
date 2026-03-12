@@ -1,6 +1,7 @@
 export default {
   'useSports': 'useSports',
   'useGames': 'useGames',
+  'useSearchGames': 'useSearchGames',
   'useNavigation': 'useNavigation',
   'useSportsNavigation': 'useSportsNavigation',
   'useGame': 'useGame',
@@ -8,7 +9,8 @@ export default {
   'useActiveConditions': 'useActiveConditions',
   'useActiveMarkets': 'useActiveMarkets',
   'useResolvedMarkets': 'useResolvedMarkets',
-  'useMaxBet': 'useMaxBet',
+  'useBetCalculation': 'useBetCalculation',
+  'useMaxBet': 'useMaxBet (deprecated)',
   'useBets': 'useBets',
   'useLegacyBets': 'useLegacyBets',
   'useBetFee': 'useBetFee',

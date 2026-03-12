@@ -1,32 +1,29 @@
 import { Callout } from 'components'
 
-Returns `freebets` that can be used based on the provided bet information (`selections`).
-
-<Callout type="info">
-  You can find more information [Here](/hub/apps/guides/cashout/overview).
-</Callout>
+Retrieves available `freebets` for a bettor that can be applied to specific bet `selections`.
+Returns `null` if no freebets are available for the given selections.
 
 #### Usage
 
 ```ts
-import { getAvailableFreebets } from '@azuro-org/toolkit'
+import { getAvailableFreebets, type GetAvailableFreebetsResult } from '@azuro-org/toolkit'
 
-const freebets = await getAvailableFreebets({
-  chainId: 137
-  account: '0x...'
-  affiliate: '0x...'
-  selections: [{...}]
+const freebets: GetAvailableFreebetsResult = await getAvailableFreebets({
+  chainId: 137,
+  account: '0x...',
+  affiliate: '0x...',
+  selections: [{...}],
 })
 ```
 
 #### Props
 
 ```ts
-{
+type GetAvailableFreebetsParams = {
   chainId: ChainId
   account: Address // user's address
   affiliate: Address // your affiliate address
-  selections: [{...}]
+  selections: Selection[]
 }
 ```
 
@@ -36,7 +33,7 @@ type Selection = {
   conditionId: string
 }
 
-type ChainId = 
+type ChainId =
   | 100     // Gnosis
   | 137     // Polygon
   | 80002   // Polygon Amoy
@@ -51,7 +48,7 @@ import { type Address } from 'viem'
 #### Return Value
 
 ```ts
-Promise<Freebet[] | null>
+type GetAvailableFreebetsResult = Freebet[] | null
 ```
 
 ```ts

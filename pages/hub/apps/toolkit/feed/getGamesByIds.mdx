@@ -1,0 +1,78 @@
+Fetches game data for a specific list of game IDs. Returns detailed information for each requested game including participants, timing, and league data.
+
+#### Usage
+
+```ts
+import { getGamesByIds } from '@azuro-org/toolkit'
+
+
+const games = await getGamesByIds({
+  chainId: 137,
+  gameIds: ['1006000000000080373237'],
+})
+
+const gameData = games[0]
+```
+
+#### Props
+
+```ts
+type GetGamesByIdsParams = {
+  chainId: ChainId
+  gameIds: string[]
+}
+```
+
+#### Return Value
+
+```ts
+type GetGamesByIdsResult = GameData[]
+```
+
+```ts
+type GameData = {
+  id: string
+  gameId: string
+  slug: string
+  title: string
+  /** to align with the legacy from the subgraph, it's the unix timestamp in seconds, e.g. `"1771707600"` */
+  startsAt: string
+  state: GameState
+  turnover: string
+  sport: {
+    sportId: string
+    slug: string
+    name: string
+    sporthub: {
+      id: string
+      slug: SportHubSlug
+    }
+  }
+  league: {
+    id?: string
+    slug: string
+    name: string
+  }
+  country: {
+    id?: string
+    slug: string
+    name: string
+  }
+  participants: GameParticipant[]
+}
+
+type GameParticipant = {
+  image: string | null | undefined
+  name: string
+}
+```
+
+```ts
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped',
+  Canceled = 'Canceled',
+}
+```

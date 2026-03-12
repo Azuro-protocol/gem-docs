@@ -1,9 +1,10 @@
-Sends live bet order.
+Generates EIP-712 typed data for signing a single (ordinary) bet.
+This typed data is used with wallet signing methods to create a bet signature.
 
 #### Usage
 
 ```ts
-import { getBetTypedData, createBet } from '@azuro-org/toolkit'
+import { getBetTypedData } from '@azuro-org/toolkit'
 
 
 const typedData = getBetTypedData({
@@ -13,28 +14,21 @@ const typedData = getBetTypedData({
 })
 
 const signature = await walletClient.data.signTypedData(typedData)
-
-const createdOrder = await createBet({
-  clientData: {...},
-  bet: {...},
-  signature,
-})
 ```
 
 #### Props
 
 ```ts
 {
+  account: Address
   clientData: BetClientData
   bet: {
     conditionId: string | bigint
-    outcomeId: string | number | bigint
+    outcomeId: string | bigint
     minOdds: string | bigint
     amount: string | bigint
-    nonce: string | number | bigint
+    nonce: string | bigint
   }
-  signature: Hex // signed typed data
-  bonusId?: string // freebet id to place bet with
 }
 ```
 
@@ -54,19 +48,4 @@ type BetClientData = {
 
 #### Return Value
 
-```ts
-type CreateLiveBetResponse = {
-  id: string
-  state: BetState
-  errorMessage?: string
-  error?: string
-}
-
-enum LiveBetState {
-  Created = 'Created',
-  Pending = 'Pending',
-  Sent = 'Sent',
-  Accepted = 'Accepted',
-  Rejected = 'Rejected'
-}
-```
+`SignTypedDataParameters<typeof BET_DATA_TYPES>`

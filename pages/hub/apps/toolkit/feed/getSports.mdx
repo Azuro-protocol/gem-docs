@@ -1,0 +1,118 @@
+Fetches a complete sports hierarchy including countries, leagues, and games. Returns nested structure with all games organized by sport, country, and league.
+
+#### Usage
+
+```ts
+import { GameState, getSports } from '@azuro-org/toolkit'
+
+
+const sports = await getSports({
+  chainId: 137,
+  gameState: GameState.Prematch,
+  numberOfGames: 10,
+})
+```
+
+#### Props
+
+```ts
+type GetSportsParams = {
+  chainId: ChainId
+  gameState: GameState.Live | GameState.Prematch
+  sportIds?: (string | number) | (string | number)[]
+  sportSlug?: string
+  countrySlug?: string
+  leagueSlug?: string
+  /** Number of games per league, default and minimum: 10 */
+  numberOfGames?: number
+  orderBy?: GameOrderBy
+  orderDir?: OrderDirection
+}
+```
+
+```ts
+enum GameOrderBy {
+  StartsAt = 'startsAt',
+  Turnover = 'turnover'
+}
+
+enum OrderDirection {
+  Asc = 'asc',
+  Desc = 'desc'
+}
+```
+
+#### Return Value
+
+```ts
+type GetSportsResult = SportData[]
+```
+
+```ts
+type SportData = {
+  id: number
+  slug: string
+  name: string
+  sportId: string
+  turnover: string
+  countries: {
+    slug: string
+    name: string
+    turnover: string
+    leagues: {
+      slug: string
+      name: string
+      turnover: string
+      games: GameData[]
+    }[]
+  }[]
+}
+```
+
+```ts
+type GameData = {
+  id: string
+  gameId: string
+  slug: string
+  title: string
+  /** to align with the legacy from the subgraph, it's the unix timestamp in seconds, e.g. `"1771707600"` */
+  startsAt: string
+  state: GameState
+  turnover: string
+  sport: {
+    sportId: string
+    slug: string
+    name: string
+    sporthub: {
+      id: string
+      slug: SportHubSlug
+    }
+  }
+  league: {
+    id?: string
+    slug: string
+    name: string
+  }
+  country: {
+    id?: string
+    slug: string
+    name: string
+  }
+  participants: GameParticipant[]
+}
+
+type GameParticipant = {
+  image: string | null | undefined
+  name: string
+}
+```
+
+```ts
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped',
+  Canceled = 'Canceled',
+}
+```

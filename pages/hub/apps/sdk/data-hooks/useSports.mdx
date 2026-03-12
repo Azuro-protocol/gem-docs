@@ -22,22 +22,21 @@ const { data, isFetching, error } = useSports(props)
 {
   filter?: {
     limit?: number // limit the number of games returned from a query for each sport
-    sportHub?: SportHub
     sportSlug?: string
     countrySlug?: string
     leagueSlug?: string
     sportIds?: Array<string | number>
   }
-  gameOrderBy?: Game_OrderBy.Turnover | Game_OrderBy.StartsAt // default: Game_OrderBy.StartsAt`
+  gameOrderBy?: GameOrderBy // default: GameOrderBy.StartsAt - supports Turnover or StartsAt
   orderDir?: OrderDirection // order direction: asc, desc
   isLive?: boolean // if `true`, the hook will retrieve live sports
   chainId?: ChainId
-  query?: QueryParameter<SportsQuery['sports']> // useQuery params
+  query?: QueryParameter<SportData[]> // useQuery params
 }
 ```
 
 ```ts
-type ChainId = 
+type ChainId =
   | 100     // Gnosis
   | 137     // Polygon
   | 80002   // Polygon Amoy
@@ -45,80 +44,50 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
-
-enum SportHub {
-  Sports = 'sports',
-  Esports = 'esports',
-  Unique = 'unique'
-}
 ```
 
 ## Return Value
 
 ```ts
-UseQueryResult<SportsQuery['sports']>
+UseQueryResult<SportData[]>
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 
-type SportsQuery = {
-    __typename?: 'Query'
-    sports: Array<{
-        __typename?: 'Sport'
-        id: string
+type SportData = {
+  sportId: string
+  slug: string
+  name: string
+  turnover: string
+  countries: Array<{
+    slug: string
+    name: string
+    turnover: string
+    leagues: Array<{
+      slug: string
+      name: string
+      turnover: string
+      games: Array<{
+        gameId: string
         slug: string
-        name: string
+        title: string
+        startsAt: number
+        state: GameState
         sportId: string
-        turnover: string
-        countries: Array<{
-            __typename?: 'Country'
-            slug: string
-            name: string
-            turnover: string
-            leagues: Array<{
-                __typename?: 'League'
-                slug: string
-                name: string
-                turnover: string
-                games: Array<{
-                    __typename?: 'Game'
-                    id: string
-                    gameId: string
-                    slug: string
-                    title: string
-                    startsAt: string
-                    state: Types.GameState
-                    turnover: string
-                    sport: {
-                        __typename?: 'Sport'
-                        sportId: string
-                        slug: string
-                        name: string
-                        sporthub: {
-                            __typename?: 'SportHub'
-                            id: string
-                            slug: string
-                        }
-                    }
-                    league: {
-                        __typename?: 'League'
-                        slug: string
-                        name: string
-                    }
-                    country: {
-                        __typename?: 'Country'
-                        slug: string
-                        name: string
-                    }
-                    participants: Array<{
-                        __typename?: 'Participant'
-                        image?: string | null
-                        name: string
-                    }>
-                }>
-            }>
+        sportSlug: string
+        sportName: string
+        leagueId: string
+        leagueSlug: string
+        leagueName: string
+        countrySlug: string
+        countryName: string
+        participants: Array<{
+          image?: string
+          name: string
         }>
+      }>
     }>
+  }>
 }
 ```

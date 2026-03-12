@@ -1,5 +1,6 @@
 export default {
   'overview': 'Overview',
+  'migration-v7': 'Migration to v7',
   'installation': 'Installation',
   'setup': 'Setup',
   'providers': {

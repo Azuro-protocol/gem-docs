@@ -24,14 +24,14 @@ const { data, isFetching, error } = useGame(props)
 
 ```ts
 {
-  gameId: string | bigint
+  gameId: string
   chainId?: ChainId
-  query?: QueryParameter<GameQuery['game']> // useQuery params
+  query?: QueryParameter<GameData | null> // useQuery params
 }
 ```
 
 ```ts
-type ChainId = 
+type ChainId =
   | 100     // Gnosis
   | 137     // Polygon
   | 80002   // Polygon Amoy
@@ -47,9 +47,8 @@ type ChainId =
   ```ts
   import { useGame } from '@azuro-org/sdk'
 
-  const { data: games } = useGames()
-
-  const gameId = games?.[0]?.gameId
+  // e.g. game page, https://your-site.com/games/{gameId}
+  const { gameId } = useParams()
 
   const { data } = useGame({ gameId })
   ```
@@ -58,49 +57,51 @@ type ChainId =
 ## Return Value
 
 ```ts
-UseQueryResult<GameQuery['game']>
+UseQueryResult<GameData | null>
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 
-type GameQuery = {
-    __typename?: 'Query'
-    game?: {
-        __typename?: 'Game'
-        id: string
-        gameId: string
-        slug: string
-        title: string
-        startsAt: string
-        state: Types.GameState
-        turnover: string
-        sport: {
-            __typename?: 'Sport'
-            sportId: string
-            slug: string
-            name: string
-            sporthub: {
-                __typename?: 'SportHub'
-                id: string
-                slug: string
-            }
-        }
-        league: {
-            __typename?: 'League'
-            slug: string
-            name: string
-        }
-        country: {
-            __typename?: 'Country'
-            slug: string
-            name: string
-        }
-        participants: Array<{
-            __typename?: 'Participant'
-            image?: string | null
-            name: string
-        }>
-    } | null
+type GameData = {
+  id: string
+  gameId: string
+  slug: string
+  title: string
+  /** to align with the legacy from the subgraph, it's the unix timestamp in seconds, e.g. `"1771707600"` */
+  startsAt: string
+  state: GameState
+  turnover: string
+  sport: {
+    sportId: string
+    slug: string
+    name: string
+    sporthub: {
+      id: string
+      slug: string // 'sports' | 'esports'
+    }
+  }
+  league: {
+    id?: string
+    slug: string
+    name: string
+  }
+  country: {
+    id?: string
+    slug: string
+    name: string
+  }
+  participants: Array<{
+    image?: string
+    name: string
+  }>
+}
+
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped',
+  Canceled = 'Canceled',
 }
 ```

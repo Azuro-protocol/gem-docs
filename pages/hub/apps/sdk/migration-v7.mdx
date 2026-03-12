@@ -1,0 +1,493 @@
+import { Callout } from 'components'
+
+# Migration Guide: SDK v7.0.0
+
+This guide will help you migrate your application from SDK v6.x to v7.0.0.
+
+## Overview
+
+SDK v7.0.0 is a major update that brings significant improvements and modernization:
+
+- **Upgraded dependency**: Now depends on `@azuro-org/toolkit` v6.0.0
+- **REST API migration**: Several data hooks now use REST API instead of GraphQL for improved performance
+- **New hooks**: Added `useBetCalculation` and `useSearchGames` for enhanced functionality
+- **Breaking changes**: Removed `useMaxBet` and updated multiple hook interfaces
+
+<Callout type="warning">
+This is a major version with breaking changes. Please review this guide carefully before upgrading.
+</Callout>
+
+## Breaking Changes
+
+### 1. `useMaxBet` Removed
+
+The `useMaxBet` hook has been removed and replaced with the more comprehensive `useBetCalculation` hook.
+
+**Before (v6.x):**
+```tsx
+import { useMaxBet } from '@azuro-org/sdk'
+
+const { data: maxBet, isFetching } = useMaxBet({
+  selections: [
+    { conditionId: '123', outcomeId: '456' }
+  ]
+})
+```
+
+**After (v7.0.0):**
+```tsx
+import { useBetCalculation } from '@azuro-org/sdk'
+import { useAccount } from 'wagmi'
+
+const { address } = useAccount()
+
+const { data, isFetching } = useBetCalculation({
+  selections: [
+    { conditionId: '123', outcomeId: '456' }
+  ],
+  account: address // Required for accurate maxBet calculation
+})
+
+const { minBet, maxBet } = data || {}
+```
+
+<Callout type="info">
+The new `useBetCalculation` hook requires the user's `account` address to provide accurate maximum bet amounts. It also returns `minBet` in addition to `maxBet`.
+</Callout>
+
+### 2. `useGames` Hook Changes
+
+The `useGames` hook now uses REST API and has updated parameters and return types.
+
+**Changed:**
+- Removed `filter.limit` and `filter.offset` parameters
+- Added `page` and `perPage` parameters for pagination
+- Removed `filter.maxMargin` and `filter.conditionsState` parameters
+- Changed `filter.leagueSlug` from `string | string[]` to `string`
+- Changed `orderBy` type from `Game_OrderBy` to `GameOrderBy`
+- Return type changed from `GamesQuery['games']` to `GetGamesByFiltersResult`
+
+**Before (v6.x):**
+```tsx
+import { useGames, Game_OrderBy } from '@azuro-org/sdk'
+
+const { data: games } = useGames({
+  filter: {
+    limit: 50,
+    offset: 0,
+    sportSlug: 'football',
+    leagueSlug: ['premier-league', 'la-liga']
+  },
+  orderBy: Game_OrderBy.StartsAt,
+  isLive: false
+})
+```
+
+**After (v7.0.0):**
+```tsx
+import { useGames, GameOrderBy } from '@azuro-org/sdk'
+
+const { data } = useGames({
+  filter: {
+    sportSlug: 'football',
+    leagueSlug: 'premier-league' // Now single string only
+  },
+  page: 1,
+  perPage: 50,
+  orderBy: GameOrderBy.StartsAt,
+  isLive: false
+})
+
+const { games, page, perPage, total, totalPages } = data || {}
+```
+
+### 3. `useConditions` Hook Changes
+
+The `useConditions` hook now uses REST API with a simplified interface.
+
+**Changed:**
+- Removed `filter`, `orderBy`, and `orderDir` parameters
+- Added `onlyActiveOrStopped` boolean parameter
+- Return type changed from `ConditionsQuery['conditions']` to `ConditionDetailedData[]` (but fields are equal)
+
+**Before (v6.x):**
+```tsx
+import { useConditions, Condition_OrderBy } from '@azuro-org/sdk'
+
+const { data: conditions } = useConditions({
+  gameId: '123',
+  orderBy: Condition_OrderBy.CreatedBlockTimestamp,
+  filter: {
+    status: 'Created'
+  }
+})
+```
+
+**After (v7.0.0):**
+```tsx
+import { useConditions } from '@azuro-org/sdk'
+
+const { data: conditions } = useConditions({
+  gameId: '123',
+  onlyActiveOrStopped: true // Optional: filter for active or stopped conditions
+})
+```
+
+### 4. `useNavigation` Hook Changes
+
+The `useNavigation` hook now uses REST API and supports a new map-based return format.
+
+**Changed:**
+- Added `returnAsPrematchAndLiveMap` parameter
+- Return type changed from `NavigationQuery['sports']` to `NavigationSportData[]` (fields are equal) or map format
+- The hook now accepts generic type parameter for return format
+
+**Before (v6.x):**
+```tsx
+import { useNavigation } from '@azuro-org/sdk'
+
+const { data: sports } = useNavigation({
+  filter: {
+    sportHub: 'sports'
+  },
+  isLive: false
+})
+```
+
+**After (v7.0.0):**
+```tsx
+import { useNavigation } from '@azuro-org/sdk'
+
+// Option 1: Filtered by isLive (similar to v6)
+const { data: sports } = useNavigation({
+  filter: {
+    sportHub: 'sports'
+  },
+  isLive: false
+})
+
+// Option 2: Get prematch and live data separately
+const { data } = useNavigation({
+  filter: {
+    sportHub: 'sports'
+  },
+  returnAsPrematchAndLiveMap: true
+})
+
+const prematchSports = data?.prematch || []
+const liveSports = data?.live || []
+```
+
+### 5. `useSports` Hook Changes
+
+The `useSports` hook now uses REST API and has updated type imports.
+
+**Changed:**
+- Removed `filter.sportHub` parameter
+- Changed `gameOrderBy` type from `Game_OrderBy.Turnover | Game_OrderBy.StartsAt` to `GameOrderBy`
+- Return type changed from `SportsQuery['sports']` to `SportData[]`
+
+**Before (v6.x):**
+```tsx
+import { useSports, Game_OrderBy } from '@azuro-org/sdk'
+
+const { data: sports } = useSports({
+  filter: {
+    sportHub: 'sports',
+    sportSlug: 'football'
+  },
+  gameOrderBy: Game_OrderBy.Turnover,
+  isLive: false
+})
+```
+
+**After (v7.0.0):**
+```tsx
+import { useSports, GameOrderBy } from '@azuro-org/sdk'
+
+const { data: sports } = useSports({
+  filter: {
+    sportSlug: 'football'
+  },
+  gameOrderBy: GameOrderBy.Turnover,
+  isLive: false
+})
+```
+
+## New Features
+
+### `useBetCalculation` Hook
+
+A new hook that replaces `useMaxBet` and provides both minimum and maximum bet calculations.
+
+**Key Features:**
+- Calculates both `minBet` and `maxBet` for given selections
+- Requires user's account address for accurate `maxBet` calculation
+- Automatically subscribes to condition updates for real-time recalculation
+- Zero cache time for always-fresh data
+
+**Usage:**
+```tsx
+import { useBetCalculation } from '@azuro-org/sdk'
+import { useAccount } from 'wagmi'
+
+function BetslipComponent() {
+  const { address } = useAccount()
+
+  const { data, isFetching } = useBetCalculation({
+    selections: [
+      { conditionId: '123', outcomeId: '456' },
+      { conditionId: '789', outcomeId: '012' }
+    ],
+    account: address
+  })
+
+  const { minBet, maxBet } = data || {}
+
+  return (
+    <div>
+      <p>Minimum bet: {minBet || 'N/A'}</p>
+      <p>Maximum bet: {maxBet || '0'}</p>
+      {isFetching && <span>Recalculating...</span>}
+    </div>
+  )
+}
+```
+
+**Integration with Betslip:**
+```tsx
+import { useDetailedBetslip } from '@azuro-org/sdk'
+
+function Betslip() {
+  const { minBet, maxBet, isBetCalculationFetching } = useDetailedBetslip()
+
+  // minBet and maxBet are automatically calculated for selections in betslip
+}
+```
+
+### `useSearchGames` Hook
+
+A new hook for searching games by text across participants, leagues, and countries.
+
+**Key Features:**
+- Search for active prematch and live games
+- Automatic debouncing (default: 300ms)
+- Paginated results
+- Minimum query length: 3 characters
+
+**Usage:**
+```tsx
+import { useSearchGames } from '@azuro-org/sdk'
+import { useState } from 'react'
+
+function GameSearch() {
+  const [searchInput, setSearchInput] = useState('')
+
+  const { data, isFetching } = useSearchGames({
+    input: searchInput,
+    page: 1,
+    perPage: 20,
+    debounceMs: 300 // Optional, default is 300ms
+  })
+
+  const { games, page, perPage, total, totalPages } = data || {}
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        placeholder="Search games (min 3 characters)..."
+      />
+
+      {isFetching && <p>Searching...</p>}
+
+      {games?.map(game => (
+        <div key={game.id}>
+          {game.title}
+        </div>
+      ))}
+
+      {total && <p>Found {total} games</p>}
+    </div>
+  )
+}
+```
+
+## Migration Steps
+
+Follow these steps to migrate your application to SDK v7.0.0:
+
+### Step 1: Update Dependencies
+
+```bash
+npm install @azuro-org/sdk@^7 @azuro-org/toolkit@^6
+# or
+yarn add @azuro-org/sdk@^7 @azuro-org/toolkit@^6
+# or
+pnpm add @azuro-org/sdk@^7 @azuro-org/toolkit@^6
+```
+
+This will automatically install the required `@azuro-org/toolkit` v6.0.0.
+
+### Step 2: Replace `useMaxBet` with `useBetCalculation`
+
+Find all instances of `useMaxBet` in your codebase:
+
+```bash
+# Search for useMaxBet usage
+grep -r "useMaxBet" src/
+```
+
+Replace each usage:
+
+1. Import `useBetCalculation` instead of `useMaxBet`
+2. Add `account` parameter (from `useAccount()` hook)
+3. Destructure both `minBet` and `maxBet` from the result
+4. Update any references from `data` to `data.maxBet`
+
+### Step 3: Update `useGames` Hook
+
+1. Replace pagination parameters:
+   - Change `filter.limit` to `perPage`
+   - Change `filter.offset` to `page` (note: page is 1-based)
+   - Remove `filter.maxMargin` and `filter.conditionsState` if used
+
+2. Update `filter.leagueSlug` if using arrays:
+   ```tsx
+   // If you need multiple leagues, make separate calls or use filter on results
+   const leagues = ['premier-league', 'la-liga']
+   ```
+
+3. Update import and type:
+   ```tsx
+   // Change from:
+   import { Game_OrderBy } from '@azuro-org/tookit'
+
+   // To:
+   import { GameOrderBy } from '@azuro-org/tookit'
+   ```
+
+4. Update return type handling:
+   ```tsx
+   // Access games from the result object
+   const { data } = useGames(...)
+   const games = data?.games || []
+   ```
+
+### Step 4: Update `useConditions` Hook
+
+1. Remove `filter`, `orderBy`, and `orderDir` parameters
+2. Add `onlyActiveOrStopped: true` if you were filtering for active conditions
+3. Update type imports if needed
+
+### Step 5: Update `useNavigation` Hook
+
+1. If you need both prematch and live data, use the new map format:
+   ```tsx
+   const { data } = useNavigation({
+     returnAsPrematchAndLiveMap: true
+   })
+   ```
+
+2. Otherwise, keep using `isLive` parameter as before
+
+### Step 6: Update `useSports` Hook
+
+1. Remove `filter.sportHub` parameter if used
+2. Update import:
+   ```tsx
+   // Change from:
+   import { Game_OrderBy } from '@azuro-org/toolkit'
+
+   // To:
+   import { GameOrderBy } from '@azuro-org/toolkit'
+   ```
+
+### Step 7: Test Your Application
+
+After making these changes:
+
+1. Run your test suite
+2. Manually test betting flows
+3. Verify game listing and filtering works correctly
+4. Check that condition data loads properly
+5. Test navigation and sports pages
+
+### Step 8: Consider New Features
+
+Evaluate if new features can improve your application:
+
+1. **Search functionality**: Add game search using `useSearchGames`
+2. **Min bet validation**: Use `minBet` from `useBetCalculation` to validate user input
+3. **Prematch/Live split**: Use `returnAsPrematchAndLiveMap` in `useNavigation` for better UX
+
+## Common Issues and Solutions
+
+### Issue: `maxBet` is always "0"
+
+**Solution**: Ensure you're passing the user's `account` address to `useBetCalculation`:
+
+```tsx
+import { useAccount } from 'wagmi'
+
+const { address } = useAccount()
+
+const { data } = useBetCalculation({
+  selections,
+  account: address // Don't forget this!
+})
+```
+
+### Issue: TypeScript errors with hook return types
+
+**Solution**: Update your type imports from GraphQL types to REST API types:
+
+```tsx
+// Old
+import type { GamesQuery } from '@azuro-org/toolkit'
+
+// New
+import type { GetGamesByFiltersResult } from '@azuro-org/toolkit'
+```
+
+### Issue: Pagination not working correctly
+
+**Solution**: Remember that `page` is now 1-based (not 0-based like `offset`):
+
+```tsx
+// Old (v6.x)
+const { data } = useGames({
+  filter: { offset: 0, limit: 50 } // 0-based
+})
+
+// New (v7.0.0)
+const { data } = useGames({
+  page: 1, // 1-based
+  perPage: 50
+})
+```
+
+### Issue: League filtering with multiple slugs
+
+**Solution**: `leagueSlug` now accepts only a single string. For multiple leagues, either:
+
+1. Make multiple hook calls
+2. Fetch all games and filter client-side
+3. Use `useNavigation` to get all leagues, then fetch games per league
+
+## Additional Resources
+
+- [SDK Documentation](/hub/apps/sdk/overview)
+- [useBetCalculation Hook](/hub/apps/sdk/data-hooks/useBetCalculation)
+- [useSearchGames Hook](/hub/apps/sdk/data-hooks/useSearchGames)
+- [Toolkit v6 Documentation](/hub/tools/toolkit)
+
+## Need Help?
+
+If you encounter issues during migration:
+
+1. Check the [SDK GitHub repository](https://github.com/Azuro-protocol/sdk) for known issues
+2. Join the [Azuro Discord](https://discord.gg/azuro) for community support
+3. Review the [full changelog](https://github.com/Azuro-protocol/sdk/releases/tag/v7.0.0) for detailed changes

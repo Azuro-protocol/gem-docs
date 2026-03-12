@@ -1,0 +1,107 @@
+import { Callout } from 'components'
+
+# useSearchGames
+
+The `useSearchGames` hook searches active pre-match and live games by text. It searches across game participants, leagues, and countries. The search input is automatically debounced and trimmed for optimal performance.
+
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
+
+```ts
+import { useSearchGames } from '@azuro-org/sdk'
+
+const { data, isFetching } = useSearchGames({ input: 'Man' })
+const { games, page, perPage, total, totalPages } = data || {}
+```
+
+### Pagination Example
+
+```ts
+import { useSearchGames } from '@azuro-org/sdk'
+import { useState } from 'react'
+
+const [currentPage, setCurrentPage] = useState(1)
+
+const { data, isFetching } = useSearchGames({
+  input: 'Manchester',
+  page: currentPage,
+  perPage: 20
+})
+```
+
+## Props
+
+```ts
+{
+  input: string // search query text (minimum 3 characters after trimming)
+  chainId?: ChainId // chain ID, defaults to app chain
+  page?: number // page number (1-based), default: 1
+  perPage?: number // items per page, default: 10
+  debounceMs?: number // debounce delay in milliseconds, default: 300ms (minimum: 300ms)
+  query?: QueryParameter<SearchGamesResult> // useQuery params
+}
+```
+
+```ts
+type ChainId =
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+<Callout type="warning">
+The search query is debounced by `debounceMs` (default: 300ms, minimum: 300ms) and trimmed with `.trim()`. The query must be at least 3 characters long to execute.
+</Callout>
+
+## Return Value
+
+```ts
+UseQueryResult<SearchGamesResult>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type SearchGamesResult = {
+  games: Array<{
+    id: string
+    gameId: string
+    slug: string
+    title: string
+    startsAt: string
+    state: GameState
+    sport: {
+      sportId: string
+      slug: string
+      name: string
+      sporthub: {
+        id: string
+        slug: string
+      }
+    }
+    league: {
+      slug: string
+      name: string
+    }
+    country: {
+      slug: string
+      name: string
+    }
+    participants: Array<{
+      image?: string | null
+      name: string
+    }>
+  }>
+  page: number // current page number
+  perPage: number // items per page
+  total: number // total number of matching games
+  totalPages: number // total number of pages
+}
+```

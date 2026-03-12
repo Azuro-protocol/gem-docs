@@ -1,0 +1,67 @@
+Fetches navigation structure with sports, countries, and leagues hierarchy. Returns active game counts at each level for building navigation menus.
+
+#### Usage
+
+```ts
+import { getNavigation } from '@azuro-org/toolkit'
+
+
+const sports = await getNavigation({
+  chainId: 137,
+  sportHub: 'sports',
+})
+```
+
+#### Props
+
+```ts
+type GetNavigationParams = {
+  chainId: ChainId
+  sportHub?: SportHubSlug
+  sportIds?: string | number | (string | number)[]
+}
+```
+
+```ts
+type SportHubSlug = 'sports' | 'esports'
+```
+
+#### Return Value
+
+```ts
+type GetNavigationResult = NavigationSportData[]
+```
+
+```ts
+type NavigationSportData = {
+  id: number
+  slug: string
+  name: string
+  sportId: string
+  activeGamesCount: number
+  activeLiveGamesCount: number
+  activePrematchGamesCount: number
+  sporthub: {
+    id: string
+    slug: SportHubSlug // 'sports' | 'esports'
+  }
+  countries: {
+    id: string
+    slug: string
+    name: string
+    turnover: string
+    activeGamesCount: number
+    activeLiveGamesCount: number
+    activePrematchGamesCount: number
+    leagues: {
+      id: string
+      slug: string
+      name: string
+      turnover: string
+      activeGamesCount: number
+      activeLiveGamesCount: number
+      activePrematchGamesCount: number
+    }[]
+  }[]
+}
+```

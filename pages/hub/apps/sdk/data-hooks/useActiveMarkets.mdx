@@ -17,11 +17,8 @@ const { data, isFetching, error } = useActiveMarkets(props)
 ```ts
 {
   gameId: string
-  filter?: {
-    outcomeIds?: string[]
-    maxMargin?: number
-  }
-  query?: QueryParameter<ConditionsQuery['conditions']> // useQuery params
+  chainId?: ChainId
+  query?: QueryParameter<ConditionDetailedData[]> // useQuery params
 }
 ```
 

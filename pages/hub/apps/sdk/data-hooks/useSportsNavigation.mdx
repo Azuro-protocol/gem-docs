@@ -27,7 +27,7 @@ const { data, isFetching, error } = useSportsNavigation(props)
   }
   isLive?: boolean // if `true`, the hook will retrieve live navigation
   chainId?: ChainId
-  query?: QueryParameter<SportsNavigationQuery['sports']> // useQuery params
+  query?: QueryParameter<NavigationSportData[]> // useQuery params
 }
 ```
 
@@ -51,28 +51,25 @@ enum SportHub {
 ## Return Value
 
 ```ts
-UseQueryResult<SportsNavigationQuery['sports']>
+UseQueryResult<NavigationSportData[]>
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 
-type SportsNavigationQuery = {
-    __typename?: 'Query'
-    sports: Array<{
-        __typename?: 'Sport'
-        id: string
-        slug: string
-        name: string
-        sportId: string
-        activeGamesCount: number
-        activeLiveGamesCount: number
-        activePrematchGamesCount: number
-        sporthub: {
-            __typename?: 'SportHub'
-            id: string
-            slug: string
-        }
+type NavigationSportData = {
+  sportId: string
+  slug: string
+  name: string
+  countries: Array<{
+    slug: string
+    name: string
+    leagues: Array<{
+      slug: string
+      name: string
+      activePrematchGamesCount: number
+      activeLiveGamesCount: number
     }>
+  }>
 }
 ```

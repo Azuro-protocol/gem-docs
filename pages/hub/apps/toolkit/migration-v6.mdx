@@ -1,0 +1,642 @@
+import { Callout } from 'components'
+
+# Migration Guide: Toolkit v6.0.0
+
+This guide will help you migrate from toolkit v5.x to v6.0.0. The major change in this version is the transition from GraphQL-based feed data fetching to REST API endpoints, along with several API improvements and new utilities.
+
+## Overview
+
+Version 6.0.0 introduces significant improvements:
+
+- **GraphQL → REST API Migration**: Feed data is now fetched via REST API instead of GraphQL for better performance and reliability
+- **New Feed Utilities**: new utilities for fetching games, conditions, sports, and navigation data
+- **Enhanced Bet Utilities**: New `getBetCalculation` utility with improved functionality, and `getBetsByBettor` for retrieving bet history
+- **Breaking Changes**: Typo fixes, deprecated feed graphql docs and utilities removed
+
+<Callout type="warning">
+This is a major version update with breaking changes. Please review all sections carefully before upgrading.
+</Callout>
+
+---
+
+## Breaking Changes
+
+### 1. `calcMindOdds` → `calcMinOdds` (Typo Fix)
+
+The function name has been corrected from `calcMindOdds` to `calcMinOdds`.
+
+**Before:**
+```ts
+import { calcMindOdds } from '@azuro-org/toolkit'
+
+const minOdds = calcMindOdds({
+  odds: 1.5,
+  slippage: 5
+})
+```
+
+**After:**
+```ts
+import { calcMinOdds } from '@azuro-org/toolkit'
+
+const minOdds = calcMinOdds({
+  odds: 1.5,
+  slippage: 5
+})
+```
+
+**Migration Steps:**
+1. Search your codebase for all occurrences of `calcMindOdds`
+2. Replace with `calcMinOdds`
+3. Update your imports
+
+---
+
+### 2. `getMaxBet` Removed → Use `getBetCalculation`
+
+The `getMaxBet` utility has been removed. Use the new `getBetCalculation` utility instead, which provides both minimum and maximum bet amounts along with maximum payout information.
+
+**Before:**
+```ts
+import { getMaxBet } from '@azuro-org/toolkit'
+
+const result = await getMaxBet({
+  chainId: 137,
+  selections: [
+    { conditionId: '1', outcomeId: '1' }
+  ]
+})
+
+console.log(result.maxBet) // string
+console.log(result.maxPayout) // string
+```
+
+**After:**
+```ts
+import { getBetCalculation } from '@azuro-org/toolkit'
+
+const account = userWallet?.address // User's wallet address
+
+const result = await getBetCalculation({
+  chainId: 137,
+  selections: [
+    { conditionId: '1', outcomeId: '1' }
+  ],
+  account // Optional but recommended for accurate maxBet
+})
+
+console.log(result.minBet) // number | undefined
+console.log(result.maxBet) // number
+console.log(result.maxPayout) // string
+```
+
+**Key Differences:**
+- `getBetCalculation` requires an `account` parameter for accurate `maxBet` calculation (can be `undefined` if user isn't logged in)
+- Returns `minBet` in addition to `maxBet` and `maxPayout`
+- `maxBet` is now a `number` instead of a `string`
+- `minBet` may be `undefined` if there is no bottom limit
+
+**Migration Steps:**
+1. Replace all `getMaxBet` imports with `getBetCalculation`
+2. Add the `account` parameter to your function calls
+3. Update type handling: `maxBet` is now `number` instead of `string`
+4. Handle the new `minBet` field in your logic
+
+---
+
+### 3. Feed Data: GraphQL → REST API
+
+Feed data fetching has migrated from GraphQL queries to REST API endpoints. If you were using custom GraphQL queries for feed data, you'll need to migrate to the new REST utilities.
+
+**GraphQL Documents Removed:**
+- Feed-related GraphQL queries and fragments are no longer available in the toolkit
+- Custom feed GraphQL queries will need to be replaced with REST API utilities
+
+**Before (GraphQL):**
+```ts
+// Using custom GraphQL query
+const query = gql`
+  query Games($where: Game_filter) {
+    games(where: $where) {
+      id
+      startsAt
+      sport { name }
+    }
+  }
+`
+// Execute query with GraphQL client...
+```
+
+**After (REST API):**
+```ts
+import { getGamesByFilters, GameState } from '@azuro-org/toolkit'
+
+const result = await getGamesByFilters({
+  chainId: 137,
+  state: GameState.Prematch,
+  sportIds: ['1'],
+  page: 1,
+  perPage: 50
+})
+
+console.log(result.games) // Array of game data
+console.log(result.total) // Total number of games
+```
+
+**Migration Strategy:**
+1. Identify all GraphQL feed queries in your codebase
+2. Map them to the appropriate new REST utilities (see New Features section)
+3. Update your data structures to match the new response formats
+4. Remove GraphQL client dependencies for feed data (if no longer needed)
+
+---
+
+### 4. enum `GameState` extended
+
+GameState from REST API has an additional value `Canceled`:
+
+**Before:**
+```ts
+import { GameState } from '@azuro-org/toolkit'
+
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped'
+}
+```
+
+**After:**
+```ts {8}
+import { GameState } from '@azuro-org/toolkit'
+
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped',
+  Canceled = 'Canceled',
+}
+```
+
+---
+
+### 5. enum `BetState` renamed to `BetOrderState`, and extened
+
+To avoid confusion with relations, it has been renamed to `BetOrderState`.
+
+Also, it has been extended with new values, because now we can fetch bet orders history from REST API:
+
+**Before:**
+```ts
+import { BetState } from '@azuro-org/toolkit'
+
+enum BetState {
+  Created = 'Created',
+  Pending = 'Pending',
+  Sent = 'Sent',
+  Accepted = 'Accepted',
+  Rejected = 'Rejected',
+  Canceled = 'Canceled'
+}
+```
+
+**After:**
+```ts
+import { BetOrderState } from '@azuro-org/toolkit'
+
+export enum BetOrderState {
+  /** First status when created */
+  Created = 'Created',
+  /** Bet is included in the calculation of potential loss/wins */
+  Placed = 'Placed',
+  /** The relayer has been taken into processing to send the bet to the contracts */
+  Sent = 'Sent',
+  /** Bet successfully accepted in the contracts */
+  Accepted = 'Accepted',
+  /** An error occurred during the contracts checks */
+  Rejected = 'Rejected',
+  /** The process of canceling the bet. The bet placed in the contracts still has the "GraphBetStatus.Accepted" status */
+  PendingCancel = 'PendingCancel',
+  /** Cancellation error. The bet placed in the contracts still has the "GraphBetStatus.Accepted" status */
+  CancelFailed = 'CancelFailed',
+  /** Bet is canceled */
+  Canceled = 'Canceled',
+  /** The bet is settled (won or lost) */
+  Settled = 'Settled',
+}
+```
+
+---
+
+### 6. enum `BetStatus` extended
+
+With fetching bets history from REST API, we need to support bet orders in pending state, so the `BetStatus` enum has been extended with new values:
+- `Preparing` - for bet orders that are in proccess of being placed on-chain (BetOrderState.;
+- `Rejected`.
+
+**Before:**
+```ts
+enum BetStatus {
+  Accepted,
+  Live,
+  PendingResolution,
+  Resolved,
+  Canceled,
+}
+```
+
+**After:**
+```ts {7,8}
+enum BetStatus {
+  Accepted,
+  Live,
+  PendingResolution,
+  Resolved,
+  Canceled,
+  Preparing,
+  Rejected,
+}
+```
+
+### 7. helper `getBetStatus` additionaly requires `orderState` (`BetOrderState` or `null`)
+
+With bet history fetching migration to REST API, we should account for the new `BetOrderState` enum.
+
+**Before:**
+```ts
+import { BetStatus, getBetStatus } from '@azuro-org/toolkit'
+
+const betStatus: BetStatus = getBetStatus({
+  games: bet.games,
+  // required, status from Bet or v3Bet entities from GraphQL
+  graphStatus: '...',
+})
+```
+
+**After:**
+```ts
+import { BetStatus, BetOrderState } from '@azuro-org/toolkit'
+
+const betStatus: BetStatus = getBetStatus({
+  games: bet.games,
+  // if you don't get bets from REST API yet, pass null
+  orderState: bet.orderState || null,
+  // status from Bet or v3Bet entities from GraphQL
+  graphStatus: '...' || null,
+})
+```
+
+---
+
+## New Features
+
+### Feed Utilities (REST API)
+
+There are new utilities for fetching feed data via REST API:
+
+#### 1. `getConditionsByGameIds`
+
+Fetches detailed conditions data for specific game IDs, including outcomes, odds, and game relationships.
+Returns `ConditionDetailedData[]` with the same structure as the GraphQL response of `Conditions` query.
+
+```ts
+import { getConditionsByGameIds } from '@azuro-org/toolkit'
+
+const conditions = await getConditionsByGameIds({
+  chainId: 137,
+  gameIds: ['1006000000000077484167']
+})
+
+// Returns: ConditionDetailedData[]
+// - id, conditionId, state, title
+// - isExpressForbidden, isPrematchEnabled, isLiveEnabled
+// - margin, outcomes (with odds), game info, wonOutcomeIds
+```
+
+#### 2. `getConditionsState`
+
+Fetches up-to-date condition states and outcome odds for a list of conditions.
+Returns `ConditionStateData[]` with the same structure as the GraphQL response of `ConditionsBatch` query.
+
+```ts
+import { getConditionsState } from '@azuro-org/toolkit'
+
+const conditions = await getConditionsState({
+  chainId: 137,
+  conditionIds: ['300610060000000000635055340000000000000000387193']
+})
+
+// Returns: ConditionStateData[]
+// - conditionId, state
+// - outcomes (with current odds)
+```
+
+#### 3. `getGamesByFilters`
+
+Fetches games by applying various filters such as sport, league, or game state. Returns paginated results ideal for building sport/country/league listing pages.
+
+```ts
+import { GameState, getGamesByFilters, GameOrderBy, OrderDirection } from '@azuro-org/toolkit'
+
+const result = await getGamesByFilters({
+  chainId: 137,
+  state: GameState.Prematch,
+  sportIds: ['1'],
+  sportSlug: 'football',
+  leagueSlug: 'premier-league',
+  orderBy: GameOrderBy.StartsAt,
+  orderDir: OrderDirection.Asc,
+  page: 2,
+  perPage: 50
+})
+
+// Returns: PaginatedGamesResponse
+// - games: GameData[]
+// - page, perPage, total, totalPages
+```
+
+#### 4. `getGamesByIds`
+
+Fetches game data for specific game IDs, including participants, timing, and league data.
+
+```ts
+import { getGamesByIds } from '@azuro-org/toolkit'
+
+const games = await getGamesByIds({
+  chainId: 137,
+  gameIds: ['1006000000000080373237']
+})
+
+// Returns: GameData[]
+// - gameId, slug, title, startsAt, state
+// - sport, league, country, participants, turnover
+```
+
+#### 5. `getNavigation`
+
+Fetches navigation structure with sports, countries, and leagues hierarchy. Returns active game counts at each level for building navigation menus.
+Returns NavigationSportData[] with the same structure as the GraphQL response of `Navigation` query.
+Counts both Live and Prematch in a single response.
+
+```ts
+import { getNavigation } from '@azuro-org/toolkit'
+
+const sports = await getNavigation({
+  chainId: 137,
+  sportHub: 'sports',
+  sportIds: ['1', '2']
+})
+
+// Returns: NavigationSportData[]
+// Hierarchical structure:
+// - Sports (with activeGamesCount)
+//   - Countries (with activeGamesCount)
+//     - Leagues (with activeGamesCount)
+```
+
+#### 6. `getSports`
+
+Fetches a complete sports hierarchy including countries, leagues, and games.
+Returns a nested structure with a number of games (controlled via prop) organized by sport, country, and league.
+
+```ts
+import { GameState, getSports } from '@azuro-org/toolkit'
+
+const sports = await getSports({
+  chainId: 137,
+  gameState: GameState.Prematch,
+  sportSlug: 'football',
+  numberOfGames: 20
+})
+
+// Returns: SportData[]
+// Fully nested structure:
+// - Sport info (id, slug, name, turnover)
+//   - Countries
+//     - Leagues
+//       - Games (limited by numberOfGames per league)
+```
+
+#### 7. `searchGames`
+
+Searches for games by text query across game titles, leagues, and countries. Returns paginated results. The minimum query length is 3 characters.
+
+```ts
+import { searchGames } from '@azuro-org/toolkit'
+
+const result = await searchGames({
+  chainId: 137,
+  query: 'Manchester',
+  page: 1,
+  perPage: 10
+})
+
+// Returns: PaginatedGamesResponse
+// - games: matching GameData[]
+// - pagination info
+```
+
+---
+
+### Bet Utilities
+
+#### `getBetCalculation`
+
+New utility that replaces `getMaxBet` with enhanced functionality. Calculates both minimum and maximum bet amounts for given selections.
+
+```ts
+import { getBetCalculation } from '@azuro-org/toolkit'
+
+const account = userWallet?.address
+const selections = [
+  { conditionId: '1', outcomeId: '1' }
+]
+
+const { minBet, maxBet, maxPayout } = await getBetCalculation({
+  chainId: 137,
+  selections,
+  account, // Required for accurate maxBet calculation
+})
+
+// minBet: number | undefined (undefined if no bottom limit)
+// maxBet: number
+// maxPayout: string
+```
+
+<Callout type="info">
+The `account` parameter is optional but strongly recommended. Without it, the maximum bet calculation may not be accurate for the user's specific situation.
+</Callout>
+
+#### `getBetsByBettor`
+
+New utility for retrieving bet history for a specific bettor address with optional filtering and pagination.
+
+```ts
+import { getBetsByBettor, BetOrderState, BetOrderResult } from '@azuro-org/toolkit'
+
+const chainId = 137
+const bettor = '0x...'
+
+// Get all bets
+const allBets = await getBetsByBettor({ chainId, bettor })
+
+// Get only resolved won bets
+const wonBets = await getBetsByBettor({
+  chainId,
+  bettor,
+  result: BetOrderResult.Won,
+  limit: 50,
+  offset: 0
+})
+
+// Filter options:
+// - state: BetOrderState | BetOrderState[]
+// - result: BetOrderResult | BetOrderResult[]
+// - affiliate: Address
+// - isRedeemed: boolean
+// - offset, limit (pagination)
+```
+
+**Return Type:**
+```ts
+// Returns: BetOrderData[] | null
+// null if bettor has no bets (404)
+// Each order includes:
+// - Order details, conditions, outcomes
+// - Status, result, payout information
+// - Timestamps and transaction data
+```
+
+---
+
+## Migration Checklist
+
+Use this checklist to ensure a complete migration:
+
+- [ ] Update package version: `npm install @azuro-org/toolkit@6.0.0`
+- [ ] Search and replace `calcMindOdds` with `calcMinOdds`
+- [ ] Replace `getMaxBet` with `getBetCalculation` and:
+  - Add `account` parameter
+  - Update type handling for `maxBet` (string → number)
+  - Handle new `minBet` field
+- [ ] Migrate GraphQL feed queries to REST utilities:
+  - Identify all GraphQL feed queries
+  - Replace them with appropriate REST utilities
+  - Update data structure handling
+- [ ] Update `BetStatus` enum usage
+- [ ] Search and replace `BetState` enum with `BetOrderState`
+- [ ] Update `getBetStatus` helper to accept `orderState`
+- [ ] Test all betting flows
+- [ ] Test all feed data fetching
+- [ ] Update TypeScript types and enums if using explicit imports
+
+---
+
+## Common Migration Patterns
+
+### Pattern 1: Fetching Games for a Sport
+
+**Before (GraphQL):**
+```ts
+// Custom GraphQL query
+const result = await graphqlClient.query({
+  query: gamesQuery,
+  variables: {
+    where: { sport: 'football' },
+    first: 50
+  }
+})
+```
+
+**After (REST):**
+```ts
+import { getGamesByFilters, GameState } from '@azuro-org/toolkit'
+
+const result = await getGamesByFilters({
+  chainId: 137,
+  state: GameState.Prematch,
+  sportSlug: 'football',
+  perPage: 50
+})
+
+const games = result.games
+```
+
+---
+
+### Pattern 2: Building Navigation Menu
+
+**Before (GraphQL):**
+```ts
+// Custom navigation query
+const { data } = await graphqlClient.query({
+  query: navigationQuery
+})
+// Process nested data...
+```
+
+**After (REST):**
+```ts
+import { getNavigation } from '@azuro-org/toolkit'
+
+const sports = await getNavigation({
+  chainId: 137,
+  sportHub: 'sports'
+})
+
+// sports is already structured as:
+// [{
+//   name, slug, activeGamesCount,
+//   countries: [{
+//     name, slug, activeGamesCount,
+//     leagues: [{ name, slug, activeGamesCount }]
+//   }]
+// }]
+```
+
+---
+
+### Pattern 3: Bet Amount Calculation with User Context
+
+**Before:**
+```ts
+import { getMaxBet } from '@azuro-org/toolkit'
+
+const { maxBet } = await getMaxBet({
+  chainId: 137,
+  selections
+})
+
+// maxBet is string
+const maxBetNumber = parseFloat(maxBet)
+```
+
+**After:**
+```ts
+import { getBetCalculation } from '@azuro-org/toolkit'
+
+const { minBet, maxBet, maxPayout } = await getBetCalculation({
+  chainId: 137,
+  selections,
+  account: userAddress // Now includes user context
+})
+
+// maxBet is already a number
+// minBet might be undefined (no bottom limit)
+if (minBet !== undefined && betAmount < minBet) {
+  console.error('Bet amount below minimum')
+}
+```
+
+---
+
+## Getting Help
+
+If you encounter issues during migration:
+
+1. Check the [Toolkit Documentation](https://gem.azuro.org/hub/apps/toolkit/overview)
+2. Review individual utility documentation pages
+3. Join the [Azuro Discord](https://discord.gg/azuro) for community support
+4. Report bugs on [GitHub](https://github.com/Azuro-protocol/toolkit)
