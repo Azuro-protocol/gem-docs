@@ -1,8 +1,0 @@
-export default {
-  'azuro-score': {
-    'title': 'Azuro Score',
-  },
-  'azuro-waves': {
-    'title': 'Azuro Waves',
-  },
-}

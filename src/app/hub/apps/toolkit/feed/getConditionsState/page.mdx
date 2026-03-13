@@ -1,0 +1,52 @@
+# getConditionsState
+
+Fetches up-to-date condition states and outcome odds for a list of conditions.
+
+#### Usage
+
+```ts
+import { getConditionsState } from '@azuro-org/toolkit'
+
+
+const conditions = await getConditionsState({
+  chainId: 137,
+  conditionIds: ['300610060000000000635055340000000000000000387193'],
+})
+```
+
+#### Props
+
+```ts
+type GetConditionsStateParams = {
+  chainId: ChainId
+  conditionIds: string[]
+}
+```
+
+#### Return Value
+
+```ts
+type GetConditionsStateResult = ConditionStateData[]
+```
+
+```ts
+type ConditionStateData = {
+  conditionId: string
+  state: ConditionState
+  outcomes: {
+    id: string
+    outcomeId: string
+    odds: string
+  }[]
+}
+```
+
+```ts
+enum ConditionState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Removed = 'Removed',
+  Resolved = 'Resolved',
+  Stopped = 'Stopped'
+}
+```

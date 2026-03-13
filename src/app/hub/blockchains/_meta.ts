@@ -1,0 +1,12 @@
+import type { MetaRecord } from 'nextra'
+
+
+export default {
+  'get-started': 'Getting Started',
+  'architecture': 'Azuro Architecture',
+  'bet-functions': 'Bet functions',
+  'paymaster-funds': 'PayMaster functions',
+  'deployment-addresses': 'Deployment Addresses',
+  'audits': 'Audits',
+  'errors-handling': 'Errors Handling',
+} satisfies MetaRecord

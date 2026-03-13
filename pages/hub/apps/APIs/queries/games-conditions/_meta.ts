@@ -1,8 +1,0 @@
-export default {
-  'game': 'Game Entity',
-  'participant': 'Participant Entity',
-  'condition': 'Condition Entity',
-  'outcome': 'Outcome Entity',
-  'live-condition': 'LiveCondition Entity',
-  'live-outcome': 'LiveOutcome Entity',
-}

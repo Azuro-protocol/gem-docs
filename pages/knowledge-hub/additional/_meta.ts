@@ -1,6 +1,0 @@
-export default {
-  'landscape': 'Competitive Landscape',
-  'brand-assets': 'Brand Assets',
-  'glossary': 'Glossary',
-  'rules-and-settlements-policy': 'Rules and Settlement Policy',
-}

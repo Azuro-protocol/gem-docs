@@ -4,16 +4,24 @@ const nextra = require('nextra').default
 const withNextra = nextra({
   latex: true,
   defaultShowCopyCode: true,
+  search: true,
+  // staticImage: true,
   codeHighlight: true,
-  theme: 'nextra-theme-docs',
-  themeConfig: './theme.config.jsx'
+  // theme: 'nextra-theme-docs',
+  // themeConfig: './theme.config.jsx'
 })
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  reactStrictMode: true,
   images: {
     unoptimized: true
+  },
+  turbopack: {
+    resolveAlias: {
+      'next-mdx-import-source-file': './src/mdx-components.ts'
+    }
   },
   webpack: (config, { isServer, webpack }) => {
     // fixes npm packages that depend on `fs` module

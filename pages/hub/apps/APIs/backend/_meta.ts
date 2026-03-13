@@ -1,4 +1,0 @@
-export default {
-  'overview': 'Overview',
-  'betting': 'How to Place a Bet',
-}

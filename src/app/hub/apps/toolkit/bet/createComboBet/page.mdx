@@ -1,0 +1,101 @@
+---
+title: createComboBet
+description: Azuro Toolkit util. Creates a combo (parlay) bet by submitting signed bet data to the Azuro API.
+---
+
+# createComboBet
+
+Creates a combo (parlay) bet by submitting signed bet data to the Azuro API.
+This function sends the combo bet order to the relayer which will then place the bet on-chain.
+
+#### Usage
+
+```ts
+import { getComboBetTypedData, createBet } from '@azuro-org/toolkit'
+
+
+const typedData = getComboBetTypedData({
+  account: '0x...',
+  minOdds: '...',
+  amount: '...',
+  nonce: '...',
+  clientData: {...},
+  bets: [ {...}, {...} ],
+})
+
+const signature = await walletClient.data.signTypedData(typedData)
+
+const createdOrder: CreateBetResponse = await createBet({
+  account: '0x...',
+  minOdds: '...',
+  amount: '...',
+  nonce: '...',
+  clientData: {...},
+  bets: [ {...}, {...} ],
+  signature,
+})
+```
+
+#### Props
+
+```ts
+{
+  account: Address
+  amount: string | bigint
+  minOdds: string | bigint
+  nonce: string | number | bigint
+  clientData: BetClientData
+  bets: {
+    conditionId: string | bigint
+    outcomeId: string | number | bigint
+  }[]
+  signature: Hex // signed typed data
+  bonusId?: string // freebet id to place bet with
+}
+```
+
+```ts
+type BetClientData = {
+  attention: string
+  affiliate: Address
+  core: Address
+  expiresAt: number
+  chainId: ChainId
+  relayerFeeAmount: string
+  isBetSponsored: boolean
+  isFeeSponsored: boolean
+  isSponsoredBetReturnable: boolean
+}
+```
+
+#### Return Value
+
+```ts
+type CreateBetResponse = {
+  id: string
+  state: BetOrderState
+  errorMessage?: string
+  error?: string
+}
+
+enum BetOrderState {
+  /** First status when created */
+  Created = 'Created',
+  /** Bet is included in the calculation of potential loss/wins */
+  Placed = 'Placed',
+  /** The relayer has been taken into processing to send the bet to the contracts */
+  Sent = 'Sent',
+  /** Bet successfully accepted in the contracts */
+  Accepted = 'Accepted',
+  /** An error occurred during the contracts checks */
+  Rejected = 'Rejected',
+  /** The process of canceling the bet. The bet placed in the contracts still has the "GraphBetStatus.Accepted" status */
+  PendingCancel = 'PendingCancel',
+  /** Cancellation error. The bet placed in the contracts still has the "GraphBetStatus.Accepted" status */
+  CancelFailed = 'CancelFailed',
+  /** Bet is canceled */
+  Canceled = 'Canceled',
+  /** The bet is settled (won or lost) */
+  Settled = 'Settled',
+}
+```

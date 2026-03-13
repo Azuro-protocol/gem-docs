@@ -1,0 +1,50 @@
+import { Callout } from 'components'
+
+# useRedeemBet
+
+Hook is used for redeeming winning bets or refund canceled.
+
+## Usage
+
+```ts
+import { useRedeemBet } from '@azuro-org/sdk'
+
+
+const { submit, isPending, isProcessing } = useRedeemBet()
+
+// redeem single bet
+submit({ bets: [ bet ] })
+
+// redeem multiple bets
+submit({ bets: [ bet1, bet2 ] })
+```
+
+<Callout type="warning">
+  Multiple redeem can't be used with freebets. Ensure you filter the bets before submitting them.
+
+  ```ts
+  const unredeemedBets = bets.filter((bet) => (
+    !bet.freebetContractAddress
+    && bet.isRedeemable
+  ))
+  ```
+</Callout>
+
+## Return Value
+```ts
+type SubmitProps = {
+  bets: Array<{
+    tokenId: string | bigint // id of the bet's NFT
+    coreAddress: Address // core contract address
+  }>
+}
+```
+```ts
+{
+  data: WriteContractResult | null // transaction data
+  error: Error | null // redeem error
+  submit: (props: SubmitProps) => Promise<TransactionReceipt> // function used to trigger the redeem action
+  isPending: boolean // flag indicates the transaction approve action
+  isProcessing: boolean // flag indicates the transaction submitting
+}
+```

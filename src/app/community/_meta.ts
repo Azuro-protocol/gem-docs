@@ -1,0 +1,15 @@
+import type { MetaRecord } from 'nextra'
+
+
+export default {
+  'solana-frontend': 'Grant for a Solana Frontend App',
+  'hackathon': 'Azuro UI Builders Hackathon: Materials',
+  'trading-ui-grant': 'Grant to create a trading UI app on Azuro',
+  'dev-grant-twitter': 'Dev Grant to make Twitter Alerts reporting interesting Onchain Bets',
+  'chiliz-grant': 'Developer Grant to build on Chiliz Chain using Azuro',
+  'live-betting-second-wave': 'Secod Wave: Live Betting Incentivized Testing',
+  'grant-live-stats': 'Grant for Real-time Statistical Tracking: API & Widget',
+  'live-betting-test-challenge': 'Live Betting Incentivized Testing',
+  'stress-testing-schedule': 'Stress Testing Schedule',
+  'developer-grant': 'Developer Grant for a Multi-Chain Indexer',
+} satisfies MetaRecord

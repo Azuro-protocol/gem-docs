@@ -1,0 +1,54 @@
+# groupConditionsByMarket
+
+Creates markets from subgraph or REST API conditions.
+
+#### Usage
+
+```ts
+import { groupConditionsByMarket, ConditionsQuery } from '@azuro-org/toolkit'
+
+const conditions: ConditionsQuery['conditions'] = [...]
+
+const markets = groupConditionsByMarket(conditions)
+```
+
+#### Props
+```ts
+type ConditionsQuery = ConditionsQuery['conditions']
+```
+
+#### Return Value
+
+```ts
+type GameMarkets = Market[]
+```
+
+```ts
+type Market = {
+  marketKey: string
+  name: string
+  description: string
+  conditions: Condition[]
+}
+
+type Condition = {
+  conditionId: string
+  state: ConditionState
+  margin: string
+  isExpressForbidden: boolean
+  outcomes: MarketOutcome[]
+}
+
+type MarketOutcome = {
+  selectionName: string
+  odds: number
+  gameId: string
+  isExpressForbidden: boolean
+  isWon?: boolean
+} & Selection
+
+type Selection = {
+  conditionId: string
+  outcomeId: string
+}
+```

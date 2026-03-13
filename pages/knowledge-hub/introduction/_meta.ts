@@ -1,8 +1,0 @@
-export default {
-  'what-is-azuro': 'What is Azuro?',
-  'oddsmaking': 'Oddsmaking: Sell-side vs. Buy-side',
-  'pricing-mechanism-azuro-vamms': 'Pricing Mechanism: Azuro vAMMs',
-  'lp-utilization-virtual-funds': 'LP Utilization: Virtual Funds',
-  'event-resolution-azuro-dao': 'Event Resolution: AzuroDAO',
-  'the-end-of-impermanent-loss': 'The End of Impermanent Loss',
-}

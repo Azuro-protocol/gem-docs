@@ -1,0 +1,109 @@
+@import "tailwindcss";
+@import "nextra-theme-docs/style.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@variant dark (&:where(.dark *));
+
+@layer base {
+  a {
+    text-decoration: none !important;
+  }
+
+  main a:not(.no-underline):not(.\!no-underline):hover {
+    text-decoration: underline !important;
+  }
+
+  ul, ol {
+    margin-top: 0 !important;
+  }
+
+  li ol,
+  li ul {
+    margin-top: 0 !important;
+  }
+
+  p + p {
+    margin-top: 0.8em !important;
+  }
+
+  blockquote {
+    margin-top: 0.8em !important;
+  }
+
+  table {
+    width: 100%;
+    display: table !important;
+  }
+
+  table tr:nth-child(even) {
+    background-color: transparent !important;
+  }
+
+  table th:empty {
+    display: none;
+  }
+}
+
+@font-face {
+  font-weight: 300;
+  font-family: 'Poppins';
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/poppins/poppins-light.woff2') format('woff2'),
+    url('/fonts/poppins/poppins-light.woff') format('woff');
+}
+
+body {
+  font-family: 'Poppins';
+}
+
+
+@media (max-width: 568px) {
+  .nextra-nav-container nav a:first-child {
+    margin-right: auto !important;
+  }
+}
+
+@media (min-width: 569px) {
+  .nextra-nav-container nav {
+    justify-content: flex-start;
+  }
+
+  .nextra-nav-container nav > a:first-child {
+    margin-right: 5.25rem !important;
+  }
+
+  .nextra-nav-container nav > div:first-of-type {
+    margin-right: auto !important;
+  }
+}
+
+.nextra-nav-container nav a {
+  margin-right: 0.5rem !important;
+  font-size: 1rem !important;
+}
+
+.nextra-sidebar-container > div[data-toggle-animation] {
+  display: none !important;
+}
+
+.nextra-menu-desktop > li > button {
+  font-weight: 600;
+}
+
+.nextra-menu-desktop button svg {
+  opacity: 0.5;
+}
+
+.nextra-nav-container nav a:last-child {
+  margin-right: 0 !important;
+}
+
+.nextra-search {
+  margin-left: auto !important;
+}
+
+.nextra-code-block.x\:mt-6 {
+  margin-top: 0.8rem !important;
+}

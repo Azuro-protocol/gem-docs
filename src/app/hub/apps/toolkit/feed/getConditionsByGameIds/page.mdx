@@ -1,0 +1,65 @@
+# getConditionsByGameIds
+
+Fetches detailed conditions data for a given list of game IDs. Returns comprehensive condition information including outcomes, odds, and game relationships.
+
+#### Usage
+
+```ts
+import { getConditionsByGameIds } from '@azuro-org/toolkit'
+
+
+const conditions = await getConditionsByGameIds({
+  chainId: 137,
+  gameIds: ['1006000000000077484167'],
+})
+```
+
+#### Props
+
+```ts
+type GetConditionsByGameIdsParams = {
+  chainId: ChainId
+  gameIds: string | string[]
+}
+```
+
+#### Return Value
+
+```ts
+type GetConditionsByGameIdsResponseResult = ConditionDetailedData[]
+```
+
+```ts
+type ConditionDetailedData = {
+  id: string
+  conditionId: string
+  state: ConditionState
+  title: string | null
+  isExpressForbidden: boolean
+  isPrematchEnabled: boolean
+  isLiveEnabled: boolean
+  margin: string
+  outcomes: {
+    title: string | null
+    outcomeId: string
+    odds: string
+  }[]
+  game: {
+    gameId: string
+    sport: {
+      sportId: string
+    }
+  }
+  wonOutcomeIds: string[]
+}
+```
+
+```ts
+enum ConditionState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Removed = 'Removed',
+  Resolved = 'Resolved',
+  Stopped = 'Stopped'
+}
+```

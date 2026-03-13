@@ -1,7 +1,0 @@
-export default {
-  'tl-dr': 'TL;DR',
-  'liquidity-tree': 'LiquidityTree',
-  'protocol-actors': 'Protocol Actors',
-  'reward-distribution': 'Rewards Distribution',
-  'components': 'Components',
-}

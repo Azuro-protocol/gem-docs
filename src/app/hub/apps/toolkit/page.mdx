@@ -1,0 +1,241 @@
+import { Callout } from 'components'
+
+export const meta = {
+  title: {
+    template: '%s',
+  }
+}
+
+# Overview
+
+This framework-agnostic package provides essential utilities for building applications on the **Azuro Protocol**.
+
+## NPM Package
+
+**Link**: [@azuro-org/toolkit](https://www.npmjs.com/package/@azuro-org/toolkit)
+
+## Installation
+
+### 1. Install the core package
+
+```bash copy
+npm install @azuro-org/toolkit
+```
+
+### 2. Install peer dependencies
+
+```bash copy
+npm install @azuro-org/dictionaries@^3.0.27 graphql-tag@^2.12.6 @wagmi/core@^2.17.2 viem@^2.30.4
+```
+
+
+<Callout type="info">
+You’ll frequently encounter the following types throughout the toolkit. Here’s a quick overview:
+
+- **Selection**: Represents a user’s choice, typically used for placing bets and calculating odds.
+
+```ts
+type Selection = {
+  outcomeId: string
+  conditionId: string
+}
+```
+
+- **ChainData**: Contains chain-specific data, such as endpoints and smart contract references.
+
+```ts
+type ChainData = {
+  chain: Omit<Chain, 'id'> & { id: ChainId }
+  graphql: {
+    bets: string
+    feed: string
+    legacyLive: string // @deprecated Only for v2 feed
+  }
+  socket: string
+  api: string
+  environment: Environment
+  contracts: Contracts
+  betToken: BetToken
+}
+
+type BetToken = {
+  address: Address
+  symbol: string
+  decimals: number
+}
+```
+
+- **Contracts** — Azuro Protocol contract addresses with their ABIs.
+```ts
+import { type Chain } from 'viem/chains'
+import { type Address, erc721Abi } from 'viem'
+
+
+type Contracts = {
+  lp: {
+    address: Address
+    abi: typeof lpAbi
+  }
+  core: {
+    address: Address
+    abi: typeof coreAbi
+  }
+  relayer: {
+    address: Address
+    abi: typeof relayerAbi
+  }
+  vault: {
+    address: Address
+    abi: typeof vaultAbi
+  }
+  paymaster: {
+    address: Address
+    abi: typeof paymasterAbi
+  }
+  azuroBet: {
+    address: Address
+    abi: typeof azuroBetAbi
+  },
+  cashout?: {
+    address: Address
+    abi: typeof cashoutAbi
+  }
+}
+
+type BetToken = {
+  address: Address
+  symbol: string
+  decimals: number
+}
+```
+
+- **Environments**: Available environments for creating bet orders.
+
+```ts
+enum Environment {
+  GnosisDevXDAI = 'GnosisDevXDAI',
+  GnosisXDAI = 'GnosisXDAI',
+  PolygonUSDT = 'PolygonUSDT',
+  PolygonAmoyUSDT = 'PolygonAmoyUSDT',
+  ChilizWCHZ = 'ChilizWCHZ',
+  ChilizSpicyWCHZ = 'ChilizSpicyWCHZ',
+  BaseWETH = 'BaseWETH',
+  BaseSepoliaWETH = 'BaseSepoliaWETH'
+}
+```
+</Callout>
+
+## Constants
+
+```ts
+import {
+  ODDS_DECIMALS, // odds decimals
+  BET_DATA_TYPES, // single bet data types for sign typed data
+  COMBO_BET_DATA_TYPES, // combo bet data types for sign typed data
+  TYPED_DATA_DOMAIN_NAME, // bet typed data domain name
+  TYPED_DATA_DOMAIN_VERSION, // bet typed data domain version
+  CASHOUT_DATA_TYPES, // cashout data types for sign typed data
+  CASHOUT_TYPED_DATA_DOMAIN_NAME, // cashout typed data domain name
+  CASHOUT_TYPED_DATA_DOMAIN_VERSION, // cashout typed data domain version
+
+  chainsData, // supported chains data with endpoints, contracts and etc.
+  chainsDataByEnv, // chain data by environment
+  environments, // environments by chain id
+} from '@azuro-org/toolkit'
+```
+
+## ABI
+
+```ts
+import { lpAbi, coreAbi, azuroBetAbi, cashoutAbi, relayerAbi, vaultAbi, paymasterAbi } from '@azuro-org/toolkit'
+```
+
+## GraphQL Utilities
+
+The toolkit provides ready-to-use queries and fragments for interacting with Azuro subgraphs.
+
+### Feed Queries and Fragments
+
+```ts
+import {
+  type ConditionFragment,
+  ConditionFragmentDoc,
+
+  type GameInfoFragment,
+  GameInfoFragmentDoc,
+
+  type ConditionQueryVariables,
+  type ConditionQuery,
+  ConditionDocument,
+
+  type ConditionsQueryVariables,
+  type ConditionsQuery,
+  ConditionsDocument,
+
+  type GameQueryVariables,
+  type GameQuery,
+  GameDocument,
+
+  type GamesQueryVariables,
+  type GamesQuery,
+  GamesDocument,
+
+  type NavigationQueryVariables,
+  type NavigationQuery,
+  NavigationDocument,
+
+  type SportsNavigationQueryVariables,
+  type SportsNavigationQuery,
+  SportsNavigationDocument,
+
+  type SportsQueryVariables,
+  type SportsQuery,
+  SportsDocument,
+} from '@azuro-org/toolkit'
+```
+
+
+### Bets Queries and Fragments
+
+```ts
+import {
+  type BettorFragment,
+  BettorFragmentDoc,
+
+  type LegacyLiveBetFragment,
+  LegacyLiveBetFragmentDoc,
+
+  type LegacyPrematchBetFragment,
+  LegacyPrematchBetFragmentDoc,
+
+  type BetFragment,
+  BetFragmentDoc,
+
+  type BetFragment,
+  BetFragmentDoc,
+
+  type BettorsQueryVariables,
+  type BettorsQuery,
+  BettorsDocument,
+
+  type LegacyBetsQueryVariables,
+  type LegacyBetsQuery,
+  LegacyBetsDocument,
+
+  type BetsQueryVariables,
+  type BetsQuery,
+  BetsDocument,
+} from '@azuro-org/toolkit'
+```
+
+
+### Legacy Live Feed Queries and Fragments
+Use these to fetch game info related to legacy v2 live bets
+
+```ts
+import {
+  type LegacyLiveGamesQueryVariables,
+  type LegacyLiveGamesQuery,
+  LegacyLiveGamesDocument,
+} from '@azuro-org/toolkit'
+```

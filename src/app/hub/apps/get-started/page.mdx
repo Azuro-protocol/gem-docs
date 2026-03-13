@@ -1,0 +1,96 @@
+import { Button, Card, Image } from 'components'
+
+# Getting Started
+> Explore beyond the easy path; your creativity is the only limit.
+>
+> Whichever path you choose, you’ll have our liquidity pools, smart contract logic, and risk management to back you up.
+*Explore beyond the easy path; your creativity is the only limit. Whichever path you choose, you’ll have our liquidity pools, smart contract logic, and risk management to back you up.*
+
+### Choose your path
+
+<div className="grid lg:grid-cols-3 gap-3 mt-8">
+  <Card
+    title="Easy"
+    text="
+        <p>- Low-code option</p>
+        <p>- Prerequisites: Git, Node.js</p>
+        <p>- Result: basic dApp with access to onchain data in less than a day.</p>"
+    to="https://gem.azuro.org/hub/apps/get-started#-quick-start"
+  />
+  <Card
+    title="Medium"
+    text="
+        <p>- Moderate coding (SDK)</p>
+        <p>- Prerequisites: JavaScript, Web3 (wagmi, ethers)</p>
+        <p>- Result: basic dApp in less than a day with access to onchain data and broad customization opportunities.</p>"
+    to="https://gem.azuro.org/hub/apps/sdk/overview"
+  />
+  <Card
+    title="Advanced"
+    text="
+        <p>- Independent coding</p>
+        <p>- Prerequisites: GraphQL, Web3 (wagmi, ethers, or other similar libs)</p>
+        <p>- Result: any Azuro app (betting interfaces, bots, game engines, DAOs, etc.).</p>"
+    to="/hub/apps/toolkit/overview"
+  />
+</div>
+
+### 🚀 Quick Start
+
+To install Azuro template and customize it, run the following commands in your terminal::
+
+```
+git clone https://github.com/Azuro-protocol/example-app.git
+cd example-app
+npm install
+```
+
+The commands will do the following:
+
+1. Clone the Azuro template to your computer
+2. Navigate into the example project directory
+3. Install all the necessary dependencies for running the project
+
+When you're ready to run the template on the localhost, run the following command:
+
+```
+npm run dev
+```
+
+Open your web browser and go to `http://localhost:3000` to view the application.
+
+<Image
+  src="/images/hub/template.png"
+  width={2000}
+  height={700}
+/>
+### How to make your own app from the template
+
+To make this template into your own Azuro-powered app, fork this GitHub repository, add your affiliate address, logo and branded design to the project (see below), and host the resulting project on your domain.
+
+### Basic customization
+
+**Theme**
+
+This project uses a [Tailwind CSS](https://tailwindcss.com/docs/theme) theme configuration, allowing you to customize theme colors, element border-radius, and typography sizes to suit your needs. Go to [tailwind.config.ts](https://github.com/Azuro-protocol/example-app/blob/main/tailwind.config.ts) file to add these changes.
+
+**Affiliate address**
+
+Add your affiliate address to the `NEXT_PUBLIC_AFFILIATE_ADDRESS` variable in [.env](https://github.com/Azuro-protocol/example-app/blob/main/.env) file.
+
+**Logo**
+
+To add your project logo, change [Logo](https://github.com/Azuro-protocol/example-app/blob/main/src/components/ui/Logo/Logo.tsx) component.
+
+### 👉 What to do next?
+
+Now that you've run the template and might have also customized it and hosted on your domain, we encourage you to access our onboarding materials, learn what to expect during the first weeks of the integration, and get support from the Azuro team if necessary.
+####
+<div className="px-50">
+  <Button
+    toTab="https://azuro-protocol.notion.site/91b821c6082141808585807b0a0dd2ea?v=03c9a83931574f33ad37ff1202690937"
+    title="Start onboarding"
+  />
+</div>
+
+
