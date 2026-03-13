@@ -1,4 +1,4 @@
-# Gem Docs
+# Azuro Gem Docs
 
 Website: [gem.azuro.org](https://gem.azuro.org)
 
@@ -12,6 +12,7 @@ Website: [gem.azuro.org](https://gem.azuro.org)
 3. `npm i` to install dependencies
 4. `npm run dev`
 5. Open http://localhost:5009
+
 
 ### Contribute
 
