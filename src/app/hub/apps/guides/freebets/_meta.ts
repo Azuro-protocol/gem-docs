@@ -2,7 +2,7 @@ import type { MetaRecord } from 'nextra'
 
 
 export default {
-  'overview': 'Overview',
+  'index': 'Overview',
   'distribute-freebets': {
     'title': 'Distribute Freebets',
     'display': 'hidden',

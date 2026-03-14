@@ -9,10 +9,12 @@ Azuro Protocol uses The Graph service to index and organize data from its smart 
 The Graph API is a critical component of the Azuro Protocol ecosystem, providing access to historical data, bet information, game details, and current odds. In V3, Azuro uses multiple subgraphs to organize different types of data:
 
 1. **Client Subgraphs** - For bet history and transaction-related data
-2. **Data-Feed Subgraphs** - For current odds, game information, and condition states
+2. **Data-Feed Subgraphs `deprecated`**  - For current odds, game information, and condition states. Use the [Backend API](/hub/apps/APIs/backend) instead.
 
 <Callout type="warning">
-IMPORTANT: All feed data (games, conditions, outcomes with current odds) should now be fetched exclusively from the data-feed graph. The client API graph should only be used for bet history and other transaction-related data. Never query the API graph for feed data as it no longer contains this information.
+IMPORTANT: All feed data (games, conditions, outcomes with current odds) should now be fetched from the [Backend API](/hub/apps/APIs/backend). The client API graph should only be used for bet history and other transaction-related data. Never query the API graph for feed data as it no longer contains this information.
+
+[Data-feed REST API Swagger](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Marker%20Manager)
 </Callout>
 
 ## Client Subgraphs
@@ -33,9 +35,17 @@ Client subgraphs contain bet history and transaction-related data. In V3, they i
 - Base: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-base-v3
 - Chiliz: https://thegraph.onchainfeed.org/subgraphs/name/azuro-protocol/azuro-api-chiliz-v3
 
-## Data-Feed Subgraphs
+## Data-Feed Subgraphs `deprecated`
 
-Data-feed subgraphs contain current odds, game information, and condition states. In V3, all feed data has been moved to these subgraphs.
+Data-feed subgraphs contain current odds, game information, and condition states.
+In V3, all feed data was moved to these subgraphs.
+
+<Callout type="alert">
+**IMPORTANT:** The data-feed subgraphs are deprecated and should no longer be used for querying feed data.
+Existing apps should migrate to the data-feed [Backend API](/hub/apps/APIs/backend) instead.
+
+[Data-feed REST API Swagger](https://api.onchainfeed.org/api/v1/public/gateway/docs#/Marker%20Manager)
+</Callout>
 
 ### Development Endpoints
 

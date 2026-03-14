@@ -2,7 +2,7 @@ import type { MetaRecord } from 'nextra'
 
 
 export default {
-  'overview': 'Overview',
+  'index': 'Overview',
   'data-retrieval': 'Data retrieval',
   'prepare-for-betting': 'Prepare for betting',
   'place-a-bet': 'Place a bet',

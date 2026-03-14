@@ -2,6 +2,6 @@ import type { MetaRecord } from 'nextra'
 
 
 export default {
-  'overview': 'Overview',
+  'index': 'Overview',
   'use': 'How to use',
 } satisfies MetaRecord

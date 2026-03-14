@@ -2,7 +2,7 @@ import type { MetaRecord } from 'nextra'
 
 
 export default {
-  'overview': 'Overview',
+  'index': 'Overview',
   'prematch': 'Prematch',
   'live': 'Live betting',
   'live-tutorial': 'Tutorial: Add Live to Existing dApp',

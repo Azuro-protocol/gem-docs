@@ -7,7 +7,14 @@ These major updates bring a significant architectural change: we're migrating fr
 ## What's New
 
 **Toolkit v6.0.0:**
-- 7 new feed REST API utilities for fetching games and conditions
+- New Feed REST API utilities for fetching games and conditions that replace the deprecated and removed GraphQL feed queries:
+  - [`getConditionsByGameIds`](/hub/apps/toolkit/feed/getConditionsByGameIds) - replaces `Conditions` query
+  - [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) - replaces `ConditionsBatch` query
+  - [`getGamesByFilters`](/hub/apps/toolkit/feed/getGamesByFilters) - replaces `Games` query
+  - [`getGamesByIds`](/hub/apps/toolkit/feed/getGamesByIds) - replaces `Game` query and `Games` when you need to fetch multiple games by ID
+  - [`getNavigation`](/hub/apps/toolkit/feed/getNavigation) - replaces `Navigation` and `NavigationSport` queries
+  - [`getSports`](/hub/apps/toolkit/feed/getSports) - replaces `Sports` query
+  - [`searchGames`](/hub/apps/toolkit/feed/searchGames) - new one to search games by text query
 - New `getBetsByBettor` method for v3 bets history, including preparing orders
 - `getBetCalculation` replaces the deprecated `getMaxBet`
 - Improved typing system
@@ -26,8 +33,8 @@ These major updates bring a significant architectural change: we're migrating fr
 
 To ensure a smooth transition, please follow our comprehensive migration guides:
 
-- Toolkit v6 Migration Guide: https://gem.azuro.org/hub/apps/toolkit/migration-v6
-- SDK v7 Migration Guide: https://gem.azuro.org/hub/apps/sdk/migration-v7
+- [Toolkit v6 Migration Guide](/hub/apps/toolkit/migration-v6)
+- [SDK v7 Migration Guide](/hub/apps/sdk/migration-v7)
 
 These guides cover all breaking changes and provide step-by-step instructions for updating your integration.
 

@@ -8,22 +8,29 @@ export default {
       breadcrumb: false,
     },
   },
-  'apps': {
-    'title': '🔮 For applications',
-    'theme': {
-      'collapsed': false,
-    },
-  },
-  '---': {
+  '---apps': {
     'type': 'separator',
+    title: '🔮 For applications',
   },
-  'blockchains': {
-    'title': '🧩 For blockchains',
+  'apps': {
+    // 'title': '🔮 For applications',
+    display: 'children',
     'theme': {
       'collapsed': false,
     },
   },
   '---1': {
+    'type': 'separator',
+    // title: '🧩 For blockchains',
+  },
+  'blockchains': {
+    'title': '🧩 For blockchains',
+    // display: 'children',
+    'theme': {
+      'collapsed': false,
+    },
+  },
+  '---2': {
     'type': 'separator',
   },
   'releases': {

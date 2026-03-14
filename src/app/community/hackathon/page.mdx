@@ -1,6 +1,6 @@
 import { Callout, Image } from 'components'
 
-# Azuro UI Builders Hackathon 
+# Azuro UI Builders Hackathon
 
 This page contains helpful materials to succeed in the tasks. For all information about the hackathon, go to the hack's [website](https://hub.azuro.org/azuro-ui-builders-hackathon).
 
@@ -12,7 +12,7 @@ This page contains helpful materials to succeed in the tasks. For all informatio
 
 <Callout type="info">
 The most helpful entities for this hack’s tasks are Game, Condition, Sport, League, and Country.
-- The `Game` entity provides details about game status, participants, and the associated betting conditions. It’s useful for organizing games into categories like live, upcoming, or resolved, and showing detailed game-level data (e.g., participants, turnover). 
+- The `Game` entity provides details about game status, participants, and the associated betting conditions. It’s useful for organizing games into categories like live, upcoming, or resolved, and showing detailed game-level data (e.g., participants, turnover).
 - `Condition` entity is helful for building markets around individual game conditions and fetching the latest odds. You can use this entity to show bettors the markets available within a game.
 - `Country, League, Sport` entities help in organizing betting markets and displaying relevant statistics by region, league, or sport. Great for creating custom market views, where users can explore betting opportunities by region or sport. You can also organize games by league or tournament.
 </Callout>
@@ -25,9 +25,9 @@ The most helpful entities for this hack’s tasks are Game, Condition, Sport, Le
 
 [How to group and sort outcomes & markets](https://gem.azuro.org/hub/apps/guides/advanced/prematch/markets-and-outcomes)
 
-[SDK knowledge base](https://gem.azuro.org/hub/apps/sdk/overview)
+[SDK knowledge base](https://gem.azuro.org/hub/apps/sdk)
 
-[Toolkit knowledge base](https://gem.azuro.org/hub/apps/toolkit/overview)
+[Toolkit knowledge base](https://gem.azuro.org/hub/apps/toolkit)
 
 ### Templates
 
@@ -65,7 +65,7 @@ Understand the structure: Look into the `src/components` and `src/pages` folders
 
 **Design with a user persona / use case in mind**
 
-1. Identify your user persona or use case: think about the type of users your app is targeting. 
+1. Identify your user persona or use case: think about the type of users your app is targeting.
 For example:
     - Casual crypto degen: wants simplicity and quick access to best odds and key information.
     - Advanced sports bettor: prefers detailed markets, sports organized by leagues and tournaments.
@@ -77,7 +77,7 @@ For example:
 
 #### Step 3: Fetching and displaying data in your UI elements
 
-1. Fetch data using React hooks from AzuroSDK and helpers from Azuro Toolkit. They organize GraphQL queries in Typescript utilities that are very helpful to import and reuse. 
+1. Fetch data using React hooks from AzuroSDK and helpers from Azuro Toolkit. They organize GraphQL queries in Typescript utilities that are very helpful to import and reuse.
 - Descriptions of Azuro custom GraphQL queries:
 https://gem.azuro.org/subgraph/queries/sports/sporthub
 - SDK guides and knowledge base:
@@ -95,7 +95,7 @@ https://gem.azuro.org/hub/apps/toolkit/overview
 
 ### Motivating your design choices
 
-Design choices in your project shouldn't be merely cosmetic; they should be driven by a clear idea. Therefore, we suggest creating a new UI tailored to a specific end-user persona or use case. 
+Design choices in your project shouldn't be merely cosmetic; they should be driven by a clear idea. Therefore, we suggest creating a new UI tailored to a specific end-user persona or use case.
 Who is your potential user? Is he/she a degen who's unfamiliar with prediction markets and wants to earn fast by betting on the best odds? Then organize the data to display the top events with best odds on your home screen. Is your user a sports betting pro? Then organize the data to display events as a series of championship brackets for separate sports events, etc.‍ Feel free to add new elements, such as a placeholder for promotional banners - you can get inspiration in apps built on Azuro.
 
 Here's how you might approach motivating your design choices by a user persona. For example, you might delineate different demographics based on their age, level of betting expertise, crypto use behavior, location, etc.

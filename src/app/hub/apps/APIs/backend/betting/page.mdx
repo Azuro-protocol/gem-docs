@@ -192,18 +192,20 @@ const userBets = await client.query({
 const gameIds = userBets.data.v3Bets.flatMap(bet => bet._gamesIds);
 const uniqueGameIds = [...new Set(gameIds)];
 
-const gameDetails = await dataFeedClient.query({
-  query: GAMES_QUERY,
-  variables: {
-    where: {
-      id_in: uniqueGameIds
-    }
-  }
+const gameDetails = await fetch(`https://dev-api.onchainfeed.org/api/v1/public/market-manager/games-by-ids`, {
+  method: 'POST',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    gameIds: uniqueGameIds,
+  }),
 });
 
 // Combine bet data with game details for display
 const betsWithGameDetails = userBets.data.v3Bets.map(bet => {
-  const gameDetails = gameDetails.data.games.find(game => 
+  const gameDetails = gameDetails.games.find(game =>
     bet._gamesIds.includes(game.id)
   );
 

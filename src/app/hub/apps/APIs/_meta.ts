@@ -2,7 +2,7 @@ import type { MetaRecord } from 'nextra'
 
 
 export default {
-  'overview': 'Overview',
+  'index': 'Overview',
   'backend': 'Backend API',
   'graph': 'Graph API',
   'websocket': 'WebSocket API',
