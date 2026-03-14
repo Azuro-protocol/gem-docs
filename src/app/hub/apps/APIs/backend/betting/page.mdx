@@ -203,15 +203,18 @@ const gameDetails = await fetch(`https://dev-api.onchainfeed.org/api/v1/public/m
   }),
 });
 
+const gameDataById = gameDetails.games.reduce((acc, game) => {
+  acc[game.id] = game;
+  return acc;
+}, {})
+
 // Combine bet data with game details for display
 const betsWithGameDetails = userBets.data.v3Bets.map(bet => {
-  const gameDetails = gameDetails.games.find(game =>
-    bet._gamesIds.includes(game.id)
-  );
+  const games = bet._gamesIds.map(id => gameDataById[id]);
 
   return {
     ...bet,
-    gameDetails
+    games,
   };
 });
 ```
