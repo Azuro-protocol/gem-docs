@@ -5,5 +5,8 @@ export default {
   'index': 'Overview',
   'prematch': 'Prematch',
   'live': 'Live betting',
-  'live-tutorial': 'Tutorial: Add Live to Existing dApp',
+  'live-tutorial': {
+    title: 'Tutorial: Add Live to Existing dApp',
+    display: 'hidden',
+  },
 } satisfies MetaRecord

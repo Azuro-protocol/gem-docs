@@ -16,18 +16,21 @@ These major updates bring a significant architectural change: we're migrating fr
   - [`getSports`](/hub/apps/toolkit/feed/getSports) - replaces `Sports` query
   - [`searchGames`](/hub/apps/toolkit/feed/searchGames) - new one to search games by text query
 - New `getBetsByBettor` method for v3 bets history, including preparing orders
-- `getBetCalculation` replaces the deprecated `getMaxBet`
+- `getBetCalculation` replaces the deprecated `getMaxBet` (it now requires user account address for accuracy and returns `minBet` and `maxBet`).
 - Improved typing system
 - Extended enum `GameState`
 - Extended enum `BetStatus` to include pending bet orders
 - Renamed and extended enum `BetState` → `BetOrderState`
 - Fixed typo: `calcMindOdds` → `calcMinOdds`
+- Added field `redeemedAt` to legacy bets graphql doc
+- Removed Data Feed graphql documents and types
 
 **SDK v7.0.0:**
 - New `useSearchGames` hook for enhanced game discovery
 - New `useBetCalculation` hook replaces `useMaxBet`
 - Full integration with Toolkit v6's REST API methods
 - Removed deprecated `useMaxBet` hook
+- If used tanstack/query keys of sdk hooks, they are changed (primarily, because there was a graphql url in the key, now it's chain id)
 
 ## Migration Guides
 

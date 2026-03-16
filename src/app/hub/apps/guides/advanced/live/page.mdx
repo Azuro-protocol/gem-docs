@@ -2,11 +2,15 @@ import { Callout } from 'components';
 
 # Live betting overview
 
-Azuro streamlines live betting, offering speed, security, and convenience.  
+<Callout type="warning">
+  Section is outdated. It relates to the old version of protocol. Stay tuned for actual docs.
+</Callout>
+
+Azuro streamlines live betting, offering speed, security, and convenience.
 
 For the bettors, it means that after approving a spending limit for the Relayer gas fees, users can go ahead and place bets just by signing messages in their Web3 wallet.
 
-For the betting apps, it means that our smart contracts take care of monitoring live updates, creating and resolving events, as well as connecting relayers to send the prepared bets for processing. 
+For the betting apps, it means that our smart contracts take care of monitoring live updates, creating and resolving events, as well as connecting relayers to send the prepared bets for processing.
 
 <Callout type="info">
 **Live smart contracts**
@@ -20,7 +24,7 @@ For the betting apps, it means that our smart contracts take care of monitoring 
 
 ## Getting live data: two approaches
 
-The HostCore smart contract on the HostChain (currently Gnosis chain) stores all live games and markets data. 
+The HostCore smart contract on the HostChain (currently Gnosis chain) stores all live games and markets data.
 
 - This data can be accessed via a [LiveDataFeed subgraph](https://gem.azuro.org/subgraph/overview), similar to the subgraph for prematch core contracts but with [key structural differences](https://gem.azuro.org/guides/advanced/live/data-retrieval).
 - However, real-time market updates should be accessed via [Websocket API](https://gem.azuro.org/hub/apps/guides/advanced/live/data-retrieval#get-realtime-markets-updates) to ensure you get updates immediately, the instant they happen.
@@ -29,7 +33,7 @@ The HostCore smart contract on the HostChain (currently Gnosis chain) stores all
 
 Live betting is very dynamic. We suggest you incorporate the following recommendations to improve user experience and keep your bettors well-informed.
 
-#### Selective event display: 
+#### Selective event display:
 Not all the events you have in pre-match betting are going to be available to place live bets on.
 
 <Callout type="info">
@@ -38,7 +42,7 @@ Make sure your UI reflects this. For example, it might be preferable to display 
 </Callout>
 
 
-#### Relayer gas fees: 
+#### Relayer gas fees:
 We suggest you make a disclaimer about Relayer fees to communicate to your users that neither your frontend, nor Azuro benefit from the Relayer gas fees.
 
 <Callout type="info">
@@ -46,10 +50,10 @@ Consider that before each order request you'll need to ensure that the user has 
 </Callout>
 
 
-#### EIP712 Signature: 
+#### EIP712 Signature:
 Follow the [implementation guide](https://gem.azuro.org/hub/apps/guides/advanced/live/signature-format) and add a text message to capture user consent in the **`attention`** field (within 160 chars).
 
-#### Error / bet status handling: 
+#### Error / bet status handling:
 Implement clear communication regarding any [errors](https://gem.azuro.org/hub/apps/guides/advanced/live/errors) or changes in bet status.
 
 <Callout type="info">
