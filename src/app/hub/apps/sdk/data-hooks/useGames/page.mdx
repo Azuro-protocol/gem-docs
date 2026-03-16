@@ -19,7 +19,7 @@ const { data, isFetching, error } = useGames(props)
 ## Props
 
 ```ts
-{
+type UseGamesProps = {
   filter?: {
     sportHub?: SportHub // returns games from specific hub
     sportSlug?: string // returns games from specific sport
@@ -37,7 +37,7 @@ const { data, isFetching, error } = useGames(props)
 ```
 
 ```ts
-type ChainId = 
+type ChainId =
   | 100     // Gnosis
   | 137     // Polygon
   | 80002   // Polygon Amoy
@@ -48,8 +48,7 @@ type ChainId =
 
 enum SportHub {
   Sports = 'sports',
-  Esports = 'esports',
-  Unique = 'unique'
+  Esports = 'esports'
 }
 ```
 
