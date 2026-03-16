@@ -21,6 +21,7 @@ These major updates bring a significant architectural change: we're migrating fr
 - Extended enum `GameState`
 - Extended enum `BetStatus` to include pending bet orders
 - Renamed and extended enum `BetState` → `BetOrderState`
+- Helper `getBetStatus` now requires `BetOrderState` from bet entity (in case of bets fetched from graphql feed, pass `null`)
 - Fixed typo: `calcMindOdds` → `calcMinOdds`
 - Added field `redeemedAt` to legacy bets graphql doc
 - Removed Data Feed graphql documents and types
@@ -31,6 +32,7 @@ These major updates bring a significant architectural change: we're migrating fr
 - Full integration with Toolkit v6's REST API methods
 - Removed deprecated `useMaxBet` hook
 - If used tanstack/query keys of sdk hooks, they are changed (primarily, because there was a graphql url in the key, now it's chain id)
+- `useBets` is prepared to be used with REST API, that supports order history including preparing orders
 
 ## Migration Guides
 
