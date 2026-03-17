@@ -13,19 +13,26 @@ Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [
 ```ts
 import { useSports } from '@azuro-org/sdk'
 
-const { data, isFetching, error } = useSports(props)
+const { data: sports, isFetching, error } = useSports(props)
 ```
 
 ## Props
 
 ```ts
-{
+type UseSportsProps = {
   filter?: {
-    limit?: number // limit the number of games returned from a query for each sport
     sportSlug?: string
     countrySlug?: string
     leagueSlug?: string
     sportIds?: Array<string | number>
+    /**
+     * Limit the number of games returned from a query for each league in each sport.
+     * Default: 1000,
+     * minimum: 10.
+     * */
+    maxGamesPerLeague?: number
+    /** @deprecated pass `maxGamesPerLeague` instead */
+    limit?: number
   }
   gameOrderBy?: GameOrderBy // default: GameOrderBy.StartsAt - supports Turnover or StartsAt
   orderDir?: OrderDirection // order direction: asc, desc
@@ -44,6 +51,16 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+
+enum GameOrderBy {
+  StartsAt = 'startsAt',
+  Turnover = 'turnover'
+}
+
+enum OrderDirection {
+  Asc = 'asc',
+  Desc = 'desc'
+}
 ```
 
 ## Return Value
