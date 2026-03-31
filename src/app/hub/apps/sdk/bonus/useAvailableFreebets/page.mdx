@@ -27,7 +27,7 @@ const { data: freebets, isFetching: isFreebetsFetching } = useAvailableFreebets(
   affiliate: Address
   selections: Selection[]
   chainId?: ChainId
-  query?: QueryParameter<Freebet[]>
+  query?: QueryParameterWithSelect<UseAvailableFreebetsQueryFnData, TData>
 ```
 
 
@@ -95,6 +95,10 @@ type Freebet = {
 } & BonusBase
 ```
 
+```ts
+type UseAvailableFreebetsQueryFnData = Freebet[]
+```
+
 #### Return Value
 
 ```ts
@@ -102,4 +106,21 @@ UseQueryResult<Freebet[]>
 ```
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
+```
+
+#### Query Options Helper
+
+`getUseAvailableFreebetsQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseAvailableFreebetsQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseAvailableFreebetsQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseAvailableFreebetsQueryOptionsProps = UseAvailableFreebetsProps & {
+  chainId: ChainId
+}
 ```

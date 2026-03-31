@@ -1,0 +1,84 @@
+import { Callout } from 'components'
+
+# SDK v7.1.0 — March 31, 2026
+
+## What's New
+
+### Query Options Helpers
+
+Most of the data hooks now export a `getUse*QueryOptions` function,
+letting you construct query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseSportsQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseSportsQueryOptions({ chainId, isLive: false })
+await queryClient.prefetchQuery(options)
+```
+
+Available for:
+- [`useConditions`](/hub/apps/sdk/data-hooks/useConditions)
+- [`useGame`](/hub/apps/sdk/data-hooks/useGame)
+- [`useGames`](/hub/apps/sdk/data-hooks/useGames)
+- [`useSearchGames`](/hub/apps/sdk/data-hooks/useSearchGames)
+- [`useSports`](/hub/apps/sdk/data-hooks/useSports)
+- [`useSportsNavigation`](/hub/apps/sdk/data-hooks/useSportsNavigation)
+- [`useNavigation`](/hub/apps/sdk/data-hooks/useNavigation)
+- [`useBetFee`](/hub/apps/sdk/data-hooks/useBetFee)
+- [`useBetCalculation`](/hub/apps/sdk/data-hooks/useBetCalculation)
+- [`useBonuses`](/hub/apps/sdk/bonus/useBonuses)
+- [`useAvailableFreebets`](/hub/apps/sdk/bonus/useAvailableFreebets)
+
+### `query.select` Support
+
+The same 11 hooks now accept a `select` field in the `query` prop for result transformation and per-component re-render optimization.
+
+Function accepts queryFn return data, new supporting `Use*QueryFnData` types exported to build select functions separately.
+Return data may be different from the original queryFn return data, `query.data` types will infer it accordingly.
+
+### `sortLeaguesAndCountriesByName` in `useSports`
+
+New optional boolean prop for [`useSports`](/hub/apps/sdk/data-hooks/useSports).
+When `true` (or when game start times are equal), leagues and countries are sorted alphabetically by name instead of by start time.
+When `false` or `undefined`, the order follows the order of the `games` sorting props.
+
+### `hidden` Field Support in Condition Watch Hooks
+
+[`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) and [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) now support a `hidden` field, driven by `ConditionDetailedData['hidden']` from [`useConditions`](/hub/apps/sdk/data-hooks/useConditions).
+
+<Callout type="info">
+A condition is `hidden` when it is a stopped secondary market that may still receive updates. Once a socket update arrives, `hidden` resets to `false` — meaning the condition is alive and should be shown.
+</Callout>
+
+**`useConditionState`** — new prop `isInitiallyHidden`, new return value `isHidden`:
+
+```ts
+const { data: state, isLocked, isHidden } = useConditionState({
+  conditionId,
+  initialState: condition.state,
+  isInitiallyHidden: condition.hidden,
+})
+```
+
+**`useConditionsState`** — now accepts a `conditions` array as an alternative to `conditionIds`,
+returning `conditionsMap` with per-condition `{ state: ConditionState, hidden: boolean }`:
+
+```ts
+// preferred for game markets list
+const { data: states, conditionsMap } = useConditionsState({ conditions })
+
+const visibleConditions = conditions.filter(
+  ({ conditionId }) => !conditionsMap[conditionId]?.hidden
+)
+```
+
+### `isWalletReadyToSubmit` in `useBet`
+
+[`useBet`](/hub/apps/sdk/write-hooks/useBet) now returns `isWalletReadyToSubmit` —
+`true` when the account is connected and the appropriate wallet client (AA or regular) is initialized.
+Use this to gate the submit button instead of checking wallet state manually.
+
+
+## Fixes
+
+- **`useBets`**: `isCanceled` definition additionally compares game state against  `GameState.Canceled` as double-checking for edge cases.

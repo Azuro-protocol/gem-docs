@@ -23,8 +23,12 @@ const { data, isFetching, error } = useConditions(props)
   gameId: string | bigint | string[] | bigint[] // single game ID or array of game IDs
   onlyActiveOrStopped?: boolean // if true, returns only active or stopped conditions
   chainId?: ChainId
-  query?: QueryParameter<ConditionDetailedData[]> // useQuery params
+  query?: QueryParameterWithSelect<UseConditionsQueryFnData, TData> // useQuery params
 }
+```
+
+```ts
+type UseConditionsQueryFnData = ConditionDetailedData[]
 ```
 
 ```ts
@@ -65,6 +69,8 @@ type ConditionDetailedData = {
   conditionId: string
   gameId: string
   state: ConditionState
+  /** true for stopped secondary conditions; consumed by useConditionState / useConditionsState */
+  hidden?: boolean
   outcomes: Array<{
     outcomeId: string
     odds: string
@@ -91,5 +97,22 @@ enum ConditionState {
   Resolved = 'Resolved',
   Canceled = 'Canceled',
   Paused = 'Paused'
+}
+```
+
+## Query Options Helper
+
+`getUseConditionsQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseConditionsQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseConditionsQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseConditionsQueryOptionsProps = UseConditionsProps & {
+  chainId: ChainId
 }
 ```

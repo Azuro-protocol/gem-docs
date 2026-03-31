@@ -28,12 +28,12 @@ const { data, isFetching, error } = useNavigation(props)
   isLive?: boolean // if `true`, the hook will retrieve live navigation
   returnAsPrematchAndLiveMap?: boolean // if `true`, returns data as object with 'prematch', 'live', and 'all' keys
   chainId?: ChainId
-  query?: QueryParameter<NavigationSportData[] | Record<'prematch' | 'live' | 'all', NavigationSportData[]>>
+  query?: QueryParameterWithSelect<UseNavigationQueryFnData, TData>
 }
 ```
 
 ```ts
-type ChainId = 
+type ChainId =
   | 100     // Gnosis
   | 137     // Polygon
   | 80002   // Polygon Amoy
@@ -41,7 +41,7 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
-  
+
 enum SportHub {
   Sports = 'sports',
   Esports = 'esports',
@@ -85,3 +85,27 @@ When `returnAsPrematchAndLiveMap` is `true`, the data is returned as an object w
 - `prematch`: Navigation data filtered for prematch games only
 - `live`: Navigation data filtered for live games only
 - `all`: Complete navigation data without filtering
+
+```ts
+// ReturnMapValue inferred from `returnAsPrematchAndLiveMap` prop value
+type UseNavigationQueryFnData<ReturnMapValue extends boolean = false> = ReturnMapValue extends true
+  ? Record<'prematch' | 'live', NavigationSportData[]>
+  : NavigationSportData[]
+```
+
+## Query Options Helper
+
+`getUseNavigationQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseNavigationQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseNavigationQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseNavigationQueryOptionsProps = UseNavigationProps & {
+  chainId: ChainId
+}
+```

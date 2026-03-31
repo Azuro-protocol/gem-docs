@@ -161,6 +161,7 @@ type Freebet = {
 
 ```ts
 {
+  isWalletReadyToSubmit: boolean // true when account is connected and wallet client is initialized
   isAllowanceLoading: boolean // flag indicates the fetching of allowance
   isApproveRequired: boolean // flag indicates the necessity for token spending approval
   isRelayerFeeLoading: boolean // flag indicates the fetching of relayer fee for live bet

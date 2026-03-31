@@ -34,8 +34,12 @@ const { minBet, maxBet, isBetCalculationFetching } = useDetailedBetslip()
   selections: Selection[] // array of selections to calculate bet for
   chainId?: ChainId // chain ID, defaults to app chain
   account: Address | undefined // user's wallet address
-  query?: QueryParameter<BetCalculation> // useQuery params
+  query?: QueryParameterWithSelect<UseBetCalculationQueryFnData, TData> // useQuery params
 }
+```
+
+```ts
+type UseBetCalculationQueryFnData = BetCalculation
 ```
 
 ```ts
@@ -68,5 +72,22 @@ import { type UseQueryResult } from '@tanstack/react-query'
 type BetCalculation = {
   minBet: string | undefined // minimum bet amount in bet token decimals
   maxBet: string // maximum bet amount in bet token decimals
+}
+```
+
+## Query Options Helper
+
+`getUseBetCalculationQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseBetCalculationQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseBetCalculationQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseBetCalculationQueryOptionsProps = UseBetCalculationProps & {
+  chainId: ChainId
 }
 ```

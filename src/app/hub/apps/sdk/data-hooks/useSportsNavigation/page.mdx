@@ -27,8 +27,12 @@ const { data, isFetching, error } = useSportsNavigation(props)
   }
   isLive?: boolean // if `true`, the hook will retrieve live navigation
   chainId?: ChainId
-  query?: QueryParameter<NavigationSportData[]> // useQuery params
+  query?: QueryParameterWithSelect<UseSportsNavigationQueryFnData, TData> // useQuery params
 }
+```
+
+```ts
+type UseSportsNavigationQueryFnData = NavigationSportData[]
 ```
 
 ```ts
@@ -71,5 +75,22 @@ type NavigationSportData = {
       activeLiveGamesCount: number
     }>
   }>
+}
+```
+
+## Query Options Helper
+
+`getUseSportsNavigationQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseSportsNavigationQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseSportsNavigationQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseSportsNavigationQueryOptionsProps = UseSportsNavigationProps & {
+  chainId: ChainId
 }
 ```

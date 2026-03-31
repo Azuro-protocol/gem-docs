@@ -52,9 +52,10 @@ const Condition: React.FC<ConditionProps> = (props) => {
   const { condition } = props
   const { conditionId, outcomes, state: initialState } = condition
 
-  const { data: state, isLocked } = useConditionState({
+  const { data: state, isLocked, isHidden } = useConditionState({
     conditionId,
     initialState,
+    isInitiallyHidden: condition.hidden,
   })
 
   return (
@@ -85,10 +86,15 @@ const Condition: React.FC<ConditionProps> = (props) => {
 {
   conditionId: string
   initialState?: ConditionState
+  isInitiallyHidden?: boolean // pass condition.hidden from ConditionDetailedData
 }
 ```
 <Callout type="info">
   The `initialState` is optional. If it's not provided, the `useConditionState` hook will automatically retrieve the initial value.
+</Callout>
+
+<Callout type="info">
+  Pass `condition.hidden` from `ConditionDetailedData` as `isInitiallyHidden`. When `true`, the condition starts as hidden. As soon as a socket update arrives, `isHidden` is set to `false` — meaning the condition is still alive and was only temporarily stopped by the provider.
 </Callout>
 
 ```ts
@@ -106,6 +112,8 @@ enum ConditionState {
 ```ts
 {
   data: ConditionState
-  isFetching // flag indicates initial state fetching
+  isHidden: boolean | undefined // true while condition is hidden; resets to false on any socket update
+  isLocked: boolean // true when condition is not Active
+  isFetching: boolean // flag indicates initial state fetching
 }
 ```

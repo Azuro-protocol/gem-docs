@@ -26,8 +26,12 @@ const { data, isFetching, error } = useGame(props)
 {
   gameId: string
   chainId?: ChainId
-  query?: QueryParameter<GameData | null> // useQuery params
+  query?: QueryParameterWithSelect<UseGameQueryFnData, TData> // useQuery params
 }
+```
+
+```ts
+type UseGameQueryFnData = GameData | null
 ```
 
 ```ts
@@ -103,5 +107,22 @@ enum GameState {
   Prematch = 'Prematch',
   Stopped = 'Stopped',
   Canceled = 'Canceled',
+}
+```
+
+## Query Options Helper
+
+`getUseGameQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseGameQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseGameQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseGameQueryOptionsProps = UseGameProps & {
+  chainId: ChainId
 }
 ```

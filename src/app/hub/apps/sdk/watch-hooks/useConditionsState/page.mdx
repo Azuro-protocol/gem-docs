@@ -36,13 +36,27 @@ The `useConditionsState` hook is used for maintain updated states for a conditio
 </Callout>
 
 <Callout type="info">
-Example of usage: Betslip.<br/>
+Example of usage: Game markets list (Option A).<br/>
 
-We've stored user's selections and need to make sure that conditions in a state to accept bets. The `useConditionsState` hook offers a method to react to changes in the condition states.
+Pass the full conditions array to get `hidden` state without an extra fetch.
 
 ```tsx
 import { useConditionsState } from '@azuro-org/sdk'
-import { ConditionState } from '@azuro-org/tookit'
+
+// conditions: ConditionDetailedData[] from useConditions
+const { data: states, conditionsMap } = useConditionsState({ conditions })
+
+// hide conditions that are still hidden (temporarily stopped by provider)
+const visibleConditions = conditions.filter(({ conditionId }) => !conditionsMap[conditionId]?.hidden)
+```
+</Callout>
+
+<Callout type="info">
+Example of usage: Betslip (Option B).<br/>
+
+```tsx
+import { useConditionsState } from '@azuro-org/sdk'
+import { ConditionState } from '@azuro-org/toolkit'
 import { useMemo } from 'react'
 
 const items = [{...}]
@@ -60,6 +74,16 @@ const isConditionsInActiveState = useMemo(() => {
 
 ## Props
 
+Two signatures are supported:
+
+**Option A — pass full condition objects (preferred for game markets):**
+```ts
+{
+  conditions: Pick<ConditionDetailedData, 'conditionId' | 'state' | 'hidden'>[]
+}
+```
+
+**Option B — pass IDs only (betslip / ID-only scenarios):**
 ```ts
 {
   conditionIds: string[]
@@ -68,15 +92,11 @@ const isConditionsInActiveState = useMemo(() => {
 ```
 
 <Callout type="info">
-The `states` is an object where the key combination corresponds to `conditionId`:
-
-```ts
-states[conditionId]
-```
+Option A is preferred when rendering game markets — it provides initial `hidden` state without an extra fetch.
 </Callout>
 
 <Callout type="info">
-The `initialStates` is optional. If it's not provided, the `useConditionsState` hook will automatically retrieve the initial value.
+When using Option B, `initialStates` is optional. If it's not provided, the hook will automatically fetch the initial states.
 </Callout>
 
 ```ts
@@ -94,6 +114,14 @@ enum ConditionState {
 ```ts
 {
   data: Record<string, ConditionState> // key is conditionId
-  isFetching // flag indicates initial states fetching
+  conditionsMap: Record<string, {      // key is conditionId
+    state: ConditionState
+    hidden: boolean // true while hidden; resets to false on any socket update
+  }>
+  isFetching: boolean // flag indicates initial states fetching
 }
 ```
+
+<Callout type="info">
+The `hidden` field mirrors the logic in `useConditionState`: starts from the initial data, and clears to `false` when any socket update arrives for that condition.
+</Callout>

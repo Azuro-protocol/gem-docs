@@ -36,10 +36,16 @@ type UseSportsProps = {
   }
   gameOrderBy?: GameOrderBy // default: GameOrderBy.StartsAt - supports Turnover or StartsAt
   orderDir?: OrderDirection // order direction: asc, desc
+  /** if false or undefined, follows games sorting order */
+  sortLeaguesAndCountriesByName?: boolean
   isLive?: boolean // if `true`, the hook will retrieve live sports
   chainId?: ChainId
-  query?: QueryParameter<SportData[]> // useQuery params
+  query?: QueryParameterWithSelect<UseSportsQueryFnData, TData> // useQuery params
 }
+```
+
+```ts
+type UseSportsQueryFnData = SportData[]
 ```
 
 ```ts
@@ -106,5 +112,22 @@ type SportData = {
       }>
     }>
   }>
+}
+```
+
+## Query Options Helper
+
+`getUseSportsQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseSportsQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseSportsQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseSportsQueryOptionsProps = UseSportsProps & {
+  chainId: ChainId
 }
 ```
