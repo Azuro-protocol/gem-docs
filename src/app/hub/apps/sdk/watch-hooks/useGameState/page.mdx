@@ -4,7 +4,8 @@ import { Callout } from 'components'
 
 The `useGameState` hook is used for maintain updated state for a game.
 
-a Game have a `state` field that indicates their current state. For instance, `GameState.Prematch` signifies the condition is currently in prematch state, while `GameState.Stopped` indicates it has temporarily stopped accepting bets.
+Each Game has a `state` field that indicates their current state.
+For instance, `GameState.Prematch` signifies the condition is currently in prematch state, while `GameState.Stopped` indicates it has temporarily stopped accepting bets.
 
 ## Usage
 
@@ -71,10 +72,11 @@ const Content: React.FC<ContentProps> = ({ game }) => {
 
 ```ts
 enum GameState {
-  Finished = "Finished",
-  Live = "Live",
-  Prematch = "Prematch",
-  Stopped = "Stopped"
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped',
+  Canceled = 'Canceled',
 }
 ```
 
