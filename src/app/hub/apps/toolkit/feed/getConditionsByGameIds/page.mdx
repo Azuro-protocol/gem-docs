@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 # getConditionsByGameIds
 
 Fetches detailed conditions data for a given list of game IDs. Returns comprehensive condition information including outcomes, odds, and game relationships.
@@ -20,8 +22,22 @@ const conditions = await getConditionsByGameIds({
 type GetConditionsByGameIdsParams = {
   chainId: ChainId
   gameIds: string | string[]
+  extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
 }
 ```
+
+<Callout type="warning">
+  **`extended` — when to enable it**
+
+  Optional, defaults to `false`. When `true`, the API additionally returns **new-generation conditions and outcomes** alongside the standard set. You can detect a new condition by its first character: `conditionId[0] === '5'`.
+
+  **Titles are returned directly in the response.** Each condition exposes `title` (the market name), and each outcome exposes its own `title` — see `ConditionDetailedData.title` and `OutcomeData.title` below. `@azuro-org/toolkit` already handles grouping, sorting, and rendering of new markets out of the box.
+
+  - If your app reads market/outcome metadata only from this response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — new markets will appear automatically.
+  - If your app reads from `@azuro-org/dictionaries` directly, note that **new condition and outcome IDs are not in the dictionaries package** — their titles live only on the API. Use the `title` fields returned here, or fall back to the API when the dictionary lookup misses.
+
+  If you only have a `conditionId` later (e.g. in a betslip, history, or activity feed) and need to fetch its market title, call [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) — its `ConditionStateData` now exposes `title` for the condition and each outcome.
+</Callout>
 
 #### Return Value
 
@@ -34,17 +50,13 @@ type ConditionDetailedData = {
   id: string
   conditionId: string
   state: ConditionState
-  title: string | null
+  title: string // market title
   isExpressForbidden: boolean
   isPrematchEnabled: boolean
   isLiveEnabled: boolean
-  margin: string
   hidden?: boolean
-  outcomes: {
-    title: string | null
-    outcomeId: string
-    odds: string
-  }[]
+  margin: string
+  outcomes: OutcomeData[]
   game: {
     gameId: string
     sport: {
@@ -52,6 +64,19 @@ type ConditionDetailedData = {
     }
   }
   wonOutcomeIds: string[]
+  sort: `${number}`
+  /** Modern ("5...") conditions only: used for market grouping */
+  marketId?: string | null
+  marketVarietyId?: string | null
+}
+
+type OutcomeData = {
+  title: string // outcome title
+  outcomeId: string
+  odds: string
+  sort: `${number}`
+  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  point?: string | null
 }
 ```
 

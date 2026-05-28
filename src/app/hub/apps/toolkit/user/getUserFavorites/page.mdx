@@ -1,0 +1,90 @@
+---
+title: getUserFavorites
+description: Azuro Toolkit util. Fetches the pinned countries and leagues for a given user and affiliate. No authentication required.
+---
+
+# getUserFavorites
+
+Fetches the pinned countries and leagues for a given user and affiliate.
+
+This is a public endpoint — no Bearer token or wallet signature is required.
+
+#### Usage
+
+```ts
+import { getUserFavorites } from '@azuro-org/toolkit'
+
+
+const { favorites } = await getUserFavorites({
+  userId: '0xabc...',
+  affiliateId: '0xdef...',
+  chainId: 100,
+})
+
+const { countries, leagues } = favorites
+```
+
+#### Props
+
+```ts
+type GetUserFavoritesParams = {
+  userId: Address      // user's wallet address
+  affiliateId: Address // affiliate address
+  chainId: ChainId
+}
+```
+
+```ts
+type ChainId =
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+#### Return Value
+
+```ts
+type GetUserFavoritesResult = {
+  favorites: Favorites
+}
+```
+
+```ts
+type Favorites = {
+  countries: FavoriteCountry[]
+  leagues: FavoriteLeague[]
+}
+```
+
+```ts
+type FavoriteCountry = {
+  id: string
+  slug: string
+  name: string
+  sport: FavoriteSport
+}
+
+type FavoriteLeague = {
+  id: string
+  slug: string
+  name: string
+  country: FavoriteCountryRef
+  sport: FavoriteSport
+}
+
+type FavoriteCountryRef = {
+  id: string
+  slug: string
+  name: string
+}
+
+type FavoriteSport = {
+  sportId: number
+  slug: string
+  name: string
+}
+```

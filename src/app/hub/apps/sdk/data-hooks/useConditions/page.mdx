@@ -22,6 +22,7 @@ const { data, isFetching, error } = useConditions(props)
 {
   gameId: string | bigint | string[] | bigint[] // single game ID or array of game IDs
   onlyActiveOrStopped?: boolean // if true, returns only active or stopped conditions
+  extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameterWithSelect<UseConditionsQueryFnData, TData> // useQuery params
 }
@@ -32,12 +33,9 @@ type UseConditionsQueryFnData = ConditionDetailedData[]
 ```
 
 ```ts
-type ChainId = 
-  | 100     // Gnosis
+type ChainId =
   | 137     // Polygon
   | 80002   // Polygon Amoy
-  | 88888   // Chiliz
-  | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
 ```
@@ -56,6 +54,19 @@ type ChainId =
   ```
 </Callout>
 
+<Callout type="warning">
+  **`extended` — when to enable it**
+
+  Optional, defaults to `false`. When `true`, the API additionally returns **new-generation conditions and outcomes** alongside the standard set. You can detect a new condition by its first character: `conditionId[0] === '5'`.
+
+  **Titles are returned directly in the response.** Each condition exposes `title` (the market name), and each outcome exposes its own `title` — see `ConditionDetailedData.title` and `OutcomeData.title` below. `@azuro-org/toolkit` and `@azuro-org/sdk` already handle grouping, sorting, and rendering of new markets out of the box.
+
+  - If your app reads market/outcome metadata only from this hook's response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — new markets will appear automatically.
+  - If your app reads from `@azuro-org/dictionaries` directly, note that **new condition and outcome IDs are not in the dictionaries package** — their titles live only on the API. Use the `title` fields returned by this hook, or fall back to the API when the dictionary lookup misses.
+
+  If you only have a `conditionId` later (e.g. in a betslip, history, or activity feed) and need to fetch its market title, call [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) — its `ConditionStateData` now exposes `title` for the condition and each outcome. The SDK's [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) wraps that endpoint under the hood.
+</Callout>
+
 ## Return Value
 
 ```ts
@@ -66,28 +77,37 @@ UseQueryResult<ConditionDetailedData[]>
 import { type UseQueryResult } from '@tanstack/react-query'
 
 type ConditionDetailedData = {
+  id: string
   conditionId: string
-  gameId: string
   state: ConditionState
+  title: string // market title
+  isExpressForbidden: boolean
+  isPrematchEnabled: boolean
+  isLiveEnabled: boolean
   /** true for stopped secondary conditions; consumed by useConditionState / useConditionsState */
   hidden?: boolean
-  outcomes: Array<{
-    outcomeId: string
-    odds: string
-  }>
-  wonOutcomeIds?: string[]
-  isExpressForbidden: boolean
   margin: string
-  reinforcement: string
-  virtualFund: string
-  affiliate: string
-  turnover: string
-  wonOutcome?: string
-  core: {
-    address: string
-    type: CoreType
-    liquidityPoolAddress: string
+  outcomes: OutcomeData[]
+  game: {
+    gameId: string
+    sport: {
+      sportId: string
+    }
   }
+  wonOutcomeIds: string[]
+  sort: `${number}`
+  /** Modern ("5...") conditions only: used for market grouping */
+  marketId?: string | null
+  marketVarietyId?: string | null
+}
+
+type OutcomeData = {
+  title: string // outcome title
+  outcomeId: string
+  odds: string
+  sort: `${number}`
+  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  point?: string | null
 }
 
 enum ConditionState {

@@ -1,0 +1,71 @@
+---
+title: buildSiweMessage
+description: Azuro Toolkit util. Builds an EIP-4361 (Sign-In with Ethereum) message string ready for wallet signing.
+---
+
+# buildSiweMessage
+
+Builds an EIP-4361 ([Sign-In with Ethereum](https://eips.ethereum.org/EIPS/eip-4361)) message string ready for wallet signing.
+
+Intended to be called between [`getSiweNonce`](/hub/apps/toolkit/auth/getSiweNonce) and a wallet `signMessage` call,
+with the resulting string passed verbatim to `signMessage` and then [`verifySiwe`](/hub/apps/toolkit/auth/verifySiwe).
+
+The caller is responsible for passing an EIP-55 checksummed `address`; no normalisation is applied internally
+(use viem's `getAddress`). `issuedAt` and `expiresAt` are unix epoch milliseconds and are formatted to ISO 8601
+automatically. If `statement` is omitted the statement block is dropped entirely; if `expiresAt` is omitted the
+`Expiration Time` line is omitted.
+
+#### Usage
+
+```ts
+import { getAddress } from 'viem'
+import { buildSiweMessage } from '@azuro-org/toolkit'
+
+
+const message = buildSiweMessage({
+  domain: 'app.example.com',
+  address: getAddress('0xd8da6bf26964af9d7eed9e03e53415d37aa96045'),
+  uri: 'https://app.example.com',
+  chainId: 137,
+  nonce,
+  issuedAt,
+  expiresAt,
+  statement: 'Sign in to Azuro',
+})
+
+const signature = await walletClient.signMessage({ account, message })
+```
+
+#### Props
+
+```ts
+{
+  domain: string
+  address: Address    // EIP-55 checksummed; caller's responsibility
+  uri: string
+  chainId: number
+  nonce: string
+  issuedAt: number    // unix ms
+  expiresAt?: number  // unix ms, optional
+  statement?: string  // optional human-readable line
+  version?: '1'       // default '1'
+}
+```
+
+#### Return Value
+
+The full SIWE text to display to the user and pass to `signMessage`:
+
+```text
+{domain} wants you to sign in with your Ethereum account:
+{address}
+
+{statement}
+
+URI: {uri}
+Version: 1
+Chain ID: {chainId}
+Nonce: {nonce}
+Issued At: {issuedAtIso}
+Expiration Time: {expiresAtIso}
+```

@@ -1,0 +1,80 @@
+import { Callout } from 'components'
+
+# useCreateUserFavorite
+
+Mutation hook that pins a country or league as a favorite for the authenticated user.
+
+<Callout type="info">
+The hook reads the JWT from `localStorage` (key: `azuro:auth:<address>:<affiliate>`).
+If no valid token is cached, it throws `AuthError` with `code: 'NotAuthenticated'`.
+Call [`useAuth`](/hub/apps/sdk/auth/useAuth)`.signIn()` from a user gesture before mutating,
+then retry.
+</Callout>
+
+## Usage
+
+```ts
+import { useAuth, useCreateUserFavorite } from '@azuro-org/sdk'
+
+
+const { isAuthenticated, signIn } = useAuth({ affiliate: '0x...' })
+const { create, isPending, error } = useCreateUserFavorite({ affiliate: '0x...' })
+
+const onFavorite = async (country: string, sportId: number) => {
+  if (!isAuthenticated) await signIn()
+  create({ country, league: '', sportId })
+}
+```
+
+On success the hook automatically invalidates the `useUserFavorites` cache so the UI
+reflects the newly pinned entry without a manual refetch.
+
+## Props
+
+```ts
+type UseCreateUserFavoriteProps = {
+  affiliate: Address
+  chainId?: ChainId
+  onSuccess?: (data: CreateUserFavoriteResult) => void
+  onError?: (err: Error) => void
+}
+```
+
+```ts
+type ChainId =
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+## Return Value
+
+```ts
+{
+  create: (vars: CreateUserFavoriteVariables) => void
+  createAsync: (vars: CreateUserFavoriteVariables) => Promise<CreateUserFavoriteResult>
+  isPending: boolean
+  error: Error | null
+}
+```
+
+```ts
+type CreateUserFavoriteVariables = {
+  country: string  // country name taken from API
+  league: string   // league name taken from API; pass null or undefined to favorite a country only
+  sportId: number  // sport identifier (0..32767)
+}
+```
+
+```ts
+type CreateUserFavoriteResult = {
+  favoritesId: string   // server-assigned ID; use this with useDeleteUserFavorite
+  userId: Address
+  affiliateId: Address
+  country: string
+  league: string
+  sportId: number
+  createdAt: string     // ISO 8601 timestamp
+}
+```

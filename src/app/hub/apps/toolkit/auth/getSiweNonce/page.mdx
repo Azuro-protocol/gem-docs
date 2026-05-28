@@ -1,0 +1,48 @@
+---
+title: getSiweNonce
+description: Azuro Toolkit util. Requests a SIWE nonce from the Azuro API for the given (address, affiliateId, chainId) tuple.
+---
+
+# getSiweNonce
+
+Requests a SIWE (Sign-In with Ethereum) nonce for the given `(address, affiliateId, chainId)` tuple.
+
+The returned nonce is single-use and expires in approximately 5 minutes server-side.
+Pass the result to [`buildSiweMessage`](/hub/apps/toolkit/auth/buildSiweMessage) and then [`verifySiwe`](/hub/apps/toolkit/auth/verifySiwe) to complete authentication.
+
+#### Usage
+
+```ts
+import { getSiweNonce } from '@azuro-org/toolkit'
+
+
+const { nonce, issuedAt, expiresAt } = await getSiweNonce({
+  address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+  affiliateId: '0x0000000000000000000000000000000000000000',
+  chainId: 137,
+  domain: 'app.example.com',
+  uri: 'https://app.example.com',
+})
+```
+
+#### Props
+
+```ts
+{
+  address: Address
+  affiliateId: Address
+  chainId: ChainId
+  domain: string  // RFC 3986 host, e.g. window.location.host
+  uri: string     // full origin, e.g. window.location.origin
+}
+```
+
+#### Return Value
+
+```ts
+type GetSiweNonceResult = {
+  nonce: string      // server-generated, alphanumeric
+  issuedAt: number   // unix epoch milliseconds
+  expiresAt: number  // unix epoch milliseconds
+}
+```

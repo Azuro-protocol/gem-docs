@@ -20,5 +20,7 @@ export default {
   },
   'bonus': 'Freebet',
   'cashout': 'Cashout',
+  'auth': 'Auth',
+  'user': 'User',
   'hooks': 'Other Hooks',
 } satisfies MetaRecord

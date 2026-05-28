@@ -1,0 +1,214 @@
+import { Callout } from 'components'
+
+# Toolkit v6.2 & SDK v7.3 — May 28, 2026
+
+This release introduces three sets of improvements: an opt-in flag to surface extended conditions
+and markets from the API, Sign-In with Ethereum (SIWE) authentication, and user-favorite countries
+and leagues.
+
+## Extended Conditions (new markets)
+
+The Azuro API now exposes a broader set of conditions and markets via an opt-in `extended` flag.
+When enabled, the API returns additional condition and outcome IDs (e.g. IDs starting with `5...`)
+that are not included in the default response. The flag defaults to `false` to preserve existing
+app behaviour.
+
+### useConditions
+
+```ts
+import { useConditions } from '@azuro-org/sdk'
+
+const { data, isFetching, error } = useConditions({
+  gameId,
+  extended: true, // opt-in: include new conditions/markets
+})
+```
+
+### useActiveConditions
+
+```ts
+import { useActiveConditions } from '@azuro-org/sdk'
+
+const { data, isFetching, error } = useActiveConditions({
+  gameId,
+  extended: true, // opt-in: include new conditions/markets
+})
+```
+
+### useActiveMarkets / useResolvedMarkets
+
+```ts
+import { useActiveMarkets, useResolvedMarkets } from '@azuro-org/sdk'
+
+const { data: markets } = useActiveMarkets({
+  gameId,
+  extended: true, // forwarded to useActiveConditions; groupConditionsByMarket handles the new shape
+})
+
+const { data: resolved } = useResolvedMarkets({
+  gameId,
+  extended: true, // forwarded to useConditions
+})
+```
+
+### getConditionsByGameIds
+
+```ts
+import { getConditionsByGameIds } from '@azuro-org/toolkit'
+
+const conditions = await getConditionsByGameIds({
+  chainId: 137,
+  gameIds: ['1006000000000077484167'],
+  extended: true, // opt-in: include new conditions/markets
+})
+```
+
+<Callout type="warning">
+  **When to enable `extended`**
+
+  Optional, defaults to `false`. When `true`, the API additionally returns **new-generation conditions and outcomes** alongside the standard set. Detect a new condition by its first character: `conditionId[0] === '5'`.
+
+  **Titles are returned directly in the response.** Each condition exposes `title` (the market name), and each outcome exposes its own `title` — `ConditionDetailedData.title` and `OutcomeData.title`. The toolkit and SDK already handle grouping, sorting, and rendering of new markets out of the box.
+
+  - If your app reads market/outcome metadata only from these hooks' / utility's response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — new markets will appear automatically.
+  - If your app reads from `@azuro-org/dictionaries` directly, note that **new IDs are not in the dictionaries package** — their titles live only on the API. Use the `title` fields returned here, or fall back to the API when the dictionary lookup misses.
+
+  If you only have a `conditionId` later (e.g. in a betslip, history, or activity feed) and need its market title, call [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) — its `ConditionStateData` now exposes `title` for the condition and each outcome. The SDK's [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) wraps that endpoint.
+</Callout>
+
+[`ConditionStateData`](/hub/apps/toolkit/feed/getConditionsState) (returned by [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) / consumed by [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState)) was also extended with `title` on both the condition and each outcome — use it when you need to render a market by `conditionId` alone.
+
+Reference pages:
+[`useConditions`](/hub/apps/sdk/data-hooks/useConditions) ·
+[`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) ·
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) ·
+[`useResolvedMarkets`](/hub/apps/sdk/data-hooks/useResolvedMarkets) ·
+[`getConditionsByGameIds`](/hub/apps/toolkit/feed/getConditionsByGameIds) ·
+[`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState)
+
+## SIWE Auth
+
+The Toolkit and SDK now support [Sign-In with Ethereum](https://eips.ethereum.org/EIPS/eip-4361) (SIWE),
+letting your dApp exchange a wallet signature for a 7-day JWT that authorizes Azuro API calls.
+Tokens are persisted in `localStorage` and synced across browser tabs.
+
+### Toolkit
+
+Three new framework-agnostic utilities under `@azuro-org/toolkit`:
+
+- [`getSiweNonce`](/hub/apps/toolkit/auth/getSiweNonce) — request a single-use nonce for the `(address, affiliateId, chainId)` tuple
+- [`buildSiweMessage`](/hub/apps/toolkit/auth/buildSiweMessage) — produce the EIP-4361 message string for `signMessage`
+- [`verifySiwe`](/hub/apps/toolkit/auth/verifySiwe) — submit the signed message and receive a JWT
+
+```ts
+import { getAddress } from 'viem'
+import { buildSiweMessage, getSiweNonce, verifySiwe } from '@azuro-org/toolkit'
+
+
+const { nonce, issuedAt, expiresAt } = await getSiweNonce({
+  address, affiliateId, chainId, domain, uri,
+})
+const message = buildSiweMessage({
+  domain, address: getAddress(address), uri, chainId,
+  nonce, issuedAt, expiresAt, statement: 'Sign in to Azuro',
+})
+const signature = await walletClient.signMessage({ account: address, message })
+const { token, expiresIn } = await verifySiwe({ chainId, message, signature })
+```
+
+### SDK
+
+A new [`useAuth`](/hub/apps/sdk/auth/useAuth) hook wires the toolkit utilities to the connected wallet
+(regular or AA) and persists the resulting token under `azuro:auth:<address>:<affiliate>`.
+
+```ts
+import { useAuth } from '@azuro-org/sdk'
+
+
+const { token, isAuthenticated, signIn, signOut, error } = useAuth({
+  affiliate: '0x...',
+  statement: 'Sign in to Azuro',
+})
+```
+
+<Callout type="info">
+The hook does **not** prompt the wallet automatically by default — call `signIn()` from a user gesture.
+Pass `autoSignIn: true` to fire the prompt as soon as the wallet is connected and no cached token is present.
+</Callout>
+
+Exported alongside the hook:
+
+- `AuthError`, `AuthErrorCode` — discriminated error class for branchable UX
+- `getAuthStorageKey(address, affiliate)` — read the cached token from non-hook contexts
+- `StoredAuth`, `UseAuthProps`, `UseAuthResult` — types
+
+## User Favorites
+
+The Toolkit and SDK now let users pin countries and leagues as favorites.
+Favorites are stored server-side per `(userId, affiliateId)` pair and are accessible
+without authentication; creating and removing favorites requires a Bearer JWT from the
+existing [SIWE auth](/hub/apps/sdk/auth/useAuth) flow.
+
+### Toolkit
+
+Three new framework-agnostic utilities under `@azuro-org/toolkit`:
+
+- [`getUserFavorites`](/hub/apps/toolkit/user/getUserFavorites) — list a user's pinned countries and leagues (public, no auth)
+- [`createUserFavorite`](/hub/apps/toolkit/user/createUserFavorite) — pin a country or league (Bearer JWT required)
+- [`deleteUserFavorite`](/hub/apps/toolkit/user/deleteUserFavorite) — remove a pinned favorite by ID (Bearer JWT required)
+
+```ts
+import { getUserFavorites, createUserFavorite, deleteUserFavorite } from '@azuro-org/toolkit'
+
+
+// Public — no token needed
+const { favorites } = await getUserFavorites({
+  userId: '0xabc...',
+  affiliateId: '0xdef...',
+  chainId: 137,
+})
+
+// Create a favorite (token from verifySiwe / useAuth)
+const { favoritesId } = await createUserFavorite({
+  chainId: 137,
+  token: 'eyJ...',
+  country: 'England',
+  league: 'Premier League',
+  sportId: 1,
+})
+
+// Remove by the server-assigned ID
+await deleteUserFavorite({ chainId: 137, token: 'eyJ...', favoritesId })
+```
+
+### SDK
+
+Three new hooks under `@azuro-org/sdk`:
+
+- [`useUserFavorites`](/hub/apps/sdk/user/useUserFavorites) — data hook; returns `{ countries, leagues }` via react-query
+- [`useCreateUserFavorite`](/hub/apps/sdk/user/useCreateUserFavorite) — mutation hook; exposes `create` / `createAsync`
+- [`useDeleteUserFavorite`](/hub/apps/sdk/user/useDeleteUserFavorite) — mutation hook; exposes `remove` / `removeAsync`
+
+```ts
+import { useAuth, useUserFavorites, useCreateUserFavorite } from '@azuro-org/sdk'
+
+
+const AFFILIATE = '0x...'
+
+const { data } = useUserFavorites({ affiliate: AFFILIATE })
+const { isAuthenticated, signIn } = useAuth({ affiliate: AFFILIATE })
+const { create, isPending } = useCreateUserFavorite({ affiliate: AFFILIATE })
+
+const onPin = async (country: string, sportId: number) => {
+  if (!isAuthenticated) await signIn()
+  create({ country, league: '', sportId })
+}
+```
+
+Both mutation hooks automatically invalidate the `useUserFavorites` cache on success.
+
+<Callout type="info">
+Mutation hooks (`useCreateUserFavorite`, `useDeleteUserFavorite`) read the JWT from
+`localStorage` and throw `AuthError({ code: 'NotAuthenticated' })` if no valid token is
+cached. Always call `useAuth().signIn()` from a user gesture before mutating, then retry.
+</Callout>

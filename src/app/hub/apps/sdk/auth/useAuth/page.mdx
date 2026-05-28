@@ -1,0 +1,129 @@
+import { Callout } from 'components'
+
+# useAuth
+
+Authenticate a user via [Sign-In with Ethereum](https://eips.ethereum.org/EIPS/eip-4361) (SIWE),
+exchanging a wallet signature for a JWT that authorizes Azuro API calls.
+
+The hook persists the resulting token in `localStorage` under
+`azuro:auth:<address>:<affiliate>` (both lowercased) so the user is not prompted
+to sign on every page load. Tokens are kept in sync across browser tabs via the `storage` event.
+Supports both regular wallets and Account Abstraction (AA) wallets.
+
+<Callout type="info">
+The auth identity is the pair `(wallet address, affiliate address)`. Switching either causes
+the hook to load a different cached token (the previous one is left in place — it may still
+be valid in another tab — and is only removed by an explicit `signOut()`).
+</Callout>
+
+## Usage
+
+```ts
+import { useAuth } from '@azuro-org/sdk'
+
+
+const {
+  token,
+  isAuthenticated,
+  isLoading,
+  error,
+  signIn,
+  signOut,
+} = useAuth({
+  affiliate: '0x...',
+  statement: 'Sign in to Azuro',
+})
+
+// Trigger the wallet prompt explicitly
+const onClick = async () => {
+  try {
+    await signIn()
+  }
+  catch (err) {
+    // err is an AuthError; err.code tells you why
+  }
+}
+```
+
+To eagerly sign in as soon as the wallet is connected (and there is no cached token):
+
+```ts
+const { token } = useAuth({
+  affiliate: '0x...',
+  autoSignIn: true,
+})
+```
+
+To attach the token to your own API calls outside the hook (e.g. middleware, server components):
+
+```ts
+import { getAuthStorageKey } from '@azuro-org/sdk'
+
+
+const key = getAuthStorageKey(address, affiliate)
+const stored = JSON.parse(localStorage.getItem(key) ?? 'null')
+// stored?.token, stored?.expiresAt
+```
+
+## Props
+
+```ts
+{
+  affiliate: Address
+  chainId?: ChainId
+  statement?: string         // human-readable line in the SIWE message
+  domain?: string            // default: window.location.host
+  uri?: string               // default: window.location.origin
+  autoSignIn?: boolean       // default: false
+  onSignIn?: (token: string) => void
+  onSignOut?: () => void
+  onError?: (err: AuthError) => void
+}
+```
+
+## Return Value
+
+```ts
+type UseAuthResult = {
+  token: string | null              // JWT or null
+  isAuthenticated: boolean          // Boolean(token)
+  isLoading: boolean                // signIn in flight
+  error: AuthError | null           // last signIn error, cleared on next attempt / signOut
+  signIn: () => Promise<string>     // resolves with token, rejects with AuthError
+  signOut: () => void               // clears token + storage; notifies other tabs
+}
+```
+
+## Errors
+
+`signIn` rejects with an `AuthError` carrying a discriminated `code`:
+
+```ts
+class AuthError extends Error {
+  code: AuthErrorCode
+}
+
+type AuthErrorCode =
+  | 'NoWallet'                // no address or no signing client
+  | 'NotAuthenticated'        // mutation hooks: no valid cached token (call signIn() and retry)
+  | 'UserRejectedSignature'   // wallet rejected the message
+  | 'NonceRequestFailed'      // /auth/siwe/nonce returned an error
+  | 'VerifyFailed'            // /auth/siwe/verify returned an error, or signing failed for non-rejection reasons
+  | 'NetworkError'            // fetch threw (offline, DNS, etc.)
+  | 'StorageUnavailable'      // domain/uri could not be derived
+```
+
+The original error is preserved as `cause` for diagnostics.
+
+## Storage
+
+```ts
+type StoredAuth = {
+  token: string       // JWT
+  expiresAt: number   // unix ms (Date.now() + expiresIn * 1000 from /verify)
+}
+```
+
+Stored under `azuro:auth:<address>:<affiliate>` (both lowercased). The hook auto-clears
+expired or corrupt entries on read; expiry triggers a re-render via an internal timer
+so consumers see `isAuthenticated` flip to `false` exactly when the JWT lapses.

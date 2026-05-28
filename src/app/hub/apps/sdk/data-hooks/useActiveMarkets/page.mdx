@@ -17,6 +17,7 @@ const { data, isFetching, error } = useActiveMarkets(props)
 ```ts
 {
   gameId: string
+  extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameter<ConditionDetailedData[]> // useQuery params
 }
@@ -32,6 +33,10 @@ const { data, isFetching, error } = useActiveMarkets(props)
 
   const gameId = games?.[0]?.gameId
   ```
+</Callout>
+
+<Callout type="info">
+  `extended` is forwarded to the underlying [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) call. Set it to `true` to also surface new-generation markets (conditions whose `conditionId[0] === '5'`) in the grouped result — `groupConditionsByMarket` already understands the new shape. See the [`useActiveConditions` docs](/hub/apps/sdk/data-hooks/useActiveConditions) for the full caveat, especially if your app reads `@azuro-org/dictionaries` directly.
 </Callout>
 
 

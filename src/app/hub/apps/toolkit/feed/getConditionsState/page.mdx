@@ -40,9 +40,11 @@ type GetConditionsStateResult = ConditionStateData[]
 ```ts
 type ConditionStateData = {
   conditionId: string
+  title: string // market title — useful for new conditions ("5...") whose IDs are not in the dictionaries package
   state: ConditionState
   outcomes: {
     id: string
+    title: string // outcome title
     outcomeId: string
     odds: string
   }[]

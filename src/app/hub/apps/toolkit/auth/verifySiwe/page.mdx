@@ -1,0 +1,46 @@
+---
+title: verifySiwe
+description: Azuro Toolkit util. Verifies a signed SIWE message with the Azuro API and returns a JWT.
+---
+
+# verifySiwe
+
+Verifies a signed SIWE message and returns a JWT valid for `expiresIn` seconds.
+
+The call is single-use: the nonce embedded in the message is consumed upon success.
+`chainId` is used only to resolve the API endpoint and is **not** included in the request body.
+
+#### Usage
+
+```ts
+import { verifySiwe } from '@azuro-org/toolkit'
+
+
+const { token, expiresIn } = await verifySiwe({
+  chainId: 137,
+  message: siweMessage,    // produced by buildSiweMessage
+  signature: '0x...',      // produced by walletClient.signMessage
+})
+```
+
+#### Props
+
+```ts
+{
+  chainId: ChainId   // endpoint resolution only — NOT sent in body
+  message: string
+  signature: Hex
+}
+```
+
+#### Return Value
+
+```ts
+type VerifySiweResult = {
+  token: string         // JWT, send as `Authorization: Bearer <token>`
+  expiresIn: number     // JWT lifetime in seconds (typically 7 days)
+  address: Address      // authenticated address (lowercased)
+  affiliateId: Address  // affiliate bound to the JWT (lowercased)
+  chainId: ChainId      // chain on which the signature was verified
+}
+```

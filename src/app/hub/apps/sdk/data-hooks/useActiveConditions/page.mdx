@@ -17,6 +17,7 @@ const { data, isFetching, error } = useActiveConditions(props)
 ```ts
 {
   gameId: string | bigint | string[] | bigint[]
+  extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameter<ConditionDetailedData[]> // useQuery params
 }
@@ -34,6 +35,18 @@ const { data, isFetching, error } = useActiveConditions(props)
   ```
 </Callout>
 
+<Callout type="info">
+  **`extended` — when to enable it**
+
+  Optional, defaults to `false`. When `true`, the API additionally returns **new-generation conditions and outcomes** alongside the standard set. You can detect a new condition by its first character: `conditionId[0] === '5'`.
+
+  **Titles are returned directly in the response.** Each condition exposes `title` (the market name), and each outcome exposes its own `title` — see `ConditionDetailedData.title` and `OutcomeData.title` below. `@azuro-org/toolkit` and `@azuro-org/sdk` already handle grouping, sorting, and rendering of new markets out of the box.
+
+  - If your app reads market/outcome metadata only from this hook's response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — new markets will appear automatically.
+  - If your app reads from `@azuro-org/dictionaries` directly, note that **new condition and outcome IDs are not in the dictionaries package** — their titles live only on the API. Use the `title` fields returned by this hook.
+
+  If you only have a `conditionId` later (e.g. in a betslip, history, or activity feed) and need to fetch its market title, call [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) — its `ConditionStateData` now exposes `title` for the condition and each outcome. The SDK's [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) wraps that endpoint under the hood.
+</Callout>
 
 ## Return Value
 
@@ -45,26 +58,36 @@ UseQueryResult<ConditionDetailedData[]>
 import { type UseQueryResult } from '@tanstack/react-query'
 
 type ConditionDetailedData = {
+  id: string
   conditionId: string
-  gameId: string
   state: ConditionState
-  outcomes: Array<{
-    outcomeId: string
-    odds: string
-  }>
-  wonOutcomeIds?: string[]
+  title: string // market title
   isExpressForbidden: boolean
+  isPrematchEnabled: boolean
+  isLiveEnabled: boolean
+  hidden?: boolean
   margin: string
-  reinforcement: string
-  virtualFund: string
-  affiliate: string
-  turnover: string
-  wonOutcome?: string
-  core: {
-    address: string
-    type: CoreType
-    liquidityPoolAddress: string
+  outcomes: OutcomeData[]
+  game: {
+    gameId: string
+    sport: {
+      sportId: string
+    }
   }
+  wonOutcomeIds: string[]
+  sort: `${number}`
+  /** Modern ("5...") conditions only: used for market grouping */
+  marketId?: string | null
+  marketVarietyId?: string | null
+}
+
+type OutcomeData = {
+  title: string // outcome title
+  outcomeId: string
+  odds: string
+  sort: `${number}`
+  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  point?: string | null
 }
 
 enum ConditionState {

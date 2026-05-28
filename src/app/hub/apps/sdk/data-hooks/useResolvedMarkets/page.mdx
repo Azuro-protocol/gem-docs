@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 # useResolvedMarkets
 
 The `useResolvedMarkets` hook is wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions). It obtains resolved conditions and groups prematch and live markets. Should be used to show game results.
@@ -15,21 +17,23 @@ const { data, isFetching, error } = useResolvedMarkets({ gameId: '...' })
 ```ts
 {
   gameId: string
+  extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameter<ConditionsQuery['conditions']>
 }
 ```
 
 ```ts
-type ChainId = 
-  | 100     // Gnosis
+type ChainId =
   | 137     // Polygon
   | 80002   // Polygon Amoy
-  | 88888   // Chiliz
-  | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
 ```
+
+<Callout type="info">
+  `extended` is forwarded to the underlying [`useConditions`](/hub/apps/sdk/data-hooks/useConditions) call. Set it to `true` to also surface new-generation markets (conditions whose `conditionId[0] === '5'`) in the grouped result — `groupConditionsByMarket` already understands the new shape. See the [`useConditions` docs](/hub/apps/sdk/data-hooks/useConditions) for the full caveat, especially if your app reads `@azuro-org/dictionaries` directly.
+</Callout>
 
 
 ## Return Value

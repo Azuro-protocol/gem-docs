@@ -1,0 +1,73 @@
+import { Callout } from 'components'
+
+# useDeleteUserFavorite
+
+Mutation hook that removes a previously pinned favorite by its server-assigned ID.
+
+<Callout type="info">
+The hook reads the JWT from `localStorage` (key: `azuro:auth:<address>:<affiliate>`).
+If no valid token is cached, it throws `AuthError` with `code: 'NotAuthenticated'`.
+Call [`useAuth`](/hub/apps/sdk/auth/useAuth)`.signIn()` from a user gesture before mutating,
+then retry.
+</Callout>
+
+## Usage
+
+```ts
+import { useAuth, useDeleteUserFavorite } from '@azuro-org/sdk'
+
+
+const { isAuthenticated, signIn } = useAuth({ affiliate: '0x...' })
+const { remove, isPending, error } = useDeleteUserFavorite({ affiliate: '0x...' })
+
+const onRemoveFavorite = async (favoritesId: string) => {
+  if (!isAuthenticated) await signIn()
+  remove({ favoritesId })
+}
+```
+
+On success the hook automatically invalidates the `useUserFavorites` cache so the removed
+entry disappears from the UI without a manual refetch.
+
+## Props
+
+```ts
+type UseDeleteUserFavoriteProps = {
+  affiliate: Address
+  chainId?: ChainId
+  onSuccess?: (data: DeleteUserFavoriteResult) => void
+  onError?: (err: Error) => void
+}
+```
+
+```ts
+type ChainId =
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+## Return Value
+
+```ts
+{
+  remove: (vars: DeleteUserFavoriteVariables) => void
+  removeAsync: (vars: DeleteUserFavoriteVariables) => Promise<DeleteUserFavoriteResult>
+  isPending: boolean
+  error: Error | null
+}
+```
+
+```ts
+type DeleteUserFavoriteVariables = {
+  favoritesId: string  // server-assigned ID from createUserFavorite or getUserFavorites
+}
+```
+
+```ts
+type DeleteUserFavoriteResult = {
+  favoritesId: string  // echoes the deleted entry's ID
+  success: boolean
+}
+```

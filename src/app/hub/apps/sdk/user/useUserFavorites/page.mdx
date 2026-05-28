@@ -1,0 +1,108 @@
+import { Callout } from 'components'
+
+# useUserFavorites
+
+Fetches the pinned countries and leagues for a user. No authentication is required — the query
+is public and resolves as soon as a wallet address is available.
+
+<Callout type="info">
+`getUseUserFavoritesQueryOptions` is also exported for use in server-side prefetching
+(e.g. Next.js `prefetchQuery` in a Server Component).
+</Callout>
+
+## Usage
+
+```ts
+import { useUserFavorites } from '@azuro-org/sdk'
+
+
+const { data, isFetching, error } = useUserFavorites({
+  affiliate: '0x...',
+})
+
+if (data) {
+  const { countries, leagues } = data
+}
+```
+
+Prefetching example:
+
+```ts
+import { getUseUserFavoritesQueryOptions } from '@azuro-org/sdk'
+
+
+// In a Next.js Server Component
+await queryClient.prefetchQuery(
+  getUseUserFavoritesQueryOptions({
+    affiliate: '0x...',
+    account: '0x...',
+    chainId: 100,
+  })
+)
+```
+
+## Props
+
+```ts
+type UseUserFavoritesProps<TData = Favorites> = {
+  affiliate: Address
+  account?: Address   // default: connected wallet address from useExtendedAccount()
+  chainId?: ChainId
+  query?: QueryParameterWithSelect<Favorites, TData>
+}
+```
+
+```ts
+type ChainId =
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+The `query` prop accepts any [TanStack Query](https://tanstack.com/query/latest) query options,
+including `select` for data transformation. The query is disabled when no `account` is resolvable.
+
+## Return Value
+
+```ts
+UseQueryResult<TData>
+```
+
+When `TData` is the default (`Favorites`):
+
+```ts
+type Favorites = {
+  countries: FavoriteCountry[]
+  leagues: FavoriteLeague[]
+}
+```
+
+```ts
+type FavoriteCountry = {
+  id: string
+  slug: string
+  name: string
+  sport: FavoriteSport
+}
+
+type FavoriteLeague = {
+  id: string
+  slug: string
+  name: string
+  country: FavoriteCountryRef
+  sport: FavoriteSport
+}
+
+type FavoriteCountryRef = {
+  id: string
+  slug: string
+  name: string
+}
+
+type FavoriteSport = {
+  sportId: number
+  slug: string
+  name: string
+}
+```

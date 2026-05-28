@@ -9,4 +9,6 @@ export default {
   'utils': 'Utils',
   'bonus': 'Freebet',
   'cashout': 'Cashout',
+  'auth': 'Auth',
+  'user': 'User',
 } satisfies MetaRecord

@@ -1,0 +1,56 @@
+---
+title: deleteUserFavorite
+description: Azuro Toolkit util. Removes a pinned favorite by its server-assigned ID. Requires a Bearer JWT.
+---
+
+# deleteUserFavorite
+
+Removes a previously pinned favorite by its server-assigned ID.
+
+This call requires a Bearer JWT obtained from [`verifySiwe`](/hub/apps/toolkit/auth/verifySiwe).
+The `favoritesId` is returned by [`createUserFavorite`](/hub/apps/toolkit/user/createUserFavorite)
+and is also present on each entry in the [`getUserFavorites`](/hub/apps/toolkit/user/getUserFavorites) response.
+
+#### Usage
+
+```ts
+import { deleteUserFavorite } from '@azuro-org/toolkit'
+
+
+const { favoritesId, success } = await deleteUserFavorite({
+  chainId: 100,
+  token: 'eyJ...',                // JWT from verifySiwe / useAuth
+  favoritesId: 'abc-123',         // ID returned by createUserFavorite
+})
+
+if (success) {
+  console.log(`Removed favorite ${favoritesId}`)
+}
+```
+
+#### Props
+
+```ts
+type DeleteUserFavoriteParams = {
+  chainId: ChainId
+  token: string        // JWT from verifySiwe / useAuth
+  favoritesId: string  // server-assigned ID of the favorite to remove
+}
+```
+
+```ts
+type ChainId =
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+#### Return Value
+
+```ts
+type DeleteUserFavoriteResult = {
+  favoritesId: string  // echoes the deleted entry's ID
+  success: boolean
+}
+```
