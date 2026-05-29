@@ -12,11 +12,11 @@
     "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind"
   },
   "dependencies": {
-    "next": "^16.1.6",
+    "next": "^16.2.6",
     "nextra": "^4.6.1",
     "nextra-theme-docs": "^4.6.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
@@ -25,9 +25,12 @@
     "@types/react-dom": "^19.2.3",
     "autoprefixer": "10.4.27",
     "pagefind": "1.4.0",
-    "postcss": "8.5.8",
+    "postcss": "8.5.15",
     "rimraf": "6.1.3",
     "tailwindcss": "4.2.1",
     "typescript": "5.9.3"
+  },
+  "overrides": {
+    "postcss": "8.5.15"
   }
 }
