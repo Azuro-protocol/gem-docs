@@ -36,16 +36,18 @@ const { data, isFetching, error } = useActiveConditions(props)
 </Callout>
 
 <Callout type="info">
-  **`extended` — when to enable it**
+  **When to enable `extended`**
 
-  Optional, defaults to `false`. When `true`, the API additionally returns **new-generation conditions and outcomes** alongside the standard set. You can detect a new condition by its first character: `conditionId[0] === '5'`.
+  Optional, defaults to false. When true, the API additionally returns new-generation conditions and outcomes alongside the standard set. Detect a new condition by its first character: `conditionId[0] === '5'`.
 
-  **Titles are returned directly in the response.** Each condition exposes `title` (the market name), and each outcome exposes its own `title` — see `ConditionDetailedData.title` and `OutcomeData.title` below. `@azuro-org/toolkit` and `@azuro-org/sdk` already handle grouping, sorting, and rendering of new markets out of the box.
+  **Titles are returned directly in the response.** Each condition exposes title (the market name), and each outcome exposes its own title — `ConditionDetailedData.title` and `OutcomeData.title`. The toolkit and SDK already handle grouping, sorting, and rendering of new markets out of the box.
 
-  - If your app reads market/outcome metadata only from this hook's response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — new markets will appear automatically.
-  - If your app reads from `@azuro-org/dictionaries` directly, note that **new condition and outcome IDs are not in the dictionaries package** — their titles live only on the API. Use the `title` fields returned by this hook.
+  - If your app reads market/outcome metadata only from these hooks’ / utility’s response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — new markets will appear automatically.
+  - If your app reads from `@azuro-org/dictionaries` directly, note that **new markets are not in the dictionaries package** — their titles live only on the API. Use the title fields returned here.
 
-  If you only have a `conditionId` later (e.g. in a betslip, history, or activity feed) and need to fetch its market title, call [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) — its `ConditionStateData` now exposes `title` for the condition and each outcome. The SDK's [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) wraps that endpoint under the hood.
+  If you only have a conditionId later (e.g. in a betslip, history, or activity feed) and need its market title, call [getConditionsState](https://gem.azuro.org/hub/apps/toolkit/feed/getConditionsState) — its ConditionStateData now exposes title for the condition and each outcome. The SDK’s [useConditionsState](https://gem.azuro.org/hub/apps/sdk/watch-hooks/useConditionsState) wraps that endpoint.
+
+  **For new bets, titles also are present in the subgraph.**
 </Callout>
 
 ## Return Value
