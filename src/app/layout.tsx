@@ -1,5 +1,6 @@
 /* eslint-env node */
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { Layout, Navbar } from 'nextra-theme-docs'
 import { Banner, Head, Search } from 'nextra/components'
 import { getPageMap } from 'nextra/page-map'
@@ -88,6 +89,12 @@ export default async function RootLayout({ children }) {
     >
       {children}
     </Layout>
+    <Script
+      src="https://context7.com/widget.js"
+      data-library="/azuro-protocol/gem-docs"
+      data-color="#3d67ff"
+      async
+    />
     </body>
     </html>
   )
