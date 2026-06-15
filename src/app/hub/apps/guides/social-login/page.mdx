@@ -1,4 +1,4 @@
-import { Image } from 'components'
+import { Image, Callout } from 'components'
 
 
 # Implement Social Login in your app
@@ -144,8 +144,20 @@ export const ConnectButton = () => {
 
 It's important to add withdrawal from user smart accounts UI and logic.
 
-To act with user's smart account, use walletClient from `useAAWalletClient` hook from `@azuro-org/sdk-social-aa-connector`.
+To act with user's smart account, get a walletClient for the **required chain** via the
+`getClientForChain` method of the `useAAWalletClients` hook from `@azuro-org/sdk-social-aa-connector`.
 Read [Privy "Using smart wallets" docs](https://docs.privy.io/guide/react/wallets/smart-wallets/usage#signatures-and-transactions)
+
+<Callout type="warning">
+  **Always request the client by chain id — don't reuse a single ambient client.**
+
+  The older `useAAWalletClient` (singular) hook returns one client bound to whatever chain Privy currently
+  has selected, and Privy does **not** always switch to the chain your app needs. That mismatch makes
+  transactions land on (or revert against) the wrong chain. `useAAWalletClients().getClientForChain({ id })`
+  resolves a client explicitly for the chain you pass — pass your app chain id (`appChain.id`) so the
+  transaction is always signed and sent on the intended chain. `useAAWalletClient` is **deprecated**; prefer
+  `useAAWalletClients`.
+</Callout>
 
 Example of usage (simplified, not verified):
 
@@ -153,12 +165,12 @@ Example of usage (simplified, not verified):
 import { useState } from 'react'
 import { isAddress, erc20Abi, parseUnits, encodeFunctionData } from 'viem'
 import { useBalance, usePublicClient } from 'wagmi'
-import { useAccount, useAAWalletClient } from '@azuro-org/sdk-social-aa-connector'
+import { useAccount, useAAWalletClients } from '@azuro-org/sdk-social-aa-connector'
 import { useChain } from "@azuro-org/sdk"
 
 export const WithdrawalForm = () => {
   const { address } = useAccount()
-  const aaWalletClient = useAAWalletClient()
+  const { getClientForChain } = useAAWalletClients()
   const publicClient = usePublicClient()
   const { appChain, betToken } = useChain()
   const { isLoading, data, error, refetch } = useBalance({
@@ -173,6 +185,9 @@ export const WithdrawalForm = () => {
   const [ txHash, setTxHash ] = useState<`0x${string}` | undefined>()
 
   const withdraw = async () => {
+    // resolve the AA client for the chain we actually want to transact on
+    const aaWalletClient = await getClientForChain({ id: appChain.id })
+
     // handle it more granular and show feedback to the user
     if (!isAddress(recipientAddress) || !aaWalletClient || !data?.value || !+amount) {
       return
@@ -261,23 +276,28 @@ export const WithdrawalForm = () => {
 ## If you don't use SDK
 
 Just do the same setup, use `@azuro-org/sdk-social-aa-connector`
-and work with user's smart account by viem walletClient drop-in replacement from `useAAWalletClient`.
+and work with user's smart account by viem walletClient drop-in replacement from
+`useAAWalletClients().getClientForChain({ id })`.
 
 ```tsx
-import { useAccount, useAAWalletClient } from '@azuro-org/sdk-social-aa-connector'
+import { useAccount, useAAWalletClients } from '@azuro-org/sdk-social-aa-connector'
 import { useWalletClient } from 'wagmi'
 
 const Component = () => {
   const { address, isAAWallet } = useAccount()
-  const aaWalletClient = useAAWalletClient()
+  const { getClientForChain } = useAAWalletClients()
   const { data: defaultWalletClient } = useWalletClient()
 
   const sendTxExample = async () => {
     const to ='0x...'
     const data ='0x...'
+    const chain = appChainTakenFromViem
+
+    // resolve a client for the exact chain — Privy may not have switched to it
+    const aaWalletClient = await getClientForChain({ id: chain.id })
 
     const txHash = isAAWallet
-      ? await aaWalletClient.sendTransaction({ to, data, account: aaWalletClient.account, chain: appChainTakenFromViem })
+      ? await aaWalletClient.sendTransaction({ to, data, account: aaWalletClient.account, chain })
       : await defaultWalletClient.sendTransaction({ to, data })
   }
 }

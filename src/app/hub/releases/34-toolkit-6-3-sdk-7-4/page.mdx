@@ -1,0 +1,87 @@
+import { Callout } from 'components'
+
+# Toolkit v6.3 & SDK v7.4 — June 15, 2026
+
+This release adds predefined combo bets to the Toolkit and SDK, and hardens how the SDK resolves the
+account-abstraction (AA) wallet client for users signed in via social login.
+
+## Predefined Combos
+
+The Azuro API now serves a curated set of predefined combo bets per chain environment — ready-made express
+selections, each a list of conditions with a precomputed `totalOdds`. Render them as one-tap combos.
+
+### Toolkit
+
+A new framework-agnostic utility under `@azuro-org/toolkit`:
+
+- [`getPredefinedCombo`](/hub/apps/toolkit/feed/getPredefinedCombo) — fetch the curated combos for a chain
+
+```ts
+import { getPredefinedCombo } from '@azuro-org/toolkit'
+
+
+const combos = await getPredefinedCombo({ chainId: 137 })
+// combos[0].totalOdds
+// combos[0].conditions[0].outcome  // single picked outcome
+```
+
+### SDK
+
+A new [`usePredefinedCombo`](/hub/apps/sdk/data-hooks/usePredefinedCombo) data hook wraps the toolkit utility
+and reads the chain from the SDK chain context by default.
+
+```ts
+import { usePredefinedCombo } from '@azuro-org/sdk'
+
+
+const { data: combos, isFetching } = usePredefinedCombo()
+```
+
+Exported alongside the hook: `getUsePredefinedComboQueryOptions` (for prefetch / SSR), and the
+`UsePredefinedComboProps`, `UsePredefinedCombo`, `GetUsePredefinedComboQueryOptionsProps`,
+`UsePredefinedComboQueryFnData` types.
+
+<Callout type="info">
+  **`outcomes` (API) → `outcome` (result)**
+
+  Each predefined-combo condition pins exactly one outcome. The API returns it under the field `outcomes`,
+  but `PredefinedComboConditionData` normalizes it to a singular `outcome` (a single `OutcomeData`, not an
+  array). Read `condition.outcome`, not `condition.outcomes`. Titles are resolved from
+  `@azuro-org/dictionaries` (or left as `'Unknown'` for new-generation `conditionId[0] === '5'` conditions),
+  and `totalOdds` is computed with [`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds).
+
+  **`odds` and `totalOdds` are a snapshot** captured at fetch time, not live values. To show actual odds,
+  watch the combo's conditions with [`useSelectionOdds`](/hub/apps/sdk/watch-hooks/useSelectionOdds) /
+  [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) in the SDK, or refresh via
+  [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) (the `condition-batch` endpoint) in the
+  toolkit, and recompute the total with `calcMinOdds`.
+</Callout>
+
+## AA wallet client resolved per chain
+
+The SDK's write flows for AA (social-login) wallets — `useBet`, `useCashout`, `useRedeemBet`,
+`useWrapTokens`, and `useAuth` — now resolve the smart-account wallet client for the **required chain**
+via `getClientForChain({ id: appChain.id })`, instead of relying on the single ambient client bound to
+Privy's currently selected chain.
+
+Privy does not always switch the smart wallet to the chain the app needs, so the previous approach could
+sign or send a transaction against the wrong chain. Requesting the client by explicit chain id removes that
+class of mismatch. This is internal to the SDK hooks — no changes are required in apps that use them.
+
+<Callout type="warning">
+  **Apps that drive the AA wallet directly (e.g. withdrawals) should migrate.**
+
+  If your app calls the connector itself, switch from the deprecated `useAAWalletClient` (singular, one
+  ambient client) to `useAAWalletClients().getClientForChain({ id })` and pass your app chain id:
+
+  ```tsx
+  import { useAAWalletClients } from '@azuro-org/sdk-social-aa-connector'
+
+  const { getClientForChain } = useAAWalletClients()
+
+  // inside an async handler:
+  const aaWalletClient = await getClientForChain({ id: appChain.id })
+  ```
+
+  See the updated [Social Login guide](/hub/apps/guides/social-login) for the full withdrawal example.
+</Callout>

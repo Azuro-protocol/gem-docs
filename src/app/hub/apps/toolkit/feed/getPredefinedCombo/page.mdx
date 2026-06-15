@@ -1,0 +1,98 @@
+import { Callout } from 'components'
+
+# getPredefinedCombo
+
+Fetches the curated set of predefined combo bets for the chain's environment. Each combo is a ready-made
+selection of conditions with a precomputed `totalOdds`, intended to be rendered as a one-tap express bet.
+
+#### Usage
+
+```ts
+import { getPredefinedCombo } from '@azuro-org/toolkit'
+
+
+const combos = await getPredefinedCombo({ chainId: 137 })
+```
+
+#### Props
+
+```ts
+type GetPredefinedComboParams = {
+  chainId: ChainId
+}
+```
+
+#### Return Value
+
+```ts
+type GetPredefinedComboResult = PredefinedComboData[]
+```
+
+```ts
+type PredefinedComboData = {
+  conditions: PredefinedComboConditionData[]
+  totalOdds: string // calcMinOdds over the combo's outcomes
+}
+
+type PredefinedComboConditionData = {
+  id: string
+  conditionId: string
+  state: ConditionState
+  title: string // market title
+  isPrematchEnabled: boolean
+  isLiveEnabled: boolean
+  hidden?: boolean
+  outcome: OutcomeData // single picked outcome (see callout)
+  game: GameData
+  isExpressForbidden: boolean
+}
+
+type OutcomeData = {
+  title: string // outcome title
+  outcomeId: string
+  odds: string
+  sort: `${number}`
+  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  point?: string | null
+}
+```
+
+<Callout type="info">
+  **`outcomes` (API) → `outcome` (toolkit)**
+
+  Each predefined-combo condition pins exactly one outcome — the pick that makes up the combo. The API
+  returns it under the field `outcomes`, but the toolkit normalizes the result to a singular `outcome`
+  on `PredefinedComboConditionData`, since it is a single `OutcomeData`, not an array. Read `condition.outcome`,
+  not `condition.outcomes`.
+</Callout>
+
+<Callout type="info">
+  **Titles are resolved for you.** When the API omits a title, the toolkit fills it from
+  `@azuro-org/dictionaries` for legacy conditions, and falls back to `'Unknown'` for new-generation
+  (`conditionId[0] === '5'`) conditions whose metadata lives only on the API. `totalOdds` is computed
+  with [`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds) over the combo's outcome odds.
+</Callout>
+
+<Callout type="warning">
+  **`odds` and `totalOdds` are a snapshot.**
+
+  The `odds` on each `outcome` and the combo's `totalOdds` are captured at the moment of the request —
+  they are **not** live and will drift from current market odds. To show actual odds, refresh the combo's
+  conditions with [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) (the `condition-batch`
+  endpoint) using the `conditionId`s from `combo.conditions`, then recompute the total with
+  [`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds) over the refreshed outcome odds. If you use the SDK,
+  prefer its real-time watch hooks — see [`usePredefinedCombo`](/hub/apps/sdk/data-hooks/usePredefinedCombo).
+</Callout>
+
+```ts
+enum ConditionState {
+  Created = 'Created',
+  Active = 'Active',
+  Stopped = 'Stopped',
+  Resolved = 'Resolved',
+  Canceled = 'Canceled',
+  Paused = 'Paused'
+}
+```
+
+The SDK wraps this utility in the [`usePredefinedCombo`](/hub/apps/sdk/data-hooks/usePredefinedCombo) hook.

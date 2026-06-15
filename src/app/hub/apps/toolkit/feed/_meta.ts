@@ -7,6 +7,7 @@ export default {
   'getGamesByFilters': 'getGamesByFilters',
   'getGamesByIds': 'getGamesByIds',
   'getNavigation': 'getNavigation',
+  'getPredefinedCombo': 'getPredefinedCombo',
   'getSports': 'getSports',
   'searchGames': 'searchGames',
 } satisfies MetaRecord

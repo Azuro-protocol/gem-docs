@@ -1,0 +1,119 @@
+import { Callout } from 'components'
+
+# usePredefinedCombo
+
+The `usePredefinedCombo` hook fetches the curated set of predefined combo bets for the active chain —
+ready-made express selections with a precomputed `totalOdds`.
+
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
+
+```ts
+import { usePredefinedCombo } from '@azuro-org/sdk'
+
+const { data: combos, isFetching, error } = usePredefinedCombo()
+```
+
+## Props
+
+All props are optional — by default the hook reads the chain from the SDK's chain context.
+
+```ts
+{
+  chainId?: ChainId
+  query?: QueryParameterWithSelect<UsePredefinedComboQueryFnData, TData> // useQuery params
+}
+```
+
+```ts
+type UsePredefinedComboQueryFnData = GetPredefinedComboResult
+```
+
+```ts
+type ChainId =
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+```
+
+## Return Value
+
+```ts
+UseQueryResult<GetPredefinedComboResult>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type GetPredefinedComboResult = PredefinedComboData[]
+
+type PredefinedComboData = {
+  conditions: PredefinedComboConditionData[]
+  totalOdds: string // calcMinOdds over the combo's outcomes
+}
+
+type PredefinedComboConditionData = {
+  id: string
+  conditionId: string
+  state: ConditionState
+  title: string // market title
+  isPrematchEnabled: boolean
+  isLiveEnabled: boolean
+  hidden?: boolean
+  outcome: OutcomeData // single picked outcome (see callout)
+  game: GameData
+  isExpressForbidden: boolean
+}
+
+type OutcomeData = {
+  title: string // outcome title
+  outcomeId: string
+  odds: string
+  sort: `${number}`
+  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  point?: string | null
+}
+```
+
+<Callout type="info">
+  **`outcomes` (API) → `outcome` (result)**
+
+  Each predefined-combo condition pins exactly one outcome — the pick that makes up the combo. The API
+  returns it under the field `outcomes`, but the result exposes a singular `outcome` on
+  `PredefinedComboConditionData`, since it is a single `OutcomeData`, not an array. Read `condition.outcome`,
+  not `condition.outcomes`.
+</Callout>
+
+<Callout type="warning">
+  **`odds` and `totalOdds` are a snapshot.**
+
+  The `odds` on each `outcome` and the combo's `totalOdds` are captured at the moment of the request —
+  they are **not** live and will drift from current market odds. To display actual odds, subscribe to
+  real-time updates per selection with [`useSelectionOdds`](/hub/apps/sdk/watch-hooks/useSelectionOdds)
+  (pass the snapshot odds as `initialOdds`), or watch the whole set of conditions with
+  [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState), and recompute the combo total from
+  the live outcome odds.
+</Callout>
+
+## Query Options Helper
+
+`getUsePredefinedComboQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUsePredefinedComboQueryOptions } from '@azuro-org/sdk'
+
+const options = getUsePredefinedComboQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUsePredefinedComboQueryOptionsProps = UsePredefinedComboProps & {
+  chainId: ChainId
+}
+```
+
+This hook wraps the toolkit's [`getPredefinedCombo`](/hub/apps/toolkit/feed/getPredefinedCombo) utility.

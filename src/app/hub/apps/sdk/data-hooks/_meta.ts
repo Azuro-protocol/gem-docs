@@ -12,6 +12,7 @@ export default {
   'useActiveConditions': 'useActiveConditions',
   'useActiveMarkets': 'useActiveMarkets',
   'useResolvedMarkets': 'useResolvedMarkets',
+  'usePredefinedCombo': 'usePredefinedCombo',
   'useBetCalculation': 'useBetCalculation',
   'useMaxBet': 'useMaxBet (deprecated)',
   'useBets': 'useBets',
