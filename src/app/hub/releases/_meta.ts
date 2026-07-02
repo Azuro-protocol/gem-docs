@@ -2,6 +2,9 @@ import type { MetaRecord } from 'nextra'
 
 
 export default {
+  '35-toolkit-6-4-sdk-7-5': {
+    'title': '07/02/26 Toolkit v6.4 & SDK v7.5',
+  },
   '34-toolkit-6-3-sdk-7-4': {
     'title': '06/15/26 Toolkit v6.3 & SDK v7.4',
   },

@@ -1,0 +1,117 @@
+import { Callout } from 'components'
+
+# useOutcomeState
+
+The `useOutcomeState` hook is used for maintain updated state for an outcome.
+
+Outcomes within a condition have a `state` field that indicates their current state. For instance, `OutcomeState.Active` signifies the outcome is available for betting, while `OutcomeState.Stopped` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this outcome is currently possible or not.
+
+## Usage
+
+<Callout type="warning">
+  Before utilizing `useOutcomeState`, it is essential to initialize the `FeedSocketProvider` and `ConditionUpdatesProvider`:
+
+  ```tsx
+  import {
+    ChainProvider,
+    FeedSocketProvider,
+    ConditionUpdatesProvider,
+    useWatchers,
+  } from '@azuro-org/sdk'
+
+  function Providers(props: { children: React.ReactNode }) {
+    const { children } = props
+
+    return (
+      <ChainProvider>
+        <FeedSocketProvider>
+          <ConditionUpdatesProvider>
+            {children}
+          </ConditionUpdatesProvider>
+        </FeedSocketProvider>
+      </ChainProvider>
+    )
+  }
+  ```
+</Callout>
+
+<Callout type="info">
+Example of usage: Outcome button.<br/>
+
+We've retrieved markets with outcomes and rendered a button for each outcome and need to make sure that the outcome in a state to accept bets. The `useOutcomeState` hook offers a method to react to changes in the outcome state.
+
+```tsx
+import { useOutcomeState } from '@azuro-org/sdk'
+import { type MarketOutcome } from '@azuro-org/toolkit'
+
+type OutcomeButtonProps = {
+  outcome: MarketOutcome
+}
+
+const OutcomeButton: React.FC<OutcomeButtonProps> = (props) => {
+  const { outcome } = props
+  const { conditionId, outcomeId, state: initialState, hidden } = outcome
+
+  const { state, odds, turnover, isLocked, isHidden } = useOutcomeState({
+    conditionId,
+    outcomeId,
+    initialState,
+    isInitiallyHidden: hidden,
+    initialOdds: outcome.odds,
+  })
+
+  if (isHidden) {
+    return null
+  }
+
+  return (
+    <button disabled={isLocked}>
+      {outcome.selectionName} {odds}
+    </button>
+  )
+}
+```
+</Callout>
+
+
+## Props
+
+```ts
+{
+  conditionId: string
+  outcomeId: string
+  initialState?: OutcomeState
+  isInitiallyHidden?: boolean // pass outcome.hidden from MarketOutcome
+  initialOdds?: number // pass outcome.odds from MarketOutcome
+}
+```
+<Callout type="info">
+  The `initialState` is optional. If it's not provided, the `useOutcomeState` hook will automatically retrieve the initial value.
+</Callout>
+
+<Callout type="info">
+  Pass `outcome.hidden` from `MarketOutcome` as `isInitiallyHidden`. When `true`, the outcome starts as hidden. As soon as a socket update arrives, `isHidden` is taken authoritatively from the update — meaning the outcome is still alive and was only temporarily stopped by the provider.
+</Callout>
+
+```ts
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+```
+
+## Return Value
+
+```ts
+{
+  state: OutcomeState
+  odds: number // live odds (0 until known); updated on any socket update
+  turnover: string // empty ('') until a live update arrives — not returned by REST
+  isHidden: boolean | undefined // true while outcome is hidden; updated authoritatively on any socket update
+  isLocked: boolean // true when outcome is not Active
+  isFetching: boolean // flag indicates initial state fetching
+}
+```

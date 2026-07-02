@@ -149,23 +149,28 @@ type DetailedBetslipContextValue = {
   totalOdds: number // total bet odds
   maxBet: number | undefined // maximum bet amount
   minBet: number | undefined // minimum bet amount
-  states: Record<string, ConditionState> // status for each item
+  states: Record<string, ConditionState> // condition status for each item
+  outcomeStates: Record<string, OutcomeState> // outcome status for each item, key is `${conditionId}-${outcomeId}`
   disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
   changeBetAmount: (value: string) => void // function for changing bet amount
   isCombo: boolean // true if combo bet
-  isStatesFetching: boolean // indicates states fetching
+  isStatesFetching: boolean // indicates condition states fetching
+  isOutcomeStatesFetching: boolean // indicates outcome states fetching
   isOddsFetching: boolean // indicates odds fetching
   isMaxBetFetching: boolean // indicates max bet fetching
   isBetAllowed: boolean // true if bet can be placed
 }
 
 enum BetslipDisableReason {
-  ConditionState = 'ConditionState', // one or more outcomes have been removed or suspended
+  ConditionState = 'ConditionState', // one or more selected conditions or outcomes have been removed or suspended
   BetAmountGreaterThanMaxBet = 'BetAmountGreaterThanMaxBet', // bet amount exceeds max bet
   BetAmountLowerThanMinBet = 'BetAmountLowerThanMinBet', // bet amount lower than min bet
   ComboWithForbiddenItem = 'ComboWithForbiddenItem', // one or more conditions can't be used in combo
   ComboWithSameGame = 'ComboWithSameGame', // outcomes from same game can't be used in combo
-  PrematchConditionInStartedGame = 'PrematchConditionInStartedGame', // pre-match item in started game
+  SelectedOutcomesTemporarySuspended = 'SelectedOutcomesTemporarySuspended', // max bet is zero — selected outcomes temporarily suspended
+  TotalOddsTooLow = 'TotalOddsTooLow', // combo total odds below the allowed minimum
+  PrematchConditionInStartedGame = 'PrematchConditionInStartedGame', // @deprecated (v2 only) pre-match item in a started game
+  FreeBetExpired = 'FreeBetExpired', // selected freebet has expired
 }
 
 declare global {

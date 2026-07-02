@@ -42,11 +42,15 @@ type ConditionStateData = {
   conditionId: string
   title: string // market title — useful for new conditions ("5...") whose IDs are not in the dictionaries package
   state: ConditionState
+  sort: `${number}`
+  category: ConditionCategory
   outcomes: {
     id: string
     title: string // outcome title
     outcomeId: string
     odds: string
+    hidden: boolean
+    state: OutcomeState
   }[]
 }
 ```
@@ -59,4 +63,15 @@ enum ConditionState {
   Resolved = 'Resolved',
   Stopped = 'Stopped'
 }
+
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+
+// market category, e.g. 'total' | 'handicap' | 'winner' — see getConditionsByGameIds for the full list
+type ConditionCategory = string | null
 ```

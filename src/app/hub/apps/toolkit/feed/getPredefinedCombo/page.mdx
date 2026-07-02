@@ -54,6 +54,8 @@ type OutcomeData = {
   sort: `${number}`
   /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
   point?: string | null
+  hidden: boolean
+  state: OutcomeState
 }
 ```
 
@@ -92,6 +94,14 @@ enum ConditionState {
   Resolved = 'Resolved',
   Canceled = 'Canceled',
   Paused = 'Paused'
+}
+
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
 }
 ```
 

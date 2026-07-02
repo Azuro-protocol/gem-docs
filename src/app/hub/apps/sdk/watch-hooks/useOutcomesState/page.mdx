@@ -1,0 +1,131 @@
+import { Callout } from 'components'
+
+# useOutcomesState
+
+The `useOutcomesState` hook is used for maintain updated states for outcomes.
+
+Outcomes within a condition have a `state` field that indicates their current state. For instance, `OutcomeState.Active` signifies the outcome is available for betting, while `OutcomeState.Stopped` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this outcome is currently possible or not.
+
+## Usage
+
+<Callout type="warning">
+  Before utilizing `useOutcomesState`, it is essential to initialize the `FeedSocketProvider` and `ConditionUpdatesProvider`:
+
+  ```tsx
+  import {
+    ChainProvider,
+    FeedSocketProvider,
+    ConditionUpdatesProvider,
+    useWatchers,
+  } from '@azuro-org/sdk'
+
+  function Providers(props: { children: React.ReactNode }) {
+    const { children } = props
+
+    return (
+      <ChainProvider>
+        <FeedSocketProvider>
+          <ConditionUpdatesProvider>
+            {children}
+          </ConditionUpdatesProvider>
+        </FeedSocketProvider>
+      </ChainProvider>
+    )
+  }
+  ```
+</Callout>
+
+<Callout type="info">
+Example of usage: Market outcomes list (Option A).<br/>
+
+Pass the full outcomes array to get `state` and `hidden` without an extra fetch.
+
+```tsx
+import { useOutcomesState } from '@azuro-org/sdk'
+
+// outcomes: MarketOutcome[] from a market condition
+const { data: states, outcomesMap } = useOutcomesState({ outcomes })
+
+// hide outcomes that are still hidden (temporarily stopped by provider)
+const visibleOutcomes = outcomes.filter(({ conditionId, outcomeId }) => (
+  !outcomesMap[`${conditionId}-${outcomeId}`]?.hidden
+))
+```
+</Callout>
+
+<Callout type="info">
+Example of usage: Betslip (Option B).<br/>
+
+```tsx
+import { useOutcomesState } from '@azuro-org/sdk'
+import { OutcomeState } from '@azuro-org/toolkit'
+import { useMemo } from 'react'
+
+const items = [{...}]
+
+const { data: states, isFetching: isStatesFetching } = useOutcomesState({
+  selections: items.map(({ conditionId, outcomeId }) => ({ conditionId, outcomeId })),
+})
+
+const isOutcomesInActiveState = useMemo(() => {
+  return Object.values(states).every(state => state === OutcomeState.Active)
+}, [ states ])
+```
+</Callout>
+
+
+## Props
+
+Two signatures are supported:
+
+**Option A — pass full outcome objects (preferred for market outcomes):**
+```ts
+{
+  outcomes: Pick<MarketOutcome, 'conditionId' | 'outcomeId' | 'odds' | 'state' | 'hidden'>[]
+}
+```
+
+**Option B — pass selections only (betslip / ID-only scenarios):**
+```ts
+{
+  selections: Selection[] // { conditionId: string; outcomeId: string }[]
+  initialStates?: Record<string, OutcomeState> // key is `${conditionId}-${outcomeId}`
+}
+```
+
+<Callout type="info">
+Option A is preferred when rendering market outcomes — it provides initial `state` and `hidden` without an extra fetch.
+</Callout>
+
+<Callout type="info">
+When using Option B, `initialStates` is optional. If it's not provided, the hook will automatically fetch the initial states.
+</Callout>
+
+```ts
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+```
+
+## Return Value
+
+```ts
+{
+  data: Record<string, OutcomeState> // key is `${conditionId}-${outcomeId}`
+  outcomesMap: Record<string, {      // key is `${conditionId}-${outcomeId}`
+    odds: number       // live odds
+    turnover: string   // empty ('') until a live update arrives — not returned by REST
+    state: OutcomeState
+    hidden: boolean
+  }>
+  isFetching: boolean // flag indicates initial states fetching
+}
+```
+
+<Callout type="info">
+Each `outcomesMap` entry holds the full `OutcomeUpdateData` dispatched by the outcome watcher. On a socket update, the outcome's `odds`, `turnover`, `state` and `hidden` all come authoritatively from the update. `turnover` is only ever populated by live updates (`''` until the first one).
+</Callout>

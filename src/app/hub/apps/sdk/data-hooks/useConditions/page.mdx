@@ -90,6 +90,7 @@ type ConditionDetailedData = {
   hidden?: boolean
   margin: string
   outcomes: OutcomeData[]
+  category: ConditionCategory
   game: {
     gameId: string
     sport: {
@@ -110,6 +111,8 @@ type OutcomeData = {
   sort: `${number}`
   /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
   point?: string | null
+  hidden: boolean
+  state: OutcomeState
 }
 
 enum ConditionState {
@@ -120,6 +123,17 @@ enum ConditionState {
   Canceled = 'Canceled',
   Paused = 'Paused'
 }
+
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+
+// market category, e.g. 'total' | 'handicap' | 'winner' — see getConditionsByGameIds for the full list
+type ConditionCategory = string | null
 ```
 
 ## Query Options Helper

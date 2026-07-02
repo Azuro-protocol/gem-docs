@@ -2,6 +2,8 @@
 
 Creates markets from subgraph or REST API conditions.
 
+Returned markets are ordered by their first condition's `sort` value (ascending). Each market and condition also carries a `category` (see [`ConditionCategory`](#return-value)), and passing an empty or nullish `conditions` array returns `[]`.
+
 #### Usage
 
 ```ts
@@ -28,12 +30,16 @@ type Market = {
   marketKey: string
   name: string
   description: string
-  conditions: Condition[]
+  conditions: MarketCondition[]
+  category: ConditionCategory
+  type?: 'legacy' | 'v5'
 }
 
-type Condition = {
+type MarketCondition = {
   conditionId: string
   state: ConditionState
+  category: ConditionCategory
+  sort: number
   margin: string
   hidden?: boolean
   isExpressForbidden: boolean
@@ -46,10 +52,38 @@ type MarketOutcome = {
   gameId: string
   isExpressForbidden: boolean
   isWon?: boolean
+  hidden: boolean
+  state: OutcomeState
 } & Selection
 
 type Selection = {
   conditionId: string
   outcomeId: string
 }
+
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+
+type ConditionCategory =
+  | 'correct_score'
+  | 'handicap'
+  | 'handicap_3_way'
+  | 'odd_even'
+  | 'participant_and_total'
+  | 'participant_and_yes_no'
+  | 'participant_slash_participant'
+  | 'players'
+  | 'result'
+  | 'result_or_neither'
+  | 'total'
+  | 'total_3_way'
+  | 'winner'
+  | 'yes_no'
+  | string // extensible — new categories may appear; null when unset
+  | null
 ```

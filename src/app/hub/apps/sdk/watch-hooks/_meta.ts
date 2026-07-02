@@ -7,6 +7,8 @@ export default {
   'useSelectionOdds': 'useSelectionOdds',
   'useConditionState': 'useConditionState',
   'useConditionsState': 'useConditionsState',
+  'useOutcomeState': 'useOutcomeState',
+  'useOutcomesState': 'useOutcomesState',
   'useGameState': 'useGameState',
   'useLiveStatistics': 'useLiveStatistics',
 } satisfies MetaRecord

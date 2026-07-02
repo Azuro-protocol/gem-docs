@@ -1,0 +1,119 @@
+import { Callout } from 'components'
+
+# Toolkit v6.4 & SDK v7.5 — July 2, 2026
+
+This release brings per-outcome state tracking across the stack: outcomes now carry their own `hidden` flag
+and `state` (`OutcomeState`), the SDK ships two new watch hooks to keep that state live, and the betslip
+blocks bets on outcomes that have been suspended or hidden.
+
+## Per-outcome `hidden` & `state`
+
+Previously, state lived only on the condition. Now every outcome carries its own `hidden: boolean` and
+`state: OutcomeState`, so an individual outcome can be suspended or hidden while the rest of the condition
+stays open for betting.
+
+### Toolkit
+
+A new `OutcomeState` enum is exported from `@azuro-org/toolkit`:
+
+```ts
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost',
+}
+```
+
+[`MarketOutcome`](/hub/apps/toolkit/utils/groupConditionsByMarket) now has two new required fields:
+
+```ts
+type MarketOutcome = {
+  selectionName: string
+  odds: number
+  gameId: string
+  isExpressForbidden: boolean
+  isWon?: boolean
+  hidden: boolean
+  state: OutcomeState
+} & Selection
+```
+
+The same `hidden` / `state` fields were added to the raw feed types `OutcomeData` and
+`ConditionStateData.outcomes[]`, so socket updates carry per-outcome state authoritatively.
+
+<Callout type="info">
+  **`Condition` → `MarketCondition`**
+
+  The per-condition shape produced by [`groupConditionsByMarket`](/hub/apps/toolkit/utils/groupConditionsByMarket)
+  is now exported as `MarketCondition` (previously an internal `Condition`):
+
+  ```ts
+  type MarketCondition = {
+    conditionId: string
+    state: ConditionState
+    category: ConditionCategory
+    sort: number
+    margin: string
+    hidden?: boolean
+    isExpressForbidden: boolean
+    outcomes: MarketOutcome[]
+  }
+  ```
+</Callout>
+
+## Condition categories & market sorting
+
+Beyond per-outcome state, `groupConditionsByMarket` gained an intrinsic market **category** and a stable order:
+
+- Every `Market` and `MarketCondition` now exposes `category: ConditionCategory` — e.g. `'total'`, `'handicap'`, `'winner'` (extensible, `null` when unset).
+- Markets are returned ordered by their first condition's `sort` (ascending); each `MarketCondition` also exposes its own `sort: number`.
+- The raw feed types carry the same data — `ConditionDetailedData.category`, and `ConditionStateData.category` / `.sort`.
+
+## New SDK watch hooks
+
+Two new watch hooks — outcome-level analogs of [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState)
+and [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) — keep per-outcome state live over
+the socket. Both require the `FeedSocketProvider` and `ConditionUpdatesProvider` (already included in the
+[AzuroSDKProvider](/hub/apps/sdk/providers/sdk)). On a socket update, each outcome's `state` / `hidden` come
+authoritatively from the update.
+
+### [useOutcomeState](/hub/apps/sdk/watch-hooks/useOutcomeState)
+
+Track a single outcome and get an `isLocked` flag (`true` when the outcome is not `Active`):
+
+```tsx
+import { useOutcomeState } from '@azuro-org/sdk'
+
+const { state, isLocked, isHidden } = useOutcomeState({
+  conditionId,
+  outcomeId,
+  initialState,
+  isInitiallyHidden: hidden,
+})
+```
+
+### [useOutcomesState](/hub/apps/sdk/watch-hooks/useOutcomesState)
+
+Track many outcomes at once. Pass full outcome objects, or selections only:
+
+```tsx
+import { useOutcomesState } from '@azuro-org/sdk'
+
+// Option A — pass full outcomes (no extra fetch)
+const { data: states, outcomesMap } = useOutcomesState({ outcomes })
+
+// Option B — pass selections only
+const { data: states } = useOutcomesState({ selections })
+```
+
+All keys are `${conditionId}-${outcomeId}`.
+
+## Betslip blocks suspended/hidden outcomes
+
+[`useDetailedBetslip`](/hub/apps/sdk/providers/betslip) now also returns
+`outcomeStates: Record<string, OutcomeState>` (keyed `${conditionId}-${outcomeId}`) and
+`isOutcomeStatesFetching: boolean`. When a selected outcome is hidden or not `Active`, the betslip disables
+the bet with the existing `BetslipDisableReason.ConditionState` — the same reason used for suspended or
+removed conditions (render it as e.g. "one or more outcomes are suspended").

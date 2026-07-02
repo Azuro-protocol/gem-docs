@@ -59,6 +59,7 @@ type ConditionDetailedData = {
   hidden?: boolean
   margin: string
   outcomes: OutcomeData[]
+  category: ConditionCategory
   game: {
     gameId: string
     sport: {
@@ -79,6 +80,8 @@ type OutcomeData = {
   sort: `${number}`
   /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
   point?: string | null
+  hidden: boolean
+  state: OutcomeState
 }
 ```
 
@@ -90,4 +93,30 @@ enum ConditionState {
   Resolved = 'Resolved',
   Stopped = 'Stopped'
 }
+
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+
+type ConditionCategory =
+  | 'correct_score'
+  | 'handicap'
+  | 'handicap_3_way'
+  | 'odd_even'
+  | 'participant_and_total'
+  | 'participant_and_yes_no'
+  | 'participant_slash_participant'
+  | 'players'
+  | 'result'
+  | 'result_or_neither'
+  | 'total'
+  | 'total_3_way'
+  | 'winner'
+  | 'yes_no'
+  | string // extensible — new categories may appear; null when unset
+  | null
 ```

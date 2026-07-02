@@ -51,13 +51,18 @@ type Market = {
   marketKey: string
   name: string
   description: string
-  conditions: Condition[]
+  conditions: MarketCondition[]
+  category: ConditionCategory
+  type?: 'legacy' | 'v5'
 }
 
-type Condition = {
+type MarketCondition = {
   conditionId: string
   state: ConditionState
+  category: ConditionCategory
+  sort: number
   margin: string
+  hidden?: boolean
   isExpressForbidden: boolean
   outcomes: MarketOutcome[]
 }
@@ -68,10 +73,23 @@ type MarketOutcome = {
   gameId: string
   isExpressForbidden: boolean
   isWon?: boolean
+  hidden: boolean
+  state: OutcomeState
 } & Selection
 
 type Selection = {
   conditionId: string
   outcomeId: string
 }
+
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+
+// market category, e.g. 'total' | 'handicap' | 'winner' — see groupConditionsByMarket for the full list
+type ConditionCategory = string | null
 ```
