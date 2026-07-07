@@ -10,6 +10,13 @@ import './style.css'
 
 import Footer from '@/components/Footer'
 
+// Nextra's git-based "Last updated" timestamp is bugged: during a single
+// build it stamps the same commit date onto multiple unrelated files
+// (confirmed by seeing identical timestamps on unrelated pages in one
+// build's output), so the date shown is effectively random per build.
+// Render nothing instead of a misleading date until this is fixed upstream.
+const NoLastUpdated = () => <div />
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://gem.azuro.org'),
   title: {
@@ -79,6 +86,7 @@ export default async function RootLayout({ children }) {
       // banner={<Banner storageKey="Nextra 2">Nextra 2 Alpha</Banner>}
       navbar={navbar}
       footer={<Footer />}
+      lastUpdated={<NoLastUpdated />}
       editLink="Edit this page on GitHub"
       docsRepositoryBase="https://github.com/Azuro-protocol/gem-docs/tree/main"
       sidebar={{ defaultMenuCollapseLevel: 1, toggleButton: false }}
