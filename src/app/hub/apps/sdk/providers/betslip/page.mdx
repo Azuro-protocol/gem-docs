@@ -144,6 +144,7 @@ const selectionAmount = batchBetAmounts[`${conditionId}-${outcomeId}`]
 ```ts
 type BetslipProviderProps = {
   children: React.ReactNode
+  affiliate?: Address // affiliate wallet address; enables fetching available freebets for the selections
 }
 ```
 
@@ -164,15 +165,19 @@ type DetailedBetslipContextValue = {
   totalOdds: number // total bet odds
   maxBet: number | undefined // maximum bet amount
   minBet: number | undefined // minimum bet amount
+  selectedFreebet: Freebet | undefined // currently selected freebet
+  freebets: Freebet[] | undefined | null // freebets available for the current selections
   states: Record<string, ConditionState> // condition status for each item
   outcomeStates: Record<string, OutcomeState> // outcome status for each item, key is `${conditionId}-${outcomeId}`
   disableReason: BetslipDisableReason | undefined // reason for prohibiting the bet
   changeBetAmount: (value: string) => void // function for changing bet amount
-  isCombo: boolean // true if combo bet
+  selectFreebet: (value?: Freebet) => void // function for selecting a freebet, pass undefined to unselect
   isStatesFetching: boolean // indicates condition states fetching
   isOutcomeStatesFetching: boolean // indicates outcome states fetching
   isOddsFetching: boolean // indicates odds fetching
-  isMaxBetFetching: boolean // indicates max bet fetching
+  isFreebetsFetching: boolean // indicates freebets fetching
+  isMaxBetFetching: boolean // @deprecated use isBetCalculationFetching instead
+  isBetCalculationFetching: boolean // indicates min/max bet calculation fetching
   isBetAllowed: boolean // true if bet can be placed
 }
 
@@ -200,14 +205,11 @@ declare global {
 type Selection = {
   outcomeId: string
   conditionId: string
-  coreAddress: string
 }
-
-type AddItemProps = {
-  gameId: string
-  lpAddress: string
-  isExpressForbidden: boolean
-} & Selection
 
 type RemoveItemProps = Selection
 ```
+
+<Callout type="info">
+`selectedFreebet` and `freebets` use the `Freebet` type returned by [useAvailableFreebets](/hub/apps/sdk/bonus/useAvailableFreebets) — see that hook for the full type shape, and the [freebets guide](/hub/apps/guides/freebets) for how freebets are selected and applied.
+</Callout>
