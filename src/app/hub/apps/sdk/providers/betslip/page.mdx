@@ -58,12 +58,26 @@ function Providers(props: { children: React.ReactNode }) {
 ```ts
 import { useBaseBetslip, useDetailedBetslip } from '@azuro-org/sdk'
 
-const { items, addItem, removeItem, clear } = useBaseBetslip()
+const { items, addItem, addItems, removeItem, clear } = useBaseBetslip()
 const { betAmount, odds} = useDetailedBetslip()
 ```
 
 <Callout type="info">
 The `useBaseBetslip` hook is employed to gain access to items and facilitate their modification, while the `useDetailedBetslip` hook is utilized for obtaining additional information such as odds and states.
+</Callout>
+
+<Callout type="info">
+The `addItems` function adds several items to the betslip at once. By default the provided items are merged into the current betslip — for each new item any existing selection from the same game is replaced (the same rule as `addItem`) and the rest are appended. Pass `true` as the second argument to overwrite the entire betslip with the provided items instead:
+
+```ts
+const { addItems } = useBaseBetslip()
+
+// merge into the current betslip
+addItems([ firstItem, secondItem ])
+
+// replace the whole betslip
+addItems([ firstItem, secondItem ], true)
+```
 </Callout>
 
 <Callout type="info">
@@ -138,7 +152,8 @@ type BetslipProviderProps = {
 ```ts
 type BaseBetslipContextValue = {
   items: AzuroSDK.BetslipItem[] // betslip items
-  addItem: (itemProps: AzuroSDK.BetslipItem) => void // function for adding new items
+  addItem: (itemProps: AzuroSDK.BetslipItem) => void // function for adding a new item
+  addItems: (items: AzuroSDK.BetslipItem[], replace?: boolean) => void // function for adding multiple items at once; pass replace=true to overwrite the whole betslip
   removeItem: (itemProps: RemoveItemProps) => void // function for removing item from betslip
   clear: () => void // function for clearing betslip
 }
