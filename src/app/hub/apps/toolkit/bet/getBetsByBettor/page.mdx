@@ -3,6 +3,8 @@ title: getBetsByBettor
 description: Azuro Toolkit util. Retrieves all bet orders for a specific bettor address with optional filtering.
 ---
 
+import { Callout } from 'components'
+
 # getBetsByBettor
 
 Retrieves all bet orders for a specific bettor address with optional filtering. Supports pagination and filtering by state, result, affiliate, and redemption status.
@@ -103,7 +105,7 @@ type BetOrderData = {
   settledAt: ISOTimestamp | null
   redeemedAt: ISOTimestamp | null
   conditions: BetOrderConditionData[]
-  meta: BetMetaData | null
+  meta: BetMetaData | null // subgraph mirror - carries the per-outcome results, see below
   error: string | null
   errorMessage: string | null
 }
@@ -138,3 +140,69 @@ type BetOrderConditionData = {
   potentialLoss: string | null
 }
 ```
+
+#### Per-outcome results
+
+Settlement is per-outcome: within a single condition, one outcome can be `Won`, another `Lost` and a third
+`Canceled` (voided, stake refunded). The result of each of a bet's legs therefore lives on
+`meta.selections[].outcome.condition.outcomes[]`, keyed by `outcomeId`:
+
+```ts
+type BetMetaData = {
+  // ...
+  selections: Array<{
+    id: string
+    odds: string
+    /** per-selection signal, typed `SelectionResult` (Won | Lost) - cannot express a void */
+    result: SelectionResult | null
+    outcome: {
+      outcomeId: string
+      sortOrder: number
+      condition: {
+        conditionId: string
+        gameId: string
+        /** subgraph condition status - NOT the feed's `ConditionState`, and NOT a per-leg result */
+        status: ConditionStatus
+        outcomes: {
+          /** the authoritative per-outcome settlement signal for this bet's leg */
+          result: OutcomeResult | null
+          outcomeId: string
+          sortOrder: number
+        }[]
+        wonOutcomeIds: null | string[]
+        // ...
+      }
+    }
+    // ...
+  }>
+  // ...
+}
+
+enum OutcomeResult {
+  Won = 'Won',
+  Lost = 'Lost',
+  Canceled = 'Canceled'
+}
+```
+
+```ts
+import { OutcomeResult } from '@azuro-org/toolkit'
+
+const selection = order.meta!.selections[0]!
+
+const legResult = selection.outcome.condition.outcomes
+  .find(({ outcomeId }) => outcomeId === selection.outcome.outcomeId)?.result
+
+const isLegVoided = legResult === OutcomeResult.Canceled
+const isLegWon = legResult === OutcomeResult.Won
+const isLegPending = !legResult
+```
+
+<Callout type="warning">
+  **A voided leg must be excluded from a combo's odds and potential win.** Multiplying a refunded leg into
+  the total reports a payout the protocol will never pay. Do not derive a leg's result from
+  `condition.status` or from `wonOutcomeIds` — the former describes the condition entity, the latter only
+  ever describes wins. See the [Toolkit v7 Migration Guide](/hub/apps/toolkit/migration-v7).
+</Callout>
+
+See [`getBet`](/hub/apps/toolkit/bet/getBet) for the full `BetMetaData` shape.

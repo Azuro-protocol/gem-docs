@@ -17,6 +17,7 @@ const { data, isFetching, error } = useActiveMarkets(props)
 ```ts
 {
   gameId: string
+  includeHidden?: boolean // keep `hidden` conditions and outcomes in the result; default false
   extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameter<ConditionDetailedData[]> // useQuery params
@@ -39,6 +40,36 @@ const { data, isFetching, error } = useActiveMarkets(props)
   `extended` is forwarded to the underlying [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) call. Set it to `true` to also surface new-generation markets (conditions whose `conditionId[0] === '5'`) in the grouped result — `groupConditionsByMarket` already understands the new shape. See the [`useActiveConditions` docs](/hub/apps/sdk/data-hooks/useActiveConditions) for the full caveat, especially if your app reads `@azuro-org/dictionaries` directly.
 </Callout>
 
+<Callout type="warning">
+  **`hidden` conditions and outcomes are dropped by default.**
+
+  Conditions flagged `hidden`, and hidden outcomes inside the conditions that are kept, are filtered out
+  unless you pass `includeHidden: true`. A condition whose every outcome is hidden is dropped entirely.
+  Previously everything was returned and apps filtered at render time — a view that relied on getting
+  everything back **must now pass `includeHidden: true`**.
+
+  The rule to apply: while a game is active, `hidden` conditions and outcomes stay hidden; once the game
+  is finished, they are shown.
+
+  ```tsx
+  import { GameState } from '@azuro-org/toolkit'
+
+  const { data } = useActiveMarkets({
+    gameId,
+    includeHidden: gameState === GameState.Finished,
+  })
+  ```
+
+  `includeHidden` is part of the `conditions` query key, so entries cached by an earlier SDK version are
+  invalidated.
+</Callout>
+
+<Callout type="info">
+  **Settlement is per-outcome.** `ConditionState` is only ever `Active` or `Stopped` — a condition carries
+  no result. Within a single condition, outcomes settle independently: `Won`, `Lost`, `Canceled` (voided,
+  stake refunded) or still `Active`. Read `MarketOutcome.state`, or
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled), for a result.
+</Callout>
 
 ## Return Value
 
@@ -76,14 +107,19 @@ type MarketOutcome = {
   odds: number
   gameId: string
   isExpressForbidden: boolean
-  isWon?: boolean
   hidden: boolean
+  /** the per-outcome source of truth: Active | Stopped | Won | Lost | Canceled */
   state: OutcomeState
 } & Selection
 
 type Selection = {
   conditionId: string
   outcomeId: string
+}
+
+enum ConditionState {
+  Active = 'Active',
+  Stopped = 'Stopped',
 }
 
 enum OutcomeState {

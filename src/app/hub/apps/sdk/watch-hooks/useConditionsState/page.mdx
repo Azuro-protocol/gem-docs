@@ -4,7 +4,19 @@ import { Callout } from 'components'
 
 The `useConditionsState` hook is used for maintain updated states for a conditions.
 
-[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. For instance, `ConditionState.Created` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this condition is currently possible or not.
+[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. `ConditionState.Active` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it is not accepting bets right now. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this condition is currently possible or not.
+
+<Callout type="warning">
+  **A condition never carries a result.** Since toolkit v7 `ConditionState` is exactly `Active | Stopped` —
+  `Resolved`, `Canceled` and `Removed` are gone. Settlement is tracked **per outcome**: read
+  `OutcomeState` via [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) /
+  [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState), or with
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled).
+
+  A condition that is absent from the feed now reports `ConditionState.Stopped` — it used to report the
+  removed `ConditionState.Removed`. Use the `hidden` field of `conditionsMap` to tell a condition the provider pulled off the grid
+  from one that is merely not taking bets.
+</Callout>
 
 ## Usage
 
@@ -102,10 +114,7 @@ When using Option B, `initialStates` is optional. If it's not provided, the hook
 ```ts
 enum ConditionState {
   Active = 'Active',
-  Canceled = 'Canceled',
-  Removed = 'Removed',
-  Resolved = 'Resolved',
-  Stopped = 'Stopped'
+  Stopped = 'Stopped',
 }
 ```
 

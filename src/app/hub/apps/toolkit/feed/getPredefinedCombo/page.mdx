@@ -86,14 +86,19 @@ type OutcomeData = {
   prefer its real-time watch hooks — see [`usePredefinedCombo`](/hub/apps/sdk/data-hooks/usePredefinedCombo).
 </Callout>
 
+<Callout type="warning">
+  **A condition is only ever `Active` or `Stopped`; settlement lives on each outcome.**
+
+  `ConditionState` no longer has `Resolved`, `Canceled` or `Removed`. Within one condition, outcomes
+  settle independently — one can be `Won`, another `Lost`, a third `Canceled` (voided, stake refunded)
+  and a fourth still `Active`. Read each outcome's `state`, or
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled), for a result.
+</Callout>
+
 ```ts
 enum ConditionState {
-  Created = 'Created',
   Active = 'Active',
   Stopped = 'Stopped',
-  Resolved = 'Resolved',
-  Canceled = 'Canceled',
-  Paused = 'Paused'
 }
 
 enum OutcomeState {

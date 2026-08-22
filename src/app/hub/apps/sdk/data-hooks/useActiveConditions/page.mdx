@@ -17,6 +17,7 @@ const { data, isFetching, error } = useActiveConditions(props)
 ```ts
 {
   gameId: string | bigint | string[] | bigint[]
+  includeHidden?: boolean // keep `hidden` conditions and outcomes in the result; default false
   extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameter<ConditionDetailedData[]> // useQuery params
@@ -50,6 +51,37 @@ const { data, isFetching, error } = useActiveConditions(props)
   **For new bets, titles also are present in the subgraph.**
 </Callout>
 
+<Callout type="warning">
+  **`hidden` conditions and outcomes are dropped by default.**
+
+  Conditions flagged `hidden`, and hidden outcomes inside the conditions that are kept, are filtered out
+  unless you pass `includeHidden: true`. A condition whose every outcome is hidden is dropped entirely.
+  Previously everything was returned and apps filtered at render time — a view that relied on getting
+  everything back **must now pass `includeHidden: true`**.
+
+  The rule to apply: while a game is active, `hidden` conditions and outcomes stay hidden; once the game
+  is finished, they are shown.
+
+  ```tsx
+  import { GameState } from '@azuro-org/toolkit'
+
+  const { data } = useActiveConditions({
+    gameId,
+    includeHidden: gameState === GameState.Finished,
+  })
+  ```
+
+  `includeHidden` is part of the `conditions` query key, so entries cached by an earlier SDK version are
+  invalidated.
+</Callout>
+
+<Callout type="info">
+  **Settlement is per-outcome.** `ConditionState` is only ever `Active` or `Stopped` — a condition carries
+  no result. Within a single condition, outcomes settle independently: `Won`, `Lost`, `Canceled` (voided,
+  stake refunded) or still `Active`. Read `OutcomeData.state`, or
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled), for a result.
+</Callout>
+
 ## Return Value
 
 ```ts
@@ -77,6 +109,7 @@ type ConditionDetailedData = {
       sportId: string
     }
   }
+  /** win-only, condition-level list. NOT the per-outcome source of truth - read `OutcomeData.state` */
   wonOutcomeIds: string[]
   sort: `${number}`
   /** Modern ("5...") conditions only: used for market grouping */
@@ -96,12 +129,8 @@ type OutcomeData = {
 }
 
 enum ConditionState {
-  Created = 'Created',
   Active = 'Active',
   Stopped = 'Stopped',
-  Resolved = 'Resolved',
-  Canceled = 'Canceled',
-  Paused = 'Paused'
 }
 
 enum OutcomeState {

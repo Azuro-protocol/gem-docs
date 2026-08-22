@@ -103,6 +103,14 @@ enum OutcomeState {
 }
 ```
 
+<Callout type="warning">
+  **`OutcomeState.Canceled` means voided — not "missing from the feed".** A canceled outcome is one the
+  protocol voided: bets on it are refunded. When an outcome is absent from the feed, this hook falls back
+  to `OutcomeState.Stopped` (it used to fall back to `OutcomeState.Canceled`). Use
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled) to ask whether an outcome has a final
+  result — `Won`, `Lost` or `Canceled` — rather than comparing states by hand.
+</Callout>
+
 ## Return Value
 
 ```ts

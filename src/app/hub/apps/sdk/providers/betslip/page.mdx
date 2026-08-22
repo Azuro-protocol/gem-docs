@@ -182,7 +182,7 @@ type DetailedBetslipContextValue = {
 }
 
 enum BetslipDisableReason {
-  ConditionState = 'ConditionState', // one or more selected conditions or outcomes have been removed or suspended
+  ConditionState = 'ConditionState', // one or more selected conditions or outcomes are no longer bettable (stopped, hidden or already settled)
   BetAmountGreaterThanMaxBet = 'BetAmountGreaterThanMaxBet', // bet amount exceeds max bet
   BetAmountLowerThanMinBet = 'BetAmountLowerThanMinBet', // bet amount lower than min bet
   ComboWithForbiddenItem = 'ComboWithForbiddenItem', // one or more conditions can't be used in combo

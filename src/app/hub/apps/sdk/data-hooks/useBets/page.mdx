@@ -134,9 +134,9 @@ type BetOutcome = {
   odds: number
   marketName: string
   game: GameQuery['games'][0] // game on which the bet is placed
-  isWin: boolean | null
-  isLose: boolean | null
-  isCanceled: boolean
+  isWin: boolean | null // true = won, false = settled but not won, null = still pending
+  isLose: boolean | null // true = lost, false = settled but not lost, null = still pending
+  isCanceled: boolean // true = voided, stake refunded for this leg
 } & Selection
 
 type Bet = {
@@ -144,14 +144,14 @@ type Bet = {
   tokenId: string // id of the bet's NFT
   freebetId?: string | null // id of the freebet's NFT
   freebetContractAddress?: Address // freebet contract address
-  totalOdds: number // total odds of the bet
+  totalOdds: number // total odds of the bet - voided legs are excluded from the product
   coreAddress: Address // core contract address
   lpAddress: Address // lp contract address
   outcomes: BetOutcome[] // bet's outcomes list
   txHash: string // bet's transaction hash
   status: BetStatus // subgraph bet status
   amount: string // bet's amount in USDT
-  possibleWin: number // possible win amount in USDT
+  possibleWin: number // possible win amount in USDT - excludes voided legs
   payout: number | null // claimable amount - `null` once the bet is redeemed or cashed out; gates a redeem action
   settledPayout: number | null // what the bet actually returned - stays populated after redemption; use for historical/aggregate views
   cashout: string | null // cashout amount in USDT
@@ -165,6 +165,39 @@ type Bet = {
   isCashedOut: boolean // flag indicates whether the bet is cashed out
 }
 ```
+
+<Callout type="warning">
+  **A voided leg is `isCanceled`, not "pending".**
+
+  Settlement is per-outcome: within one condition, one outcome can win, another lose and a third be voided
+  (refunded). A voided leg of a bet now reports `{ isWin: false, isLose: false, isCanceled: true }`. It used
+  to report `{ isWin: null, isLose: null, isCanceled: false }` — indistinguishable from a leg that hadn't
+  settled yet.
+
+  **Check `isCanceled` before treating `isWin === null` as "pending":**
+
+  ```tsx
+  if (outcome.isCanceled) {
+    return <Refunded />
+  }
+
+  if (outcome.isWin === null) {
+    return <Pending />
+  }
+
+  return outcome.isWin ? <Won /> : <Lost />
+  ```
+
+  Won, lost, voided and pending are mutually exclusive: a settled leg never reports `null`, and a pending
+  leg reports `isWin: null` / `isLose: null` with `isCanceled: false`.
+</Callout>
+
+<Callout type="info">
+  **Voided legs are excluded from combo odds.** A refunded leg no longer multiplies into a combo's
+  `totalOdds`, so `totalOdds` and `possibleWin` for a combo containing a voided leg are lower — and correct
+  — than they were before. A combo whose every leg was voided has `totalOdds` of `1`: the stake is simply
+  returned.
+</Callout>
 
 <Callout type="info">
   **`payout` vs `settledPayout`**

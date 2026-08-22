@@ -2,7 +2,7 @@ import { Callout } from 'components'
 
 # useBetsSummaryBySelection
 
-The `useBetsSummaryBySelection` Hook should use if you want to show user's bets results on the game page for resolved markets, check [`useResolvedMarkets`](useResolvedMarkets).
+The `useBetsSummaryBySelection` Hook should use if you want to show user's bets results on the game page for settled markets. To render the markets themselves, use [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) with `includeHidden: true` — each outcome then carries its own result in `state`.
 
 ## Usage
 

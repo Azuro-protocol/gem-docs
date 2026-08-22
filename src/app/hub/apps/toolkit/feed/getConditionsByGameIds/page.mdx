@@ -66,6 +66,7 @@ type ConditionDetailedData = {
       sportId: string
     }
   }
+  /** win-only, condition-level list. NOT the per-outcome source of truth - read `OutcomeData.state` */
   wonOutcomeIds: string[]
   sort: `${number}`
   /** Modern ("5...") conditions only: used for market grouping */
@@ -85,13 +86,22 @@ type OutcomeData = {
 }
 ```
 
+<Callout type="warning">
+  **A condition is only ever `Active` or `Stopped`; settlement lives on each outcome.**
+
+  `ConditionState` no longer has `Resolved`, `Canceled` or `Removed` — a condition tells you whether it is
+  taking bets, nothing more. Within one condition, outcomes settle independently: one can be `Won`, another
+  `Lost`, a third `Canceled` (voided, stake refunded) and a fourth still `Active`.
+
+  Read `OutcomeData.state`, or [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled), for a
+  result. `wonOutcomeIds` is still served, but it only ever describes wins — it cannot tell a loss apart
+  from a void or from an outcome that hasn't settled yet.
+</Callout>
+
 ```ts
 enum ConditionState {
   Active = 'Active',
-  Canceled = 'Canceled',
-  Removed = 'Removed',
-  Resolved = 'Resolved',
-  Stopped = 'Stopped'
+  Stopped = 'Stopped',
 }
 
 enum OutcomeState {
