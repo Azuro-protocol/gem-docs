@@ -1,0 +1,472 @@
+import { Callout } from 'components'
+
+# Migration Guide: Toolkit v7.0.0
+
+This guide will help you migrate from toolkit v6.x to v7.0.0. The whole release is one change: **the
+protocol no longer resolves conditions — it resolves outcomes.**
+
+## Overview
+
+A [`Condition`](/knowledge-hub/how-azuro-works/components/conditions) used to carry a result of its own:
+it could be `Resolved` or `Canceled`, and the outcomes underneath inherited that verdict. That model could
+not describe reality. Within one condition, the protocol can settle one outcome as **Won**, another as
+**Lost**, void a third (**Canceled** — stake refunded), and leave a fourth still open.
+
+So in v7:
+
+- **`ConditionState` is now exactly `{ Active, Stopped }`** — a condition tells you whether it's taking
+  bets, nothing more.
+- **`OutcomeState` is where settlement lives** — unchanged as an enum, but now the only place a result
+  is expressed.
+- **`MarketOutcome.isWon` is gone**, because it was derived from the condition and was wrong.
+- **New helper [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled)** and a root export of
+  `OutcomeResult` make the per-outcome model easy to consume.
+
+<Callout type="warning">
+This is a major version update with breaking changes. It pairs with **SDK v8.0.0** — if you use the SDK,
+read the [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8) as well, since several of its changes are
+behavioural and produce no compile error.
+</Callout>
+
+---
+
+## Breaking Changes
+
+### 1. enum `ConditionState` reduced to `Active | Stopped`
+
+`Canceled`, `Removed` and `Resolved` are removed from the enum. A condition is now only ever open for
+bets (`Active`) or not (`Stopped`).
+
+**Before:**
+```ts
+import { ConditionState } from '@azuro-org/toolkit'
+
+enum ConditionState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Removed = 'Removed',
+  Resolved = 'Resolved',
+  Stopped = 'Stopped'
+}
+```
+
+**After:**
+```ts
+import { ConditionState } from '@azuro-org/toolkit'
+
+enum ConditionState {
+  Active = 'Active',
+  Stopped = 'Stopped',
+}
+```
+
+Any code that referenced a removed member stops compiling. Rewrite it against the outcome instead:
+
+**Before:**
+```ts
+// "is this market finished?"
+const isFinished = condition.state === ConditionState.Resolved
+  || condition.state === ConditionState.Canceled
+
+// "is this market gone from the UI?"
+const isGone = condition.state === ConditionState.Removed
+```
+
+**After:**
+```ts
+import { isOutcomeSettled, ConditionState } from '@azuro-org/toolkit'
+
+// "is this market finished?" - true only when every outcome under it has settled
+const isFinished = condition.outcomes.every(({ state }) => isOutcomeSettled(state))
+
+// "is this market gone from the UI?" - it isn't a state any more.
+// A condition that is absent from the feed reads as Stopped; a condition the provider
+// pulled from the grid carries `hidden: true`.
+const isGone = condition.hidden || condition.state === ConditionState.Stopped
+```
+
+<Callout type="info">
+  **`Removed` had no replacement member on purpose.** It used to mean "hide this from the UI entirely",
+  which conflated two different things: a condition that isn't in the feed (now `Stopped`) and a condition
+  the provider took off the grid (`hidden: true` on `ConditionDetailedData`). Handle those two separately.
+</Callout>
+
+---
+
+### 2. `MarketOutcome.isWon` removed
+
+`isWon` is deleted with no alias. Use the outcome's own `state`.
+
+**Before:**
+```ts
+import { groupConditionsByMarket } from '@azuro-org/toolkit'
+
+const markets = groupConditionsByMarket(conditions)
+const outcome = markets[0]!.conditions[0]!.outcomes[0]!
+
+if (outcome.isWon) {
+  // won
+}
+else {
+  // "lost" - including outcomes that were never settled at all
+}
+```
+
+**After:**
+```ts
+import { groupConditionsByMarket, OutcomeState, isOutcomeSettled } from '@azuro-org/toolkit'
+
+const markets = groupConditionsByMarket(conditions)
+const outcome = markets[0]!.conditions[0]!.outcomes[0]!
+
+if (!isOutcomeSettled(outcome.state)) {
+  // still open - Active or Stopped
+}
+else if (outcome.state === OutcomeState.Won) {
+  // won
+}
+else if (outcome.state === OutcomeState.Canceled) {
+  // voided - stake refunded
+}
+else {
+  // OutcomeState.Lost
+}
+```
+
+<Callout type="warning">
+  **Why `isWon` had to go, and why a straight rename would not have fixed it.**
+
+  `isWon` was derived only from the condition-level `wonOutcomeIds`. Whenever the condition had no
+  `wonOutcomeIds` — which is every condition that isn't resolved yet, and every condition settled
+  per-outcome — `isWon` was `undefined`. Code written as `outcome.isWon ? 'Won' : 'Lost'` therefore
+  rendered **every** outcome of an unsettled market as lost, and had no way at all to express a void.
+  `state` distinguishes all five cases, so it is the only per-outcome source of truth.
+</Callout>
+
+---
+
+### 3. Per-outcome bet results are typed `OutcomeResult`
+
+`BetMetaData.selections[].outcome.condition.outcomes[].result` was typed `SelectionResult`, an enum with
+only `Won` and `Lost`. It could not represent a voided leg, so a refunded selection had to be read as
+`null` — indistinguishable from a selection that hasn't settled yet.
+
+It is now typed `OutcomeResult`, which adds `Canceled`.
+
+**Before:**
+```ts
+enum SelectionResult {
+  Lost = 'Lost',
+  Won = 'Won'
+}
+
+// BetMetaData
+selections: Array<{
+  result: SelectionResult | null
+  outcome: {
+    condition: {
+      outcomes: {
+        result: SelectionResult | null // no way to express a void
+        outcomeId: string
+        sortOrder: number
+      }[]
+      // ...
+    }
+    outcomeId: string
+    sortOrder: number
+  }
+  // ...
+}>
+```
+
+**After:**
+```ts {1,2,3,4,5,13}
+enum OutcomeResult {
+  Won = 'Won',
+  Lost = 'Lost',
+  Canceled = 'Canceled'
+}
+
+// BetMetaData
+selections: Array<{
+  result: SelectionResult | null // unchanged - per-selection signal
+  outcome: {
+    condition: {
+      outcomes: {
+        result: OutcomeResult | null // retyped - can now be Canceled
+        outcomeId: string
+        sortOrder: number
+      }[]
+      // ...
+    }
+    outcomeId: string
+    sortOrder: number
+  }
+  // ...
+}>
+```
+
+If you narrowed on `SelectionResult` when reading a bet's legs, widen it:
+
+```ts
+import { OutcomeResult } from '@azuro-org/toolkit'
+
+const legResult = selection.outcome.condition.outcomes
+  .find(({ outcomeId }) => outcomeId === selection.outcome.outcomeId)?.result
+
+const isLegVoided = legResult === OutcomeResult.Canceled
+const isLegWon = legResult === OutcomeResult.Won
+const isLegPending = !legResult
+```
+
+<Callout type="info">
+  The result lives on the condition's **outcome list**, keyed by `outcomeId` — not on the selection.
+  `selection.result` is still typed `SelectionResult` (`Won | Lost`), so it cannot report a void on its own.
+</Callout>
+
+---
+
+## New Features
+
+### `isOutcomeSettled`
+
+```ts
+import { isOutcomeSettled, OutcomeState } from '@azuro-org/toolkit'
+
+isOutcomeSettled(OutcomeState.Won)      // true
+isOutcomeSettled(OutcomeState.Lost)     // true
+isOutcomeSettled(OutcomeState.Canceled) // true
+isOutcomeSettled(OutcomeState.Active)   // false
+isOutcomeSettled(OutcomeState.Stopped)  // false
+```
+
+One predicate for "does this outcome still have a result pending?". See the
+[full docs](/hub/apps/toolkit/utils/isOutcomeSettled).
+
+### `OutcomeResult` exported from the package root
+
+```ts
+import { OutcomeResult } from '@azuro-org/toolkit'
+
+enum OutcomeResult {
+  Won = 'Won',
+  Lost = 'Lost',
+  Canceled = 'Canceled'
+}
+```
+
+Use it when reading settlement off a bet. It is the bet-side counterpart of `OutcomeState`: `OutcomeState`
+describes an outcome in the feed (and can be `Active` / `Stopped`), `OutcomeResult` describes how a bet's
+leg finished.
+
+### `selections[].outcome.result` on the bets query
+
+`BetFragment` and `BetsQuery` now request `result` on each selection's outcome:
+
+```ts
+selections: Array<{
+  odds: string
+  result?: SelectionResult | null
+  outcome: {
+    outcomeId: string
+    title?: string | null
+    result?: OutcomeResult | null // new
+    condition: {
+      conditionId: string
+      title?: string | null
+      status: ConditionStatus
+      gameId: string
+      wonOutcomeIds?: Array<string> | null
+    }
+  }
+}>
+```
+
+**This is the authoritative per-outcome settlement signal for a bet.** If you build bet history from the
+raw query rather than through the SDK's [`useBets`](/hub/apps/sdk/data-hooks/useBets), read this field to
+decide whether a leg won, lost or was voided — do not derive it from the condition's `status` or
+`wonOutcomeIds`.
+
+---
+
+## What did *not* change
+
+This is the most common source of confusion after upgrading, so it is worth stating explicitly:
+
+- **`OutcomeState` is unchanged** — still `Active | Canceled | Stopped | Won | Lost`. It was already the
+  per-outcome state; v7 just makes it the only one.
+- **`GameState` is unchanged.**
+- **`ConditionStatus` / `BetConditionStatus` is unchanged and is a *different* enum.** It comes from the
+  bets subgraph (`Created | Resolved | Canceled | Paused`) and describes a condition entity there. It is
+  **not** the feed's `ConditionState`, and its `Resolved` / `Canceled` members were not removed.
+
+  ```ts
+  // subgraph — unchanged
+  enum ConditionStatus {
+    Created = 'Created',
+    Resolved = 'Resolved',
+    Canceled = 'Canceled',
+    Paused = 'Paused'
+  }
+
+  // feed — reduced in v7
+  enum ConditionState {
+    Active = 'Active',
+    Stopped = 'Stopped',
+  }
+  ```
+- **Condition-level `wonOutcomeIds` is still served by the feed** on `ConditionDetailedData`. It is not
+  removed — but it only ever describes wins, so don't use it to decide whether an outcome lost or was
+  voided. Use the outcome's `state`.
+
+---
+
+## Grep your call sites
+
+The removed enum members and `isWon` fail to compile, which makes them easy to find. The rest are
+semantic, so search for them by hand:
+
+```bash
+# 1. Removed enum members - these will not compile, but grep finds them faster than tsc
+grep -rn "ConditionState.Resolved\|ConditionState.Canceled\|ConditionState.Removed" src/
+
+# 2. isWon - removed with no alias
+grep -rn "isWon" src/
+
+# 3. Condition-level result derivation - usually a bug now
+grep -rn "wonOutcomeIds" src/
+
+# 4. Per-outcome results narrowed to the old `SelectionResult` type
+grep -rn "SelectionResult" src/
+```
+
+For each hit, the rewrite is the same shape: ask the **outcome**, not the condition.
+
+| You were asking | Ask instead |
+| --- | --- |
+| `condition.state === ConditionState.Resolved` | `condition.outcomes.every(o => isOutcomeSettled(o.state))` |
+| `condition.state === ConditionState.Canceled` | `outcome.state === OutcomeState.Canceled`, per outcome |
+| `condition.state === ConditionState.Removed` | `condition.hidden`, or `state === ConditionState.Stopped` |
+| `outcome.isWon` | `outcome.state === OutcomeState.Won` |
+| `condition.wonOutcomeIds.includes(outcomeId)` | `outcome.state === OutcomeState.Won` |
+| `selection.outcome.condition.status === ConditionStatus.Canceled` | `selection.outcome.result === OutcomeResult.Canceled` |
+
+---
+
+## Migration Checklist
+
+- [ ] Update package version: `npm install @azuro-org/toolkit@7.0.0`
+- [ ] Remove every reference to `ConditionState.Resolved`, `ConditionState.Canceled` and
+      `ConditionState.Removed`
+- [ ] Replace `outcome.isWon` with `outcome.state === OutcomeState.Won`
+- [ ] Audit every `!isWon` / `isWon ? … : …` branch — the false branch used to swallow *pending* and
+      *voided* outcomes, and it must now be split into three cases
+- [ ] Replace condition-level "is it finished?" checks with
+      [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled) over the condition's outcomes
+- [ ] Stop deriving per-outcome results from `wonOutcomeIds`
+- [ ] Widen anything typed `SelectionResult` on a bet's per-outcome result to `OutcomeResult`, and handle
+      `Canceled`
+- [ ] Confirm you are **not** confusing `ConditionStatus` (subgraph) with `ConditionState` (feed)
+- [ ] If you use the SDK, follow the [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8) — it has changes
+      that produce no compile error
+
+---
+
+## Common Migration Patterns
+
+### Pattern 1: rendering a market after the game ends
+
+**Before:**
+```ts
+if (condition.state === ConditionState.Resolved) {
+  return outcomes.map(outcome => (
+    outcome.isWon ? renderWon(outcome) : renderLost(outcome)
+  ))
+}
+```
+
+**After:**
+```ts
+import { isOutcomeSettled, OutcomeState } from '@azuro-org/toolkit'
+
+return outcomes.map((outcome) => {
+  if (!isOutcomeSettled(outcome.state)) {
+    return renderBettable(outcome)
+  }
+
+  if (outcome.state === OutcomeState.Won) {
+    return renderWon(outcome)
+  }
+
+  if (outcome.state === OutcomeState.Canceled) {
+    return renderRefunded(outcome)
+  }
+
+  return renderLost(outcome)
+})
+```
+
+Note that the condition-level branch disappears entirely: outcomes of the same condition can be in
+different states at the same time, so there is no single verdict to branch on above them.
+
+---
+
+### Pattern 2: excluding a voided leg from a combo
+
+A voided leg is refunded, so it must not contribute to the combo's odds.
+
+**Before:**
+```ts
+// every leg counted, because a void was indistinguishable from "not settled yet"
+const totalOdds = calcMinOdds({ odds: legs.map(leg => +leg.odds), slippage: 0 })
+```
+
+**After:**
+```ts
+import { calcMinOdds, OutcomeResult } from '@azuro-org/toolkit'
+
+// `legs` are selections from the bets query, whose outcome carries `result`
+const payingLegs = legs.filter(leg => leg.outcome.result !== OutcomeResult.Canceled)
+
+// an all-void combo returns the stake: odds are 1
+const totalOdds = payingLegs.length
+  ? calcMinOdds({ odds: payingLegs.map(leg => +leg.odds), slippage: 0 })
+  : 1
+```
+
+<Callout type="warning">
+  Getting this wrong overstates the payout. A combo whose voided leg is still multiplied into the total
+  reports a potential win the protocol will never pay.
+</Callout>
+
+---
+
+### Pattern 3: telling "voided" apart from "not in the feed"
+
+**Before:**
+```ts
+// OutcomeState.Canceled was ambiguous: voided, or simply absent from the feed
+const isMissing = state === OutcomeState.Canceled
+```
+
+**After:**
+```ts
+// Canceled now strictly means voided - real money was refunded.
+// An outcome that is absent from the feed reads as Stopped.
+const isVoided = state === OutcomeState.Canceled
+const isMissingOrSuspended = state === OutcomeState.Stopped
+```
+
+If you use the SDK, this is where the fallback happens: `useOutcomeState` / `useOutcomesState` return
+`OutcomeState.Stopped` for an outcome the feed doesn't know about — they used to return
+`OutcomeState.Canceled`.
+
+---
+
+## Getting Help
+
+If you encounter issues during migration:
+
+1. Check the [Toolkit Documentation](/hub/apps/toolkit)
+2. Read the [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8) if you consume the toolkit through the SDK
+3. Report bugs on [GitHub](https://github.com/Azuro-protocol/toolkit)

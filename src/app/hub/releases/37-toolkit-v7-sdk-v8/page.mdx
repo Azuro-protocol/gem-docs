@@ -1,0 +1,102 @@
+import { Callout } from 'components'
+
+# Toolkit v7 & SDK v8: Per-Outcome Resolution
+
+We're releasing **Toolkit v7.0.0** and **SDK v8.0.0**. Both are major, breaking updates.
+
+The protocol has dropped condition-level resolution. A [`Condition`](/knowledge-hub/how-azuro-works/components/conditions)
+is now only ever `Active` or `Stopped`, and won / lost / voided is tracked purely **per outcome**.
+
+Within a single condition, outcomes can now settle independently: one Won, one Lost, one Canceled (voided,
+stake refunded) and one still taking bets — all at the same time. The old model could not express that, and
+the SDK mispriced combos because of it: a real production bet with a voided leg reported a `possibleWin`
+**35% higher** than the protocol would ever pay.
+
+<Callout type="warning">
+  **Several SDK changes produce no compile error.** Hidden conditions and outcomes are now dropped by
+  default, a voided combo leg reports `isWin: false` instead of `isWin: null`, and combos containing a
+  voided leg return different `totalOdds` and `possibleWin`. A green type check does not mean the
+  migration is done — see the [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8).
+</Callout>
+
+## What's New
+
+**Toolkit v7.0.0:**
+- `ConditionState` is now exactly `{ Active, Stopped }` — `Canceled`, `Removed` and `Resolved` are removed
+- `MarketOutcome.isWon` is removed with no alias — use `outcome.state === OutcomeState.Won`. It was derived
+  from condition-level `wonOutcomeIds` and was `undefined` whenever those were absent, so `!isWon` silently
+  rendered every outcome as lost
+- New [`isOutcomeSettled(state)`](/hub/apps/toolkit/utils/isOutcomeSettled) — `true` for `Won | Lost | Canceled`,
+  `false` for `Active | Stopped`
+- `OutcomeResult` (`Won | Lost | Canceled`) is now exported from the package root
+- `BetFragment` / `BetsQuery`: `selections[].outcome` now includes `result?: OutcomeResult | null` — the
+  authoritative per-outcome settlement signal for a bet
+- `BetMetaData.selections[].outcome.condition.outcomes[].result` is retyped `SelectionResult` → `OutcomeResult`,
+  since the old type had no way to express a void
+- **Unchanged:** `OutcomeState`, `GameState`, and `ConditionStatus` / `BetConditionStatus` — the last of which
+  is a *different* enum from the bets subgraph (`Created | Resolved | Canceled | Paused`), not the feed's
+  `ConditionState`. Condition-level `wonOutcomeIds` is still served by the feed
+
+**SDK v8.0.0:**
+- Removed `useResolvedMarkets` — use [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) with
+  `includeHidden: true`
+- Removed `BetOutcome.wonOutcomeIds`
+- Removed `UseConditionsProps.onlyActiveOrStopped` — with the reduced `ConditionState`, its predicate matched
+  every condition
+- New `includeHidden` prop on [`useConditions`](/hub/apps/sdk/data-hooks/useConditions),
+  [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
+  [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets), defaulting to `false` — those hooks now
+  drop `hidden` conditions and outcomes unless you opt in. The `conditions` query key changed, so cached
+  entries are invalidated
+- [`useBets`](/hub/apps/sdk/data-hooks/useBets): a voided combo leg is now
+  `{ isWin: false, isLose: false, isCanceled: true }` — it used to be `{ isWin: null, isLose: null, isCanceled: false }`,
+  indistinguishable from still-pending
+- [`useBets`](/hub/apps/sdk/data-hooks/useBets): `totalOdds` and `possibleWin` for combos with a voided leg
+  now return different — lower, correct — values
+- [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) /
+  [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) return `ConditionState.Stopped`
+  instead of the removed `ConditionState.Removed` when a condition is absent from the feed
+- [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) /
+  [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) return `OutcomeState.Stopped` instead of
+  `OutcomeState.Canceled` when an outcome is absent from the feed — `OutcomeState.Canceled` now strictly
+  means voided, with money attached
+- `useActiveMarket` no longer selects a market whose condition is `Active` but all of whose outcomes are settled
+
+## The pattern to build against
+
+Don't gate the whole market grid on game state. Render **one** grid where each outcome shows its own state —
+Won, Lost, Refunded, or still bettable — since a game can have settled and live markets on screen at once.
+
+The one thing that should still depend on `GameState.Finished` is `includeHidden`: while a game is active,
+`hidden` conditions and outcomes stay hidden; once the game is finished, they are shown.
+
+```tsx
+import { useActiveMarkets, useGameState } from '@azuro-org/sdk'
+import { GameState, isOutcomeSettled, OutcomeState } from '@azuro-org/toolkit'
+
+const { data: gameState } = useGameState({ gameId, initialState: game.state })
+
+const { data: markets } = useActiveMarkets({
+  gameId,
+  includeHidden: gameState === GameState.Finished,
+})
+
+// then, per outcome:
+isOutcomeSettled(outcome.state)          // settled? Won | Lost | Canceled
+outcome.state === OutcomeState.Won       // won
+outcome.state === OutcomeState.Canceled  // voided - stake refunded
+```
+
+## Migration Guides
+
+To ensure a smooth transition, please follow our migration guides:
+
+- [Toolkit v7 Migration Guide](/hub/apps/toolkit/migration-v7)
+- [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8)
+
+Both cover all breaking changes and include a **grep-your-call-sites** section, since several of these
+changes are behavioural and won't be caught by the type checker.
+
+## Questions?
+
+If you encounter any issues during migration or have questions, reach out to us on Telegram.

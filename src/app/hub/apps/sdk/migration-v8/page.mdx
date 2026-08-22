@@ -1,0 +1,477 @@
+import { Callout } from 'components'
+
+# Migration Guide: SDK v8.0.0
+
+This guide will help you migrate your application from SDK v7.x to v8.0.0.
+
+## Overview
+
+SDK v8.0.0 depends on `@azuro-org/toolkit` v7.0.0 and carries its model change through the hooks: the
+protocol resolves **outcomes**, not conditions. Within one condition, outcomes can independently be Won,
+Lost, Canceled (voided) or still live — and the SDK now reports them that way.
+
+- **Removed**: `useResolvedMarkets`, `BetOutcome.wonOutcomeIds`, `UseConditionsProps.onlyActiveOrStopped`
+- **Added**: `includeHidden` on `useConditions`, `useActiveConditions` and `useActiveMarkets`
+- **Changed without a type error**: hidden filtering, voided combo legs, condition/outcome state
+  fallbacks, and combo `totalOdds` / `possibleWin`
+
+<Callout type="warning">
+  **Read the "Behaviour changes with no compile error" section — it is the one that will bite you.**
+
+  Three of these changes type-check perfectly and silently alter what your UI renders: hooks now drop
+  hidden conditions and outcomes by default, a voided combo leg reports `isWin: false` instead of
+  `isWin: null`, and combos with a voided leg return lower (correct) `totalOdds` and `possibleWin`. A
+  green `tsc` does not mean you are done.
+</Callout>
+
+<Callout type="info">
+  Start with the [Toolkit v7 Migration Guide](/hub/apps/toolkit/migration-v7) — it explains the underlying
+  model (`ConditionState` reduced to `Active | Stopped`, `MarketOutcome.isWon` removed) that everything
+  below builds on.
+</Callout>
+
+## Breaking Changes
+
+### 1. `useResolvedMarkets` removed
+
+The hook is deleted with no stub. It existed to answer "what were this game's results?" by fetching the
+conditions that had reached a `Resolved` state — a state that no longer exists.
+
+Its replacement is the ordinary markets hook with `includeHidden: true`: once a game is finished, you want
+everything the game offered, including the markets and outcomes that were hidden while it ran. Each
+outcome then carries its own result in `state`.
+
+**Before (v7.x):**
+```tsx
+import { useResolvedMarkets } from '@azuro-org/sdk'
+
+const { data: markets } = useResolvedMarkets({ gameId })
+```
+
+**After (v8.0.0):**
+```tsx
+import { useActiveMarkets } from '@azuro-org/sdk'
+
+const { data: markets } = useActiveMarkets({ gameId, includeHidden: true })
+```
+
+If you need the raw conditions rather than grouped markets:
+
+```tsx
+import { useConditions } from '@azuro-org/sdk'
+import { groupConditionsByMarket } from '@azuro-org/toolkit'
+
+const { data: conditions } = useConditions({ gameId, includeHidden: true })
+const markets = conditions ? groupConditionsByMarket(conditions) : undefined
+```
+
+<Callout type="info">
+  There is no longer a separate "active markets" view and "resolved markets" view to switch between. One
+  grid serves both — see [The recommended integration pattern](#the-recommended-integration-pattern) below.
+</Callout>
+
+---
+
+### 2. `BetOutcome.wonOutcomeIds` removed
+
+`useBets` no longer returns `wonOutcomeIds` on a bet's outcomes. It was a condition-level field used to
+infer whether the bet's leg won — which is exactly the inference that mispriced voided legs.
+
+**Before (v7.x):**
+```tsx
+type BetOutcome = {
+  selectionName: string
+  odds: number
+  marketName: string
+  game: GameData
+  wonOutcomeIds: string[] | null // removed
+  isLive: boolean
+  isWin: boolean | null
+  isLose: boolean | null
+  isCanceled: boolean
+} & Selection
+```
+
+**After (v8.0.0):**
+```tsx
+type BetOutcome = {
+  selectionName: string
+  odds: number
+  marketName: string
+  game: GameData
+  isLive: boolean
+  isWin: boolean | null
+  isLose: boolean | null
+  isCanceled: boolean
+} & Selection
+```
+
+Read `isWin` / `isLose` / `isCanceled` — the SDK already derives them from the per-outcome result.
+
+---
+
+### 3. `UseConditionsProps.onlyActiveOrStopped` removed
+
+The prop filtered conditions down to those whose state was `Active` or `Stopped`. Since `ConditionState`
+is now exactly `{ Active, Stopped }`, that predicate matches every condition — it had become a no-op.
+
+**Before (v7.x):**
+```tsx
+const { data: conditions } = useConditions({
+  gameId,
+  onlyActiveOrStopped: true,
+})
+```
+
+**After (v8.0.0):**
+```tsx
+const { data: conditions } = useConditions({ gameId })
+```
+
+Just delete the prop. If what you actually wanted was "the markets a bettor can act on right now", that
+is the default behaviour of [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) /
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) with `includeHidden` left off.
+
+---
+
+## Behaviour changes with no compile error
+
+<Callout type="warning">
+  Everything in this section compiles unchanged and behaves differently at runtime. Walk through each one
+  against your own screens.
+</Callout>
+
+### 1. `hidden` conditions and outcomes are dropped by default
+
+[`useConditions`](/hub/apps/sdk/data-hooks/useConditions),
+[`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) now filter out conditions flagged `hidden`,
+and hidden outcomes inside the conditions they keep. A condition whose every outcome is hidden is dropped
+entirely.
+
+Previously the SDK returned everything and apps filtered at render time. If your app did that filtering
+itself, it now filters an already-filtered list — harmless. **The breakage is in the other direction: a
+view that relied on getting everything back now silently renders less.**
+
+```tsx
+// running game - hidden markets are not on offer, so the default is what you want
+const { data: markets } = useActiveMarkets({ gameId })
+
+// finished game - you want everything the game had, including what was hidden while it ran
+const { data: allMarkets } = useActiveMarkets({ gameId, includeHidden: true })
+```
+
+<Callout type="warning">
+  **The `conditions` query key changed**, since `includeHidden` is part of it. Cached entries from v7 are
+  invalidated — expect a refetch on first load after the upgrade, and update any manual
+  `queryClient.setQueryData` / `invalidateQueries` calls that hard-code the old key shape.
+</Callout>
+
+### 2. A voided combo leg is now `isCanceled`, not "pending"
+
+**Before (v7.x)** a voided leg came back as:
+```ts
+{ isWin: null, isLose: null, isCanceled: false }
+```
+— indistinguishable from a leg that simply hasn't settled yet.
+
+**After (v8.0.0):**
+```ts
+{ isWin: false, isLose: false, isCanceled: true }
+```
+
+Won, lost, voided and pending are now mutually exclusive: a settled leg never reports `null`, and a leg
+that is still pending reports `isWin: null` / `isLose: null` with `isCanceled: false`.
+
+<Callout type="warning">
+  **Any UI that branches on `isWin === null` to mean "pending" must check `isCanceled` first.**
+
+  ```tsx
+  // Before - a voided leg fell into the "pending" branch
+  if (outcome.isWin === null) {
+    return <Pending />
+  }
+
+  // After
+  if (outcome.isCanceled) {
+    return <Refunded />
+  }
+
+  if (outcome.isWin === null) {
+    return <Pending />
+  }
+
+  return outcome.isWin ? <Won /> : <Lost />
+  ```
+</Callout>
+
+### 3. Combo `totalOdds` and `possibleWin` change value
+
+A voided leg is refunded, so it no longer multiplies into the combo's odds. `useBets` now excludes it.
+
+Combos containing a voided leg therefore return **different — lower, and correct —** `totalOdds` and
+`possibleWin` than they did in v7. This is a data change, not an API change: nothing to update, but
+screenshots, snapshots and any figures you cache or reconcile against will move.
+
+A combo whose every leg was voided has odds of `1`: the stake is simply returned.
+
+### 4. `useConditionState` / `useConditionsState` fall back to `Stopped`
+
+When a condition is absent from the feed, these hooks used to report the removed `ConditionState.Removed`.
+They now report `ConditionState.Stopped`.
+
+```tsx
+// Before
+const isMissing = state === ConditionState.Removed
+
+// After - "not in the feed" and "temporarily not taking bets" are the same state now
+const isNotBettable = state === ConditionState.Stopped
+```
+
+If you rendered `Removed` conditions differently from `Stopped` ones — hiding the first, greying out the
+second — use `isHidden` from the hook (fed by `condition.hidden`) to make that distinction instead.
+
+### 5. `useOutcomeState` / `useOutcomesState` fall back to `Stopped`
+
+Same change one level down: an outcome absent from the feed used to read as `OutcomeState.Canceled` and
+now reads as `OutcomeState.Stopped`.
+
+<Callout type="warning">
+  **`OutcomeState.Canceled` now strictly means voided — with money attached.**
+
+  If you treated `Canceled` as "this outcome isn't in the feed" (a rendering concern), you must stop: it
+  now means the protocol voided the outcome and refunded bets on it. Showing "Refunded" for an outcome that
+  is merely missing, or hiding an outcome that was actually voided, are both wrong.
+
+  ```tsx
+  // Before - Canceled was overloaded
+  if (state === OutcomeState.Canceled) {
+    return null // "not in feed, don't render"
+  }
+
+  // After
+  if (state === OutcomeState.Canceled) {
+    return <Refunded />  // voided, stake returned
+  }
+
+  if (state === OutcomeState.Stopped) {
+    return <Disabled />  // not offered right now, or not in the feed
+  }
+  ```
+</Callout>
+
+### 6. `useActiveMarket` skips fully settled markets
+
+`useActiveMarket` — the watch hook that picks which market tab to show and moves off it when it goes
+inactive — no longer selects a market whose condition is `Active` but all of whose outcomes are settled.
+Such a market has nothing left to bet on, so the hook advances to the next one.
+
+If you relied on the previously-selected tab staying put after a market finished, pin the selection
+yourself rather than reading it from the hook.
+
+---
+
+## New: `includeHidden`
+
+```ts
+{
+  gameId: string | bigint | string[] | bigint[]
+  includeHidden?: boolean // default: false
+  extended?: boolean
+  chainId?: ChainId
+  query?: QueryParameterWithSelect<UseConditionsQueryFnData, TData>
+}
+```
+
+Available on [`useConditions`](/hub/apps/sdk/data-hooks/useConditions),
+[`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets). **Defaults to `false`**, i.e. hidden
+conditions and outcomes are dropped.
+
+The rule to apply is simple and it is the *only* thing in the markets grid that should depend on game
+state:
+
+> While a game is active, `hidden` conditions and outcomes stay hidden. Once the game is finished, they
+> are shown.
+
+```tsx
+import { useActiveMarkets, useGameState } from '@azuro-org/sdk'
+import { GameState } from '@azuro-org/toolkit'
+
+const { data: gameState } = useGameState({ gameId, initialState: game.state })
+
+const { data: markets } = useActiveMarkets({
+  gameId,
+  includeHidden: gameState === GameState.Finished,
+})
+```
+
+---
+
+## The recommended integration pattern
+
+**Do not gate the whole market grid on game state.** There is no longer an "is this game over?" switch
+that flips the page between a betting view and a results view — because outcomes settle independently,
+a game can have finished markets and live markets on screen at the same time.
+
+Render **one** grid, in which each outcome shows its own state:
+
+```tsx
+import { useActiveMarkets, useGameState } from '@azuro-org/sdk'
+import { GameState, isOutcomeSettled, OutcomeState, type MarketOutcome } from '@azuro-org/toolkit'
+
+const Markets: React.FC<{ gameId: string, initialGameState: GameState }> = (props) => {
+  const { gameId, initialGameState } = props
+
+  const { data: gameState } = useGameState({ gameId, initialState: initialGameState })
+
+  // the one thing that depends on game state
+  const { data: markets } = useActiveMarkets({
+    gameId,
+    includeHidden: gameState === GameState.Finished,
+  })
+
+  return (
+    <>
+      {
+        markets?.map(market => (
+          market.conditions.map(condition => (
+            condition.outcomes.map(outcome => (
+              <Outcome key={`${outcome.conditionId}-${outcome.outcomeId}`} outcome={outcome} />
+            ))
+          ))
+        ))
+      }
+    </>
+  )
+}
+
+const Outcome: React.FC<{ outcome: MarketOutcome }> = ({ outcome }) => {
+  if (!isOutcomeSettled(outcome.state)) {
+    // still bettable - disabled while Stopped
+    return (
+      <button disabled={outcome.state === OutcomeState.Stopped}>
+        {outcome.selectionName} {outcome.odds}
+      </button>
+    )
+  }
+
+  if (outcome.state === OutcomeState.Won) {
+    return <div>{outcome.selectionName} — Won</div>
+  }
+
+  if (outcome.state === OutcomeState.Canceled) {
+    return <div>{outcome.selectionName} — Refunded</div>
+  }
+
+  return <div>{outcome.selectionName} — Lost</div>
+}
+```
+
+Use [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) or
+[`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) to keep each outcome's state live over
+the socket, so an outcome flips to Won / Lost / Refunded in place while the rest of the grid keeps taking
+bets.
+
+---
+
+## Migration Steps
+
+### Step 1: Update dependencies
+
+```bash
+npm install @azuro-org/sdk@^8 @azuro-org/toolkit@^7
+# or
+yarn add @azuro-org/sdk@^8 @azuro-org/toolkit@^7
+# or
+pnpm add @azuro-org/sdk@^8 @azuro-org/toolkit@^7
+```
+
+### Step 2: Grep your call sites
+
+Only the first three of these produce a compile error. The rest are silent, so search for them:
+
+```bash
+# --- these fail to compile ---
+
+# removed hook and its types
+grep -rn "useResolvedMarkets\|UseResolvedMarketsProps\|UseResolvedMarkets\b" src/
+
+# removed prop - now a no-op, just delete it
+grep -rn "onlyActiveOrStopped" src/
+
+# removed field on BetOutcome, and removed enum members
+grep -rn "wonOutcomeIds\|ConditionState.Removed\|ConditionState.Resolved\|ConditionState.Canceled" src/
+
+# --- these compile fine and change behaviour ---
+
+# "pending" branches that a voided leg now falls out of
+grep -rn "isWin === null\|isLose === null\|isWin == null" src/
+
+# Canceled used as "missing from the feed"
+grep -rn "OutcomeState.Canceled" src/
+
+# every call that may need includeHidden: true
+grep -rn "useConditions(\|useActiveConditions(\|useActiveMarkets(" src/
+
+# condition-level result derivation, removed in toolkit v7
+grep -rn "isWon" src/
+```
+
+### Step 3: Fix the `useResolvedMarkets` call sites
+
+Replace each with `useActiveMarkets({ gameId, includeHidden: true })`, then delete the "resolved markets"
+view: fold it into the single grid described above.
+
+### Step 4: Audit every `useConditions` / `useActiveConditions` / `useActiveMarkets` call
+
+For each one, decide what the screen should show:
+
+- a **running game** → leave `includeHidden` off (the new default)
+- a **finished game**, a results view, or anything that must reflect everything the game offered →
+  pass `includeHidden: true`
+- **unsure?** Drive it off game state: `includeHidden: gameState === GameState.Finished`
+
+### Step 5: Fix the pending / voided branches
+
+Search results from `isWin === null` are the dangerous ones. In every such branch, add an `isCanceled`
+check **before** the null check.
+
+### Step 6: Re-check anything that reconciles combo payouts
+
+`totalOdds` and `possibleWin` now return different values for combos with a voided leg. If you compare
+those against your own backend figures, snapshot tests, or cached values, refresh them.
+
+### Step 7: Test
+
+1. A live game's market grid — hidden markets should be absent
+2. A finished game — with `includeHidden: true`, every market is back, each outcome labelled Won / Lost /
+   Refunded
+3. A game with mixed settlement — some markets settled while others still take bets, on one screen
+4. A combo bet with a voided leg — the leg reads "Refunded", and `totalOdds` / `possibleWin` exclude it
+5. A pending bet — still reads as pending, not as refunded
+
+---
+
+## Migration Checklist
+
+- [ ] `npm install @azuro-org/sdk@^8 @azuro-org/toolkit@^7`
+- [ ] Follow the [Toolkit v7 Migration Guide](/hub/apps/toolkit/migration-v7) first
+- [ ] Replace `useResolvedMarkets` with `useActiveMarkets({ includeHidden: true })`
+- [ ] Delete every `onlyActiveOrStopped` prop
+- [ ] Stop reading `BetOutcome.wonOutcomeIds`
+- [ ] Add `includeHidden: true` to every finished-game / results view
+- [ ] Update manual TanStack Query cache reads of the `conditions` key — its shape changed
+- [ ] Check `isCanceled` before `isWin === null` everywhere
+- [ ] Stop treating `OutcomeState.Canceled` as "missing from feed"
+- [ ] Stop treating `ConditionState.Stopped` as identical to the old `Removed` for hiding — use `isHidden`
+- [ ] Re-verify combo `totalOdds` / `possibleWin` against your own figures
+- [ ] Collapse separate "active" and "resolved" market views into one per-outcome grid
+
+---
+
+## Need Help?
+
+1. Check the [SDK Documentation](/hub/apps/sdk)
+2. Read the [Toolkit v7 Migration Guide](/hub/apps/toolkit/migration-v7)
+3. Check the [SDK GitHub repository](https://github.com/Azuro-protocol/sdk) for known issues
