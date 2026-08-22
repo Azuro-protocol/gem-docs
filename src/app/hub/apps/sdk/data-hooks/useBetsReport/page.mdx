@@ -1,0 +1,186 @@
+import { Callout } from 'components'
+
+# useBetsReport
+
+The `useBetsReport` hook aggregates a bettor's bets matching a filter into a per-token turnover / returns / profit / ROI report.
+
+<Callout type="info">
+  `filter` is the exact same shape [`useBets`](../useBets) accepts. Passing it the same filter you
+  pass to `useBets` guarantees the report and the list always describe exactly the same set of bets.
+</Callout>
+
+<Callout type="warning">
+  The report covers **v3 Azuro Protocol** bets only. Legacy v2 bets have no report equivalent.
+</Callout>
+
+<Callout type="info">
+Hook represents a logic wrapper over TanStack Query's `useQuery` hook, built on top of the framework-agnostic
+[`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) toolkit function. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
+</Callout>
+
+## Usage
+
+```tsx
+import { BetStatusFilter } from '@azuro-org/sdk'
+import { useBetsReport } from '@azuro-org/sdk'
+
+const { data: report, isFetching } = useBetsReport({
+  filter: { bettor: '0x...', status: BetStatusFilter.Settled },
+})
+
+// `single` is non-null whenever exactly one settlement token is present - the normal case, since a
+// chain has one bet token. Fall back to the first row of `byToken` only when there is more than one.
+const row = report?.single ?? report?.byToken[0]
+
+// `roi` is `null` when turnover is 0 (e.g. no settled bets yet) - never `NaN`, so guard before formatting
+const roiLabel = row && row.roi !== null ? `${row.roi.toFixed(2)}%` : '—'
+
+if (report?.isTruncated) {
+  // the bettor has more matching bets than the walk covered - say so instead of presenting
+  // the numbers above as final, e.g. "based on the most recent 50,000 bets"
+}
+```
+
+## Props
+
+```ts
+type UseBetsReportProps<TData = GetBetsReportResult> = {
+  filter: BetsFilter
+  chainId?: ChainId
+  query?: QueryParameterWithSelect<GetBetsReportResult, TData> // useQuery params
+}
+```
+
+```ts
+type BetsFilter = {
+  bettor: Address // bettor address
+  affiliate?: Address // affiliate address
+  status?: BetStatusFilter // lifecycle preset - narrows both the bet list and this report
+  kind?: BetKind // single (Ordinar) vs combo (Express)
+  createdFrom?: number // inclusive lower bound, unix seconds (matches `Bet.createdAt`)
+  createdTo?: number // inclusive upper bound, unix seconds
+  isFreebet?: boolean // `true` = freebet-funded only, `false` = own-funds only, omit = both
+  /** @deprecated renamed to `status` - when both are set, `status` wins */
+  type?: BetStatusFilter
+}
+
+enum BetStatusFilter {
+  Unredeemed = 'unredeemed', // ready to redeem bets
+  Pending = 'pending', // not yet accepted on-chain
+  Accepted = 'accepted', // accepted, not yet resolved
+  Settled = 'settled', // resolved bets
+  CashedOut = 'cashedOut', // cashed out bets
+}
+
+enum BetKind {
+  Single = 'single',
+  Combo = 'combo',
+}
+
+type ChainId =
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
+import { type Address } from 'viem'
+```
+
+<Callout type="warning">
+  `BetStatusFilter.Pending` has no representation in the subgraph the report is built from, so
+  `status: BetStatusFilter.Pending` does not narrow the result down to pending bets - it is intentionally
+  unhandled. See the [`useBets` docs](/hub/apps/sdk/data-hooks/useBets) for the full explanation.
+</Callout>
+
+## Return Value
+
+```ts
+UseQueryResult<GetBetsReportResult>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+
+type GetBetsReportResult = BetsReportResult & {
+  /** `true` when the walk stopped early because it hit `maxPages` - the figures above are then a
+   * lower bound, not an exact total, and the UI must surface that */
+  isTruncated: boolean
+}
+
+type BetsReportResult = {
+  /** one row per settlement token, sorted by turnover descending */
+  byToken: BetsReportRow[]
+  /** non-null iff exactly one token is present - render this instead of `byToken` whenever it is
+   * non-null, which is the normal case since a chain has one bet token */
+  single: BetsReportRow | null
+  /** every bet matching the filter, freebet-funded ones included - see count semantics below */
+  betsCount: number
+}
+
+type BetsReportRow = {
+  token: { address: Address, decimals: number, symbol: string | null }
+  /** own-funds bets only - freebet-funded ones are counted in `freebet.count` instead */
+  betsCount: number
+  settledCount: number
+  pendingCount: number
+  /** decimal strings, already formatted with the token's decimals - the whole result is JSON-safe */
+  turnover: string
+  returns: string
+  profit: string
+  /** percent, `profit / turnover * 100`; `null` when turnover is 0 - never `NaN` or `Infinity` */
+  roi: number | null
+  /** sum of the stakes of unsettled, non-freebet bets */
+  atStake: string
+  /** freebet-funded bets, excluded from every figure above */
+  freebet: {
+    count: number
+    turnover: string
+    returns: string
+    profit: string
+    atStake: string
+  }
+}
+```
+
+### ROI is settled-only
+
+A bet counts as settled once it is `Won`, `Lost`, `Cancelled`, or cashed out. Pending bets never touch
+`turnover` / `returns` / `roi` - they only contribute to `pendingCount` and `atStake`, so the ROI figure
+never has to guess at the outcome of a bet that hasn't resolved yet.
+
+### Freebet bets are excluded from ROI
+
+A freebet-funded bet didn't cost the bettor their own money, so folding it into `turnover` would distort
+ROI. Every freebet-funded bet is instead counted in the row's `freebet` bucket and never touches
+`turnover`, `returns`, `profit`, `roi`, or `atStake` at the row level.
+
+### Count semantics - do not double-count
+
+| Field | Includes freebet bets? |
+|---|---|
+| `row.betsCount` / `row.settledCount` / `row.pendingCount` / `row.atStake` | No - freebet bets are excluded |
+| `row.freebet.count` | freebet bets only |
+| `report.betsCount` (top level) | Yes - every matching bet |
+
+Never add `row.betsCount + row.freebet.count` unless the grand total across every token is genuinely
+what you need - in which case read `report.betsCount` directly.
+
+## Query Options Helper
+
+`getUseBetsReportQueryOptions` lets you build query options outside a component — useful for prefetching, SSR, or composing queries.
+
+```ts
+import { getUseBetsReportQueryOptions } from '@azuro-org/sdk'
+
+const options = getUseBetsReportQueryOptions({ ...props, chainId })
+await queryClient.prefetchQuery(options)
+```
+
+```ts
+type GetUseBetsReportQueryOptionsProps<TData = GetBetsReportResult> = UseBetsReportProps<TData> & {
+  chainId: ChainId
+}
+```

@@ -8,6 +8,7 @@ export default {
   'getBetCalculation': 'getBetCalculation',
   'getBetFee': 'getBetFee',
   'getBetsByBettor': 'getBetsByBettor',
+  'getBetsReport': 'getBetsReport',
   'getBetStatus': 'getBetStatus',
   'getBetTypedData': 'getBetTypedData',
   'getComboBetTypedData': 'getComboBetTypedData',

@@ -1,0 +1,129 @@
+import { Callout } from 'components'
+
+# Toolkit v6.5 & SDK v7.6 — August 17, 2026
+
+This release adds bet **reports** — a turnover / returns / profit / ROI summary over a bettor's bets —
+plus new filter fields shared by the bet list and the report, and a `settledPayout` field that keeps
+a bet's historical payout visible after redemption.
+
+<Callout type="info">
+  **No migration is required.** `settledPayout` is purely additive, and the `BetType` →
+  `BetStatusFilter` rename preserves enum identity through a working alias (see below), so every
+  existing call site keeps compiling and behaving the same.
+</Callout>
+
+<Callout type="warning">
+  **One behaviour change: `Settled` no longer includes wins you haven't claimed.** A bet now counts as
+  settled when it lost, or when its win or cancellation refund has already been claimed. A won bet
+  that is still awaiting redemption is reported under `Unredeemed` instead — where bet-history UIs
+  already showed it.
+
+  This matters because the bet list and a report built from the same filter must describe the same
+  set of bets. Previously `Settled` mapped to "resolved or cancelled", which included unclaimed wins
+  that the list was hiding. If you relied on the old meaning, use
+  `status: BetStatusFilter.Unredeemed` alongside it to see those bets.
+</Callout>
+
+## New: bet reports
+
+### `getBetsReport` (toolkit)
+
+A new framework-agnostic function — no React required, so it can be called from any JS/TS frontend —
+fetches every v3 bet matching a filter and aggregates it into a per-token turnover / returns / profit /
+ROI report:
+
+```ts
+import { getBetsReport, BetStatusFilter } from '@azuro-org/toolkit'
+
+const report = await getBetsReport({
+  chainId: 137,
+  filter: { bettor: '0x...', status: BetStatusFilter.Settled },
+})
+
+const row = report.single ?? report.byToken[0]
+```
+
+It walks the bettor's whole history with a timestamp cursor rather than `skip`, so the report is exact
+over every matching bet — not just the pages a list happens to have loaded — and surfaces `isTruncated`
+when a very large history hits the walk's page cap.
+
+ROI is settled-only (`profit / turnover × 100`, where settled means `Won`, `Lost`, `Cancelled`, or cashed
+out) and is `null` — never `NaN` — when turnover is zero. Pending bets are excluded from ROI and
+surfaced separately as `atStake`. Freebet-funded bets are excluded from every main figure too, since the
+stake wasn't the bettor's own money, and are reported in their own `freebet` bucket instead.
+
+See the [full docs](/hub/apps/toolkit/bet/getBetsReport) for the return shape and the count-semantics
+rules that keep freebet bets from being double-counted.
+
+### `useBetsReport` (SDK)
+
+A TanStack Query wrapper around `getBetsReport`:
+
+```tsx
+import { useBetsReport, BetStatusFilter } from '@azuro-org/sdk'
+
+const { data: report } = useBetsReport({
+  filter: { bettor: '0x...', status: BetStatusFilter.Settled },
+})
+```
+
+`useBetsReport` takes the **same `filter` object as [`useBets`](/hub/apps/sdk/data-hooks/useBets)** —
+pass it the same filter you pass to the list, and the report is guaranteed to describe exactly the
+bets the list shows.
+
+## New `useBets` / `getBetsReport` filter fields
+
+Both `useBets` and `getBetsReport` (and, by extension, `useBetsReport`) now share one `filter` shape
+with three new fields, on top of the existing `bettor` / `affiliate` / `status`:
+
+```ts
+type BetsFilter = {
+  bettor: Address
+  affiliate?: Address
+  status?: BetStatusFilter
+  kind?: BetKind          // new — single (Ordinar) vs combo (Express)
+  createdFrom?: number    // new — inclusive lower bound, unix seconds
+  createdTo?: number      // new — inclusive upper bound, unix seconds
+  isFreebet?: boolean     // new — true = freebet-funded only, false = own-funds only, omit = both
+  /** @deprecated renamed to `status` */
+  type?: BetStatusFilter
+}
+```
+
+`filter.type` is now deprecated in favour of `filter.status` (when both are set, `status` wins), and
+`useBets`'s previously-undocumented `orderBy` / `orderDir` props have been corrected on the docs site:
+`useBets` never accepted them — only [`useLegacyBets`](/hub/apps/sdk/data-hooks/useLegacyBets) does.
+
+## `BetStatusFilter` and `BetKind`
+
+`BetType` — the enum used for lifecycle filtering (`Unredeemed`, `Pending`, `Accepted`, `Settled`,
+`CashedOut`) — is renamed to `BetStatusFilter`, since these are lifecycle statuses, not bet types. A new
+`BetKind` enum (`Single` | `Combo`) covers what `BetType` never did: filtering by single vs combo bets.
+
+<Callout type="info">
+  **`BetType` keeps working — no migration needed.** It remains a working alias of `BetStatusFilter`,
+  the same enum object under a different name: `BetType.Accepted === BetStatusFilter.Accepted`. Every
+  existing call site that imports `BetType` or sets `filter.type` keeps working unchanged, both at
+  runtime and in the type checker.
+</Callout>
+
+## `Bet.settledPayout`
+
+`Bet.payout` answers *"is there money to claim?"* — it's gated on redeemability and becomes `null` once
+a bet is redeemed. That made it a poor fit for historical or aggregate views, where a redeemed winning
+bet would render as a blank payout.
+
+The new `settledPayout: number | null` answers *"what did this bet return?"* instead, and stays
+populated after redemption:
+
+```ts
+type Bet = {
+  // ...
+  payout: number | null          // unchanged — gates a redeem action
+  settledPayout: number | null   // new — the bet's recorded payout, survives redemption
+}
+```
+
+Use `settledPayout` wherever you display a bet's historical result — a bet list, or next to an
+aggregate like a bets report — and keep using `payout` only to decide whether to show a redeem button.
+`payout` itself is unchanged, so no existing consumer needs to change anything.

@@ -1,0 +1,191 @@
+---
+title: getBetsReport
+description: Azuro Toolkit util. Aggregates a bettor's v3 bets into a turnover / returns / profit / ROI report, broken down by settlement token.
+---
+
+import { Callout } from 'components'
+
+# getBetsReport
+
+Fetches every bet matching a filter and aggregates it into a turnover / returns / profit / ROI report,
+broken down by settlement token.
+
+`getBetsReport` is **framework-agnostic** - it has no dependency on React and can be called from any
+JS/TS frontend, a server, or a script, which is why it lives in `@azuro-org/toolkit` rather than
+`@azuro-org/sdk`. The SDK's [`useBetsReport`](/hub/apps/sdk/data-hooks/useBetsReport) is a thin
+TanStack Query wrapper around it.
+
+<Callout type="info">
+  The filter is turned into a subgraph query by the same `toGraphBetsWhere` helper a bet list uses,
+  so a report built from the same filter always describes exactly the bets a list shows.
+</Callout>
+
+Bets are walked with a timestamp cursor rather than `skip`, which sidesteps the subgraph's `skip <= 5000`
+cap, so the report can be exact over a bettor's whole history rather than just the pages a list happens
+to have loaded. See `maxPages` and `isTruncated` below for what happens on very large histories.
+
+Covers **v3 bets only**; legacy v2 bets are not included.
+
+#### Usage
+
+```ts
+import { getBetsReport, BetStatusFilter } from '@azuro-org/toolkit'
+
+const report = await getBetsReport({
+  chainId: 137,
+  filter: { bettor: '0x...', status: BetStatusFilter.Settled },
+})
+
+// `single` is non-null whenever exactly one settlement token is present - the normal case, since a
+// chain has one bet token. Fall back to the first row of `byToken` only when there is more than one.
+const row = report.single ?? report.byToken[0]
+
+// `roi` is `null` when turnover is 0 (e.g. no settled bets yet) - never `NaN`, so guard before formatting
+const roiLabel = row && row.roi !== null ? `${row.roi.toFixed(2)}%` : '—'
+
+if (report.isTruncated) {
+  // more bets matched the filter than the walk covered - present the figures as a lower bound,
+  // e.g. "based on the most recent 50,000 bets", instead of a final total
+}
+```
+
+#### Props
+
+```ts
+type GetBetsReportParams = {
+  chainId: ChainId
+  filter: BetsFilter
+  /** aborts the in-flight multi-page walk, e.g. when the filter changes mid-walk */
+  signal?: AbortSignal
+  /** default: 1000, the maximum page size the subgraph accepts */
+  pageSize?: number
+  /** default: 50, which caps the walk at 50 000 bets */
+  maxPages?: number
+}
+```
+
+```ts
+type BetsFilter = {
+  bettor: Address // bettor address
+  affiliate?: Address // affiliate address
+  status?: BetStatusFilter // lifecycle preset - narrows both the bet list and this report
+  kind?: BetKind // single (Ordinar) vs combo (Express)
+  createdFrom?: number // inclusive lower bound, unix seconds (matches `Bet.createdAt`)
+  createdTo?: number // inclusive upper bound, unix seconds
+  isFreebet?: boolean // `true` = freebet-funded only, `false` = own-funds only, omit = both
+  /** @deprecated renamed to `status` - when both are set, `status` wins */
+  type?: BetStatusFilter
+}
+
+enum BetStatusFilter {
+  Unredeemed = 'unredeemed', // ready to redeem bets
+  Pending = 'pending', // not yet accepted on-chain
+  Accepted = 'accepted', // accepted, not yet resolved
+  Settled = 'settled', // resolved bets
+  CashedOut = 'cashedOut', // cashed out bets
+}
+
+enum BetKind {
+  Single = 'single',
+  Combo = 'combo',
+}
+
+type ChainId =
+  | 100     // Gnosis
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+
+import { type Address } from 'viem'
+```
+
+<Callout type="warning">
+  `BetStatusFilter.Pending` has no representation in the subgraph this function queries - orders that
+  aren't yet confirmed on-chain simply aren't in that data set. Passing `status: BetStatusFilter.Pending`
+  is therefore intentionally unhandled: it adds no status constraint at all, rather than narrowing the
+  report down to pending bets.
+</Callout>
+
+#### Return Value
+
+```ts
+type GetBetsReportResult = BetsReportResult & {
+  /** `true` when `maxPages` was hit before the walk reached the end of the bettor's history - the
+   * figures below are then a lower bound, not an exact total, and the UI must surface that */
+  isTruncated: boolean
+}
+
+type BetsReportResult = {
+  /** one row per settlement token, sorted by turnover descending */
+  byToken: BetsReportRow[]
+  /** non-null iff exactly one token is present - render this instead of `byToken` whenever it is
+   * non-null, which is the normal case since a chain has one bet token */
+  single: BetsReportRow | null
+  /** every bet matching the filter, freebet-funded ones included - see count semantics below */
+  betsCount: number
+}
+
+type BetsReportRow = {
+  token: { address: Address, decimals: number, symbol: string | null }
+  /** own-funds bets only - freebet-funded ones are counted in `freebet.count` instead */
+  betsCount: number
+  settledCount: number
+  pendingCount: number
+  /** decimal strings, already formatted with the token's decimals - the whole result is JSON-safe,
+   * no bigint ever appears in it */
+  turnover: string
+  returns: string
+  profit: string
+  /** percent, `profit / turnover * 100`; `null` when turnover is 0 - never `NaN` or `Infinity` */
+  roi: number | null
+  /** sum of the stakes of unsettled, non-freebet bets */
+  atStake: string
+  /** freebet-funded bets, excluded from every figure above */
+  freebet: {
+    count: number
+    turnover: string
+    returns: string
+    profit: string
+    atStake: string
+  }
+}
+```
+
+##### ROI is settled-only
+
+A bet counts as settled once it is `Won`, `Lost`, `Cancelled`, or cashed out - checked in that order,
+because a cashed-out bet keeps a notional settlement payout that would otherwise double-count it as
+`Won` too. Pending bets never touch `turnover`, `returns`, or `roi` - they only contribute to
+`pendingCount` and `atStake`, so ROI never has to guess at the outcome of a bet that hasn't resolved yet.
+
+`profit = returns - turnover`, and `roi = profit / turnover * 100`, rounded to 2 decimals. Returns are
+always read from the protocol's own recorded payout, never reconstructed from odds - a bet's payout is
+not `amount * settledOdds`.
+
+##### Freebet bets are excluded from ROI
+
+A freebet-funded bet didn't cost the bettor their own money, so folding it into `turnover` alongside
+own-funds bets would distort ROI. Every freebet-funded bet is instead counted in the row's `freebet`
+bucket and never touches `turnover`, `returns`, `profit`, `roi`, or `atStake` at the row level.
+`freebet.profit` is `returns - turnover` mechanically, but since the stake wasn't the bettor's own
+money, `freebet.returns` is the number that represents their actual gain.
+
+##### Count semantics - do not double-count
+
+| Field | Includes freebet bets? |
+|---|---|
+| `row.betsCount` / `row.settledCount` / `row.pendingCount` / `row.atStake` | No - freebet bets are excluded |
+| `row.freebet.count` | freebet bets only |
+| `result.betsCount` (top level) | Yes - every matching bet |
+
+Never add `row.betsCount + row.freebet.count` unless the grand total across every token is genuinely
+what you need - in which case read `result.betsCount` directly.
+
+##### `isTruncated`
+
+`true` when the walk hit `maxPages` before reaching the end of the bettor's history. When that happens,
+every figure in the report is a lower bound rather than an exact total, and the UI must surface it -
+for example "based on the most recent 50,000 bets" - rather than presenting the numbers as final.

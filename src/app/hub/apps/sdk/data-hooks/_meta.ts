@@ -17,6 +17,7 @@ export default {
   'useMaxBet': 'useMaxBet (deprecated)',
   'useBets': 'useBets',
   'useLegacyBets': 'useLegacyBets',
+  'useBetsReport': 'useBetsReport',
   'useBetFee': 'useBetFee',
   'useBetsSummary': 'useBetsSummary',
   'useBetsSummaryBySelection': 'useBetsSummaryBySelection',

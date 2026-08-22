@@ -42,20 +42,44 @@ const { pages } = data || {}
 
 ```ts
 {
-  filter: {
-    bettor: string // bettor address
-    affiliate?: string // affiliate address
-    type?: BetType // bet type
-  }
+  filter: BetsFilter
   chainId?: ChainId
   itemsPerPage?: number
-  orderBy?: Bet_OrderBy // default: Bet_OrderBy.CreatedBlockTimestamp` - orders rows by passed rule
-  orderDir?: OrderDirection // order direction: asc, desc
   query?: InfiniteQueryParameters<QueryResult>
 }
 ```
 
+<Callout type="warning">
+  `useBets` does **not** accept `orderBy` / `orderDir` — those are `useLegacyBets`-only props, kept there
+  because the legacy v2 subgraph is queried directly. `useBets` always orders by creation time descending.
+</Callout>
+
 ```ts
+type BetsFilter = {
+  bettor: Address // bettor address
+  affiliate?: Address // affiliate address
+  status?: BetStatusFilter // lifecycle preset - narrows both the bet list and its report
+  kind?: BetKind // single (Ordinar) vs combo (Express)
+  createdFrom?: number // inclusive lower bound, unix seconds (matches `Bet.createdAt`)
+  createdTo?: number // inclusive upper bound, unix seconds
+  isFreebet?: boolean // `true` = freebet-funded only, `false` = own-funds only, omit = both
+  /** @deprecated renamed to `status` - when both are set, `status` wins */
+  type?: BetStatusFilter
+}
+
+enum BetStatusFilter {
+  Unredeemed = 'unredeemed', // ready to redeem bets
+  Pending = 'pending', // not yet accepted on-chain
+  Accepted = 'accepted', // accepted, not yet resolved
+  Settled = 'settled', // resolved bets
+  CashedOut = 'cashedOut', // cashed out bets
+}
+
+enum BetKind {
+  Single = 'single',
+  Combo = 'combo',
+}
+
 type ChainId = 
   | 100     // Gnosis
   | 137     // Polygon
@@ -64,19 +88,32 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
-  
-enum BetType {
-  Unredeemed = 'unredeemed', // ready to redeem bets
-  Accepted = 'accepted', // not resolved bets
-  Settled = 'settled', // resolved bets
-  CashedOut = 'cashedOut', // cashed out bets
-}
 
 type QueryResult = {
   bets: Bet[],
   nextPage: number | undefined,
 }
+
+import { type Address } from 'viem'
 ```
+
+<Callout type="info">
+  **`BetType` → `BetStatusFilter`**
+
+  The enum previously used for `filter.type` has been renamed to `BetStatusFilter` (these are lifecycle
+  statuses, not bet types — for single/combo use the new `filter.kind` with `BetKind`). `filter.type` is
+  now deprecated in favour of `filter.status`; when both are set, `status` wins. `BetType` is kept as a
+  working alias of the very same enum object — `BetType.Accepted === BetStatusFilter.Accepted` — so it
+  type-checks and behaves identically. **No migration is required** of existing code that imports
+  `BetType` or sets `filter.type`.
+</Callout>
+
+<Callout type="warning">
+  `BetStatusFilter.Pending` has no representation in the subgraph this hook queries — orders that
+  aren't yet confirmed on-chain simply aren't in that data set. Passing `status: BetStatusFilter.Pending`
+  (or the deprecated `type: BetType.Pending`) is therefore intentionally unhandled: it adds no status
+  constraint at all, rather than narrowing the result down to pending bets.
+</Callout>
 
 ## Return Value
 
@@ -115,7 +152,8 @@ type Bet = {
   status: BetStatus // subgraph bet status
   amount: string // bet's amount in USDT
   possibleWin: number // possible win amount in USDT
-  payout: number | null // actual payout amount in USDT
+  payout: number | null // claimable amount - `null` once the bet is redeemed or cashed out; gates a redeem action
+  settledPayout: number | null // what the bet actually returned - stays populated after redemption; use for historical/aggregate views
   cashout: string | null // cashout amount in USDT
   createdAt: number // created date
   isWin: boolean // flag indicates the bet's win
@@ -127,3 +165,12 @@ type Bet = {
   isCashedOut: boolean // flag indicates whether the bet is cashed out
 }
 ```
+
+<Callout type="info">
+  **`payout` vs `settledPayout`**
+
+  `payout` is gated on redeemability — it answers *"is there money to claim?"* and becomes `null` once
+  the bet is redeemed. `settledPayout` answers *"what did this bet return?"* and stays populated after
+  redemption. Use `settledPayout` for historical and aggregate views; use `payout` only to gate a redeem
+  action.
+</Callout>
