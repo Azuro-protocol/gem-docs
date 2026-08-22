@@ -7,6 +7,7 @@ export default {
   'calcMinOdds': 'calcMinOdds',
   'groupConditionsByMarket': 'groupConditionsByMarket',
   'getIsPendingResolution': 'getIsPendingResolution',
+  'isOutcomeSettled': 'isOutcomeSettled',
   'getFreeBets': {
     'title': 'getFreeBets',
     'display': 'hidden',
