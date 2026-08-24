@@ -132,8 +132,10 @@ type BetsReportRow = {
   token: { address: Address, decimals: number, symbol: string | null }
   /** own-funds bets only - freebet-funded ones are counted in `freebet.count` instead */
   betsCount: number
+  /** `betsCount` splits into these three */
   settledCount: number
   pendingCount: number
+  canceledCount: number
   /** decimal strings, already formatted with the token's decimals - the whole result is JSON-safe,
    * no bigint ever appears in it */
   turnover: string
@@ -143,27 +145,53 @@ type BetsReportRow = {
   roi: number | null
   /** sum of the stakes of unsettled, non-freebet bets */
   atStake: string
+  /** sum of the stakes returned by voided bets, excluded from every figure above */
+  refunded: string
   /** freebet-funded bets, excluded from every figure above */
   freebet: {
     count: number
+    canceledCount: number
     turnover: string
     returns: string
     profit: string
     atStake: string
+    refunded: string
   }
 }
 ```
 
-##### ROI is settled-only
+##### ROI covers the bets that were at risk
 
-A bet counts as settled once it is `Won`, `Lost`, `Cancelled`, or cashed out - checked in that order,
-because a cashed-out bet keeps a notional settlement payout that would otherwise double-count it as
-`Won` too. Pending bets never touch `turnover`, `returns`, or `roi` - they only contribute to
-`pendingCount` and `atStake`, so ROI never has to guess at the outcome of a bet that hasn't resolved yet.
+A bet counts as settled once it is `Won`, `Lost`, or cashed out - checked in that order, because a
+cashed-out bet keeps a notional settlement payout that would otherwise double-count it as `Won` too.
 
-`profit = returns - turnover`, and `roi = profit / turnover * 100`, rounded to 2 decimals. Returns are
-always read from the protocol's own recorded payout, never reconstructed from odds - a bet's payout is
-not `amount * settledOdds`.
+Two kinds of bet are left out of `turnover`, `returns` and `roi`:
+
+- **pending** ones, which only contribute to `pendingCount` and `atStake`, so ROI never has to guess
+  at the outcome of a bet that hasn't resolved yet;
+- **voided** ones, which only contribute to `canceledCount` and `refunded`. A void returns the stake
+  in full, so the bet was never at risk; counting it as turnover would pull every ROI toward zero by
+  exactly how unlucky a bettor was with cancellations, which says nothing about how they bet. A bet
+  that was cashed out before being voided is *not* one of these - the bettor took a price and the
+  money moved, so it stays a settled bet paid at its cashout amount.
+
+`profit = returns - turnover`, and `roi = profit / turnover * 100`, rounded to 2 decimals.
+
+##### Returns are read, not reconstructed - with one exception
+
+Returns come from the protocol's own recorded payout. They are never reconstructed from odds: a bet's
+payout is not `amount * settledOdds`, and `settledOdds` is neither re-margined for a combo nor reduced
+when one of its legs is voided.
+
+The exception is the one shape where the recorded payout is knowingly wrong: **a winning combo with at
+least one voided leg that has not been redeemed yet**. Until redemption the indexer keeps the full
+pre-void payout, crediting the voided leg's odds as if that leg had won - measured against production
+that overstates returns by 17% to 33%. Those returns are rebuilt from the surviving legs with
+`calcMinOdds`, which prices a combo the way the protocol does: the feed's 1% fee is removed per leg and
+re-applied once to the product instead of compounding once per leg. Measured against redeemed
+production combos with a voided leg, the rebuild lands within ~1% of the on-chain payout, against up to
+~10% for a plain product of the surviving odds. Redeemed bets always read the recorded payout, which by
+then is the amount actually paid out.
 
 ##### Freebet bets are excluded from ROI
 
@@ -177,7 +205,7 @@ money, `freebet.returns` is the number that represents their actual gain.
 
 | Field | Includes freebet bets? |
 |---|---|
-| `row.betsCount` / `row.settledCount` / `row.pendingCount` / `row.atStake` | No - freebet bets are excluded |
+| `row.betsCount` / `row.settledCount` / `row.pendingCount` / `row.canceledCount` / `row.atStake` / `row.refunded` | No - freebet bets are excluded |
 | `row.freebet.count` | freebet bets only |
 | `result.betsCount` (top level) | Yes - every matching bet |
 

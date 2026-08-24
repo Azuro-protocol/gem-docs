@@ -47,10 +47,12 @@ It walks the bettor's whole history with a timestamp cursor rather than `skip`, 
 over every matching bet — not just the pages a list happens to have loaded — and surfaces `isTruncated`
 when a very large history hits the walk's page cap.
 
-ROI is settled-only (`profit / turnover × 100`, where settled means `Won`, `Lost`, `Cancelled`, or cashed
-out) and is `null` — never `NaN` — when turnover is zero. Pending bets are excluded from ROI and
-surfaced separately as `atStake`. Freebet-funded bets are excluded from every main figure too, since the
-stake wasn't the bettor's own money, and are reported in their own `freebet` bucket instead.
+ROI covers the bets that were at risk (`profit / turnover × 100`, where settled means `Won`, `Lost` or
+cashed out) and is `null` — never `NaN` — when turnover is zero. Three kinds of bet stay out of it:
+**pending** ones, surfaced as `pendingCount` / `atStake`; **voided** ones, surfaced as `canceledCount` /
+`refunded`, because a void returns the stake in full and a bet that was never at risk says nothing about
+how a bettor bets; and **freebet-funded** ones, since the stake wasn't the bettor's own money, reported
+in their own `freebet` bucket instead.
 
 See the [full docs](/hub/apps/toolkit/bet/getBetsReport) for the return shape and the count-semantics
 rules that keep freebet bets from being double-counted.
@@ -105,6 +107,36 @@ type BetsFilter = {
   the same enum object under a different name: `BetType.Accepted === BetStatusFilter.Accepted`. Every
   existing call site that imports `BetType` or sets `filter.type` keeps working unchanged, both at
   runtime and in the type checker.
+</Callout>
+
+## Combos with a voided leg are no longer credited that leg
+
+A leg of a combo can be voided on its own — the game is cancelled, or the outcome is settled as
+`Canceled` while the rest of its condition resolves normally. The protocol prices the bet on the
+surviving legs and refunds the rest, but **the indexer keeps the full pre-void payout until the bet is
+redeemed**, and only replaces it with the real on-chain amount when the bettor claims. Measured across
+production bets, that figure is 17% to 33% too high.
+
+Both the report and the bet list now read what the surviving legs are worth for that shape:
+
+- `getBetsReport` / `calcBetsReport` rebuild `returns` as `stake × calcMinOdds(surviving leg odds)` —
+  which is how a combo is actually priced, the feed's 1% fee removed per leg and re-applied once to the
+  product rather than compounded per leg. Against redeemed production combos with a voided leg, that
+  lands within ~1% of the on-chain payout, against up to ~10% for a plain product of the odds.
+- `useBets` applies the same figure to `settledPayout` and to `payout` — the latter matters most, since
+  it is what a redeem button shows the bettor.
+
+Redeemed bets are untouched: their recorded payout is the amount that was actually paid.
+
+New [`isSelectionCanceled({ selectionResult, outcomeResult, conditionStatus })`](/hub/apps/toolkit/bet/getBetsReport)
+is the single place that decides whether a leg was voided — no single field answers it, since a leg can
+be voided while its condition stays `Resolved`. `useBets` and the report share it, so a summary can
+never describe a different set of legs than the rows above it.
+
+<Callout type="info">
+  `useBets` returns a **lower — correct —** `totalOdds`, `possibleWin`, `payout` and `settledPayout` for
+  a combo with a voided leg than it did before. A bet with no surviving leg at all now returns the
+  stake, rather than 0.99 of it.
 </Callout>
 
 ## `Bet.settledPayout`
