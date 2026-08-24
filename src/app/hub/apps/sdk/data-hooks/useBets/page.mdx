@@ -173,4 +173,9 @@ type Bet = {
   the bet is redeemed. `settledPayout` answers *"what did this bet return?"* and stays populated after
   redemption. Use `settledPayout` for historical and aggregate views; use `payout` only to gate a redeem
   action.
+
+  Both are read from the protocol's recorded payout, with one exception: a **winning combo with a voided
+  leg that has not been redeemed yet**. That payout still credits the voided leg until the bettor claims,
+  so both figures are rebuilt from the surviving legs instead, at the same `totalOdds` this hook already
+  reports. Redeemed bets are untouched — their recorded payout is the amount that was actually paid.
 </Callout>

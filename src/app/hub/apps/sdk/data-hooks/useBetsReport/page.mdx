@@ -124,8 +124,10 @@ type BetsReportRow = {
   token: { address: Address, decimals: number, symbol: string | null }
   /** own-funds bets only - freebet-funded ones are counted in `freebet.count` instead */
   betsCount: number
+  /** `betsCount` splits into these three */
   settledCount: number
   pendingCount: number
+  canceledCount: number
   /** decimal strings, already formatted with the token's decimals - the whole result is JSON-safe */
   turnover: string
   returns: string
@@ -134,22 +136,37 @@ type BetsReportRow = {
   roi: number | null
   /** sum of the stakes of unsettled, non-freebet bets */
   atStake: string
+  /** sum of the stakes returned by voided bets, excluded from every figure above */
+  refunded: string
   /** freebet-funded bets, excluded from every figure above */
   freebet: {
     count: number
+    canceledCount: number
     turnover: string
     returns: string
     profit: string
     atStake: string
+    refunded: string
   }
 }
 ```
 
-### ROI is settled-only
+### ROI covers the bets that were at risk
 
-A bet counts as settled once it is `Won`, `Lost`, `Cancelled`, or cashed out. Pending bets never touch
-`turnover` / `returns` / `roi` - they only contribute to `pendingCount` and `atStake`, so the ROI figure
-never has to guess at the outcome of a bet that hasn't resolved yet.
+A bet counts as settled once it is `Won`, `Lost`, or cashed out. Two kinds of bet stay out of
+`turnover` / `returns` / `roi`:
+
+- **pending** ones, which only contribute to `pendingCount` and `atStake`, so the ROI figure never has
+  to guess at the outcome of a bet that hasn't resolved yet;
+- **voided** ones, which only contribute to `canceledCount` and `refunded`. The stake came straight
+  back, so the bet was never at risk - counting it as turnover would pull every ROI toward zero by
+  exactly how unlucky a bettor was with cancellations. A bet cashed out before being voided still
+  counts as settled, paid at its cashout amount.
+
+Returns are read from the protocol's recorded payout, with one exception: a winning combo with a voided
+leg that has not been redeemed yet is still credited the voided leg's odds by the indexer, so its
+returns are rebuilt from the surviving legs. See
+[`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) for the measurements behind that.
 
 ### Freebet bets are excluded from ROI
 
@@ -161,7 +178,7 @@ ROI. Every freebet-funded bet is instead counted in the row's `freebet` bucket a
 
 | Field | Includes freebet bets? |
 |---|---|
-| `row.betsCount` / `row.settledCount` / `row.pendingCount` / `row.atStake` | No - freebet bets are excluded |
+| `row.betsCount` / `row.settledCount` / `row.pendingCount` / `row.canceledCount` / `row.atStake` / `row.refunded` | No - freebet bets are excluded |
 | `row.freebet.count` | freebet bets only |
 | `report.betsCount` (top level) | Yes - every matching bet |
 
