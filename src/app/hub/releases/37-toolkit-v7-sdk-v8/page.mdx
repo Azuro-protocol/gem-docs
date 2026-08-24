@@ -8,15 +8,17 @@ The protocol has dropped condition-level resolution. A [`Condition`](/knowledge-
 is now only ever `Active` or `Stopped`, and won / lost / voided is tracked purely **per outcome**.
 
 Within a single condition, outcomes can now settle independently: one Won, one Lost, one Canceled (voided,
-stake refunded) and one still taking bets — all at the same time. The old model could not express that, and
-the SDK mispriced combos because of it: a real production bet with a voided leg reported a `possibleWin`
-**35% higher** than the protocol would ever pay.
+stake refunded) and one still taking bets — all at the same time. The old model could not express that.
+
+Combo pricing was the sharpest edge of it — a real production bet with a voided leg reported a `possibleWin`
+**35% higher** than the protocol would ever pay — and that part already landed in
+[Toolkit v6.5 / SDK v7.6](/hub/releases/36-toolkit-6-5-sdk-7-6). What this release changes is the model
+itself, and with it everything that read resolution off a condition.
 
 <Callout type="warning">
   **Several SDK changes produce no compile error.** Hidden conditions and outcomes are now dropped by
-  default, a voided combo leg reports `isWin: false` instead of `isWin: null`, and combos containing a
-  voided leg return different `totalOdds` and `possibleWin`. A green type check does not mean the
-  migration is done — see the [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8).
+  default, and a voided combo leg reports `isWin: false` instead of `isWin: null`. A green type check does
+  not mean the migration is done — see the [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8).
 </Callout>
 
 ## What's New
@@ -51,8 +53,6 @@ the SDK mispriced combos because of it: a real production bet with a voided leg 
 - [`useBets`](/hub/apps/sdk/data-hooks/useBets): a voided combo leg is now
   `{ isWin: false, isLose: false, isCanceled: true }` — it used to be `{ isWin: null, isLose: null, isCanceled: false }`,
   indistinguishable from still-pending
-- [`useBets`](/hub/apps/sdk/data-hooks/useBets): `totalOdds` and `possibleWin` for combos with a voided leg
-  now return different — lower, correct — values
 - [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) /
   [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) return `ConditionState.Stopped`
   instead of the removed `ConditionState.Removed` when a condition is absent from the feed

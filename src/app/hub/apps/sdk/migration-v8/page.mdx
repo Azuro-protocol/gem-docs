@@ -12,16 +12,15 @@ Lost, Canceled (voided) or still live — and the SDK now reports them that way.
 
 - **Removed**: `useResolvedMarkets`, `BetOutcome.wonOutcomeIds`, `UseConditionsProps.onlyActiveOrStopped`
 - **Added**: `includeHidden` on `useConditions`, `useActiveConditions` and `useActiveMarkets`
-- **Changed without a type error**: hidden filtering, voided combo legs, condition/outcome state
-  fallbacks, and combo `totalOdds` / `possibleWin`
+- **Changed without a type error**: hidden filtering, voided combo legs, and condition/outcome state
+  fallbacks
 
 <Callout type="warning">
   **Read the "Behaviour changes with no compile error" section — it is the one that will bite you.**
 
-  Three of these changes type-check perfectly and silently alter what your UI renders: hooks now drop
-  hidden conditions and outcomes by default, a voided combo leg reports `isWin: false` instead of
-  `isWin: null`, and combos with a voided leg return lower (correct) `totalOdds` and `possibleWin`. A
-  green `tsc` does not mean you are done.
+  Two of these changes type-check perfectly and silently alter what your UI renders: hooks now drop
+  hidden conditions and outcomes by default, and a voided combo leg reports `isWin: false` instead of
+  `isWin: null`. A green `tsc` does not mean you are done.
 </Callout>
 
 <Callout type="info">
@@ -205,13 +204,15 @@ that is still pending reports `isWin: null` / `isLose: null` with `isCanceled: f
   ```
 </Callout>
 
-### 3. Combo `totalOdds` and `possibleWin` change value
+### 3. Combo `totalOdds`, `possibleWin` and `payout` — already changed in v7.6
 
-A voided leg is refunded, so it no longer multiplies into the combo's odds. `useBets` now excludes it.
+A voided leg is refunded, so it no longer multiplies into the combo's odds, and `useBets` excludes it.
 
-Combos containing a voided leg therefore return **different — lower, and correct —** `totalOdds` and
-`possibleWin` than they did in v7. This is a data change, not an API change: nothing to update, but
-screenshots, snapshots and any figures you cache or reconcile against will move.
+If you are coming from **v7.6 or later** this already happened there and nothing moves again in v8 — see
+[Toolkit v6.5 / SDK v7.6](/hub/releases/36-toolkit-6-5-sdk-7-6). If you are coming from **earlier than
+v7.6**, combos containing a voided leg return **different — lower, and correct —** `totalOdds`,
+`possibleWin`, `payout` and `settledPayout`. That is a data change, not an API change: nothing to update,
+but screenshots, snapshots and any figures you cache or reconcile against will move.
 
 A combo whose every leg was voided has odds of `1`: the stake is simply returned.
 
@@ -439,7 +440,7 @@ check **before** the null check.
 
 ### Step 6: Re-check anything that reconciles combo payouts
 
-`totalOdds` and `possibleWin` now return different values for combos with a voided leg. If you compare
+`totalOdds` and `possibleWin` returned different values for combos with a voided leg from v7.6 on. If you compare
 those against your own backend figures, snapshot tests, or cached values, refresh them.
 
 ### Step 7: Test
