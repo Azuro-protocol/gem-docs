@@ -10,15 +10,18 @@ is now only ever `Active` or `Stopped`, and won / lost / voided is tracked purel
 Within a single condition, outcomes can now settle independently: one Won, one Lost, one Canceled (voided,
 stake refunded) and one still taking bets — all at the same time. The old model could not express that.
 
-Combo pricing was the sharpest edge of it — a real production bet with a voided leg reported a `possibleWin`
-**35% higher** than the protocol would ever pay — and that part already landed in
+Combo pricing was the sharpest edge of it: a voided leg was still credited into the combo's odds, so a bet
+containing one reported a `possibleWin` the protocol would never pay. That part already landed in
 [Toolkit v6.5 / SDK v7.6](/hub/releases/36-toolkit-6-5-sdk-7-6). What this release changes is the model
 itself, and with it everything that read resolution off a condition.
 
 <Callout type="warning">
-  **Several SDK changes produce no compile error.** Hidden conditions and outcomes are now dropped by
-  default, and a voided combo leg reports `isWin: false` instead of `isWin: null`. A green type check does
-  not mean the migration is done — see the [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8).
+  **Several SDK changes produce no compile error.** `useActiveConditions` / `useActiveMarkets` now drop
+  hidden conditions and outcomes by default while `useConditions` returns everything, a hidden market is
+  revealed only by an update that reports it visible, per-outcome state is no longer taken from every
+  socket message, and a voided combo leg reports `isWin: false` instead of `isWin: null`. A green type
+  check does not mean the migration is done — see the
+  [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8).
 </Callout>
 
 ## What's New
@@ -45,11 +48,31 @@ itself, and with it everything that read resolution off a condition.
 - Removed `BetOutcome.wonOutcomeIds`
 - Removed `UseConditionsProps.onlyActiveOrStopped` — with the reduced `ConditionState`, its predicate matched
   every condition
-- New `includeHidden` prop on [`useConditions`](/hub/apps/sdk/data-hooks/useConditions),
-  [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
-  [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets), defaulting to `false` — those hooks now
-  drop `hidden` conditions and outcomes unless you opt in. The `conditions` query key changed, so cached
-  entries are invalidated
+- New `includeHidden` prop on [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
+  [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets), defaulting to `false` — those two hooks
+  now drop `hidden` conditions and outcomes, and any condition left without a visible one, unless you opt in
+- [`useConditions`](/hub/apps/sdk/data-hooks/useConditions) is a pure data hook: it filters nothing and
+  returns everything the feed has. Visibility can't be decided in a fetch — the feed sends no updates for a
+  condition that was never subscribed, so a row dropped there could never be revealed afterwards. The two
+  "active" hooks subscribe to every condition of the game first and filter second. The `conditions` query
+  key lost `onlyActiveOrStopped` and is now `[ 'conditions', chainId, gameId, extended ]`, so one cache
+  entry serves every view of a game — and entries cached by v7 are invalidated
+- `useActiveConditions` / `useActiveMarkets` return `UseActiveConditionsResult` / `UseActiveMarketsResult`
+  instead of a plain `UseQueryResult`, no longer accept `query.select` (it would run before the filter), and
+  require `FeedSocketProvider` + `ConditionUpdatesProvider` — both already inside
+  [`AzuroSDKProvider`](/hub/apps/sdk/providers/sdk), so only a hand-composed provider tree is affected, and
+  it fails at runtime rather than at compile time
+- A hidden condition is revealed by an update **reporting** `hidden: false`, not by any update arriving: a
+  market the provider has parked keeps streaming odds for the rest of its life, so "it sent something" is no
+  evidence it is being offered. Visibility is latched one way at both levels — a market that stops stays in
+  the grid, locked, instead of reflowing the list under the bettor — and `hidden` is now
+  `boolean | undefined`, where `undefined` means "not reported yet" rather than "revealed"
+- [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) /
+  [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) take `state` and `hidden` only from
+  updates whose condition is `Active`, and re-read the state endpoint otherwise: an update for an inactive
+  condition reports every one of its outcomes as `Stopped` regardless of what they settled to. `odds` and
+  `turnover` are real in every message and still come from all of them. Outcome visibility is latched by the
+  SDK now, so an app keeping its own anti-flicker latch can drop it
 - [`useBets`](/hub/apps/sdk/data-hooks/useBets): a voided combo leg is now
   `{ isWin: false, isLose: false, isCanceled: true }` — it used to be `{ isWin: null, isLose: null, isCanceled: false }`,
   indistinguishable from still-pending
