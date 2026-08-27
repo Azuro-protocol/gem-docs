@@ -11,16 +11,22 @@ protocol resolves **outcomes**, not conditions. Within one condition, outcomes c
 Lost, Canceled (voided) or still live — and the SDK now reports them that way.
 
 - **Removed**: `useResolvedMarkets`, `BetOutcome.wonOutcomeIds`, `UseConditionsProps.onlyActiveOrStopped`
-- **Added**: `includeHidden` on `useConditions`, `useActiveConditions` and `useActiveMarkets`
-- **Changed without a type error**: hidden filtering, voided combo legs, and condition/outcome state
+- **Added**: `includeHidden` on `useActiveConditions` and `useActiveMarkets`, plus their own result types
+  `UseActiveConditionsResult` / `UseActiveMarketsResult`
+- **Changed shape**: `useActiveConditions` and `useActiveMarkets` are no longer plain `UseQueryResult`s,
+  no longer accept `query.select`, and require the feed providers
+- **Changed without a type error**: which hooks filter `hidden` rows, when a hidden market is revealed,
+  how far per-outcome state from the socket is trusted, voided combo legs, and condition/outcome state
   fallbacks
 
 <Callout type="warning">
   **Read the "Behaviour changes with no compile error" section — it is the one that will bite you.**
 
-  Two of these changes type-check perfectly and silently alter what your UI renders: hooks now drop
-  hidden conditions and outcomes by default, and a voided combo leg reports `isWin: false` instead of
-  `isWin: null`. A green `tsc` does not mean you are done.
+  Several of these changes type-check perfectly and silently alter what your UI renders: the "active"
+  hooks drop hidden conditions and outcomes by default while `useConditions` keeps them, a hidden market
+  is now revealed only by an update that says so, per-outcome state is no longer read from every socket
+  message, and a voided combo leg reports `isWin: false` instead of `isWin: null`. A green `tsc` does not
+  mean you are done.
 </Callout>
 
 <Callout type="info">
@@ -57,12 +63,13 @@ const { data: markets } = useActiveMarkets({ gameId, includeHidden: true })
 If you need the raw conditions rather than grouped markets:
 
 ```tsx
-import { useConditions } from '@azuro-org/sdk'
-import { groupConditionsByMarket } from '@azuro-org/toolkit'
+import { useActiveConditions } from '@azuro-org/sdk'
 
-const { data: conditions } = useConditions({ gameId, includeHidden: true })
-const markets = conditions ? groupConditionsByMarket(conditions) : undefined
+const { data: conditions } = useActiveConditions({ gameId, includeHidden: true })
 ```
+
+`includeHidden: true` is what makes this the results view: it keeps the markets and outcomes that were
+hidden while the game ran, which is where the settled and refunded outcomes are.
 
 <Callout type="info">
   There is no longer a separate "active markets" view and "resolved markets" view to switch between. One
@@ -133,6 +140,52 @@ is the default behaviour of [`useActiveConditions`](/hub/apps/sdk/data-hooks/use
 
 ---
 
+### 4. `useActiveConditions` / `useActiveMarkets`: new result type, no `select`, feed providers required
+
+These two hooks now decide visibility themselves, on the live value from the feed, **after** subscribing to
+every condition of the game. Three consequences, two of which the compiler will point at.
+
+**They are no longer plain `UseQueryResult`s.** `data` is produced after the query, so it is typed
+separately from the query's own data:
+
+```ts
+type UseActiveConditionsResult = {
+  data: ConditionDetailedData[] | undefined
+} & Omit<UseQueryResult<ConditionDetailedData[]>, 'data'>
+
+type UseActiveMarketsResult = {
+  data: GameMarkets | undefined
+} & Omit<UseQueryResult<ConditionDetailedData[]>, 'data'>
+```
+
+`isLoading`, `isFetching`, `isPlaceholderData`, `status`, `error` and `refetch` are unchanged, and your
+`query` options are still forwarded. Only annotations naming the old type break.
+
+**`query.select` is no longer supported**, and `UseActiveConditionsProps` is no longer generic. A `select`
+runs inside the query — before the visibility filter — so it would see exactly the hidden rows the hook
+exists to remove, and its output would then be filtered as if it were still a `ConditionDetailedData[]`.
+
+```tsx
+// Before (v7.x)
+const { data } = useActiveConditions({
+  gameId,
+  query: { select: (conditions) => conditions.filter(myPredicate) },
+})
+
+// After (v8.0.0) - shape the raw data yourself
+const { data: conditions } = useConditions({
+  gameId,
+  query: { select: (conditions) => conditions.filter(myPredicate) },
+})
+```
+
+**They require `FeedSocketProvider` and `ConditionUpdatesProvider`.** Both are already inside
+[`AzuroSDKProvider`](/hub/apps/sdk/providers/sdk), so nothing to do unless you compose the providers by
+hand — but if you do and one is missing, **this fails at runtime, not at compile time**. Check your
+provider tree before shipping.
+
+---
+
 ## Behaviour changes with no compile error
 
 <Callout type="warning">
@@ -140,17 +193,16 @@ is the default behaviour of [`useActiveConditions`](/hub/apps/sdk/data-hooks/use
   against your own screens.
 </Callout>
 
-### 1. `hidden` conditions and outcomes are dropped by default
+### 1. `hidden` conditions and outcomes are dropped by default — in the "active" hooks
 
-[`useConditions`](/hub/apps/sdk/data-hooks/useConditions),
 [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
-[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) now filter out conditions flagged `hidden`,
-and hidden outcomes inside the conditions they keep. A condition whose every outcome is hidden is dropped
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) now drop conditions flagged `hidden`, and
+hidden outcomes inside the conditions they keep. A condition left with no visible outcome is dropped
 entirely.
 
 Previously the SDK returned everything and apps filtered at render time. If your app did that filtering
-itself, it now filters an already-filtered list — harmless. **The breakage is in the other direction: a
-view that relied on getting everything back now silently renders less.**
+itself, it now filters an already-filtered list — harmless, though you can delete it. **The breakage is in
+the other direction: a view that relied on getting everything back now silently renders less.**
 
 ```tsx
 // running game - hidden markets are not on offer, so the default is what you want
@@ -160,13 +212,87 @@ const { data: markets } = useActiveMarkets({ gameId })
 const { data: allMarkets } = useActiveMarkets({ gameId, includeHidden: true })
 ```
 
+### 2. `useConditions` is a pure data hook, and the `conditions` query key changed
+
+[`useConditions`](/hub/apps/sdk/data-hooks/useConditions) filters nothing: it returns everything the feed
+has for the game, `hidden` conditions and outcomes included. Visibility can't be decided there — the feed
+sends no updates for a condition that was never subscribed, so a row dropped in the fetch could never be
+revealed afterwards, however alive it turned out to be. That decision moved into the two "active" hooks,
+which subscribe first and filter second.
+
+If you used `useConditions` to render a bettor-facing grid, move to
+[`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) or
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets):
+
+```tsx
+// Before - a grid built on raw feed data
+const { data: conditions } = useConditions({ gameId })
+
+// After - the conditions the game is actually offering
+const { data: conditions } = useActiveConditions({ gameId })
+```
+
 <Callout type="warning">
-  **The `conditions` query key changed**, since `includeHidden` is part of it. Cached entries from v7 are
-  invalidated — expect a refetch on first load after the upgrade, and update any manual
-  `queryClient.setQueryData` / `invalidateQueries` calls that hard-code the old key shape.
+  **The `conditions` query key changed** — it lost `onlyActiveOrStopped` and is now
+  `[ 'conditions', chainId, gameId, extended ]`. Nothing about visibility is part of it, so one cache entry
+  serves every view of a game instead of one per flag combination. Cached entries written by v7 don't match
+  the new key: expect a refetch on first load after the upgrade, and update any manual
+  `queryClient.setQueryData` / `invalidateQueries` / `getQueryData` call that hard-codes the old shape.
 </Callout>
 
-### 2. A voided combo leg is now `isCanceled`, not "pending"
+### 3. A hidden market is revealed by an update that says so, not by any update arriving
+
+`hidden` on [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) /
+[`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) used to clear to `false` as soon as
+*any* socket message arrived for the condition. It is now taken from the condition's own `hidden` flag,
+which the feed sends on every message.
+
+The reason is that an update arriving proves nothing: a market the provider has parked keeps streaming odds
+for the rest of its life, so "it sent something" is not evidence that it is being offered. **Expect fewer
+markets in the grid than before** — deliberately: the old trigger admitted markets on the strength of a
+couple of stray messages.
+
+Two related shape changes:
+
+- `hidden` is now `boolean | undefined` in `conditionsMap`, and `isHidden` is `boolean | undefined` on
+  `useConditionState`. **`undefined` means "the feed has not reported it yet"** — not "visible", and
+  specifically not "already revealed". Only an explicit `false` closes the latch; if `undefined` counted as
+  revealed, the latch would close before the feed had said anything. Test `!hidden`, not `hidden === false`.
+- Visibility is latched **one way**, at both levels. Once revealed, a condition or outcome stays in the
+  result and is never hidden again. A market that stops stays in the grid, locked — a grid that reflows
+  while a bettor is reading it, moving the market under their cursor, is worse than one that keeps a market
+  slightly longer than it had to.
+
+### 4. Per-outcome `state` and `hidden` are only read from updates whose condition is `Active`
+
+[`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) /
+[`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) used to take `state` and `hidden` from
+every socket message. They now ignore both unless the message's condition is `Active`.
+
+An update for an inactive condition reports **every** one of its outcomes as `Stopped`, whatever they had
+actually settled to — so trusting it un-settles won, lost and voided outcomes each time their condition is
+suspended. Such a message now schedules a re-read from the state endpoint, which is authoritative for
+per-outcome state, instead of being applied. `odds` and `turnover` are real in every message and are still
+taken from all of them.
+
+<Callout type="warning">
+  **The consequence to design for:** when a condition stops, there is a brief window — one state-endpoint
+  round trip — in which its outcomes still read their previous `state`. Condition-level locking is
+  unaffected and still immediate, so gate the bet on the condition's state as well as the outcome's, and
+  don't treat a per-outcome `Stopped` as instantaneous.
+
+  The socket message type `OutcomeUpdateData` carries the new `conditionState` field if you fold these
+  messages into your own state — apply the same rule.
+</Callout>
+
+### 5. Outcome `hidden` is latched by the SDK — drop your own latch
+
+Both outcome watch hooks now latch `hidden` one way themselves, on the socket path and on the
+state-endpoint path. If your app keeps its own one-way `isHidden` latch on top of them to stop outcomes
+flickering in and out as a condition is suspended and re-priced, delete it. Re-hiding no longer happens, by
+design.
+
+### 6. A voided combo leg is now `isCanceled`, not "pending"
 
 **Before (v7.x)** a voided leg came back as:
 ```ts
@@ -204,7 +330,7 @@ that is still pending reports `isWin: null` / `isLose: null` with `isCanceled: f
   ```
 </Callout>
 
-### 3. Combo `totalOdds`, `possibleWin` and `payout` — already changed in v7.6
+### 7. Combo `totalOdds`, `possibleWin` and `payout` — already changed in v7.6
 
 A voided leg is refunded, so it no longer multiplies into the combo's odds, and `useBets` excludes it.
 
@@ -216,7 +342,7 @@ but screenshots, snapshots and any figures you cache or reconcile against will m
 
 A combo whose every leg was voided has odds of `1`: the stake is simply returned.
 
-### 4. `useConditionState` / `useConditionsState` fall back to `Stopped`
+### 8. `useConditionState` / `useConditionsState` fall back to `Stopped`
 
 When a condition is absent from the feed, these hooks used to report the removed `ConditionState.Removed`.
 They now report `ConditionState.Stopped`.
@@ -232,7 +358,7 @@ const isNotBettable = state === ConditionState.Stopped
 If you rendered `Removed` conditions differently from `Stopped` ones — hiding the first, greying out the
 second — use `isHidden` from the hook (fed by `condition.hidden`) to make that distinction instead.
 
-### 5. `useOutcomeState` / `useOutcomesState` fall back to `Stopped`
+### 9. `useOutcomeState` / `useOutcomesState` fall back to `Stopped`
 
 Same change one level down: an outcome absent from the feed used to read as `OutcomeState.Canceled` and
 now reads as `OutcomeState.Stopped`.
@@ -261,7 +387,7 @@ now reads as `OutcomeState.Stopped`.
   ```
 </Callout>
 
-### 6. `useActiveMarket` skips fully settled markets
+### 10. `useActiveMarket` skips fully settled markets
 
 `useActiveMarket` — the watch hook that picks which market tab to show and moves off it when it goes
 inactive — no longer selects a market whose condition is `Active` but all of whose outcomes are settled.
@@ -275,19 +401,20 @@ yourself rather than reading it from the hook.
 ## New: `includeHidden`
 
 ```ts
+// UseActiveConditionsProps
 {
   gameId: string | bigint | string[] | bigint[]
   includeHidden?: boolean // default: false
   extended?: boolean
   chainId?: ChainId
-  query?: QueryParameterWithSelect<UseConditionsQueryFnData, TData>
+  query?: QueryParameter<UseConditionsQueryFnData> // no `select`
 }
 ```
 
-Available on [`useConditions`](/hub/apps/sdk/data-hooks/useConditions),
-[`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
-[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets). **Defaults to `false`**, i.e. hidden
-conditions and outcomes are dropped.
+Available on [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) — the hooks that decide visibility.
+**Defaults to `false`**, i.e. hidden conditions and outcomes are dropped.
+[`useConditions`](/hub/apps/sdk/data-hooks/useConditions) has no such prop: it always returns everything.
 
 The rule to apply is simple and it is the *only* thing in the markets grid that should depend on game
 state:
@@ -404,6 +531,10 @@ grep -rn "onlyActiveOrStopped" src/
 # removed field on BetOutcome, and removed enum members
 grep -rn "wonOutcomeIds\|ConditionState.Removed\|ConditionState.Resolved\|ConditionState.Canceled" src/
 
+# a `select` passed to the active hooks, and annotations naming the old result type
+grep -rn "select:" src/
+grep -rn "UseQueryResult" src/
+
 # --- these compile fine and change behaviour ---
 
 # "pending" branches that a voided leg now falls out of
@@ -412,8 +543,17 @@ grep -rn "isWin === null\|isLose === null\|isWin == null" src/
 # Canceled used as "missing from the feed"
 grep -rn "OutcomeState.Canceled" src/
 
-# every call that may need includeHidden: true
+# every call that may need includeHidden: true, and every grid still built on raw feed data
 grep -rn "useConditions(\|useActiveConditions(\|useActiveMarkets(" src/
+
+# your own visibility filters and latches - the SDK owns these now
+grep -rn "isHidden\|conditionsMap\|outcomesMap\|\.hidden" src/
+
+# hard-coded TanStack Query keys for conditions - the shape changed
+grep -rn "'conditions'" src/
+
+# a hand-composed provider tree that may be missing the feed providers
+grep -rn "ConditionUpdatesProvider\|FeedSocketProvider" src/
 
 # condition-level result derivation, removed in toolkit v7
 grep -rn "isWon" src/
@@ -426,12 +566,21 @@ view: fold it into the single grid described above.
 
 ### Step 4: Audit every `useConditions` / `useActiveConditions` / `useActiveMarkets` call
 
-For each one, decide what the screen should show:
+First, pick the right hook. A bettor-facing grid belongs on `useActiveConditions` / `useActiveMarkets`;
+`useConditions` is for raw feed data, a custom `select`, prefetching, or a view that deliberately wants the
+hidden rows.
+
+Then, for each "active" call, decide what the screen should show:
 
 - a **running game** → leave `includeHidden` off (the new default)
 - a **finished game**, a results view, or anything that must reflect everything the game offered →
   pass `includeHidden: true`
 - **unsure?** Drive it off game state: `includeHidden: gameState === GameState.Finished`
+
+Finally, delete the visibility filtering you were doing at render time — the hook has already done it, and
+on a better value: yours reads the `hidden` the *fetch* reported, the hook's reads the live one. A row can
+legitimately come back with `hidden: true` on it after the feed has revealed it, so re-filtering will hide
+markets that are on offer.
 
 ### Step 5: Fix the pending / voided branches
 
@@ -449,8 +598,14 @@ those against your own backend figures, snapshot tests, or cached values, refres
 2. A finished game — with `includeHidden: true`, every market is back, each outcome labelled Won / Lost /
    Refunded
 3. A game with mixed settlement — some markets settled while others still take bets, on one screen
-4. A combo bet with a voided leg — the leg reads "Refunded", and `totalOdds` / `possibleWin` exclude it
-5. A pending bet — still reads as pending, not as refunded
+4. A market that stops while you watch it — it should stay in the grid, locked, and not disappear or
+   reflow the list
+5. A market that was hidden on load and comes back on offer — it should appear once the feed says
+   `hidden: false`
+6. A settled outcome whose condition keeps sending updates — it must stay Won / Lost / Refunded and not
+   flip back to Stopped
+7. A combo bet with a voided leg — the leg reads "Refunded", and `totalOdds` / `possibleWin` exclude it
+8. A pending bet — still reads as pending, not as refunded
 
 ---
 
@@ -461,8 +616,18 @@ those against your own backend figures, snapshot tests, or cached values, refres
 - [ ] Replace `useResolvedMarkets` with `useActiveMarkets({ includeHidden: true })`
 - [ ] Delete every `onlyActiveOrStopped` prop
 - [ ] Stop reading `BetOutcome.wonOutcomeIds`
+- [ ] Move bettor-facing grids off `useConditions` onto `useActiveConditions` / `useActiveMarkets`
 - [ ] Add `includeHidden: true` to every finished-game / results view
+- [ ] Drop `query.select` from `useActiveConditions` / `useActiveMarkets` calls — use `useConditions` for that
+- [ ] Replace annotations naming the old `UseQueryResult` shape with `UseActiveConditionsResult` /
+      `UseActiveMarketsResult`
+- [ ] Confirm `FeedSocketProvider` + `ConditionUpdatesProvider` are in your provider tree (free with
+      `AzuroSDKProvider`) — the active hooks fail at runtime without them
 - [ ] Update manual TanStack Query cache reads of the `conditions` key — its shape changed
+- [ ] Delete render-time visibility filtering on top of the active hooks, and any hand-rolled one-way
+      `isHidden` latch
+- [ ] Test `!hidden` rather than `hidden === false` — `undefined` means "not reported yet"
+- [ ] Stop reading per-outcome `state` from your own socket handling of inactive conditions
 - [ ] Check `isCanceled` before `isWin === null` everywhere
 - [ ] Stop treating `OutcomeState.Canceled` as "missing from feed"
 - [ ] Stop treating `ConditionState.Stopped` as identical to the old `Removed` for hiding — use `isHidden`
