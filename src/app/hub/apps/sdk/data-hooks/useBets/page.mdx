@@ -208,7 +208,8 @@ type Bet = {
   action.
 
   Both are read from the protocol's recorded payout, with one exception: a **winning combo with a voided
-  leg that has not been redeemed yet**. The indexer keeps the full pre-void payout for that shape until
-  the bettor claims — 17% to 33% too high across production bets — so both figures are rebuilt from the
-  surviving legs instead, at the same `totalOdds` this hook already reports. Redeemed bets are untouched.
+  leg that has not been redeemed yet**. The recorded payout still credits the voided leg until the bet is
+  redeemed, so it overstates what the bettor can claim; both figures are rebuilt from the surviving legs
+  instead, at the same `totalOdds` this hook already reports. Once redeemed, the recorded payout is the
+  amount actually paid and is used as is.
 </Callout>

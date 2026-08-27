@@ -114,15 +114,16 @@ type BetsFilter = {
 A leg of a combo can be voided on its own — the game is cancelled, or the outcome is settled as
 `Canceled` while the rest of its condition resolves normally. The protocol prices the bet on the
 surviving legs and refunds the rest, but **the indexer keeps the full pre-void payout until the bet is
-redeemed**, and only replaces it with the real on-chain amount when the bettor claims. Measured across
-production bets, that figure is 17% to 33% too high.
+redeemed**, and only replaces it with the real on-chain amount when the bettor claims. Until then the
+recorded figure still credits the voided leg's odds as if that leg had won, so it overstates what the
+bettor can claim.
 
 Both the report and the bet list now read what the surviving legs are worth for that shape:
 
 - `getBetsReport` / `calcBetsReport` rebuild `returns` as `stake × calcMinOdds(surviving leg odds)` —
   which is how a combo is actually priced, the feed's 1% fee removed per leg and re-applied once to the
-  product rather than compounded per leg. Against redeemed production combos with a voided leg, that
-  lands within ~1% of the on-chain payout, against up to ~10% for a plain product of the odds.
+  product rather than compounded per leg. A plain product of the surviving odds is not the same figure:
+  it compounds that fee once per leg, so it drifts further from the payout the more legs a combo has.
 - `useBets` applies the same figure to `settledPayout` and to `payout` — the latter matters most, since
   it is what a redeem button shows the bettor.
 
