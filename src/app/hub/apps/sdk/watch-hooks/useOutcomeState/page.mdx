@@ -16,7 +16,6 @@ Outcomes within a condition have a `state` field that indicates their current st
     ChainProvider,
     FeedSocketProvider,
     ConditionUpdatesProvider,
-    useWatchers,
   } from '@azuro-org/sdk'
 
   function Providers(props: { children: React.ReactNode }) {
@@ -90,7 +89,10 @@ const OutcomeButton: React.FC<OutcomeButtonProps> = (props) => {
 </Callout>
 
 <Callout type="info">
-  Pass `outcome.hidden` from `MarketOutcome` as `isInitiallyHidden`. When `true`, the outcome starts as hidden. As soon as a socket update arrives, `isHidden` is taken authoritatively from the update — meaning the outcome is still alive and was only temporarily stopped by the provider.
+  Pass `outcome.hidden` from `MarketOutcome` as `isInitiallyHidden`. When `true`, the outcome starts as
+  hidden and stays hidden until an update **reports** `hidden: false` — see
+  [How `isHidden` behaves](#how-ishidden-behaves) below. Omit it and `isHidden` is `undefined` until the
+  feed reports it.
 </Callout>
 
 ```ts
@@ -116,10 +118,57 @@ enum OutcomeState {
 ```ts
 {
   state: OutcomeState
-  odds: number // live odds (0 until known); updated on any socket update
+  odds: number // live odds (0 until known); updated on every socket update
   turnover: string // empty ('') until a live update arrives — not returned by REST
-  isHidden: boolean | undefined // true while outcome is hidden; updated authoritatively on any socket update
+  isHidden?: boolean // undefined until the feed has reported it
   isLocked: boolean // true when outcome is not Active
   isFetching: boolean // flag indicates initial state fetching
 }
 ```
+
+<Callout type="info">
+  This hook returns `state`, not `data` — unlike its condition-level counterpart
+  [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState).
+</Callout>
+
+## What is taken from an update
+
+**`odds` and `turnover` are taken from every update.** They are real in every message. `turnover` is only
+ever populated by live updates (`''` until the first one arrives — the state endpoint doesn't return it).
+
+**`state` and `isHidden` are taken only from updates whose condition is `Active`.** An update for an
+inactive condition reports *every* one of its outcomes as `Stopped`, whatever they had actually settled
+to — so trusting it would un-settle a won, lost or voided outcome each time its condition is suspended.
+Such an update leaves `state` and `isHidden` alone and schedules a re-read from the state endpoint, which
+is authoritative for per-outcome state. The re-read is limited to the messages that can carry news: the
+move into an inactive state, and every report of a settled condition.
+
+<Callout type="warning">
+  **The consequence to design for:** when a condition stops, there is a brief window — one state-endpoint
+  round trip — in which its outcomes still read their previous `state`. Condition-level locking is
+  unaffected and still immediate, so gate the bet on
+  [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) as well as on the outcome, and don't
+  treat a per-outcome `Stopped` as instantaneous.
+</Callout>
+
+## How `isHidden` behaves
+
+`isHidden` says whether the feed is offering this outcome right now, independently of its condition's own
+`hidden` flag — a condition can be on offer with one of its outcomes withdrawn. It starts from
+`isInitiallyHidden` and is **latched one way, by design**: once the outcome has been reported visible it
+stays visible, and nothing hides it again, so it doesn't flicker in and out of the market as its condition
+is suspended and re-priced. Render the lock from `isLocked` instead.
+
+<Callout type="warning">
+  **`isHidden` is `boolean | undefined`**, and `undefined` means *the feed has not reported it yet* — not
+  "visible" and not "already revealed". Only an explicit `false` closes the latch; if `undefined` counted
+  as revealed, the latch would close before the feed had said anything.
+
+  `!isHidden` is the right test for "show it" and treats `undefined` as visible. Don't write
+  `isHidden === false` to mean "revealed".
+</Callout>
+
+<Callout type="info">
+  **The SDK owns this latch now.** If your app keeps its own one-way `isHidden` latch on top of this hook
+  to stop outcomes flickering, drop it — re-hiding no longer happens.
+</Callout>

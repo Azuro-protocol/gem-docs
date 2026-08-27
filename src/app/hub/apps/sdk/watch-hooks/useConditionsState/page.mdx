@@ -4,7 +4,7 @@ import { Callout } from 'components'
 
 The `useConditionsState` hook is used for maintain updated states for a conditions.
 
-[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. `ConditionState.Active` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it is not accepting bets right now. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this condition is currently possible or not.
+[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. `ConditionState.Active` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it is not accepting bets right now. This hook keeps those states live over the socket and returns them keyed by condition ID — compare against `ConditionState.Active` to know whether a bet can be placed. For a single condition, [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) returns a ready-made `isLocked` flag.
 
 <Callout type="warning">
   **A condition never carries a result.** Since toolkit v7 `ConditionState` is exactly `Active | Stopped` —
@@ -28,7 +28,6 @@ The `useConditionsState` hook is used for maintain updated states for a conditio
     ChainProvider,
     FeedSocketProvider,
     ConditionUpdatesProvider,
-    useWatchers,
   } from '@azuro-org/sdk'
 
   function Providers(props: { children: React.ReactNode }) {
@@ -58,9 +57,17 @@ import { useConditionsState } from '@azuro-org/sdk'
 // conditions: ConditionDetailedData[] from useConditions
 const { data: states, conditionsMap } = useConditionsState({ conditions })
 
-// hide conditions that are still hidden (temporarily stopped by provider)
+// drop the conditions the feed isn't offering
 const visibleConditions = conditions.filter(({ conditionId }) => !conditionsMap[conditionId]?.hidden)
 ```
+
+Subscribe to **every** condition of the game, hidden ones included, and filter afterwards, as above. The
+feed sends no updates for a condition that was never subscribed, so a condition you filter out before
+subscribing can never be shown again — however alive it turns out to be.
+
+[`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) already do exactly this. Do it by hand
+only if you need a grid they don't cover.
 </Callout>
 
 <Callout type="info">
@@ -108,7 +115,7 @@ Option A is preferred when rendering game markets — it provides initial `hidde
 </Callout>
 
 <Callout type="info">
-When using Option B, `initialStates` is optional. If it's not provided, the hook will automatically fetch the initial states.
+When using Option B, `initialStates` is optional. If it's not provided, the hook will automatically fetch the initial states. Either way `hidden` starts out `undefined` in this mode: neither `initialStates` nor the state endpoint carries condition-level visibility.
 </Callout>
 
 ```ts
@@ -125,12 +132,69 @@ enum ConditionState {
   data: Record<string, ConditionState> // key is conditionId
   conditionsMap: Record<string, {      // key is conditionId
     state: ConditionState
-    hidden: boolean // true while hidden; resets to false on any socket update
+    hidden?: boolean // undefined until the feed has reported it
   }>
   isFetching: boolean // flag indicates initial states fetching
 }
 ```
 
+`state` is taken from every update, so a condition locks and unlocks in real time.
+
+## How `hidden` behaves
+
+`hidden` says whether the feed is offering this condition right now — as opposed to `state`, which says
+whether it is taking bets. It starts from what the fetch reported and then follows two rules.
+
+**It is revealed by an update reporting `hidden: false` — not by an update arriving.** The feed sends the
+condition's own `hidden` flag on every message and that flag is what the hook reads. An update *arriving*
+proves nothing: a market the provider has parked keeps streaming odds for the rest of its life, so
+treating any message as a sign of life puts dead markets back in the grid.
+
+**It is latched one way, by design.** Once a condition has been reported visible it stays visible, and
+nothing hides it again. A market that stops therefore stays in the list, locked, rather than vanishing and
+returning as the provider suspends and re-prices it — a grid that reflows while a bettor is reading it,
+moving the market under their cursor, is worse than one that keeps a market slightly longer than it had to.
+Render the lock from `state` instead.
+
+<Callout type="warning">
+  **`hidden` is `boolean | undefined`**, and `undefined` means *the feed has not reported it yet* — not
+  "visible" and not "already revealed". Only an explicit `false` closes the latch; if `undefined` counted
+  as revealed, the latch would close before the feed had said anything.
+
+  `!conditionsMap[conditionId]?.hidden` is the right test for "show it" and treats `undefined` as visible,
+  which is what you want for a condition the fetch never flagged. Don't write
+  `hidden === false` to mean "revealed".
+</Callout>
+
 <Callout type="info">
-The `hidden` field mirrors the logic in `useConditionState`: starts from the initial data, and clears to `false` when any socket update arrives for that condition.
+  The socket message behind all of this is `ConditionUpdatedData`, exported from the SDK for consumers
+  subscribing to the raw feed. It carries the condition's `hidden` flag alongside its `state`:
+
+  ```ts
+  import { type ConditionUpdatedData } from '@azuro-org/sdk'
+
+  type ConditionUpdatedData = {
+    conditionId: string
+    state: ConditionState
+    /** whether the feed is offering this condition right now */
+    hidden: boolean
+    gameId: string
+    isLiveEnabled: boolean
+    isPrematchEnabled: boolean
+    isCashoutEnabled: boolean
+    /** per-outcome payload: outcomeId (a number here, a string in REST), title, currentOdds,
+     * turnover, potentialLoss, state, hidden */
+    outcomes: ConditionOutcomeData[]
+  }
+  ```
+
+  If you fold these messages into your own state, apply the same latch: `hidden: false` reveals for good,
+  and a message arriving is not itself a reveal.
+</Callout>
+
+<Callout type="info">
+  A refetch of condition **states** can't report visibility — the state endpoint carries no
+  condition-level `hidden` — so the last known value is carried forward across one. And when the watched
+  set changes (the feed adds conditions to a running game routinely), conditions that stayed keep what the
+  socket has already taught the hook; only conditions that left are dropped.
 </Callout>
