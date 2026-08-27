@@ -13,7 +13,7 @@ For instance, `GameState.Prematch` signifies the condition is currently in prema
   Before utilizing `useGameState`, it is essential to initialize the `FeedSocketProvider` and the `GameUpdatesProvider`:
 
   ```tsx
-    import { ChainProvider, FeedSocketProvider, GameUpdatesProvider, useWatchers } from '@azuro-org/sdk'
+    import { ChainProvider, FeedSocketProvider, GameUpdatesProvider } from '@azuro-org/sdk'
 
     function Providers(props: { children: React.ReactNode }) {
       const { children } = props

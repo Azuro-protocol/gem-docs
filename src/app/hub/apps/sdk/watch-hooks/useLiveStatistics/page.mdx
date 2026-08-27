@@ -7,16 +7,11 @@ The `useLiveStatistics` hook is used to retrieve updated live statistics for an 
 <Callout type="warning">
   If you're using the `AzuroSDKProvider`, you can skip this step.
 
-  Before utilizing `useLiveStatistics`, it is essential to initialize event watchers and the `LiveStatisticsSocketProvider`:
+  Before utilizing `useLiveStatistics`, it is essential to initialize the `LiveStatisticsSocketProvider`.
+  It opens and maintains the statistics socket itself — there is no separate watcher to mount:
 
   ```tsx
-    import { ChainProvider, LiveStatisticsSocketProvider, useWatchers } from '@azuro-org/sdk'
-
-    export function Watchers() {
-      useWatchers()
-
-      return null
-    }
+    import { ChainProvider, LiveStatisticsSocketProvider } from '@azuro-org/sdk'
 
     function Providers(props: { children: React.ReactNode }) {
       const { children } = props
@@ -26,7 +21,6 @@ The `useLiveStatistics` hook is used to retrieve updated live statistics for an 
           <LiveStatisticsSocketProvider>
             {children}
           </LiveStatisticsSocketProvider>
-          <Watchers />
         </ChainProvider>
       )
     }
