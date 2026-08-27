@@ -2,7 +2,9 @@ import { Callout } from 'components'
 
 # useActiveConditions
 
-The useActiveConditions hook is wrapper over [`useConditions`](hub/apps/sdk/data-hooks/useConditions) for getting active conditions.
+The `useActiveConditions` hook is a wrapper over [`useConditions`](/hub/apps/sdk/data-hooks/useConditions) that returns the conditions a game is actually offering right now.
+
+`useConditions` returns everything the feed has, `hidden` rows included. `useActiveConditions` is where visibility is decided: it subscribes to every condition of the game, then drops the ones the feed is not offering.
 
 ## Usage
 
@@ -12,6 +14,36 @@ import { useActiveConditions } from '@azuro-org/sdk'
 const { data, isFetching, error } = useActiveConditions(props)
 ```
 
+<Callout type="warning">
+  **This hook needs a live feed connection.** It requires the `FeedSocketProvider` and
+  `ConditionUpdatesProvider` — both are already included in
+  [`AzuroSDKProvider`](/hub/apps/sdk/providers/sdk), so there is nothing to do unless you compose the
+  providers by hand. If you do, and one of them is missing, the hook fails at **runtime**, not at compile
+  time:
+
+  ```tsx
+  import {
+    ChainProvider,
+    FeedSocketProvider,
+    ConditionUpdatesProvider,
+  } from '@azuro-org/sdk'
+
+  function Providers(props: { children: React.ReactNode }) {
+    const { children } = props
+
+    return (
+      <ChainProvider>
+        <FeedSocketProvider>
+          <ConditionUpdatesProvider>
+            {children}
+          </ConditionUpdatesProvider>
+        </FeedSocketProvider>
+      </ChainProvider>
+    )
+  }
+  ```
+</Callout>
+
 ## Props
 
 ```ts
@@ -20,9 +52,20 @@ const { data, isFetching, error } = useActiveConditions(props)
   includeHidden?: boolean // keep `hidden` conditions and outcomes in the result; default false
   extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
-  query?: QueryParameter<ConditionDetailedData[]> // useQuery params
+  query?: QueryParameter<UseConditionsQueryFnData> // useQuery params, without `select`
 }
 ```
+
+<Callout type="warning">
+  **`query.select` is not supported here**, and `UseActiveConditionsProps` is not generic. A `select`
+  runs inside the query, which is *before* the visibility filter — so it would see the hidden rows the
+  hook exists to remove, and its output would then be filtered as if it were still a
+  `ConditionDetailedData[]`.
+
+  Every other `useQuery` option is forwarded as usual (`refetchInterval`, `enabled`, `placeholderData`, …).
+  If you need a `select`, call [`useConditions`](/hub/apps/sdk/data-hooks/useConditions) and shape the
+  data yourself.
+</Callout>
 
 <Callout type="warning">
   `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
@@ -54,13 +97,15 @@ const { data, isFetching, error } = useActiveConditions(props)
 <Callout type="warning">
   **`hidden` conditions and outcomes are dropped by default.**
 
-  Conditions flagged `hidden`, and hidden outcomes inside the conditions that are kept, are filtered out
-  unless you pass `includeHidden: true`. A condition whose every outcome is hidden is dropped entirely.
-  Previously everything was returned and apps filtered at render time — a view that relied on getting
-  everything back **must now pass `includeHidden: true`**.
+  Three rules, all of them skipped when `includeHidden: true`:
 
-  The rule to apply: while a game is active, `hidden` conditions and outcomes stay hidden; once the game
-  is finished, they are shown.
+  1. a condition currently flagged `hidden` is dropped;
+  2. inside a condition that is kept, outcomes flagged `hidden` are dropped;
+  3. a condition left with no visible outcome is dropped too — it has nothing left to offer.
+
+  The product rule to apply: **while a game is running, hidden conditions and outcomes are not being
+  offered, so they stay out of the grid; once the game is over, they are part of what the bettor should
+  see** — that is where the refunds and the settled markets are.
 
   ```tsx
   import { GameState } from '@azuro-org/toolkit'
@@ -70,10 +115,27 @@ const { data, isFetching, error } = useActiveConditions(props)
     includeHidden: gameState === GameState.Finished,
   })
   ```
-
-  `includeHidden` is part of the `conditions` query key, so entries cached by an earlier SDK version are
-  invalidated.
 </Callout>
+
+## How visibility is decided
+
+Understanding this matters if you build your own grid, or wonder why a market appeared a few seconds late.
+
+- **Visibility is read from the live feed, not from the fetch.** The hook fetches every condition of the
+  game through [`useConditions`](/hub/apps/sdk/data-hooks/useConditions), subscribes to all of them via
+  [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) and
+  [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState), and only then filters. It has to be
+  this way round: the feed sends no updates for a condition that was never subscribed, so a condition
+  dropped before subscription could never be shown again, however alive it turned out to be.
+- **A hidden condition is revealed by an update reporting `hidden: false`** — not by an update merely
+  arriving. A market the provider has parked keeps streaming odds for the rest of its life, so "it sent
+  something" is not evidence that it is being offered.
+- **Visibility is latched one way.** Once a condition or an outcome has been reported visible it stays in
+  the result, locked if it is no longer taking bets, and never disappears again. A list that reflows while
+  a bettor is reading it — markets vanishing and returning as the provider suspends and re-prices them —
+  is worse than one that keeps a market slightly longer than it had to. Use
+  [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) /
+  [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) to render that lock.
 
 <Callout type="info">
   **Settlement is per-outcome.** `ConditionState` is only ever `Active` or `Stopped` — a condition carries
@@ -84,13 +146,25 @@ const { data, isFetching, error } = useActiveConditions(props)
 
 ## Return Value
 
+The hook is no longer a plain `UseQueryResult`: `data` is produced after the query, so it is typed
+separately from the query's own data.
+
 ```ts
-UseQueryResult<ConditionDetailedData[]>
+UseActiveConditionsResult
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 
+type UseActiveConditionsResult = {
+  data: ConditionDetailedData[] | undefined
+} & Omit<UseQueryResult<ConditionDetailedData[]>, 'data'>
+```
+
+Everything else behaves as it does on `useQuery` — `isLoading`, `isFetching`, `isPlaceholderData`,
+`status`, `error` and `refetch` all come from the underlying query untouched.
+
+```ts
 type ConditionDetailedData = {
   id: string
   conditionId: string
@@ -99,6 +173,7 @@ type ConditionDetailedData = {
   isExpressForbidden: boolean
   isPrematchEnabled: boolean
   isLiveEnabled: boolean
+  /** true for a condition the provider has taken off the grid; optional - the feed doesn't always report it */
   hidden?: boolean
   margin: string
   outcomes: OutcomeData[]
@@ -145,3 +220,8 @@ enum OutcomeState {
 type ConditionCategory = string | null
 ```
 
+<Callout type="info">
+  `hidden` on the returned rows is the value the **fetch** reported. It is not the value the filter used —
+  that one is live, and latched. A row can therefore be present with `hidden: true` on it, meaning it was
+  hidden when fetched and has since been reported visible by the feed. Don't re-filter on it.
+</Callout>
