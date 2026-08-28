@@ -131,10 +131,11 @@ Understanding this matters if you build your own grid, or wonder why a market ap
 - **A hidden condition is revealed by an update reporting `hidden: false`** — not by an update merely
   arriving. A market the provider has parked keeps streaming odds for the rest of its life, so "it sent
   something" is not evidence that it is being offered.
-- **Visibility is latched one way.** Once a condition or an outcome has been reported visible it stays in
-  the result, locked if it is no longer taking bets, and never disappears again. A list that reflows while
+- **Visibility is latched one way.** Once a condition or an outcome has been reported visible the filter
+  keeps it, locked if it is no longer taking bets, and never hides it again. A list that reflows while
   a bettor is reading it — markets vanishing and returning as the provider suspends and re-prices them —
-  is worse than one that keeps a market slightly longer than it had to. Use
+  is worse than one that keeps a market slightly longer than it had to. The latch governs the filter, not
+  the query: a refetch that stops returning the condition drops the row itself. Use
   [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) /
   [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) to render that lock.
 
