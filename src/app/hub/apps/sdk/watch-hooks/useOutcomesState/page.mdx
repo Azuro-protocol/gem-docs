@@ -17,12 +17,13 @@ Outcomes within a condition have a `state` field that indicates their current st
     FeedSocketProvider,
     ConditionUpdatesProvider,
   } from '@azuro-org/sdk'
+  import { polygonAmoy } from 'viem/chains'
 
   function Providers(props: { children: React.ReactNode }) {
     const { children } = props
 
     return (
-      <ChainProvider>
+      <ChainProvider initialChainId={polygonAmoy.id}>
         <FeedSocketProvider>
           <ConditionUpdatesProvider>
             {children}

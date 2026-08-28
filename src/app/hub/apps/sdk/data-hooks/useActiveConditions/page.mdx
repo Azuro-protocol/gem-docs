@@ -27,12 +27,13 @@ const { data, isFetching, error } = useActiveConditions(props)
     FeedSocketProvider,
     ConditionUpdatesProvider,
   } from '@azuro-org/sdk'
+  import { polygonAmoy } from 'viem/chains'
 
   function Providers(props: { children: React.ReactNode }) {
     const { children } = props
 
     return (
-      <ChainProvider>
+      <ChainProvider initialChainId={polygonAmoy.id}>
         <FeedSocketProvider>
           <ConditionUpdatesProvider>
             {children}

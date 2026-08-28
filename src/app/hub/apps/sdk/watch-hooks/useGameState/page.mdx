@@ -14,12 +14,13 @@ For instance, `GameState.Prematch` signifies the condition is currently in prema
 
   ```tsx
     import { ChainProvider, FeedSocketProvider, GameUpdatesProvider } from '@azuro-org/sdk'
+    import { polygonAmoy } from 'viem/chains'
 
     function Providers(props: { children: React.ReactNode }) {
       const { children } = props
 
       return (
-        <ChainProvider>
+        <ChainProvider initialChainId={polygonAmoy.id}>
           <FeedSocketProvider>
             <GameUpdatesProvider>
               {children}

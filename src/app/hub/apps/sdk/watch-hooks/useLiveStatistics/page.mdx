@@ -8,18 +8,30 @@ The `useLiveStatistics` hook is used to retrieve updated live statistics for an 
   If you're using the `AzuroSDKProvider`, you can skip this step.
 
   Before utilizing `useLiveStatistics`, it is essential to initialize the `LiveStatisticsSocketProvider`.
-  It opens and maintains the statistics socket itself — there is no separate watcher to mount:
+  It opens and maintains the statistics socket itself — there is no separate watcher to mount. The example
+  below also keeps the game's state live with `useGameState`, which needs `FeedSocketProvider` and
+  `GameUpdatesProvider`:
 
   ```tsx
-    import { ChainProvider, LiveStatisticsSocketProvider } from '@azuro-org/sdk'
+    import {
+      ChainProvider,
+      LiveStatisticsSocketProvider,
+      FeedSocketProvider,
+      GameUpdatesProvider,
+    } from '@azuro-org/sdk'
+    import { polygonAmoy } from 'viem/chains'
 
     function Providers(props: { children: React.ReactNode }) {
       const { children } = props
 
       return (
-        <ChainProvider>
+        <ChainProvider initialChainId={polygonAmoy.id}>
           <LiveStatisticsSocketProvider>
-            {children}
+            <FeedSocketProvider>
+              <GameUpdatesProvider>
+                {children}
+              </GameUpdatesProvider>
+            </FeedSocketProvider>
           </LiveStatisticsSocketProvider>
         </ChainProvider>
       )
