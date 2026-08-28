@@ -394,7 +394,9 @@ v7.6**, combos containing a voided leg return **different — lower, and correct
 `possibleWin`, `payout` and `settledPayout`. That is a data change, not an API change: nothing to update,
 but screenshots, snapshots and any figures you cache or reconcile against will move.
 
-A combo whose every leg was voided has odds of `1`: the stake is simply returned.
+A combo whose every leg was voided has odds of `1`: the stake is simply returned. The same holds for any
+bet the protocol canceled outright, single or combo — `totalOdds` is `1` for it, and `possibleWin` is the
+stake. Before, a canceled single kept the odds it was placed at.
 
 ### 8. `useConditionState` / `useConditionsState` fall back to `Stopped`
 
