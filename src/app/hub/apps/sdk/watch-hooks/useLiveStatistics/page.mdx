@@ -47,19 +47,19 @@ Subscribe to changes for game.
 import { useGameState, useLiveStatistics, type BasketballScoreBoard } from '@azuro-org/sdk'
 
 
-const { gameId, state: graphState, startsAt, sport: { sportId } } = game // game from live subgraph
-const { data: state } = useGameState({
+const { gameId, state: initialState, sport: { sportId } } = game // game from useGame / useGames
+const { data: gameState } = useGameState({
   gameId,
-  initialState: graphState,
+  initialState,
 })
 
-const { statistics, isFetching } = useLiveStatistics({
+const { data: statistics, isFetching } = useLiveStatistics({
   gameId,
   sportId,
-  gameState: state,
+  gameState,
 })
 
-const { q1, q2, q3, q4, state } = (statistics?.scoreBoard as BasketballScoreBoard)
+const { q1, q2, q3, q4, state } = statistics?.scoreBoard as BasketballScoreBoard
 ```
 
 <Callout type="info">
@@ -72,19 +72,18 @@ const { q1, q2, q3, q4, state } = (statistics?.scoreBoard as BasketballScoreBoar
 {
   gameId: string
   sportId: number | string
-  gameStatus: GameStatus
+  gameState: GameState
   enabled?: boolean
 }
 ```
 
 ```ts
-enum GameStatus {
-  Created,
-  Live,
-  Resolved,
-  Canceled,
-  Paused,
-  PendingResolution,
+enum GameState {
+  Finished = 'Finished',
+  Live = 'Live',
+  Prematch = 'Prematch',
+  Stopped = 'Stopped',
+  Canceled = 'Canceled',
 }
 ```
 
@@ -92,9 +91,10 @@ enum GameStatus {
 
 ```ts
 {
-  statistics: LiveStatistics
-  isFetching // flag indicates statistics fetching
-  isAvailable  // flag indicates the availability of statistics
+  /** `undefined` until the first message arrives, `null` when the feed reports no stats for the game */
+  data: LiveStatistics | null | undefined
+  isFetching: boolean  // flag indicates statistics fetching
+  isAvailable: boolean // flag indicates the availability of statistics
 }
 ```
 ```ts
@@ -102,6 +102,10 @@ type LiveStatistics = {
   status: Status | null
   scoreBoard: ScoreBoard | null
   stats: Stats | null
+  virtualCourtId: string | null
+  timeline: TimeLine | null
+  jerseyColors: HomeGuest<string> | null
+  clock: Clock | null
 }
 
 enum Status {
@@ -242,5 +246,16 @@ type VolleyballStats = {
 type HomeGuest<T> = {
   h: T
   g: T
+}
+
+// per-sport incident feed - see the `SoccerIncidens` / `BasketballIncidens` / `TennisIncidents` /
+// `VolleyballIncidets` types, all exported from `@azuro-org/sdk`
+type TimeLine = SoccerIncidens | BasketballIncidens | TennisIncidents | VolleyballIncidets
+
+type Clock = {
+  clock_direction: 'up' | 'down'
+  clock_seconds: number
+  clock_status: 'running' | 'stopped'
+  clock_tm: string
 }
 ```
