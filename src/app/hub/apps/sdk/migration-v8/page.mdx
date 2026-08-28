@@ -186,6 +186,54 @@ provider tree before shipping.
 
 ---
 
+### 5. `OutcomesStateData.statesMap` holds `OutcomeStateData`, not `OutcomeUpdateData`
+
+`useOutcomesState` used to keep the raw socket message for each outcome. It now keeps its own view of the
+outcome, and that view has its own type.
+
+**Before (v7.x):**
+```ts
+type OutcomesStateData = {
+  states: Record<string, OutcomeState>
+  statesMap: Record<string, OutcomeUpdateData>
+}
+```
+
+**After (v8.0.0):**
+```ts
+import { type OutcomeStateData } from '@azuro-org/sdk'
+
+type OutcomesStateData = {
+  states: Record<string, OutcomeState>
+  statesMap: Record<string, OutcomeStateData>
+}
+
+type OutcomeStateData = {
+  odds: number
+  turnover: string
+  /** `undefined` until an update that can be trusted for it, or a state read, has reported it */
+  state?: OutcomeState
+  /** `undefined` until the feed has reported it */
+  hidden?: boolean
+}
+```
+
+The entry lost `conditionState`, and its `state` and `hidden` became optional. `conditionState` says how
+far the message it arrived on can be trusted — the hook applies that itself rather than handing it on,
+which is behaviour change 4 below — and neither `state` nor `hidden` is known until something
+authoritative has reported it. The wire message keeps the name `OutcomeUpdateData` and keeps
+`conditionState`, so an annotation that meant *the socket message* is still correct; one that meant *a map
+entry* has to move to `OutcomeStateData`.
+
+<Callout type="info">
+  `OutcomesStateData` is the hook's internal state shape, not its return value: `useOutcomesState` returns
+  `{ data, outcomesMap, isFetching }`, where `data` is that `states` map and `outcomesMap` is that
+  `statesMap`. The same holds for `ConditionsStateData` and `useConditionsState`, which returns
+  `{ data, conditionsMap, isFetching }`.
+</Callout>
+
+---
+
 ## Behaviour changes with no compile error
 
 <Callout type="warning">

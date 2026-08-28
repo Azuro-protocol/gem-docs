@@ -131,26 +131,32 @@ enum OutcomeState {
 
 ```ts
 {
-  data: Record<string, OutcomeState> // key is `${conditionId}-${outcomeId}`
-  outcomesMap: Record<string, {      // key is `${conditionId}-${outcomeId}`
-    odds: number       // live odds
-    turnover: string   // empty ('') until a live update arrives — not returned by REST
-    state: OutcomeState
-    hidden?: boolean   // undefined until the feed has reported it
-  }>
+  data: Record<string, OutcomeState>            // key is `${conditionId}-${outcomeId}`
+  outcomesMap: Record<string, OutcomeStateData> // key is `${conditionId}-${outcomeId}`
   isFetching: boolean // flag indicates initial states fetching
 }
 ```
 
 An `outcomesMap` entry is the hook's own view of an outcome, not the raw socket message: it holds what is
-currently known about the outcome after the rules below have been applied. The wire message is a separate
-type, `OutcomeUpdateData`, and it carries one extra field — `conditionState`, the state of the condition
-the message arrived on, which is what decides how much of the message can be trusted. (The entry shape is
-not exported; declare your own if you need to name it in your code.)
+currently known about the outcome after the rules below have been applied. That entry type is exported as
+`OutcomeStateData`, so you can name it in your own code. The wire message is a separate type,
+`OutcomeUpdateData`, and it carries one extra field — `conditionState`, the state of the condition the
+message arrived on, which is what decides how much of the message can be trusted.
 
 ```ts
-import { type OutcomeUpdateData } from '@azuro-org/sdk'
+import { type OutcomeStateData, type OutcomeUpdateData } from '@azuro-org/sdk'
 
+// what an `outcomesMap` entry holds
+type OutcomeStateData = {
+  odds: number     // live odds
+  turnover: string // empty ('') until a live update arrives — not returned by the state endpoint
+  /** `undefined` until an update that can be trusted for it, or a state read, has reported it */
+  state?: OutcomeState
+  /** `undefined` until the feed has reported it */
+  hidden?: boolean
+}
+
+// the socket message
 type OutcomeUpdateData = {
   odds: number
   turnover: string
