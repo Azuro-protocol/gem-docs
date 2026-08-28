@@ -74,9 +74,9 @@ const { data, isFetching, error } = useActiveConditions(props)
   ```ts
   import { useGames } from '@azuro-org/sdk'
 
-  const { data: games } = useGames()
+  const { data } = useGames()
 
-  const gameId = games?.[0]?.gameId
+  const gameId = data?.games[0]?.gameId
   ```
 </Callout>
 

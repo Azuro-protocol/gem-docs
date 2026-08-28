@@ -45,9 +45,9 @@ type ChainId =
   ```ts
   import { useGames } from '@azuro-org/sdk'
 
-  const { data: games } = useGames()
+  const { data: gamesData } = useGames()
 
-  const gameId = games?.[0]?.gameId
+  const gameId = gamesData?.games[0]?.gameId
 
   const { data } = useConditions({ gameId })
   ```
