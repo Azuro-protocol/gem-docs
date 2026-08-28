@@ -156,7 +156,9 @@ move into an inactive state, and every report of a settled condition.
 
 `isHidden` says whether the feed is offering this outcome right now, independently of its condition's own
 `hidden` flag — a condition can be on offer with one of its outcomes withdrawn. It starts from
-`isInitiallyHidden` and is **latched one way, by design**: once the outcome has been reported visible it
+`isInitiallyHidden` — and from it again whenever the hook is
+[pointed at another outcome](#pointing-the-hook-at-another-outcome) — and is **latched one way, by
+design**: once the outcome has been reported visible it
 stays visible, and nothing hides it again, so it doesn't flicker in and out of the market as its condition
 is suspended and re-priced. Render the lock from `isLocked` instead.
 
@@ -172,4 +174,23 @@ is suspended and re-priced. Render the lock from `isLocked` instead.
 <Callout type="info">
   **The SDK owns this latch now.** If your app keeps its own one-way `isHidden` latch on top of this hook
   to stop outcomes flickering, drop it — re-hiding no longer happens.
+</Callout>
+
+## Pointing the hook at another outcome
+
+Reusing one component instance across outcomes is safe — you don't need a `key` to force a remount. When
+`conditionId` or `outcomeId` changes, the hook re-seeds from the new props: `state` from `initialState`,
+`isHidden` from `isInitiallyHidden`, `odds` from `initialOdds`. `turnover` starts empty again, `isFetching`
+follows the new props, and the new outcome gets its own state-read attempts. The subscription follows
+`conditionId`, so pointing the hook at an outcome of a different condition moves it too.
+
+This is what makes `isHidden` trustworthy on a reused instance. Visibility is latched, so a reveal the
+previous outcome had earned would otherwise carry over to the new one permanently, with nothing able to
+take it back. `state` is exposed the same way: because `state` and `isHidden` are ignored on updates whose
+condition is not `Active` (see [What is taken from an update](#what-is-taken-from-an-update)), the first
+message about the new outcome cannot be relied on to correct a carried-over value.
+
+<Callout type="info">
+  A state read still in flight for the outcome that has gone is discarded rather than written into the new
+  one, so a slow read can't overwrite the outcome you are now watching with the answer for a previous one.
 </Callout>

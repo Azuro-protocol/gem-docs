@@ -451,6 +451,17 @@ Such a market has nothing left to bet on, so the hook advances to the next one.
 If you relied on the previously-selected tab staying put after a market finished, pin the selection
 yourself rather than reading it from the hook.
 
+### 11. The single-item watch hooks re-seed when pointed elsewhere
+
+[`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) and
+[`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) now re-seed from their props when
+`conditionId` / `outcomeId` change, instead of keeping what they held for the item that has gone. Reusing
+one component instance across conditions or outcomes is therefore safe.
+
+It matters most for `isHidden`: visibility is latched, so a reveal the previous item had earned used to
+carry over to the new one permanently. If your app worked around that — a `key` to force a remount, or a
+reset of your own — you can drop it.
+
 ---
 
 ## New: `includeHidden`
@@ -661,6 +672,8 @@ those against your own backend figures, snapshot tests, or cached values, refres
    flip back to Stopped
 7. A combo bet with a voided leg — the leg reads "Refunded", and `totalOdds` / `possibleWin` exclude it
 8. A pending bet — still reads as pending, not as refunded
+9. A component instance reused across outcomes or conditions — it must show the new item's lock and
+   visibility, never the previous one's
 
 ---
 
@@ -683,6 +696,8 @@ those against your own backend figures, snapshot tests, or cached values, refres
 - [ ] Update manual TanStack Query cache reads of the `conditions` key — its shape changed
 - [ ] Delete render-time visibility filtering on top of the active hooks, and any hand-rolled one-way
       `isHidden` latch
+- [ ] Drop any `key`-remount or manual reset that stopped `useConditionState` / `useOutcomeState` carrying
+      state across items — they re-seed themselves now
 - [ ] Test `!hidden` rather than `hidden === false` — `undefined` means "not reported yet"
 - [ ] Stop reading per-outcome `state` from your own socket handling of inactive conditions
 - [ ] Check `isCanceled` before `isWin === null` everywhere

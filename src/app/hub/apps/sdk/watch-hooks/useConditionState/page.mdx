@@ -135,7 +135,8 @@ enum ConditionState {
 ## How `isHidden` behaves
 
 `isHidden` says whether the feed is offering this condition right now — as opposed to `isLocked`, which
-says whether it is taking bets. It starts from `isInitiallyHidden` and then follows two rules.
+says whether it is taking bets. It starts from `isInitiallyHidden` — and from it again whenever the hook
+is [pointed at another condition](#pointing-the-hook-at-another-condition) — and then follows two rules.
 
 **It is revealed by an update reporting `hidden: false` — not by an update arriving.** The feed sends the
 condition's own `hidden` flag on every message and that flag is what the hook reads. An update *arriving*
@@ -164,4 +165,23 @@ Render the lock from `isLocked` instead.
   Filtering a whole markets grid on this hook means one subscription per condition, and you must subscribe
   to the hidden ones too or they can never be revealed. [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions)
   and [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) already do that for you.
+</Callout>
+
+## Pointing the hook at another condition
+
+Reusing one component instance across conditions is safe — you don't need a `key` to force a remount. When
+`conditionId` changes, the hook re-seeds from the new props: `data` and `isLocked` from `initialState`,
+`isHidden` from `isInitiallyHidden`. `isFetching` follows the new props, and the subscription moves to the
+new condition.
+
+This matters most for `isHidden`. Visibility is latched, so a reveal the previous condition had earned
+would otherwise carry over to the new one permanently, with nothing able to take it back. `data` and
+`isLocked` are less exposed — condition state is taken from every message, so they correct themselves as
+soon as the new condition reports — but they are re-seeded too, so nothing renders the previous condition's
+lock in the meantime.
+
+<Callout type="info">
+  A state read still in flight for the condition that has gone is discarded rather than written into the
+  new one, so a slow read can't overwrite the condition you are now watching with the answer for a
+  previous one.
 </Callout>
