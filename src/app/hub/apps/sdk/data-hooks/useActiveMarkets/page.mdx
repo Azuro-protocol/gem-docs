@@ -168,8 +168,23 @@ enum OutcomeState {
   Lost = 'Lost'
 }
 
-// market category, e.g. 'total' | 'handicap' | 'winner' — see groupConditionsByMarket for the full list
-type ConditionCategory = string | null
+type ConditionCategory =
+  | 'correct_score'
+  | 'handicap'
+  | 'handicap_3_way'
+  | 'odd_even'
+  | 'participant_and_total'
+  | 'participant_and_yes_no'
+  | 'participant_slash_participant'
+  | 'players'
+  | 'result'
+  | 'result_or_neither'
+  | 'total'
+  | 'total_3_way'
+  | 'winner'
+  | 'yes_no'
+  | string // extensible — new categories may appear; null when unset
+  | null
 ```
 
 <Callout type="info">
