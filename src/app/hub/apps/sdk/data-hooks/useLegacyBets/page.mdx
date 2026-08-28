@@ -97,7 +97,8 @@ type BetOutcome = {
   selectionName: string
   odds: number
   marketName: string
-  game: GameQuery['games'][0] // game on which the bet is placed
+  game: GameData // game on which the bet is placed
+  isLive: boolean
   isWin: boolean | null
   isLose: boolean | null
   isCanceled: boolean
