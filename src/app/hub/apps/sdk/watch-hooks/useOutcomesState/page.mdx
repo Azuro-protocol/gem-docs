@@ -201,7 +201,9 @@ and re-priced. Render the lock from `state` instead.
   **`hidden` is `boolean | undefined`**, and `undefined` means *the feed has not reported it yet* — not
   "visible" and not "already revealed". Only an explicit `false` closes the latch; if `undefined` counted
   as revealed, the latch would close before the feed had said anything. In the selections-only signature
-  it stays `undefined` until an update arrives, since `initialStates` carries no visibility.
+  `initialStates` carries no visibility, so `hidden` stays `undefined` only for as long as `initialStates`
+  supplies a state for every selection. As soon as one is missing, the hook reads the state endpoint —
+  which does report per-outcome visibility — and latches what it says.
 
   `!outcomesMap[key]?.hidden` is the right test for "show it" and treats `undefined` as visible.
 </Callout>
