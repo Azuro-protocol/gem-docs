@@ -12,9 +12,12 @@ Lost, Canceled (voided) or still live — and the SDK now reports them that way.
 
 - **Removed**: `useResolvedMarkets`, `BetOutcome.wonOutcomeIds`, `UseConditionsProps.onlyActiveOrStopped`
 - **Added**: `includeHidden` on `useActiveConditions` and `useActiveMarkets`, plus their own result types
-  `UseActiveConditionsResult` / `UseActiveMarketsResult`
-- **Changed shape**: `useActiveConditions` and `useActiveMarkets` are no longer plain `UseQueryResult`s,
-  no longer accept `query.select`, and require the feed providers
+  `UseActiveConditionsResult` / `UseActiveMarketsResult`; the value types of the watched state maps are
+  now exported too — `ConditionsStateData`, `OutcomesStateData`, `OutcomeStateData` and
+  `ConditionOutcomeData`
+- **Changed shape**: `useActiveConditions` and `useActiveMarkets` are no longer plain `UseQueryResult`s
+  and require the feed providers; `useActiveConditions` no longer accepts `query.select`;
+  `OutcomesStateData.statesMap` holds a different value type
 - **Changed without a type error**: which hooks filter `hidden` rows, when a hidden market is revealed,
   how far per-outcome state from the socket is trusted, voided combo legs, and condition/outcome state
   fallbacks
@@ -140,7 +143,7 @@ is the default behaviour of [`useActiveConditions`](/hub/apps/sdk/data-hooks/use
 
 ---
 
-### 4. `useActiveConditions` / `useActiveMarkets`: new result type, no `select`, feed providers required
+### 4. `useActiveConditions` / `useActiveMarkets`: new result type, feed providers required, no `select`
 
 These two hooks now decide visibility themselves, on the live value from the feed, **after** subscribing to
 every condition of the game. Three consequences, two of which the compiler will point at.
@@ -161,9 +164,12 @@ type UseActiveMarketsResult = {
 `isLoading`, `isFetching`, `isPlaceholderData`, `status`, `error` and `refetch` are unchanged, and your
 `query` options are still forwarded. Only annotations naming the old type break.
 
-**`query.select` is no longer supported**, and `UseActiveConditionsProps` is no longer generic. A `select`
-runs inside the query — before the visibility filter — so it would see exactly the hidden rows the hook
-exists to remove, and its output would then be filtered as if it were still a `ConditionDetailedData[]`.
+**`useActiveConditions` no longer supports `query.select`**, and `UseActiveConditionsProps` is no longer
+generic. A `select` runs inside the query — before the visibility filter — so it would see exactly the
+hidden rows the hook exists to remove, and its output would then be filtered as if it were still a
+`ConditionDetailedData[]`. (`useActiveMarkets` never accepted a `select`: its `query` was already
+`QueryParameter<ConditionDetailedData[]>` in v7, and `QueryParameter` omits `select`. Nothing changes
+there.)
 
 ```tsx
 // Before (v7.x)
@@ -565,7 +571,7 @@ pnpm add @azuro-org/sdk@^8 @azuro-org/toolkit@^7
 
 ### Step 2: Grep your call sites
 
-Only the first three of these produce a compile error. The rest are silent, so search for them:
+Everything above the divider produces a compile error. The rest are silent, so search for them:
 
 ```bash
 # --- these fail to compile ---
@@ -579,7 +585,7 @@ grep -rn "onlyActiveOrStopped" src/
 # removed field on BetOutcome, and removed enum members
 grep -rn "wonOutcomeIds\|ConditionState.Removed\|ConditionState.Resolved\|ConditionState.Canceled" src/
 
-# a `select` passed to the active hooks, and annotations naming the old result type
+# a `select` passed to useActiveConditions, and annotations naming the old result type
 grep -rn "select:" src/
 grep -rn "UseQueryResult" src/
 
@@ -666,9 +672,11 @@ those against your own backend figures, snapshot tests, or cached values, refres
 - [ ] Stop reading `BetOutcome.wonOutcomeIds`
 - [ ] Move bettor-facing grids off `useConditions` onto `useActiveConditions` / `useActiveMarkets`
 - [ ] Add `includeHidden: true` to every finished-game / results view
-- [ ] Drop `query.select` from `useActiveConditions` / `useActiveMarkets` calls — use `useConditions` for that
+- [ ] Drop `query.select` from `useActiveConditions` calls — use `useConditions` for that
 - [ ] Replace annotations naming the old `UseQueryResult` shape with `UseActiveConditionsResult` /
       `UseActiveMarketsResult`
+- [ ] Re-point annotations of an `outcomesMap` entry from `OutcomeUpdateData` to `OutcomeStateData` —
+      the entry no longer carries `conditionState`
 - [ ] Confirm `FeedSocketProvider` + `ConditionUpdatesProvider` are in your provider tree (free with
       `AzuroSDKProvider`) — the active hooks fail at runtime without them
 - [ ] Update manual TanStack Query cache reads of the `conditions` key — its shape changed
