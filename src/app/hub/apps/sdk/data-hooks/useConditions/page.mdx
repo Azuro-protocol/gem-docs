@@ -20,7 +20,7 @@ const { data, isFetching, error } = useConditions(props)
 
 ```ts
 {
-  gameId: string | bigint | string[] | bigint[] // single game ID or array of game IDs
+  gameId: string | string[] // single game ID or array of game IDs
   extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameterWithSelect<UseConditionsQueryFnData, TData> // useQuery params

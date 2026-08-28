@@ -49,7 +49,7 @@ const { data, isFetching, error } = useActiveConditions(props)
 
 ```ts
 {
-  gameId: string | bigint | string[] | bigint[]
+  gameId: string | string[] // single game ID or array of game IDs
   includeHidden?: boolean // keep `hidden` conditions and outcomes in the result; default false
   extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
