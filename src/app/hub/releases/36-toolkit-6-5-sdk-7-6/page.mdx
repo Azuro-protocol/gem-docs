@@ -113,10 +113,9 @@ type BetsFilter = {
 
 A leg of a combo can be voided on its own — the game is cancelled, or the outcome is settled as
 `Canceled` while the rest of its condition resolves normally. The protocol prices the bet on the
-surviving legs and refunds the rest, but **the indexer keeps the full pre-void payout until the bet is
-redeemed**, and only replaces it with the real on-chain amount when the bettor claims. Until then the
-recorded figure still credits the voided leg's odds as if that leg had won, so it overstates what the
-bettor can claim.
+surviving legs and refunds the rest, but **the recorded payout still credits the voided leg until the bet
+is redeemed**, and only becomes the amount actually paid once the bettor claims. Until then it credits
+the voided leg's odds as if that leg had won, so it overstates what the bettor can claim.
 
 Both the report and the bet list now read what the surviving legs are worth for that shape:
 

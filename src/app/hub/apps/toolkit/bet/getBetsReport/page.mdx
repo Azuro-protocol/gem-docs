@@ -183,9 +183,9 @@ Returns come from the protocol's own recorded payout. They are never reconstruct
 payout is not `amount * settledOdds`, and `settledOdds` is neither re-margined for a combo nor reduced
 when one of its legs is voided.
 
-The exception is the one shape where the recorded payout is knowingly wrong: **a winning combo with at
-least one voided leg that has not been redeemed yet**. Until redemption the indexer keeps the full
-pre-void payout, crediting the voided leg's odds as if that leg had won, so it overstates returns. Those
+The exception is the one shape where the recorded payout is not what the bet returns: **a winning combo
+with at least one voided leg that has not been redeemed yet**. Until the bet is redeemed the recorded
+payout still credits the voided leg's odds as if that leg had won, so it overstates returns. Those
 returns are rebuilt from the surviving legs with `calcMinOdds`, which prices a combo the way the protocol
 does: the feed's 1% fee is removed per leg and re-applied once to the product instead of compounding once
 per leg. A plain product of the surviving odds is not the same figure — it compounds that fee once per
