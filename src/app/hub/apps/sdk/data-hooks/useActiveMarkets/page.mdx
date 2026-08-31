@@ -2,7 +2,7 @@ import { Callout } from 'components'
 
 # useActiveMarkets
 
-The `useActiveMarkets` hook is wrapper over [`useActiveConditions`](hub/apps/sdk/data-hooks/useActiveConditions) for groupping active conditions by market.
+The `useActiveMarkets` hook is a wrapper over [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) that groups the conditions a game is offering into markets, with [`groupConditionsByMarket`](/hub/apps/toolkit/utils/groupConditionsByMarket).
 
 ## Usage
 
@@ -12,26 +12,47 @@ import { useActiveMarkets } from '@azuro-org/sdk'
 const { data, isFetching, error } = useActiveMarkets(props)
 ```
 
+<Callout type="warning">
+  **This hook needs a live feed connection.** Like
+  [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions), it requires the
+  `FeedSocketProvider` and `ConditionUpdatesProvider` — both are already included in
+  [`AzuroSDKProvider`](/hub/apps/sdk/providers/sdk), so there is nothing to do unless you compose the
+  providers by hand. If you do, and one of them is missing, the hook fails at **runtime**, not at compile
+  time.
+</Callout>
+
 ## Props
 
 ```ts
 {
   gameId: string
+  includeHidden?: boolean // keep `hidden` conditions and outcomes in the result; default false
   extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
-  query?: QueryParameter<ConditionDetailedData[]> // useQuery params
+  query?: QueryParameter<UseConditionsQueryFnData> // useQuery params, without `select`
 }
 ```
+
+<Callout type="warning">
+  **`query.select` is not supported here.** Grouping and the visibility filter both run after the query,
+  so a `select` would see the raw, unfiltered conditions and its result would then be treated as if it
+  were still a `ConditionDetailedData[]`. Every other `useQuery` option (`refetchInterval`, `enabled`,
+  `placeholderData`, …) is forwarded as usual.
+
+  If you need a `select`, call [`useConditions`](/hub/apps/sdk/data-hooks/useConditions) and group the
+  result yourself with
+  [`groupConditionsByMarket`](/hub/apps/toolkit/utils/groupConditionsByMarket).
+</Callout>
 
 <Callout type="warning">
   `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
 
   ```ts
-  import { useGame } from '@azuro-org/sdk'
+  import { useGames } from '@azuro-org/sdk'
 
-  const { data: games } = useGames()
+  const { data } = useGames()
 
-  const gameId = games?.[0]?.gameId
+  const gameId = data?.games[0]?.gameId
   ```
 </Callout>
 
@@ -39,16 +60,64 @@ const { data, isFetching, error } = useActiveMarkets(props)
   `extended` is forwarded to the underlying [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) call. Set it to `true` to also surface new-generation markets (conditions whose `conditionId[0] === '5'`) in the grouped result — `groupConditionsByMarket` already understands the new shape. See the [`useActiveConditions` docs](/hub/apps/sdk/data-hooks/useActiveConditions) for the full caveat, especially if your app reads `@azuro-org/dictionaries` directly.
 </Callout>
 
+<Callout type="warning">
+  **`hidden` conditions and outcomes are dropped by default.**
+
+  Three rules, all of them skipped when `includeHidden: true`:
+
+  1. a condition currently flagged `hidden` is dropped;
+  2. inside a condition that is kept, outcomes flagged `hidden` are dropped;
+  3. a condition left with no visible outcome is dropped too — and a market left with no condition
+     therefore doesn't appear at all.
+
+  The product rule to apply: **while a game is running, hidden markets and outcomes are not being
+  offered, so they stay out of the grid; once the game is over, they are part of what the bettor should
+  see.**
+
+  ```tsx
+  import { GameState } from '@azuro-org/toolkit'
+
+  const { data } = useActiveMarkets({
+    gameId,
+    includeHidden: gameState === GameState.Finished,
+  })
+  ```
+
+  Visibility is decided on the **live** value from the feed, after every condition of the game has been
+  subscribed, and it is latched one way — a market that stops stays in the grid, locked, instead of
+  disappearing under the bettor. See
+  [How visibility is decided](/hub/apps/sdk/data-hooks/useActiveConditions#how-visibility-is-decided).
+</Callout>
+
+<Callout type="info">
+  **Settlement is per-outcome.** `ConditionState` is only ever `Active` or `Stopped` — a condition carries
+  no result. Within a single condition, outcomes settle independently: `Won`, `Lost`, `Canceled` (voided,
+  stake refunded) or still `Active`. Read `MarketOutcome.state`, or
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled), for a result.
+</Callout>
 
 ## Return Value
 
+The hook is no longer a plain `UseQueryResult`: markets are grouped after the query, so `data` is typed
+separately from the query's own data.
+
 ```ts
-UseQueryResult<GameMarkets>
+UseActiveMarketsResult
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 
+type UseActiveMarketsResult = {
+  data: GameMarkets | undefined
+} & Omit<UseQueryResult<ConditionDetailedData[]>, 'data'>
+```
+
+`data` is `undefined` until there is at least one visible condition to group. Everything else behaves as
+it does on `useQuery` — `isLoading`, `isFetching`, `isPlaceholderData`, `status`, `error` and `refetch`
+all come from the underlying query untouched.
+
+```ts
 type GameMarkets = Market[]
 
 type Market = {
@@ -76,14 +145,19 @@ type MarketOutcome = {
   odds: number
   gameId: string
   isExpressForbidden: boolean
-  isWon?: boolean
   hidden: boolean
+  /** the per-outcome source of truth: Active | Stopped | Won | Lost | Canceled */
   state: OutcomeState
 } & Selection
 
 type Selection = {
   conditionId: string
   outcomeId: string
+}
+
+enum ConditionState {
+  Active = 'Active',
+  Stopped = 'Stopped',
 }
 
 enum OutcomeState {
@@ -94,6 +168,27 @@ enum OutcomeState {
   Lost = 'Lost'
 }
 
-// market category, e.g. 'total' | 'handicap' | 'winner' — see groupConditionsByMarket for the full list
-type ConditionCategory = string | null
+type ConditionCategory =
+  | 'correct_score'
+  | 'handicap'
+  | 'handicap_3_way'
+  | 'odd_even'
+  | 'participant_and_total'
+  | 'participant_and_yes_no'
+  | 'participant_slash_participant'
+  | 'players'
+  | 'result'
+  | 'result_or_neither'
+  | 'total'
+  | 'total_3_way'
+  | 'winner'
+  | 'yes_no'
+  | string // extensible — new categories may appear; null when unset
+  | null
 ```
+
+<Callout type="info">
+  `hidden` on the returned conditions and outcomes is the value the **fetch** reported, not the live,
+  latched value the filter used. A row can be present with `hidden: true` on it — it was hidden when
+  fetched and has since been reported visible. Don't re-filter on it.
+</Callout>

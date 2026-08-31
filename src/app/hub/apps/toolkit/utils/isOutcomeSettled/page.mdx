@@ -1,0 +1,85 @@
+import { Callout } from 'components'
+
+# isOutcomeSettled
+
+Tells whether an outcome has reached a final state and can no longer be bet on.
+
+Returns `true` for `Won`, `Lost` and `Canceled` (voided) outcomes, and `false` for `Active` and `Stopped` ones.
+
+#### Usage
+
+```ts
+import { isOutcomeSettled, OutcomeState } from '@azuro-org/toolkit'
+
+isOutcomeSettled(OutcomeState.Won)      // true
+isOutcomeSettled(OutcomeState.Lost)     // true
+isOutcomeSettled(OutcomeState.Canceled) // true  - voided, stake refunded
+isOutcomeSettled(OutcomeState.Active)   // false
+isOutcomeSettled(OutcomeState.Stopped)  // false - temporarily not offered, not settled
+```
+
+#### Props
+
+```ts
+(state: OutcomeState) => boolean
+```
+
+```ts
+enum OutcomeState {
+  Active = 'Active',
+  Canceled = 'Canceled',
+  Stopped = 'Stopped',
+  Won = 'Won',
+  Lost = 'Lost'
+}
+```
+
+#### Return Value
+
+`boolean`
+
+<Callout type="info">
+  **Settlement is per-outcome.** A [`Condition`](/knowledge-hub/how-azuro-works/components/conditions) is
+  only ever `Active` or `Stopped` — it never carries a result of its own. Within a single condition,
+  one outcome can be `Won`, another `Lost`, a third `Canceled`, and a fourth still `Active`. So "is this
+  settled?" is always a question about an outcome, never about its condition.
+</Callout>
+
+#### Rendering a market grid
+
+The typical use is a market grid that stays in place after a game ends: instead of swapping the whole
+grid for a results view, render each outcome according to its own state.
+
+```tsx
+import { isOutcomeSettled, OutcomeState, type MarketOutcome } from '@azuro-org/toolkit'
+
+const Outcome: React.FC<{ outcome: MarketOutcome }> = ({ outcome }) => {
+  if (!isOutcomeSettled(outcome.state)) {
+    // Active or Stopped - still a betting button (disabled while Stopped)
+    return (
+      <button disabled={outcome.state === OutcomeState.Stopped}>
+        {outcome.selectionName} {outcome.odds}
+      </button>
+    )
+  }
+
+  // settled: Won, Lost or Canceled
+  let label = 'Lost'
+
+  if (outcome.state === OutcomeState.Won) {
+    label = 'Won'
+  }
+  else if (outcome.state === OutcomeState.Canceled) {
+    label = 'Refunded'
+  }
+
+  return <div>{outcome.selectionName} — {label}</div>
+}
+```
+
+<Callout type="warning">
+  **`Canceled` means voided, not "missing".** A canceled outcome is one the protocol voided: bets on it
+  are refunded. It is not a placeholder for "this outcome isn't in the feed" — when an outcome is absent
+  from the feed, the SDK's [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) /
+  [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) fall back to `OutcomeState.Stopped`.
+</Callout>

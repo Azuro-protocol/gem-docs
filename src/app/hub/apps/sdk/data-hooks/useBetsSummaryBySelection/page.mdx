@@ -2,17 +2,24 @@ import { Callout } from 'components'
 
 # useBetsSummaryBySelection
 
-The `useBetsSummaryBySelection` Hook should use if you want to show user's bets results on the game page for resolved markets, check [`useResolvedMarkets`](useResolvedMarkets).
+The `useBetsSummaryBySelection` Hook should use if you want to show user's bets results on the game page for settled markets. To render the markets themselves, use [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) with `includeHidden: true` — each outcome then carries its own result in `state`.
+
+It returns the account's net profit or loss on each selection of the game, as a decimal string in the
+chain's bet token. A combo contributes only the part of its stake that its legs on this game carry.
+
+Bets that are still pending, voided or cashed out are not counted — a bet reaches the map only once it has
+a `Won` or `Lost` result. The Hook is enabled only when `gameState` is `GameState.Finished`.
 
 ## Usage
 
 ```ts
-import { useBetsSummaryBeSelection } from '@azuro-org/sdk'
+import { useBetsSummaryBySelection } from '@azuro-org/sdk'
+import { GameState } from '@azuro-org/toolkit'
 
-const { data, isFetching } = useBetsSummaryBeSelection({
-  account: '...',
+const { data, isFetching } = useBetsSummaryBySelection({
+  account: '0x...',
   gameId: '...',
-  gameState: GameState.Resolved
+  gameState: GameState.Finished,
 })
 ```
 
@@ -41,9 +48,54 @@ type ChainId =
 
 ## Return Value
 ```ts
-UseQueryResult<Record<outcomeId, string>>
+UseQueryResult<Record<`${conditionId}-${outcomeId}`, string>>
 ```
 
 ```ts
 import { type UseQueryResult } from '@tanstack/react-query'
 ```
+
+<Callout type="warning">
+  **The key is `` `${conditionId}-${outcomeId}` ``, not `outcomeId`.** An outcome is identified by its
+  condition *and* its `outcomeId` — that pair is what the protocol keys an outcome on — so an `outcomeId`
+  on its own does not address a selection. `v5` markets number their outcomes per condition, from `1` up,
+  so the same low ids recur in every `v5` condition and collide with the ids `legacy` markets take from the
+  shared [dictionaries](/knowledge-hub/how-azuro-works/components/dictionaries) namespace; and a `legacy`
+  market that is suspended and re-offered repeats its outcomes under a second `conditionId`. This changed
+  in **SDK v8.0.0** — before it the map was keyed by `outcomeId` alone, so those selections shared one
+  entry and each of them read back the sum. See the [v8 migration guide](/hub/apps/sdk/migration-v8#12-usebetssummarybyselection-is-keyed-by-condition-and-outcome).
+
+  The map type is `Record<string, string>` either way, so an unmigrated lookup **compiles and returns
+  `undefined`** — the summary silently disappears from the UI rather than throwing.
+</Callout>
+
+The key is built the same way as in [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) and
+[`useOdds`](/hub/apps/sdk/watch-hooks/useOdds), so one helper can address all three maps:
+
+```tsx
+import { useActiveMarkets, useBetsSummaryBySelection, useGameState } from '@azuro-org/sdk'
+import { GameState, type MarketOutcome } from '@azuro-org/toolkit'
+
+const getOutcomeKey = ({ conditionId, outcomeId }: Pick<MarketOutcome, 'conditionId' | 'outcomeId'>) => (
+  `${conditionId}-${outcomeId}`
+)
+
+const { data: gameState } = useGameState({ gameId, initialState: game.state })
+
+const { data: markets } = useActiveMarkets({
+  gameId,
+  includeHidden: gameState === GameState.Finished,
+})
+
+const { data: betsSummary } = useBetsSummaryBySelection({
+  account,
+  gameId,
+  gameState: gameState!,
+})
+
+// ...
+
+<Outcome outcome={outcome} summary={betsSummary?.[getOutcomeKey(outcome)]} />
+```
+
+A missing key means the account has no settled bet on that selection — render nothing rather than a zero.

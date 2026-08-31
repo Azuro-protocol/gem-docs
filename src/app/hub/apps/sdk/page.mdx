@@ -29,12 +29,11 @@ type BetOutcome = {
   selectionName: string
   odds: number
   marketName: string
-  game: NonNullable<GameQuery['game']>
-  wonOutcomeIds: string[] | null
+  game: GameData // from @azuro-org/toolkit
   isLive: boolean
-  isWin: boolean | null
-  isLose: boolean | null
-  isCanceled: boolean
+  isWin: boolean | null // true = won, false = settled but not won, null = still pending
+  isLose: boolean | null // true = lost, false = settled but not lost, null = still pending
+  isCanceled: boolean // true = voided, stake refunded for this leg
 } & Selection
 ```
 </Callout>

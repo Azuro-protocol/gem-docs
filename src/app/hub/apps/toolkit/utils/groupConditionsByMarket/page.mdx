@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 # groupConditionsByMarket
 
 Creates markets from subgraph or REST API conditions.
@@ -51,14 +53,19 @@ type MarketOutcome = {
   odds: number
   gameId: string
   isExpressForbidden: boolean
-  isWon?: boolean
   hidden: boolean
+  /** the per-outcome source of truth: Active | Stopped | Won | Lost | Canceled */
   state: OutcomeState
 } & Selection
 
 type Selection = {
   conditionId: string
   outcomeId: string
+}
+
+enum ConditionState {
+  Active = 'Active',
+  Stopped = 'Stopped',
 }
 
 enum OutcomeState {
@@ -87,3 +94,33 @@ type ConditionCategory =
   | string // extensible — new categories may appear; null when unset
   | null
 ```
+
+<Callout type="warning">
+  **`MarketOutcome.state` is the only per-outcome source of truth.**
+
+  `MarketOutcome.isWon` was removed in toolkit v7. It was derived from the condition's `wonOutcomeIds` and
+  was `undefined` whenever those were absent, so `outcome.isWon ? 'Won' : 'Lost'` rendered every outcome of
+  an unsettled market as lost, and could not express a void at all.
+
+  `state` distinguishes all five cases, and outcomes of the same condition can be in different states at
+  once — `MarketCondition.state` is only ever `Active` or `Stopped` and carries no result:
+
+  ```ts
+  import { isOutcomeSettled, OutcomeState } from '@azuro-org/toolkit'
+
+  if (!isOutcomeSettled(outcome.state)) {
+    // still open - Active, or Stopped (temporarily not offered)
+  }
+  else if (outcome.state === OutcomeState.Won) {
+    // won
+  }
+  else if (outcome.state === OutcomeState.Canceled) {
+    // voided - stake refunded
+  }
+  else {
+    // OutcomeState.Lost
+  }
+  ```
+
+  See [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled).
+</Callout>

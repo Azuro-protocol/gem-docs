@@ -177,19 +177,30 @@ Two kinds of bet are left out of `turnover`, `returns` and `roi`:
 
 `profit = returns - turnover`, and `roi = profit / turnover * 100`, rounded to 2 decimals.
 
-##### Returns are read, not reconstructed - with one exception
+##### Returns are read, not reconstructed - except for unredeemed combos
 
-Returns come from the protocol's own recorded payout. They are never reconstructed from odds: a bet's
-payout is not `amount * settledOdds`, and `settledOdds` is neither re-margined for a combo nor reduced
-when one of its legs is voided.
+Returns come from the protocol's own recorded payout, and they are never reconstructed from odds: a
+bet's payout is not `amount * settledOdds`. Never derive one from `settledOdds`, `odds` or
+`potentialPayout` — all three are the plain product of the leg odds, and none of them is reduced when a
+leg is voided.
 
-The exception is the one shape where the recorded payout does not describe what the bet is worth: **a
-winning combo with at least one voided leg that has not been redeemed yet**. Until redemption that payout
-still credits the voided leg's odds as if the leg had won. Those returns are rebuilt from the surviving
-legs with `calcMinOdds`, which prices a combo the way the protocol does: the feed's 1% fee is removed per
-leg and re-applied once to the product instead of compounding once per leg - a plain product of the
-surviving odds would understate the payout, by more the more legs the bet has. Redeemed bets always read
-the recorded payout, which by then is the amount actually paid out.
+**A winning combo that has not been redeemed yet** is the exception, because its recorded payout is
+wrong for two independent reasons:
+
+- the feed applies its fee to every outcome's odds, and a combo's recorded payout is the plain product
+  of those legs — so it **compounds the fee once per leg** instead of applying it once to the product.
+  It understates by more the more legs the bet has;
+- a voided leg is never removed from that figure, so it keeps crediting the leg as if it had won.
+
+Those returns are rebuilt from the surviving legs with
+[`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds), which prices a combo the way the protocol
+does. Redeemed bets always read the recorded payout, which by then is the amount actually paid out.
+
+**Bets placed before the feed's fee existed are left alone.** For those the leg odds are raw, so the
+plain product *is* the right price and the recorded payout is already correct — re-pricing them would
+overstate returns. This is why `BetsReportEntry` carries a required `createdAt`: `getBetsReport` fills
+it from the bet, and `calcComboOdds` uses it to pick the right rule. If you call `calcBetsReport`
+directly, you must supply it — there is no safe default.
 
 ##### Freebet bets are excluded from ROI
 

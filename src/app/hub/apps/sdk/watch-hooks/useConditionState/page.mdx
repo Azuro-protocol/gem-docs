@@ -4,7 +4,19 @@ import { Callout } from 'components'
 
 The `useConditionState` hook is used for maintain updated state for a condition.
 
-[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. For instance, `ConditionState.Created` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it has temporarily stopped accepting bets. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this condition is currently possible or not.
+[Conditions](/knowledge-hub/how-azuro-works/components/conditions) have a `state` field that indicates their current state. `ConditionState.Active` signifies the condition is available for betting, while `ConditionState.Stopped` indicates it is not accepting bets right now. This hook monitors this state and returns an `isLocked` flag, indicating whether placing a bet on this condition is currently possible or not.
+
+<Callout type="warning">
+  **A condition never carries a result.** Since toolkit v7 `ConditionState` is exactly `Active | Stopped` —
+  `Resolved`, `Canceled` and `Removed` are gone. Settlement is tracked **per outcome**: read
+  `OutcomeState` via [`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) /
+  [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState), or with
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled).
+
+  A condition that is absent from the feed now reports `ConditionState.Stopped` — it used to report the
+  removed `ConditionState.Removed`. Use `isHidden` to tell a condition the provider pulled off the grid
+  from one that is merely not taking bets.
+</Callout>
 
 ## Usage
 
@@ -16,14 +28,14 @@ The `useConditionState` hook is used for maintain updated state for a condition.
     ChainProvider,
     FeedSocketProvider,
     ConditionUpdatesProvider,
-    useWatchers,
   } from '@azuro-org/sdk'
+  import { polygonAmoy } from 'viem/chains'
 
   function Providers(props: { children: React.ReactNode }) {
     const { children } = props
 
     return (
-      <ChainProvider>
+      <ChainProvider initialChainId={polygonAmoy.id}>
         <FeedSocketProvider>
           <ConditionUpdatesProvider>
             {children}
@@ -94,16 +106,16 @@ const Condition: React.FC<ConditionProps> = (props) => {
 </Callout>
 
 <Callout type="info">
-  Pass `condition.hidden` from `ConditionDetailedData` as `isInitiallyHidden`. When `true`, the condition starts as hidden. As soon as a socket update arrives, `isHidden` is set to `false` — meaning the condition is still alive and was only temporarily stopped by the provider.
+  Pass `condition.hidden` from `ConditionDetailedData` as `isInitiallyHidden`. When `true`, the condition
+  starts as hidden and stays hidden until an update **reports** `hidden: false` — see
+  [How `isHidden` behaves](#how-ishidden-behaves) below. Omit it and `isHidden` is `undefined` until the
+  feed reports it.
 </Callout>
 
 ```ts
 enum ConditionState {
   Active = 'Active',
-  Canceled = 'Canceled',
-  Removed = 'Removed',
-  Resolved = 'Resolved',
-  Stopped = 'Stopped'
+  Stopped = 'Stopped',
 }
 ```
 
@@ -112,8 +124,64 @@ enum ConditionState {
 ```ts
 {
   data: ConditionState
-  isHidden: boolean | undefined // true while condition is hidden; resets to false on any socket update
+  isHidden?: boolean // undefined until the feed has reported it
   isLocked: boolean // true when condition is not Active
   isFetching: boolean // flag indicates initial state fetching
 }
 ```
+
+`data` and `isLocked` are taken from every update, so a condition locks and unlocks in real time.
+
+## How `isHidden` behaves
+
+`isHidden` says whether the feed is offering this condition right now — as opposed to `isLocked`, which
+says whether it is taking bets. It starts from `isInitiallyHidden` — and from it again whenever the hook
+is [pointed at another condition](#pointing-the-hook-at-another-condition) — and then follows two rules.
+
+**It is revealed by an update reporting `hidden: false` — not by an update arriving.** The feed sends the
+condition's own `hidden` flag on every message and that flag is what the hook reads. An update *arriving*
+proves nothing: a market the provider has parked keeps streaming odds for the rest of its life, so
+treating any message as a sign of life puts dead markets back in the grid.
+
+**It is latched one way, by design.** Once the condition has been reported visible it stays visible, and
+nothing hides it again. A market that stops therefore stays in the list, locked, rather than vanishing and
+returning as the provider suspends and re-prices it — a grid that reflows while a bettor is reading it,
+moving the market under their cursor, is worse than one that keeps a market slightly longer than it had to.
+Render the lock from `isLocked` instead.
+
+<Callout type="warning">
+  **`isHidden` is `boolean | undefined`**, and `undefined` means *the feed has not reported it yet* — not
+  "visible" and not "already revealed". Only an explicit `false` closes the latch; if `undefined` counted
+  as revealed, the latch would close before the feed had said anything.
+
+  `!isHidden` is the right test for "show it" and treats `undefined` as visible, which is what you want
+  for a condition the fetch never flagged. Don't write `isHidden === false` to mean "revealed".
+</Callout>
+
+<Callout type="info">
+  A refetch of the condition **state** can't report visibility — the state endpoint carries no
+  condition-level `hidden` — so the last known value is carried forward across one.
+
+  Filtering a whole markets grid on this hook means one subscription per condition, and you must subscribe
+  to the hidden ones too or they can never be revealed. [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions)
+  and [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) already do that for you.
+</Callout>
+
+## Pointing the hook at another condition
+
+Reusing one component instance across conditions is safe — you don't need a `key` to force a remount. When
+`conditionId` changes, the hook re-seeds from the new props: `data` and `isLocked` from `initialState`,
+`isHidden` from `isInitiallyHidden`. `isFetching` follows the new props, and the subscription moves to the
+new condition.
+
+This matters most for `isHidden`. Visibility is latched, so a reveal the previous condition had earned
+would otherwise carry over to the new one permanently, with nothing able to take it back. `data` and
+`isLocked` are less exposed — condition state is taken from every message, so they correct themselves as
+soon as the new condition reports — but they are re-seeded too, so nothing renders the previous condition's
+lock in the meantime.
+
+<Callout type="info">
+  A state read still in flight for the condition that has gone is discarded rather than written into the
+  new one, so a slow read can't overwrite the condition you are now watching with the answer for a
+  previous one.
+</Callout>

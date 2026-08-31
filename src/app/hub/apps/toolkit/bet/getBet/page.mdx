@@ -3,6 +3,8 @@ title: getBet
 description: Azuro Toolkit util. Retrieves bet order data by order ID from the Azuro API.
 ---
 
+import { Callout } from 'components'
+
 # getBet
 
 Retrieves bet order data by order ID from the Azuro API. Returns `null` if the bet order is not found.
@@ -111,7 +113,8 @@ type BetMetaData = {
         gameId: string
         status: ConditionStatus
         outcomes: {
-          result: SelectionResult | null
+          /** the authoritative per-outcome settlement signal for this bet's leg */
+          result: OutcomeResult | null
           outcomeId: string
           sortOrder: number
         }[]
@@ -201,4 +204,52 @@ enum BetOrderState {
   /** The bet is settled (won or lost) */
   Settled = 'Settled',
 }
+
+/** per-outcome result - can express a void */
+enum OutcomeResult {
+  Won = 'Won',
+  Lost = 'Lost',
+  Canceled = 'Canceled'
+}
+
+/** per-selection result - cannot express a void */
+enum SelectionResult {
+  Won = 'Won',
+  Lost = 'Lost'
+}
+
+/** subgraph condition status - a *different* enum from the feed's `ConditionState` */
+enum ConditionStatus {
+  Created = 'Created',
+  Resolved = 'Resolved',
+  Canceled = 'Canceled',
+  Paused = 'Paused'
+}
 ```
+
+<Callout type="warning">
+  **Read a leg's result from the condition's outcome list, not from the condition.**
+
+  Settlement is per-outcome: within one condition, one outcome can be `Won`, another `Lost` and a third
+  `Canceled` (voided, stake refunded). So `meta.selections[].outcome.condition.status` does **not** tell you
+  how the bet's leg finished, and neither does `wonOutcomeIds` — it only ever describes wins.
+
+  Match the selection's `outcomeId` against the condition's `outcomes` list and read `result` there:
+
+  ```ts
+  import { OutcomeResult } from '@azuro-org/toolkit'
+
+  const selection = bet.meta!.selections[0]!
+
+  const legResult = selection.outcome.condition.outcomes
+    .find(({ outcomeId }) => outcomeId === selection.outcome.outcomeId)?.result
+
+  const isLegVoided = legResult === OutcomeResult.Canceled
+  const isLegWon = legResult === OutcomeResult.Won
+  const isLegPending = !legResult
+  ```
+
+  A voided leg must be excluded from a combo's odds and potential win — see the
+  [Toolkit v7 Migration Guide](/hub/apps/toolkit/migration-v7). `selection.result` is still typed
+  `SelectionResult` (`Won | Lost`), so it cannot report a void on its own.
+</Callout>

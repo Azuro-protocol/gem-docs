@@ -50,6 +50,10 @@ When `false` or `undefined`, the order follows the order of the `games` sorting 
 A condition is `hidden` when it is a stopped secondary market that may still receive updates. Once a socket update arrives, `hidden` resets to `false` — meaning the condition is alive and should be shown.
 </Callout>
 
+<Callout type="warning">
+**Superseded in SDK v8.** The reveal is no longer triggered by an update *arriving*. It is driven by the condition's own `hidden` flag, which the feed sends on every message, and it is latched one way: a market the provider has parked keeps streaming odds for the rest of its life, so a message arriving is no evidence that the market is being offered. `hidden` is also `boolean | undefined` now, where `undefined` means "not reported yet". See [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) and [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions), which applies the filter for you.
+</Callout>
+
 **`useConditionState`** — new prop `isInitiallyHidden`, new return value `isHidden`:
 
 ```ts

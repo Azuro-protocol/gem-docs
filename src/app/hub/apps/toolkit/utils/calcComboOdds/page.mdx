@@ -1,0 +1,104 @@
+import { Callout } from 'components'
+
+# calcComboOdds
+
+Calculates the total odds of a combo bet, priced the way the protocol prices it.
+
+Use this whenever you need a combo's odds for a bet that already exists — to show what it is worth, or
+to rebuild a payout. For the minimum odds to *place* a new bet with, use
+[`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds), which applies slippage on top.
+
+#### Usage
+
+```ts
+import { calcComboOdds } from '@azuro-org/toolkit'
+
+const totalOdds = calcComboOdds({
+  odds: [ 1.5, 2 ],       // leave voided legs out
+  createdAt: bet.createdAt,
+})
+```
+
+#### Props
+
+```ts
+type CalcComboOddsParams = {
+  /** the leg odds as the protocol recorded them; a voided leg must be left out by the caller */
+  odds: number[]
+  /** unix seconds, when the bet was placed - it decides whether the leg odds carry the feed's fee */
+  createdAt: number
+}
+```
+
+#### Return Value
+
+`string` (`.toFixed(ODDS_DECIMALS)` called on the `number`)
+
+## Why a combo is not the product of its legs
+
+The feed applies its fee to **every outcome's** odds. Multiplying N legs that each carry the fee would
+compound it N times, which is not what the bettor is charged. A combo is therefore priced:
+
+> remove the fee from each leg → multiply → apply the fee **once** to the product
+
+```
+ceil(1.5 / 0.99) * ceil(2 / 0.99) * 0.99  =  3.05
+1.5 * 2                                   =  3.00   ← the plain product, too low
+```
+
+The gap widens with every extra leg, so a long combo priced as a plain product is materially
+understated.
+
+<Callout type="warning">
+  **Leave voided legs out of the array — never pass `1.0` for one.** `1.0` would be de-margined to
+  `1.02`, inflating the total by about 1.8% per void. An empty array prices at `1`, so a bet with
+  nothing left standing returns its stake.
+</Callout>
+
+## The fee has a start date
+
+The feed did not always apply a fee. For a bet placed before `MARGIN_APPLIED_AT` the leg odds are raw,
+so a combo of them really *is* the plain product — and removing a fee that was never charged, then
+re-applying it once, would **overstate** the odds by roughly `(1/0.99)^(legs-1)`.
+
+`calcComboOdds` branches on `createdAt` for exactly that reason. Pass the bet's real creation time; do
+not default it.
+
+```ts
+import { calcComboOdds, MARGIN_APPLIED_AT } from '@azuro-org/toolkit'
+
+// same legs, different eras
+calcComboOdds({ odds: [ 2, 1.75 ], createdAt: MARGIN_APPLIED_AT })      // '3.55...' - fee removed per leg
+calcComboOdds({ odds: [ 2, 1.75 ], createdAt: MARGIN_APPLIED_AT - 1 })  // '3.50...' - plain product
+```
+
+<Callout type="info">
+  **Singles need none of this.** One leg means the fee is applied once already, so a single's recorded
+  `settledOdds ?? odds` is correct as it stands, in either era.
+</Callout>
+
+## Rebuilding a payout
+
+The subgraph records a combo's odds and payout as the plain product of its leg odds, and never reduces
+that figure when a leg is voided. So for a bet that has **not been redeemed yet**, neither
+`settledOdds`, `odds`, `potentialPayout` nor `payout` can be trusted for a combo — rebuild from the
+surviving legs instead:
+
+```ts
+import { calcComboOdds, isSelectionCanceled } from '@azuro-org/toolkit'
+
+const survivingOdds = bet.selections
+  .filter((selection) => !isSelectionCanceled({
+    selectionResult: selection.result,
+    outcomeResult: selection.outcome.result,
+    conditionStatus: selection.outcome.condition.status,
+  }))
+  .map((selection) => +selection.odds)
+
+const totalOdds = calcComboOdds({ odds: survivingOdds, createdAt: +bet.createdAt })
+const payout = +bet.amount * +totalOdds
+```
+
+Once a bet **is** redeemed, its recorded payout is the amount actually paid on chain — read that and
+rebuild nothing. [`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) and the SDK's
+[`useBets`](/hub/apps/sdk/data-hooks/useBets) already apply all of these rules for you.

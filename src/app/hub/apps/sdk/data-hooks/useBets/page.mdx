@@ -80,7 +80,7 @@ enum BetKind {
   Combo = 'combo',
 }
 
-type ChainId = 
+type ChainId =
   | 100     // Gnosis
   | 137     // Polygon
   | 80002   // Polygon Amoy
@@ -133,10 +133,11 @@ type BetOutcome = {
   selectionName: string
   odds: number
   marketName: string
-  game: GameQuery['games'][0] // game on which the bet is placed
-  isWin: boolean | null
-  isLose: boolean | null
-  isCanceled: boolean
+  game: GameData // game on which the bet is placed
+  isLive: boolean
+  isWin: boolean | null // true = won, false = settled but not won, null = still pending
+  isLose: boolean | null // true = lost, false = settled but not lost, null = still pending
+  isCanceled: boolean // true = voided, stake refunded for this leg
 } & Selection
 
 type Bet = {
@@ -144,14 +145,14 @@ type Bet = {
   tokenId: string // id of the bet's NFT
   freebetId?: string | null // id of the freebet's NFT
   freebetContractAddress?: Address // freebet contract address
-  totalOdds: number // total odds of the bet
+  totalOdds: number // total odds of the bet - voided legs are excluded from the product
   coreAddress: Address // core contract address
   lpAddress: Address // lp contract address
   outcomes: BetOutcome[] // bet's outcomes list
   txHash: string // bet's transaction hash
   status: BetStatus // subgraph bet status
   amount: string // bet's amount in USDT
-  possibleWin: number // possible win amount in USDT
+  possibleWin: number // possible win amount in USDT - excludes voided legs
   payout: number | null // claimable amount - `null` once the bet is redeemed or cashed out; gates a redeem action
   settledPayout: number | null // what the bet actually returned - stays populated after redemption; use for historical/aggregate views
   cashout: string | null // cashout amount in USDT
@@ -166,6 +167,55 @@ type Bet = {
 }
 ```
 
+<Callout type="warning">
+  **A voided leg is `isCanceled`, not "pending".**
+
+  Settlement is per-outcome: within one condition, one outcome can win, another lose and a third be voided
+  (refunded). A voided leg of a bet now reports `{ isWin: false, isLose: false, isCanceled: true }`. It used
+  to report `{ isWin: null, isLose: null, isCanceled: false }` — indistinguishable from a leg that hadn't
+  settled yet.
+
+  **Check `isCanceled` before treating `isWin === null` as "pending":**
+
+  ```tsx
+  if (outcome.isCanceled) {
+    return <Refunded />
+  }
+
+  if (outcome.isWin === null) {
+    return <Pending />
+  }
+
+  return outcome.isWin ? <Won /> : <Lost />
+  ```
+
+  Won, lost, voided and pending are mutually exclusive: a settled leg never reports `null`, and a pending
+  leg reports `isWin: null` / `isLose: null` with `isCanceled: false`.
+</Callout>
+
+<Callout type="info">
+  **Voided legs are excluded from combo odds.** A refunded leg no longer multiplies into a combo's
+  `totalOdds`, so `totalOdds` and `possibleWin` for a combo containing a voided leg are lower — and correct
+  — than they were before. A combo whose every leg was voided has `totalOdds` of `1`: the stake is simply
+  returned.
+</Callout>
+
+<Callout type="warning">
+  **Combo odds are re-priced, so their values change.** The feed applies its fee to every outcome's
+  odds, and a combo is priced by removing that fee per leg and applying it **once** to the product —
+  which is what [`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds) does. The subgraph records the
+  plain product instead, compounding the fee once per leg, so `totalOdds`, `possibleWin`, `payout` and
+  `settledPayout` for an unredeemed combo now report **higher** figures than before, by more the more
+  legs the bet has. They are the correct ones.
+
+  This applies to **every** unredeemed combo, not only one with a voided leg.
+
+  Two shapes are deliberately left as they were: a combo placed before the fee existed (its leg odds are
+  raw, so the plain product is already right), and a bet that has been redeemed (its recorded payout is
+  the amount actually paid on chain). A cashed-out bet is never re-priced either — it was paid at the
+  price the bettor took, so read `cashout` for what it returned.
+</Callout>
+
 <Callout type="info">
   **`payout` vs `settledPayout`**
 
@@ -174,8 +224,9 @@ type Bet = {
   redemption. Use `settledPayout` for historical and aggregate views; use `payout` only to gate a redeem
   action.
 
-  Both are read from the protocol's recorded payout, with one exception: a **winning combo with a voided
-  leg that has not been redeemed yet**. That payout still credits the voided leg until the bettor claims,
-  so both figures are rebuilt from the surviving legs instead, at the same `totalOdds` this hook already
-  reports. Redeemed bets are untouched — their recorded payout is the amount that was actually paid.
+  Both are read from the protocol's recorded payout, with one exception: a **winning combo that has not
+  been redeemed yet**. Its recorded payout compounds the feed's fee once per leg, and still credits any
+  voided leg as if it had won; both figures are rebuilt from the surviving legs instead, at the same
+  `totalOdds` this hook already reports. Once redeemed, the recorded payout is the amount actually paid
+  and is used as is.
 </Callout>

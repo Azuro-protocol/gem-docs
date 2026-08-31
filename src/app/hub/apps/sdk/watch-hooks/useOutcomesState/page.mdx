@@ -16,14 +16,14 @@ Outcomes within a condition have a `state` field that indicates their current st
     ChainProvider,
     FeedSocketProvider,
     ConditionUpdatesProvider,
-    useWatchers,
   } from '@azuro-org/sdk'
+  import { polygonAmoy } from 'viem/chains'
 
   function Providers(props: { children: React.ReactNode }) {
     const { children } = props
 
     return (
-      <ChainProvider>
+      <ChainProvider initialChainId={polygonAmoy.id}>
         <FeedSocketProvider>
           <ConditionUpdatesProvider>
             {children}
@@ -46,11 +46,19 @@ import { useOutcomesState } from '@azuro-org/sdk'
 // outcomes: MarketOutcome[] from a market condition
 const { data: states, outcomesMap } = useOutcomesState({ outcomes })
 
-// hide outcomes that are still hidden (temporarily stopped by provider)
+// drop the outcomes the feed isn't offering
 const visibleOutcomes = outcomes.filter(({ conditionId, outcomeId }) => (
   !outcomesMap[`${conditionId}-${outcomeId}`]?.hidden
 ))
 ```
+
+Pass **every** outcome of the condition, hidden ones included, and filter afterwards, as above. The feed
+sends no updates for a condition that was never subscribed, so an outcome you filter out before
+subscribing can never be shown again.
+
+[`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) and
+[`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets) already do exactly this, at both levels.
+Do it by hand only if you need a grid they don't cover.
 </Callout>
 
 <Callout type="info">
@@ -111,21 +119,100 @@ enum OutcomeState {
 }
 ```
 
+<Callout type="warning">
+  **`OutcomeState.Canceled` means voided — not "missing from the feed".** A canceled outcome is one the
+  protocol voided: bets on it are refunded. When an outcome is absent from the feed, this hook falls back
+  to `OutcomeState.Stopped` (it used to fall back to `OutcomeState.Canceled`). Use
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled) to ask whether an outcome has a final
+  result — `Won`, `Lost` or `Canceled` — rather than comparing states by hand.
+</Callout>
+
 ## Return Value
 
 ```ts
 {
-  data: Record<string, OutcomeState> // key is `${conditionId}-${outcomeId}`
-  outcomesMap: Record<string, {      // key is `${conditionId}-${outcomeId}`
-    odds: number       // live odds
-    turnover: string   // empty ('') until a live update arrives — not returned by REST
-    state: OutcomeState
-    hidden: boolean
-  }>
+  data: Record<string, OutcomeState>            // key is `${conditionId}-${outcomeId}`
+  outcomesMap: Record<string, OutcomeStateData> // key is `${conditionId}-${outcomeId}`
   isFetching: boolean // flag indicates initial states fetching
 }
 ```
 
+An `outcomesMap` entry is the hook's own view of an outcome, not the raw socket message: it holds what is
+currently known about the outcome after the rules below have been applied. That entry type is exported as
+`OutcomeStateData`, so you can name it in your own code. The wire message is a separate type,
+`OutcomeUpdateData`, and it carries one extra field — `conditionState`, the state of the condition the
+message arrived on, which is what decides how much of the message can be trusted.
+
+```ts
+import { type OutcomeStateData, type OutcomeUpdateData } from '@azuro-org/sdk'
+
+// what an `outcomesMap` entry holds
+type OutcomeStateData = {
+  odds: number     // live odds
+  turnover: string // empty ('') until a live update arrives — not returned by the state endpoint
+  /** `undefined` until an update that can be trusted for it, or a state read, has reported it */
+  state?: OutcomeState
+  /** `undefined` until the feed has reported it */
+  hidden?: boolean
+}
+
+// the socket message
+type OutcomeUpdateData = {
+  odds: number
+  turnover: string
+  state: OutcomeState
+  hidden: boolean
+  /** state of the condition this update was carried by - not the outcome's state */
+  conditionState: ConditionState
+}
+```
+
+## What is taken from an update
+
+**`odds` and `turnover` are taken from every update.** They are real in every message. `turnover` is only
+ever populated by live updates (`''` until the first one arrives — the state endpoint doesn't return it).
+
+**`state` and `hidden` are taken only from updates whose condition is `Active`.** An update for an
+inactive condition reports *every* one of its outcomes as `Stopped`, whatever they had actually settled
+to — so trusting it would un-settle won, lost and voided outcomes each time their condition is suspended.
+Such an update leaves `state` and `hidden` alone and schedules a re-read from the state endpoint, which is
+authoritative for per-outcome state. The re-read is limited to the messages that can carry news: the move
+into an inactive state, and every report of a settled condition.
+
+<Callout type="warning">
+  **The consequence to design for:** when a condition stops, there is a brief window — one state-endpoint
+  round trip — in which its outcomes still read their previous `state`. Condition-level locking is
+  unaffected and still immediate, so gate the bet on
+  [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) /
+  [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) as well as on the outcome, and
+  don't treat a per-outcome `Stopped` as instantaneous.
+</Callout>
+
+## How `hidden` behaves
+
+`hidden` says whether the feed is offering this outcome right now, independently of its condition's own
+`hidden` flag — a condition can be on offer with one of its outcomes withdrawn.
+
+**It is latched one way, by design.** Once an outcome has been reported visible it stays visible, and
+nothing hides it again, so an outcome doesn't flicker in and out of a market as its condition is suspended
+and re-priced. Render the lock from `state` instead.
+
+<Callout type="warning">
+  **`hidden` is `boolean | undefined`**, and `undefined` means *the feed has not reported it yet* — not
+  "visible" and not "already revealed". Only an explicit `false` closes the latch; if `undefined` counted
+  as revealed, the latch would close before the feed had said anything. In the selections-only signature
+  `initialStates` carries no visibility, so `hidden` stays `undefined` only for as long as `initialStates`
+  supplies a state for every selection. As soon as one is missing, the hook reads the state endpoint —
+  which does report per-outcome visibility — and latches what it says.
+
+  `!outcomesMap[key]?.hidden` is the right test for "show it" and treats `undefined` as visible.
+</Callout>
+
 <Callout type="info">
-Each `outcomesMap` entry holds the full `OutcomeUpdateData` dispatched by the outcome watcher. On a socket update, the outcome's `odds`, `turnover`, `state` and `hidden` all come authoritatively from the update. `turnover` is only ever populated by live updates (`''` until the first one).
+  **The SDK owns this latch now.** If your app keeps its own one-way `isHidden` latch on top of this hook
+  to stop outcomes flickering, drop it — re-hiding no longer happens.
+
+  When the watched set changes (the feed adds conditions to a running game routinely), outcomes that
+  stayed keep what the socket has already taught the hook — both the latched visibility and the settled
+  states — and only outcomes that left are dropped.
 </Callout>

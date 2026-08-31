@@ -20,8 +20,7 @@ const { data, isFetching, error } = useConditions(props)
 
 ```ts
 {
-  gameId: string | bigint | string[] | bigint[] // single game ID or array of game IDs
-  onlyActiveOrStopped?: boolean // if true, returns only active or stopped conditions
+  gameId: string | string[] // single game ID or array of game IDs
   extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameterWithSelect<UseConditionsQueryFnData, TData> // useQuery params
@@ -44,11 +43,11 @@ type ChainId =
   `gameId` property is not the same as `id`. Each game fetched using `useGames` hook contains the gameId:
 
   ```ts
-  import { useGame } from '@azuro-org/sdk'
+  import { useGames } from '@azuro-org/sdk'
 
-  const { data: games } = useGames()
+  const { data: gamesData } = useGames()
 
-  const gameId = games[0]?.gameId
+  const gameId = gamesData?.games[0]?.gameId
 
   const { data } = useConditions({ gameId })
   ```
@@ -69,6 +68,35 @@ type ChainId =
   **For new bets, titles also are present in the subgraph.**
 </Callout>
 
+<Callout type="warning">
+  **This hook returns everything the game has — `hidden` conditions and outcomes included.**
+
+  It filters nothing. A condition or an outcome the provider has taken off the grid comes back flagged
+  `hidden: true`, so a markets grid rendered straight from `useConditions` shows markets a bettor is not
+  being offered.
+
+  For the list a bettor should see, use
+  [`useActiveConditions`](/hub/apps/sdk/data-hooks/useActiveConditions) or
+  [`useActiveMarkets`](/hub/apps/sdk/data-hooks/useActiveMarkets). They wrap this hook and decide
+  visibility on the **live** value from the feed rather than the fetched one — which is only possible
+  after a condition has been subscribed, so it cannot be decided here, in the fetch.
+
+  Reach for `useConditions` directly when you want the raw feed data: your own `query.select`, your own
+  grouping or prefetching, or a view that deliberately needs the hidden rows.
+</Callout>
+
+<Callout type="info">
+  The query key is `[ 'conditions', chainId, gameId, extended ]`. Nothing about visibility is part of it,
+  so one cache entry serves every view of the same game.
+</Callout>
+
+<Callout type="info">
+  **Settlement is per-outcome.** `ConditionState` is only ever `Active` or `Stopped` — a condition carries
+  no result. Within a single condition, outcomes settle independently: `Won`, `Lost`, `Canceled` (voided,
+  stake refunded) or still `Active`. Read `OutcomeData.state`, or
+  [`isOutcomeSettled`](/hub/apps/toolkit/utils/isOutcomeSettled), for a result.
+</Callout>
+
 ## Return Value
 
 ```ts
@@ -86,7 +114,7 @@ type ConditionDetailedData = {
   isExpressForbidden: boolean
   isPrematchEnabled: boolean
   isLiveEnabled: boolean
-  /** true for stopped secondary conditions; consumed by useConditionState / useConditionsState */
+  /** true for a condition the provider has taken off the grid; optional - the feed doesn't always report it */
   hidden?: boolean
   margin: string
   outcomes: OutcomeData[]
@@ -97,6 +125,7 @@ type ConditionDetailedData = {
       sportId: string
     }
   }
+  /** win-only, condition-level list. NOT the per-outcome source of truth - read `OutcomeData.state` */
   wonOutcomeIds: string[]
   sort: `${number}`
   /** Modern ("5...") conditions only: used for market grouping */
@@ -116,12 +145,8 @@ type OutcomeData = {
 }
 
 enum ConditionState {
-  Created = 'Created',
   Active = 'Active',
   Stopped = 'Stopped',
-  Resolved = 'Resolved',
-  Canceled = 'Canceled',
-  Paused = 'Paused'
 }
 
 enum OutcomeState {
@@ -132,8 +157,23 @@ enum OutcomeState {
   Lost = 'Lost'
 }
 
-// market category, e.g. 'total' | 'handicap' | 'winner' — see getConditionsByGameIds for the full list
-type ConditionCategory = string | null
+type ConditionCategory =
+  | 'correct_score'
+  | 'handicap'
+  | 'handicap_3_way'
+  | 'odd_even'
+  | 'participant_and_total'
+  | 'participant_and_yes_no'
+  | 'participant_slash_participant'
+  | 'players'
+  | 'result'
+  | 'result_or_neither'
+  | 'total'
+  | 'total_3_way'
+  | 'winner'
+  | 'yes_no'
+  | string // extensible — new categories may appear; null when unset
+  | null
 ```
 
 ## Query Options Helper

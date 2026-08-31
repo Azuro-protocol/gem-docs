@@ -13,13 +13,14 @@ For instance, `GameState.Prematch` signifies the condition is currently in prema
   Before utilizing `useGameState`, it is essential to initialize the `FeedSocketProvider` and the `GameUpdatesProvider`:
 
   ```tsx
-    import { ChainProvider, FeedSocketProvider, GameUpdatesProvider, useWatchers } from '@azuro-org/sdk'
+    import { ChainProvider, FeedSocketProvider, GameUpdatesProvider } from '@azuro-org/sdk'
+    import { polygonAmoy } from 'viem/chains'
 
     function Providers(props: { children: React.ReactNode }) {
       const { children } = props
 
       return (
-        <ChainProvider>
+        <ChainProvider initialChainId={polygonAmoy.id}>
           <FeedSocketProvider>
             <GameUpdatesProvider>
               {children}
@@ -38,10 +39,10 @@ We've retrieved markets with outcomes and rendered a button for each outcome and
 
 ```tsx
 import { useGameState } from '@azuro-org/sdk'
-import { GameQuery } from '@azuro-org/toolkit'
+import { type GameData } from '@azuro-org/toolkit'
 
 type ContentProps = {
-  game: NonNullable<GameQuery['game']>
+  game: GameData
 }
 
 const Content: React.FC<ContentProps> = ({ game }) => {

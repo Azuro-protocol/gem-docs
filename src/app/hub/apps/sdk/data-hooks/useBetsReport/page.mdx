@@ -163,10 +163,10 @@ A bet counts as settled once it is `Won`, `Lost`, or cashed out. Two kinds of be
   exactly how unlucky a bettor was with cancellations. A bet cashed out before being voided still
   counts as settled, paid at its cashout amount.
 
-Returns are read from the protocol's recorded payout, with one exception: a winning combo with a voided
-leg that has not been redeemed yet is still credited the voided leg's odds by the indexer, so its
-returns are rebuilt from the surviving legs. See
-[`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) for the measurements behind that.
+Returns are read from the protocol's recorded payout, with one exception: a winning combo's recorded
+payout still credits a voided leg until the bet is redeemed, so its returns are rebuilt from the
+surviving legs. Once redeemed, the recorded payout is the amount actually paid and is used as is. See
+[`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) for how the rebuilt figure is priced.
 
 ### Freebet bets are excluded from ROI
 

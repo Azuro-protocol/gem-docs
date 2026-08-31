@@ -3,6 +3,7 @@ import type { MetaRecord } from 'nextra'
 
 export default {
   'index': 'Overview',
+  'migration-v8': 'Migration to v8',
   'migration-v7': 'Migration to v7',
   'installation': 'Installation',
   'setup': 'Setup',

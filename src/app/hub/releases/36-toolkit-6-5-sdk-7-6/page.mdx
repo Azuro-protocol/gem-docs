@@ -112,12 +112,17 @@ type BetsFilter = {
 ## Combos with a voided leg are no longer credited that leg
 
 A leg of a combo can be voided on its own — the game is cancelled, or the outcome is settled as
-`Canceled` while the rest of its condition resolves normally.
+`Canceled` while the rest of its condition resolves normally. The protocol prices the bet on the
+surviving legs and refunds the rest, but **the recorded payout still credits the voided leg until the bet
+is redeemed**, and only becomes the amount actually paid once the bettor claims. Until then it credits
+the voided leg's odds as if that leg had won, so it overstates what the bettor can claim.
 
 Both the report and the bet list now read what the surviving legs are worth for that shape:
 
 - `getBetsReport` / `calcBetsReport` rebuild `returns` as `stake × calcMinOdds(surviving leg odds)` —
-  which is how a combo is actually priced.
+  which is how a combo is actually priced, the feed's 1% fee removed per leg and re-applied once to the
+  product rather than compounded per leg. A plain product of the surviving odds is not the same figure:
+  it compounds that fee once per leg, so it drifts further from the payout the more legs a combo has.
 - `useBets` applies the same figure to `settledPayout` and to `payout` — the latter matters most, since
   it is what a redeem button shows the bettor.
 
@@ -130,7 +135,8 @@ never describe a different set of legs than the rows above it.
 
 <Callout type="info">
   `useBets` returns a **lower — correct —** `totalOdds`, `possibleWin`, `payout` and `settledPayout` for
-  a combo with a voided leg than it did before.
+  a combo with a voided leg than it did before. A bet with no surviving leg at all now returns the
+  stake, rather than 0.99 of it.
 </Callout>
 
 ## `Bet.settledPayout`

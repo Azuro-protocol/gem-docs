@@ -79,6 +79,15 @@ the socket. Both require the `FeedSocketProvider` and `ConditionUpdatesProvider`
 [AzuroSDKProvider](/hub/apps/sdk/providers/sdk)). On a socket update, each outcome's `state` / `hidden` come
 authoritatively from the update.
 
+<Callout type="warning">
+**Superseded in SDK v8.** `state` and `hidden` are taken only from updates whose **condition** is `Active`:
+an update for an inactive condition reports every one of its outcomes as `Stopped` regardless of what they
+settled to, so per-outcome settlement is re-read from the state endpoint instead. `odds` and `turnover` are
+real in every message and still come from all of them, and outcome visibility is now latched one way. See
+[`useOutcomeState`](/hub/apps/sdk/watch-hooks/useOutcomeState) /
+[`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState).
+</Callout>
+
 ### [useOutcomeState](/hub/apps/sdk/watch-hooks/useOutcomeState)
 
 Track a single outcome and get an `isLocked` flag (`true` when the outcome is not `Active`):

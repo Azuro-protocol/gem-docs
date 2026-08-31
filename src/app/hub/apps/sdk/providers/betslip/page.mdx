@@ -13,7 +13,7 @@ Batch bet currently unavailable!
 Wrap your application in `BetslipProvider`.
 
 ```tsx {1, 20, 22}
-import { ChainProvider, LiveProvider, SocketProvider, BetslipProvider } from '@azuro-org/sdk'
+import { ChainProvider, FeedSocketProvider, GameUpdatesProvider, ConditionUpdatesProvider, BetslipProvider } from '@azuro-org/sdk'
 import { WagmiProvider, createConfig } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { polygonAmoy } from 'viem/chains'
@@ -123,7 +123,7 @@ addItem({
   outcomeId: '...',
   gameId: '...',
   isExpressForbidden: true,
-  marketName: 'FTB',
+  marketName: 'Full Time Result',
   selectionName: '1',
 })
 ```
@@ -182,7 +182,7 @@ type DetailedBetslipContextValue = {
 }
 
 enum BetslipDisableReason {
-  ConditionState = 'ConditionState', // one or more selected conditions or outcomes have been removed or suspended
+  ConditionState = 'ConditionState', // one or more selected conditions or outcomes are no longer bettable (stopped, hidden or already settled)
   BetAmountGreaterThanMaxBet = 'BetAmountGreaterThanMaxBet', // bet amount exceeds max bet
   BetAmountLowerThanMinBet = 'BetAmountLowerThanMinBet', // bet amount lower than min bet
   ComboWithForbiddenItem = 'ComboWithForbiddenItem', // one or more conditions can't be used in combo
