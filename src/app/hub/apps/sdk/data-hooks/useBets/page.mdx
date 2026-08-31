@@ -200,6 +200,22 @@ type Bet = {
   returned.
 </Callout>
 
+<Callout type="warning">
+  **Combo odds are re-priced, so their values change.** The feed applies its fee to every outcome's
+  odds, and a combo is priced by removing that fee per leg and applying it **once** to the product —
+  which is what [`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds) does. The subgraph records the
+  plain product instead, compounding the fee once per leg, so `totalOdds`, `possibleWin`, `payout` and
+  `settledPayout` for an unredeemed combo now report **higher** figures than before, by more the more
+  legs the bet has. They are the correct ones.
+
+  This applies to **every** unredeemed combo, not only one with a voided leg.
+
+  Two shapes are deliberately left as they were: a combo placed before the fee existed (its leg odds are
+  raw, so the plain product is already right), and a bet that has been redeemed (its recorded payout is
+  the amount actually paid on chain). A cashed-out bet is never re-priced either — it was paid at the
+  price the bettor took, so read `cashout` for what it returned.
+</Callout>
+
 <Callout type="info">
   **`payout` vs `settledPayout`**
 
@@ -208,9 +224,9 @@ type Bet = {
   redemption. Use `settledPayout` for historical and aggregate views; use `payout` only to gate a redeem
   action.
 
-  Both are read from the protocol's recorded payout, with one exception: a **winning combo with a voided
-  leg that has not been redeemed yet**. The recorded payout still credits the voided leg until the bet is
-  redeemed, so it overstates what the bettor can claim; both figures are rebuilt from the surviving legs
-  instead, at the same `totalOdds` this hook already reports. Once redeemed, the recorded payout is the
-  amount actually paid and is used as is.
+  Both are read from the protocol's recorded payout, with one exception: a **winning combo that has not
+  been redeemed yet**. Its recorded payout compounds the feed's fee once per leg, and still credits any
+  voided leg as if it had won; both figures are rebuilt from the surviving legs instead, at the same
+  `totalOdds` this hook already reports. Once redeemed, the recorded payout is the amount actually paid
+  and is used as is.
 </Callout>

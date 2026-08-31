@@ -11,16 +11,19 @@ Within a single condition, outcomes can now settle independently: one Won, one L
 stake refunded) and one still taking bets — all at the same time. The old model could not express that.
 
 Combo pricing was the sharpest edge of it: a voided leg was still credited into the combo's odds, so a bet
-containing one reported a `possibleWin` the protocol would never pay. That part already landed in
-[Toolkit v6.5 / SDK v7.6](/hub/releases/36-toolkit-6-5-sdk-7-6). What this release changes is the model
-itself, and with it everything that read resolution off a condition.
+containing one reported a `possibleWin` the protocol would never pay. A first fix landed in
+[Toolkit v6.5 / SDK v7.6](/hub/releases/36-toolkit-6-5-sdk-7-6); this release finishes it, because the
+same figures were wrong for combos with **no** voided leg too — see
+[Combo pricing](#combo-pricing-changes-values). What else this release changes is the model itself, and
+with it everything that read resolution off a condition.
 
 <Callout type="warning">
   **Several SDK changes produce no compile error.** `useActiveConditions` / `useActiveMarkets` now drop
   hidden conditions and outcomes by default while `useConditions` returns everything, a hidden market is
   revealed only by an update that reports it visible, per-outcome state is no longer taken from every
-  socket message, and a voided combo leg reports `isWin: false` instead of `isWin: null`. A green type
-  check does not mean the migration is done — see the
+  socket message, a voided combo leg reports `isWin: false` instead of `isWin: null`, **every
+  unredeemed combo reports different odds and payout figures**, and `useBetsSummaryBySelection` returns a
+  differently keyed map. A green type check does not mean the migration is done — see the
   [SDK v8 Migration Guide](/hub/apps/sdk/migration-v8).
 </Callout>
 
@@ -33,6 +36,16 @@ itself, and with it everything that read resolution off a condition.
   rendered every outcome as lost
 - New [`isOutcomeSettled(state)`](/hub/apps/toolkit/utils/isOutcomeSettled) — `true` for `Won | Lost | Canceled`,
   `false` for `Active | Stopped`
+- New [`calcComboOdds({ odds, createdAt })`](/hub/apps/toolkit/utils/calcComboOdds) — a combo's total odds,
+  priced the way the protocol prices them, for the rules in force when the bet was placed. This is now the
+  one place that decision lives; use it instead of multiplying leg odds or calling `calcMinOdds` for a bet
+  that already exists
+- New `MARGIN_APPLIED_AT` — unix seconds, when the feed started applying its fee to every outcome's odds.
+  Exported because reconstructing any historical combo figure needs it
+- `BetsReportEntry` gained a **required** `createdAt`. Only affects code that builds entries itself and calls
+  `calcBetsReport` directly — [`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) fills it in. It is
+  required rather than optional because no default is safe: defaulting either way silently mis-prices one
+  era of bets
 - `OutcomeResult` (`Won | Lost | Canceled`) is now exported from the package root
 - `BetFragment` / `BetsQuery`: `selections[].outcome` now includes `result?: OutcomeResult | null` — the
   authoritative per-outcome settlement signal for a bet
@@ -76,6 +89,8 @@ itself, and with it everything that read resolution off a condition.
 - [`useBets`](/hub/apps/sdk/data-hooks/useBets): a voided combo leg is now
   `{ isWin: false, isLose: false, isCanceled: true }` — it used to be `{ isWin: null, isLose: null, isCanceled: false }`,
   indistinguishable from still-pending
+- [`useBets`](/hub/apps/sdk/data-hooks/useBets): `totalOdds`, `possibleWin`, `payout` and `settledPayout`
+  change value for **every** unredeemed combo — see [Combo pricing](#combo-pricing-changes-values)
 - [`useConditionState`](/hub/apps/sdk/watch-hooks/useConditionState) /
   [`useConditionsState`](/hub/apps/sdk/watch-hooks/useConditionsState) return `ConditionState.Stopped`
   instead of the removed `ConditionState.Removed` when a condition is absent from the feed
@@ -84,6 +99,53 @@ itself, and with it everything that read resolution off a condition.
   `OutcomeState.Canceled` when an outcome is absent from the feed — `OutcomeState.Canceled` now strictly
   means voided, with money attached
 - `useActiveMarket` no longer selects a market whose condition is `Active` but all of whose outcomes are settled
+- [`useBetsSummaryBySelection`](/hub/apps/sdk/data-hooks/useBetsSummaryBySelection) keys its map by
+  `` `${conditionId}-${outcomeId}` `` instead of `outcomeId`. An outcome is identified by its condition
+  *and* its `outcomeId`: `v5` markets number their outcomes per condition from `1` up, so the same low ids
+  recur in every `v5` condition and collide with the ids `legacy` markets take from the shared dictionaries
+  namespace, while a re-offered `legacy` market repeats its outcomes under a second `conditionId`. Keyed by
+  `outcomeId` alone, those selections shared one entry and each read back the sum. The map stays
+  `Record<string, string>`, so an unmigrated lookup compiles, misses, and renders nothing; this is the
+  same key [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) and
+  [`useOdds`](/hub/apps/sdk/watch-hooks/useOdds) already use
+
+## Combo pricing changes values
+
+The feed applies its fee to **every outcome's** odds. A combo is therefore priced by removing that fee from
+each leg, multiplying, and applying it **once** to the product:
+
+```
+ceil(1.5 / 0.99) * ceil(2 / 0.99) * 0.99  =  3.05
+1.5 * 2                                   =  3.00   ← the plain product
+```
+
+The subgraph records the plain product — for a combo's `odds`, `settledOdds`, `potentialPayout` and, until
+the bet is redeemed, its `payout`. So all of those **compound the fee once per leg** and understate a combo
+by more the more legs it has. They are also never reduced when one of its legs is voided.
+
+From this release, `useBets` and `getBetsReport` price every unredeemed combo through
+[`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds). Two consequences to plan for:
+
+- **`totalOdds`, `possibleWin`, `payout` and `settledPayout` go up** for unredeemed combos. Anything that
+  snapshots, caches or reconciles these numbers will see a diff. The new figures are the correct ones.
+- This is **wider than the v6.5 / v7.6 fix**, which only rebuilt a combo that had a voided leg. The
+  compounding applies to all of them.
+
+Three shapes are deliberately unchanged:
+
+| Shape | Why |
+|---|---|
+| A **redeemed** bet | Its recorded payout is the amount actually paid on chain. Truth beats any reconstruction. |
+| A combo placed before `MARGIN_APPLIED_AT` | Its leg odds are raw, so the plain product already *is* the right price. Re-pricing it would overstate the payout by roughly `(1/0.99)^(legs-1)`. |
+| A **cashed-out** bet | It was paid at the price the bettor took, so its odds say nothing about what it returned. Read `cashout`. |
+
+Singles are unaffected in either era: one leg means the fee is applied once already.
+
+<Callout type="warning">
+  **If you reconstruct payouts yourself, you need the bet's creation time.** The fee has a start date, so
+  leg odds alone are not enough to price a combo — the same legs price differently either side of
+  `MARGIN_APPLIED_AT`. Pass the real `createdAt`; do not default it.
+</Callout>
 
 ## The pattern to build against
 

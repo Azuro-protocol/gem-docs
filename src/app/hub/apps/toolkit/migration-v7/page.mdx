@@ -243,6 +243,42 @@ isOutcomeSettled(OutcomeState.Stopped)  // false
 One predicate for "does this outcome still have a result pending?". See the
 [full docs](/hub/apps/toolkit/utils/isOutcomeSettled).
 
+### `calcComboOdds`
+
+A combo's total odds, priced the way the protocol prices them, for the rules in force when the bet was
+placed. Use it for any bet that already exists; keep
+[`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds) for the minimum odds to place a new one.
+
+```ts
+import { calcComboOdds, MARGIN_APPLIED_AT } from '@azuro-org/toolkit'
+
+// same legs, different eras - the feed's fee has a start date
+calcComboOdds({ odds: [ 2, 1.75 ], createdAt: MARGIN_APPLIED_AT })      // fee removed per leg
+calcComboOdds({ odds: [ 2, 1.75 ], createdAt: MARGIN_APPLIED_AT - 1 })  // plain product
+```
+
+Leave voided legs out of the array. An empty array prices at `1`, so a bet with nothing left standing
+returns its stake. Full details on [the `calcComboOdds` page](/hub/apps/toolkit/utils/calcComboOdds).
+
+### `MARGIN_APPLIED_AT`
+
+Unix seconds, the moment the feed started applying its fee to every outcome's odds. Exported because
+reconstructing any historical combo figure needs it.
+
+### `BetsReportEntry.createdAt` is required
+
+Only affects code that builds entries itself and calls `calcBetsReport` directly —
+[`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) fills it in. Required rather than optional because
+no default is safe: defaulting either way silently mis-prices one era of bets.
+
+```diff
+  const entry: BetsReportEntry = {
+    id: bet.id,
++   createdAt: +bet.createdBlockTimestamp,
+    ...
+  }
+```
+
 ### `OutcomeResult` exported from the package root
 
 ```ts
@@ -423,20 +459,29 @@ const totalOdds = calcMinOdds({ odds: legs.map(leg => +leg.odds), slippage: 0 })
 
 **After:**
 ```ts
-import { calcMinOdds, OutcomeResult } from '@azuro-org/toolkit'
+import { calcComboOdds, OutcomeResult } from '@azuro-org/toolkit'
 
 // `legs` are selections from the bets query, whose outcome carries `result`
 const payingLegs = legs.filter(leg => leg.outcome.result !== OutcomeResult.Canceled)
 
-// an all-void combo returns the stake: odds are 1
-const totalOdds = payingLegs.length
-  ? calcMinOdds({ odds: payingLegs.map(leg => +leg.odds), slippage: 0 })
-  : 1
+// `calcComboOdds` answers 1 for an empty list, so an all-void combo returns the stake
+const totalOdds = calcComboOdds({
+  odds: payingLegs.map(leg => +leg.odds),
+  createdAt: +bet.createdAt,
+})
 ```
 
 <Callout type="warning">
   Getting this wrong overstates the payout. A combo whose voided leg is still multiplied into the total
   reports a potential win the protocol will never pay.
+</Callout>
+
+<Callout type="warning">
+  **Use [`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds), not `calcMinOdds`, to price a bet that
+  already exists.** The feed's fee has a start date, and a combo placed before it is priced as the plain
+  product of its legs — `calcMinOdds` always assumes the fee, so it overstates an older bet by roughly
+  `(1/0.99)^(legs-1)`. `calcComboOdds` picks the rule from `createdAt`. Keep `calcMinOdds` for the
+  minimum odds to *place* a new bet with, where slippage applies.
 </Callout>
 
 ---

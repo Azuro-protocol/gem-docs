@@ -19,8 +19,8 @@ Lost, Canceled (voided) or still live — and the SDK now reports them that way.
   and require the feed providers; `useActiveConditions` no longer accepts `query.select`;
   `OutcomesStateData.statesMap` holds a different value type
 - **Changed without a type error**: which hooks filter `hidden` rows, when a hidden market is revealed,
-  how far per-outcome state from the socket is trusted, voided combo legs, and condition/outcome state
-  fallbacks
+  how far per-outcome state from the socket is trusted, voided combo legs, condition/outcome state
+  fallbacks, and **the key of the map `useBetsSummaryBySelection` returns**
 
 <Callout type="warning">
   **Read the "Behaviour changes with no compile error" section — it is the one that will bite you.**
@@ -28,8 +28,8 @@ Lost, Canceled (voided) or still live — and the SDK now reports them that way.
   Several of these changes type-check perfectly and silently alter what your UI renders: the "active"
   hooks drop hidden conditions and outcomes by default while `useConditions` keeps them, a hidden market
   is now revealed only by an update that says so, per-outcome state is no longer read from every socket
-  message, and a voided combo leg reports `isWin: false` instead of `isWin: null`. A green `tsc` does not
-  mean you are done.
+  message, a voided combo leg reports `isWin: false` instead of `isWin: null`, and
+  `useBetsSummaryBySelection` is keyed differently. A green `tsc` does not mean you are done.
 </Callout>
 
 <Callout type="info">
@@ -383,15 +383,29 @@ that is still pending reports `isWin: null` / `isLose: null` with `isCanceled: f
   ```
 </Callout>
 
-### 7. Combo `totalOdds`, `possibleWin` and `payout` — already changed in v7.6
+### 7. Combo `totalOdds`, `possibleWin` and `payout` change for **every** unredeemed combo
 
-A voided leg is refunded, so it no longer multiplies into the combo's odds, and `useBets` excludes it.
+Two separate corrections land on these four figures. Neither is an API change — nothing to update — but
+screenshots, snapshots and any figures you cache or reconcile against will move.
 
-If you are coming from **v7.6 or later** this already happened there and nothing moves again in v8 — see
-[Toolkit v6.5 / SDK v7.6](/hub/releases/36-toolkit-6-5-sdk-7-6). If you are coming from **earlier than
-v7.6**, combos containing a voided leg return **different — lower, and correct —** `totalOdds`,
-`possibleWin`, `payout` and `settledPayout`. That is a data change, not an API change: nothing to update,
-but screenshots, snapshots and any figures you cache or reconcile against will move.
+**A voided leg no longer multiplies into the odds.** It is refunded, so `useBets` excludes it. If you are
+coming from **v7.6 or later** this already happened there; from **earlier**, combos containing a voided leg
+now report **lower, correct** figures.
+
+**A combo is re-priced, voided leg or not.** This is new in v8. The feed applies its fee to every outcome's
+odds, and a combo is priced by removing that fee per leg and applying it **once** to the product. The
+subgraph records the plain product instead, compounding the fee once per leg — so for an unredeemed combo
+the four figures now report **higher, correct** values, by more the more legs the bet has. See
+[Combo pricing](/hub/releases/37-toolkit-v7-sdk-v8#combo-pricing-changes-values).
+
+Three shapes are deliberately unchanged: a **redeemed** bet (its recorded payout is what was actually
+paid), a combo placed before `MARGIN_APPLIED_AT` (its leg odds are raw, so the plain product is already
+right), and a **cashed-out** bet (paid at the price the bettor took — read `cashout`). Singles are
+unaffected either way.
+
+If you reconstruct any of these yourself, use
+[`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds) and pass the bet's real `createdAt` — the same
+legs price differently either side of the fee's start date.
 
 A combo whose every leg was voided has odds of `1`: the stake is simply returned. The same holds for any
 bet the protocol canceled outright, single or combo — `totalOdds` is `1` for it, and `possibleWin` is the
@@ -461,6 +475,53 @@ one component instance across conditions or outcomes is therefore safe.
 It matters most for `isHidden`: visibility is latched, so a reveal the previous item had earned used to
 carry over to the new one permanently. If your app worked around that — a `key` to force a remount, or a
 reset of your own — you can drop it.
+
+### 12. `useBetsSummaryBySelection` is keyed by condition and outcome
+
+The map [`useBetsSummaryBySelection`](/hub/apps/sdk/data-hooks/useBetsSummaryBySelection) returns was keyed
+by `outcomeId` alone. It is now keyed by `` `${conditionId}-${outcomeId}` ``.
+
+An outcome is identified by its condition *and* its `outcomeId` — that pair is what the protocol keys an
+outcome on. On its own an `outcomeId` is not unique across a game, for two independent reasons:
+
+- **`v5` markets number their outcomes per condition**, from `1` up. Every `v5` condition therefore carries
+  the same low ids, so outcome `1` of one condition and outcome `1` of another are unrelated selections —
+  and both collide with the outcome `1` a `legacy` market takes from the shared
+  [dictionaries](/knowledge-hub/how-azuro-works/components/dictionaries) namespace.
+- **`legacy` markets draw their ids from that dictionary**, so an id there always denotes the same
+  selection. But a market that is suspended and re-offered comes back as a *second* condition carrying the
+  same outcomes, so one game still shows the id twice.
+
+Keyed by `outcomeId` alone, every one of these shared a single entry: their profit and loss were summed
+together and each of them read the total back — the wrong figure on all of them, on the results view of a
+finished game.
+
+**Before (v7.x):**
+```tsx
+<Outcome summary={betsSummary?.[outcome.outcomeId]} />
+```
+
+**After (v8.0.0):**
+```tsx
+<Outcome summary={betsSummary?.[`${outcome.conditionId}-${outcome.outcomeId}`]} />
+```
+
+<Callout type="warning">
+  **This does not fail to compile.** The map is `Record<string, string>` before and after, so the old
+  lookup type-checks, misses, and yields `undefined` — the summary just stops rendering. Grep for every
+  read of this hook's result rather than waiting for `tsc` to find them.
+</Callout>
+
+This is the same key [`useOutcomesState`](/hub/apps/sdk/watch-hooks/useOutcomesState) and
+[`useOdds`](/hub/apps/sdk/watch-hooks/useOdds) already use, so one helper can address all three maps:
+
+```ts
+import { type MarketOutcome } from '@azuro-org/toolkit'
+
+export const getOutcomeKey = ({ conditionId, outcomeId }: Pick<MarketOutcome, 'conditionId' | 'outcomeId'>) => (
+  `${conditionId}-${outcomeId}`
+)
+```
 
 ---
 
@@ -623,6 +684,9 @@ grep -rn "ConditionUpdatesProvider\|FeedSocketProvider" src/
 
 # condition-level result derivation, removed in toolkit v7
 grep -rn "isWon" src/
+
+# every read of the useBetsSummaryBySelection map - its key gained the conditionId
+grep -rn "useBetsSummaryBySelection" src/
 ```
 
 ### Step 3: Fix the `useResolvedMarkets` call sites
@@ -658,7 +722,14 @@ check **before** the null check.
 `totalOdds` and `possibleWin` returned different values for combos with a voided leg from v7.6 on. If you compare
 those against your own backend figures, snapshot tests, or cached values, refresh them.
 
-### Step 7: Test
+### Step 7: Re-key every read of `useBetsSummaryBySelection`
+
+Trace the map this hook returns down through your component tree — it is usually passed as a prop several
+levels before anything indexes it — and replace `map[outcomeId]` with
+`` map[`${conditionId}-${outcomeId}`] ``. Nothing here fails to compile, and a missed site renders no
+summary at all rather than a wrong one, so the grep is the only thing that will find them.
+
+### Step 8: Test
 
 1. A live game's market grid — hidden markets should be absent
 2. A finished game — with `includeHidden: true`, every market is back, each outcome labelled Won / Lost /
@@ -674,6 +745,9 @@ those against your own backend figures, snapshot tests, or cached values, refres
 8. A pending bet — still reads as pending, not as refunded
 9. A component instance reused across outcomes or conditions — it must show the new item's lock and
    visibility, never the previous one's
+10. A finished game you have settled bets on — every bet's profit or loss appears on the selection it was
+    placed on, and on no other. Two markets of the same game that share an `outcomeId` must show their own
+    figures, not each other's sum
 
 ---
 
@@ -703,6 +777,7 @@ those against your own backend figures, snapshot tests, or cached values, refres
 - [ ] Check `isCanceled` before `isWin === null` everywhere
 - [ ] Stop treating `OutcomeState.Canceled` as "missing from feed"
 - [ ] Stop treating `ConditionState.Stopped` as identical to the old `Removed` for hiding — use `isHidden`
+- [ ] Re-key every read of the `useBetsSummaryBySelection` map to `` `${conditionId}-${outcomeId}` ``
 - [ ] Re-verify combo `totalOdds` / `possibleWin` against your own figures
 - [ ] Collapse separate "active" and "resolved" market views into one per-outcome grid
 
