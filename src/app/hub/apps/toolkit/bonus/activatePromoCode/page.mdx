@@ -1,0 +1,200 @@
+import { Callout } from 'components'
+
+# activatePromoCode
+
+Activates a promo code for a bettor and returns the freebet it grants.
+Throws a `PromoCodeError` when the code is rejected.
+
+<Callout type="info">
+  You can find more information [Here](/hub/apps/guides/freebets/promo-codes).
+</Callout>
+
+#### Usage
+
+```ts
+import { activatePromoCode, isPromoCodeError } from '@azuro-org/toolkit'
+
+try {
+  const freebet = await activatePromoCode({
+    chainId: 137,
+    code: 'SUMMER26',
+    account: '0x...', // bettor's address
+    affiliate: '0x...', // your affiliate address
+  })
+}
+catch (error) {
+  if (isPromoCodeError(error) && error.code === 'bonus.promo_code_already_activated') {
+    // tell the bettor the code was already used
+  }
+}
+```
+
+#### Props
+
+```ts
+type ActivatePromoCodeParams = {
+  chainId: ChainId
+  code: string // trimmed and upper-cased before sending, up to 32 characters
+  account: Address // bettor's address
+  affiliate: Address // your affiliate address, must equal the address of the code's pool
+}
+```
+
+```ts
+type ChainId =
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+  | 100     // Gnosis
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 97      // BSC Testnet
+  | 56      // BSC
+
+import { type Address } from 'viem'
+```
+
+<Callout type="info">
+  `chainId` only selects the API environment. Development chains (Polygon Amoy, Chiliz Spicy, Base Sepolia, BSC Testnet)
+  call `https://dev-api.onchainfeed.org/api/v1/public`, every other chain calls `https://api.onchainfeed.org/api/v1/public`.
+
+  The `chainId` of the returned freebet is the freebet's own chain, taken from the pool the code pays from.
+  It can differ from the `chainId` you passed: activating a code that belongs to a Base pool with `chainId: 137`
+  returns a freebet with `chainId: 8453`.
+</Callout>
+
+#### Return Value
+
+```ts
+type ActivatePromoCodeResult = Freebet
+```
+
+`amount` is in tokens (for example `"5"`), and `expiresAt`, `usedAt` and `createdAt` are timestamps in milliseconds.
+
+```ts
+enum BonusType {
+  FreeBet = 'FreeBet',
+}
+
+enum BonusStatus {
+  Used = 'Used',
+  Available = 'Available',
+}
+
+enum FreebetType {
+  OnlyWin = 'OnlyWin',
+  AllWin = 'AllWin',
+}
+
+enum BetRestrictionType {
+  Ordinar = 'Ordinar',
+  Combo = 'Combo',
+}
+
+enum EventRestrictionState {
+  Live = 'Live',
+  Prematch = 'Prematch',
+}
+
+type BonusBase = {
+  id: string
+  type: BonusType
+  amount: string
+  status: BonusStatus
+  chainId: ChainId
+  expiresAt: number
+  usedAt: number
+  createdAt: number
+  publicCustomData: Record<string, string> | null
+}
+
+type Freebet = {
+  type: BonusType.FreeBet
+  params: {
+    isBetSponsored: boolean
+    isFeeSponsored: boolean
+    isSponsoredBetReturnable: boolean
+  }
+  settings: {
+    type: FreebetType
+    feeSponsored: boolean
+    betRestriction: {
+      type: BetRestrictionType | undefined
+      minOdds: string
+      maxOdds: string | undefined
+    }
+    eventRestriction: {
+      state: EventRestrictionState | undefined
+      eventFilter?: {
+        exclude: boolean
+        filter: [
+          {
+            sportId: string
+            leagues: string[]
+            markets: {
+              marketId: number
+              gamePeriodId: number
+              gameTypeId: number
+            }[]
+          }
+        ]
+      }
+    }
+    periodOfValidityMs: number
+  }
+} & BonusBase
+```
+
+#### Errors
+
+Every non-OK HTTP response is thrown as a `PromoCodeError`. Branch on `code`, never on `message`.
+
+```ts
+class PromoCodeError extends Error {
+  name: 'PromoCodeError'
+  code: PromoCodeErrorCode
+  status?: number // HTTP status of the response, when there was one
+}
+```
+
+```ts
+type PromoCodeErrorCode =
+  | 'bonus.promo_code_not_found'
+  | 'bonus.promo_code_deactivated'
+  | 'bonus.promo_code_expired'
+  | 'bonus.promo_code_unavailable'
+  | 'bonus.promo_code_affiliate_mismatch'
+  | 'bonus.promo_code_already_activated'
+  | 'bonus.promo_code_limit_reached'
+  | 'bonus.promo_code_busy'
+  | 'bonus.activate_promo_code_error'
+  | 'unknown'
+```
+
+| Code | When it happens | Suggested message |
+|---|---|---|
+| `bonus.promo_code_not_found` | No such code. Also any code that cannot exist: characters other than `A-Z`, `0-9`, `-`, `_` | The code doesn't exist |
+| `bonus.promo_code_deactivated` | The operator deactivated the code | The code is no longer active |
+| `bonus.promo_code_expired` | The code's expiry time has been reached | The code has expired |
+| `bonus.promo_code_unavailable` | The code's product or operator is not active | The code is not available right now |
+| `bonus.promo_code_affiliate_mismatch` | The code's pool address is not the `affiliate` you sent | The code is not valid on this site |
+| `bonus.promo_code_already_activated` | This address already activated this code | The code was already used |
+| `bonus.promo_code_limit_reached` | The code has used up its activation limit | All activations of this code are used up |
+| `bonus.promo_code_busy` | Another activation of the same code is being processed. Safe to retry | Try again in a moment |
+| `bonus.activate_promo_code_error` | The activation failed on the server for another reason | Something went wrong, try again later |
+| `unknown` | Anything else: input rejected by validation (an empty code, a code longer than 32 characters, a malformed address), a server error, a reason this toolkit version does not know, or a response that cannot be read | Generic error |
+
+For `unknown`, `status` and the server's message are kept on the error. Limit the input to 32 characters,
+longer codes are rejected by validation and come back as `unknown`.
+
+When several reasons apply, the server reports the first one in this order: deactivated, expired, unavailable,
+affiliate mismatch, already activated, limit reached.
+
+`isPromoCodeError(error)` is a type guard that checks `name === 'PromoCodeError'` and a known `code` instead of using `instanceof`,
+so it keeps working when two copies of the toolkit end up in one bundle.
+
+<Callout type="warning">
+  A network failure and a successful response whose body cannot be read are **not** a `PromoCodeError`.
+  They reject with the underlying error, so `isPromoCodeError` returns `false` for them. Treat them as a generic failure.
+</Callout>
