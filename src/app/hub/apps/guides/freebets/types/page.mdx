@@ -108,6 +108,44 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
   </Tabs.Tab>
 </Tabs>
 
+### PromoCodeStatus
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Value | Description |
+|-------|-------------|
+| **Active** | The promo code has not been deactivated. Expiry and usage are not statuses: an expired or used-up code is still `Active` |
+| **Deactivated** | The promo code was deactivated. This is final |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    enum PromoCodeStatus {
+      Active = 'Active',
+      Deactivated = 'Deactivated'
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### BonusSource
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Value | Description |
+|-------|-------------|
+| **All** | Bonuses from every source (default) |
+| **Manual** | Bonuses granted manually, not through a promo code |
+| **PromoCode** | Bonuses issued by activating a promo code |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    enum BonusSource {
+      All = 'All',
+      Manual = 'Manual',
+      PromoCode = 'PromoCode'
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
 ## Common types
 
 ### FreebetSettings
@@ -308,6 +346,28 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
   </Tabs.Tab>
 </Tabs>
 
+### ActivatePromoCodeDto
+The response is one [ClientBonus](#clientbonus).
+
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **code** | string | The promo code. Trimmed and upper-cased by the server. `Max length 32` | Yes |
+| **bettorAddress** | string | Address of the bettor who activates the code | Yes |
+| **affiliate** | string | Your affiliate address. Must equal the address of the code's pool | Yes |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    interface ActivatePromoCodeDto {
+      code: string;
+      bettorAddress: string;
+      affiliate: string;
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
 ## Private types
 
 ### CreateFreebetOfferDto
@@ -357,6 +417,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
 | **offer** | [OfferResponse](#offerresponse) | Offer model | Yes |
 | **pool** | [PoolResponse](#poolresponse) | Pool model | Yes |
 | **operator** | [OperatorResponse](#operatorresponse) | Operator model | Yes |
+| **isPromoCode** | boolean | Whether the bonus was issued by activating a promo code rather than granted manually | No |
+| **promoCode** | string | The promo code that issued the bonus. Absent for manual bonuses | No |
   </Tabs.Tab>
   <Tabs.Tab>
     ```typescript
@@ -378,6 +440,8 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
       offer: OfferResponse;
       pool: PoolResponse;
       operator: OperatorResponse;
+      isPromoCode?: boolean;
+      promoCode?: string;
     }
     ```
   </Tabs.Tab>
@@ -684,6 +748,135 @@ https://api.onchainfeed.org/api/v1/public/gateway/docs
     ```typescript
     interface BonusStatisticsByPoolResponse {
       statistics: BonusStatisticsByPoolItem[];
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### CreatePromoCodeDto
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **code** | string | The promo code. Trimmed and upper-cased by the server; `A-Z`, `0-9`, `-`, `_`, 1 to 32 characters; must be unique | Yes |
+| **offerId** | string | ID of the freebet offer the code issues | Yes |
+| **poolId** | string | ID of the pool the freebets are paid from | Yes |
+| **amount** | string | Amount per activation in the base units of the pool's token, e.g. `"5000000"` is 5 USDT on a 6-decimal token. Copied as is into every freebet the code issues | Yes |
+| **maxActivations** | number | Activation limit, a whole number of at least 1 | Yes |
+| **expiresAt** | string | Date-time (ISO 8601) at which the code stops working. Non-inclusive: from that instant on, the code can no longer be activated. Must be in the future | Yes |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    interface CreatePromoCodeDto {
+      authId: string;
+      code: string;
+      offerId: string;
+      poolId: string;
+      amount: string;
+      maxActivations: number;
+      expiresAt: string;
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### UpdatePromoCodeDto
+Send only the fields you change. `code` cannot be changed. After the first activation `offerId`, `poolId` and `amount` are locked, and `maxActivations` cannot go below `activationsCount`.
+
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | ID of the promo code | Yes |
+| **offerId** | string | ID of the freebet offer the code issues | No |
+| **poolId** | string | ID of the pool the freebets are paid from | No |
+| **amount** | string | Amount per activation in the base units of the pool's token, e.g. `"5000000"` is 5 USDT on a 6-decimal token. Copied as is into every freebet the code issues | No |
+| **maxActivations** | number | Activation limit, a whole number of at least 1 | No |
+| **expiresAt** | string | Date-time (ISO 8601) at which the code stops working. Non-inclusive: from that instant on, the code can no longer be activated. Must be in the future | No |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    interface UpdatePromoCodeDto {
+      authId: string;
+      id: string;
+      offerId?: string;
+      poolId?: string;
+      amount?: string;
+      maxActivations?: number;
+      expiresAt?: string;
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### DeactivatePromoCodeDto
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | ID of the promo code to deactivate | Yes |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    interface DeactivatePromoCodeDto {
+      authId: string;
+      id: string;
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### PromoCodeResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **id** | string | The ID of the promo code | Yes |
+| **code** | string | The promo code, trimmed and upper-cased | Yes |
+| **productId** | string | The ID of the product | Yes |
+| **operatorId** | string | The ID of the operator | Yes |
+| **offerId** | string | The ID of the freebet offer the code issues | Yes |
+| **poolId** | string | The ID of the pool the freebets are paid from | Yes |
+| **amount** | string | Amount per activation in the base units of the pool's token, e.g. `"5000000"` is 5 USDT on a 6-decimal token. Copied as is into every freebet the code issues | Yes |
+| **maxActivations** | number | Activation limit | Yes |
+| **activationsCount** | number | Number of freebets issued by the code so far | Yes |
+| **expiresAt** | Date | Date-time (ISO 8601) at which the code stops working. Non-inclusive: from that instant on, the code can no longer be activated | Yes |
+| **status** | [PromoCodeStatus](#promocodestatus) | The status of the promo code | Yes |
+| **createdAt** | Date | The creation date of the promo code | Yes |
+| **offer** | [OfferResponse](#offerresponse) | Offer model | Yes |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    interface PromoCodeResponse {
+      id: string;
+      code: string;
+      productId: string;
+      operatorId: string;
+      offerId: string;
+      poolId: string;
+      amount: string;
+      maxActivations: number;
+      activationsCount: number;
+      expiresAt: Date;
+      status: PromoCodeStatus;
+      createdAt: Date;
+      offer: OfferResponse;
+    }
+    ```
+  </Tabs.Tab>
+</Tabs>
+
+### PromoCodesResponse
+<Tabs items={['Schema', 'JS']}>
+  <Tabs.Tab>
+| Field | Type | Description | Required |
+|-------|------|-------------|----------|
+| **promoCodes** | [PromoCodeResponse](#promocoderesponse)[] | List of promo codes, newest first | Yes |
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ```typescript
+    interface PromoCodesResponse {
+      promoCodes: PromoCodeResponse[];
     }
     ```
   </Tabs.Tab>

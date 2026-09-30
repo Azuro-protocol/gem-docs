@@ -1,3 +1,5 @@
+import { Callout } from 'components'
+
 # Third-Party integration overview
 
 You can manage the configuration and issuance of free bets through our admin panel. Additionally, we provide a special API that allows for third-party integration with your systems without the need to use our admin panel.
@@ -119,7 +121,15 @@ curl -X 'GET' \
 ### Get bonuses
 **Endpoint:** `/api/v1/public/bonus/external/list`
 
+**Parameters:**
+- `status` (optional): `Available` or `Used`
+- `source` (optional): which issuance source to list, `All`, `Manual` or `PromoCode` ([BonusSource](/hub/apps/guides/freebets/types#bonussource)). `All` is the default when omitted
+- `page` (optional): 1-based page number, at most 10000
+- `perPage` (optional): number of bonuses per page, from 1 to 200. When omitted, the list is not paginated and returns every bonus
+
 **Response:** [BonusesResponse](/hub/apps/guides/freebets/types#bonusesresponse)
+
+Each bonus carries `isPromoCode` and `promoCode`: whether it was issued by activating a promo code, and which code. See [BonusResponse](/hub/apps/guides/freebets/types#bonusresponse).
 
 **Example:**
 ```bash
@@ -128,6 +138,131 @@ curl -X 'GET' \
   -H 'accept: application/json' \
   -H 'x-bonus-api-token: api_token'
 ```
+
+Only the bonuses issued by promo codes:
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/list?source=PromoCode' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+## Promo codes
+
+A promo code grants a freebet from an offer and a pool to every bettor who activates it. You create and manage codes with the methods below; bettors activate them on the public endpoint, see the [Promo codes guide](/hub/apps/guides/freebets/promo-codes).
+
+<Callout type="warning">
+`amount` is in the base units of the pool's token: `"5000000"` is 5 USDT on a 6-decimal token. It is copied as is into every freebet the code issues.
+</Callout>
+
+### Create promo code
+**Endpoint:** `POST /api/v1/public/bonus/external/promo-code/create`
+
+**Request:** [CreatePromoCodeDto](/hub/apps/guides/freebets/types#createpromocodedto)
+
+**Response:** [PromoCodeResponse](/hub/apps/guides/freebets/types#promocoderesponse)
+
+The code is trimmed and upper-cased, must consist of `A-Z`, `0-9`, `-` and `_`, 1 to 32 characters, and must be unique.
+
+**Example:**
+```bash
+curl -X 'POST' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/promo-code/create' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "code": "SUMMER26",
+  "offerId": "00000000-0000-4000-8000-000000000001",
+  "poolId": "00000000-0000-4000-8000-000000000002",
+  "amount": "5000000",
+  "maxActivations": 100,
+  "expiresAt": "2027-06-30T00:00:00.000Z"
+}'
+```
+
+### Get promo codes
+**Endpoint:** `GET /api/v1/public/bonus/external/promo-code/list`
+
+**Parameters:**
+- `offerId` (optional): only the codes of this offer
+- `status` (optional): `Active` or `Deactivated` ([PromoCodeStatus](/hub/apps/guides/freebets/types#promocodestatus))
+
+**Response:** [PromoCodesResponse](/hub/apps/guides/freebets/types#promocodesresponse)
+
+Returns every code of the product, newest first, with no pagination. `Active` only means the code is not deactivated: an expired or used-up code is still `Active`, so compare `expiresAt` with the current time and `activationsCount` with `maxActivations` yourself.
+
+**Example:**
+```bash
+curl -X 'GET' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/promo-code/list?status=Active' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token'
+```
+
+### Update promo code
+**Endpoint:** `PATCH /api/v1/public/bonus/external/promo-code/update`
+
+**Request:** [UpdatePromoCodeDto](/hub/apps/guides/freebets/types#updatepromocodedto)
+
+**Response:** [PromoCodeResponse](/hub/apps/guides/freebets/types#promocoderesponse)
+
+**Example:**
+```bash
+curl -X 'PATCH' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/promo-code/update' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": "00000000-0000-4000-8000-000000000003",
+  "expiresAt": "2027-12-31T00:00:00.000Z"
+}'
+```
+
+Rules:
+- Send only the fields you change.
+- `code` can never change. A body that contains `code` is rejected with HTTP 400.
+- After the first activation, `offerId`, `poolId` and `amount` are locked. A body that contains any of them is refused, even with the unchanged value, with `bonus.update_promo_code_with_activations_error`.
+- After the first activation, `maxActivations` and `expiresAt` stay editable, but `maxActivations` cannot go below `activationsCount`. Otherwise the request is refused with `bonus.promo_code_max_activations_below_used_error`.
+
+### Deactivate promo code
+**Endpoint:** `PATCH /api/v1/public/bonus/external/promo-code/deactivate`
+
+**Request:** [DeactivatePromoCodeDto](/hub/apps/guides/freebets/types#deactivatepromocodedto)
+
+**Response:** [PromoCodeResponse](/hub/apps/guides/freebets/types#promocoderesponse)
+
+Deactivation is final: a deactivated code can never be reactivated. Freebets already issued stay valid.
+
+**Example:**
+```bash
+curl -X 'PATCH' \
+  'https://api.onchainfeed.org/api/v1/public/bonus/external/promo-code/deactivate' \
+  -H 'accept: application/json' \
+  -H 'x-bonus-api-token: api_token' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": "00000000-0000-4000-8000-000000000003"
+}'
+```
+
+### Errors
+Business errors are returned with HTTP 409 and a body `{ code, message }`. Request validation errors are returned with HTTP 400 and a body `{ message: string[] }`.
+
+| Code | When |
+|------|------|
+| `bonus.promo_code_code_conflict` | A code with that value already exists |
+| `bonus.promo_code_invalid_code` | The code does not match the allowed format |
+| `bonus.promo_code_invalid_amount` | `amount` is not positive |
+| `bonus.promo_code_expires_at_in_past` | `expiresAt` is not in the future |
+| `bonus.promo_code_offer_not_freebet` | The offer is not a freebet offer |
+| `bonus.promo_code_not_found` | No such promo code |
+| `bonus.promo_code_access_denied` | The promo code belongs to another product |
+| `bonus.update_promo_code_with_activations_error` | `offerId`, `poolId` or `amount` sent for a code that already has activations |
+| `bonus.promo_code_max_activations_below_used_error` | `maxActivations` is below `activationsCount` |
+
+The offer and pool not-found and access-denied errors are returned the same way.
 
 ## Statistic methods
 
