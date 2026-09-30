@@ -16,7 +16,7 @@ API for it: a framework-agnostic `activatePromoCode` function in the toolkit and
 **Toolkit v7.1.0**
 
 - [`activatePromoCode`](/hub/apps/toolkit/bonus/activatePromoCode) - activates a promo code for a bettor and returns the freebet it issued.
-- `PromoCodeError` - the error thrown for every failed activation, with `code: PromoCodeErrorCode` and `status` (the HTTP status of the response, when there was one).
+- `PromoCodeError` - the error thrown for every failed activation except a network failure, with `code: PromoCodeErrorCode`, `status` (the HTTP status of the response, when there was one) and `cause`.
 - `isPromoCodeError` - a type guard for `PromoCodeError` that keeps working when two copies of the toolkit end up in one bundle.
 - New exported types: `ActivatePromoCodeParams`, `ActivatePromoCodeResult` and `PromoCodeErrorCode`.
 
@@ -51,7 +51,7 @@ catch (error) {
 - The code is trimmed and upper-cased before it is sent, so bettors can type it in any case.
 - `chainId` only selects the API environment (development chains use the development API, all others the production one). The returned freebet's own `chainId` comes from the pool the code pays from and can differ from the one you passed in.
 - Failures are typed: branch on `error.code`, never on `error.message`. The `bonus.promo_code_busy` reason means another activation of the same code is being processed and is safe to retry.
-- A network failure (a rejected `fetch`) is not a `PromoCodeError` and propagates unchanged, so always fall back to a generic message.
+- A successful response whose body cannot be read is thrown as a `PromoCodeError` with `code: 'unknown'`. A network failure (a rejected `fetch`) is not a `PromoCodeError` and propagates unchanged, so always fall back to a generic message.
 
 See the [full documentation](/hub/apps/toolkit/bonus/activatePromoCode).
 
@@ -75,7 +75,7 @@ activate({ code: 'SUMMER26' })
 ```
 
 - The hook activates for the connected wallet (wagmi or the AA connector). Without a wallet it throws an `AuthError` with `code: 'NoWallet'` and sends no request.
-- Every other failure is a `PromoCodeError`. Unlike the toolkit function, the hook reports a network failure or an unreadable response as `unknown`, with the original error as its `cause`.
+- Every other failure is a `PromoCodeError`. Unlike the toolkit function, the hook also wraps a network failure as `unknown`, with the original error as its `cause`.
 - No sign-in is needed: the activation endpoint is public, so no SIWE token is used.
 - `chainId` is optional and defaults to the app's current chain.
 - On success it refreshes the wallet's bonuses and available freebets, even after the calling component has unmounted (for example a dropdown that closed).
@@ -98,7 +98,7 @@ See the [full documentation](/hub/apps/sdk/bonus/useActivatePromoCode).
 | `bonus.promo_code_limit_reached` | The code has used up its activation limit. |
 | `bonus.promo_code_busy` | Another activation of the same code is being processed. Safe to retry. |
 | `bonus.activate_promo_code_error` | The activation failed on the server for another reason. |
-| `unknown` | Anything else: input rejected by validation, a server error, a reason this toolkit version does not know, or an unreadable response. |
+| `unknown` | Anything else: input rejected by validation, a server error, a reason this toolkit version does not know, or a successful response whose body cannot be read. |
 
 We recommend a `Record<PromoCodeErrorCode, string>` map of bettor-facing messages: TypeScript then flags a missing entry whenever a new reason is added.
 

@@ -148,13 +148,14 @@ type Freebet = {
 
 #### Errors
 
-Every non-OK HTTP response is thrown as a `PromoCodeError`. Branch on `code`, never on `message`.
+Every non-OK HTTP response, and every successful response whose body cannot be read as a freebet, is thrown as a `PromoCodeError`. Branch on `code`, never on `message`.
 
 ```ts
 class PromoCodeError extends Error {
   name: 'PromoCodeError'
   code: PromoCodeErrorCode
   status?: number // HTTP status of the response, when there was one
+  cause?: unknown // the original error, when the failure came from an unreadable response body
 }
 ```
 
@@ -183,9 +184,9 @@ type PromoCodeErrorCode =
 | `bonus.promo_code_limit_reached` | The code has used up its activation limit | All activations of this code are used up |
 | `bonus.promo_code_busy` | Another activation of the same code is being processed. Safe to retry | Try again in a moment |
 | `bonus.activate_promo_code_error` | The activation failed on the server for another reason | Something went wrong, try again later |
-| `unknown` | Anything else: input rejected by validation (an empty code, a code longer than 32 characters, a malformed address), a server error, a reason this toolkit version does not know, or a response that cannot be read | Generic error |
+| `unknown` | Anything else: input rejected by validation (an empty code, a code longer than 32 characters, a malformed address), a server error, a reason this toolkit version does not know, or a successful response whose body cannot be read | Generic error |
 
-For `unknown`, `status` and the server's message are kept on the error. Limit the input to 32 characters,
+For `unknown`, `status` and the server's message are kept on the error. For an unreadable successful response, `status` is the response status and `cause` holds the original error. Limit the input to 32 characters,
 longer codes are rejected by validation and come back as `unknown`.
 
 When several reasons apply, the server reports the first one in this order: deactivated, expired, unavailable,
@@ -195,6 +196,6 @@ affiliate mismatch, already activated, limit reached.
 so it keeps working when two copies of the toolkit end up in one bundle.
 
 <Callout type="warning">
-  A network failure and a successful response whose body cannot be read are **not** a `PromoCodeError`.
-  They reject with the underlying error, so `isPromoCodeError` returns `false` for them. Treat them as a generic failure.
+  A network failure (a rejected `fetch`) is **not** a `PromoCodeError`.
+  It rejects with the underlying error, so `isPromoCodeError` returns `false` for it. Treat it as a generic failure.
 </Callout>

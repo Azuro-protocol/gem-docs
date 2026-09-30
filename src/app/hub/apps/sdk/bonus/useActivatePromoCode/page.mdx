@@ -100,6 +100,7 @@ The result type `ActivatePromoCodeResult` is `Freebet`, as described on the
 `AuthError` is exported from `@azuro-org/sdk`.
 
 Unlike the toolkit function, the hook reports every failure other than a missing wallet as a `PromoCodeError`: a
-network failure or a response that cannot be read becomes `code: 'unknown'`, with the original error as its `cause`.
+network failure, which the toolkit function lets propagate unchanged, is wrapped as `code: 'unknown'` with the original
+error as its `cause`. A successful response that cannot be read already arrives from the toolkit as `unknown`.
 So `error` is always a `PromoCodeError`, an `AuthError` or `null`, and `isPromoCodeError(error)` tells the first two
 apart.

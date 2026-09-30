@@ -17,7 +17,7 @@ A promo code holds:
 - the **activation limit**, the total number of freebets the code can issue;
 - the **expiry**, the instant from which the code can no longer be activated.
 
-When a bettor activates a code, an ordinary freebet is created from these parts: the offer's settings, the code's amount, the code's pool, and the code itself as the freebet's campaign. It then appears in [`useBonuses`](/hub/apps/sdk/bonus/useBonuses) / [`getBonuses`](/hub/apps/toolkit/bonus/getBonuses) and is used like any other freebet, see [Use Freebets](/hub/apps/guides/freebets/use-freebets).
+When a bettor activates a code, an ordinary freebet is created from these parts: the offer's settings, the code's amount, the code's pool, and the code recorded as the freebet's campaign group. The campaign group is visible to partners through the `promoCode` field of the bonuses returned by the [Third-Party list](/hub/apps/guides/freebets/third-party#promo-codes); the bettor-facing freebet carries no campaign field. It then appears in [`useBonuses`](/hub/apps/sdk/bonus/useBonuses) / [`getBonuses`](/hub/apps/toolkit/bonus/getBonuses) and is used like any other freebet, see [Use Freebets](/hub/apps/guides/freebets/use-freebets).
 
 Codes are case-insensitive for bettors: a code is trimmed and upper-cased on every lookup. A code consists of `A-Z`, `0-9`, `-` and `_`, and is 1 to 32 characters long.
 
@@ -136,14 +136,14 @@ Failed activations carry a reason in `code`. Branch on `code`, never on `message
 | `bonus.promo_code_limit_reached` | The code has used up its activation limit | All activations of this code are used up |
 | `bonus.promo_code_busy` | Another activation of the same code is being processed | Try again in a moment |
 | `bonus.activate_promo_code_error` | The activation failed on the server for another reason | Something went wrong, try again later |
-| `unknown` | Anything else: input rejected by validation (an empty code, a code longer than 32 characters, a malformed address), a server error, or a reason this toolkit version does not know | Generic error |
+| `unknown` | Anything else: input rejected by validation (an empty code, a code longer than 32 characters, a malformed address), a server error, a reason this toolkit version does not know, or a successful response whose body cannot be read | Generic error |
 
 The checks run in this order: deactivated, expired, unavailable, affiliate mismatch, already activated, limit reached. So an address that already activated a used-up code gets `bonus.promo_code_already_activated`, not `bonus.promo_code_limit_reached`.
 
 `bonus.promo_code_busy` is safe to retry. `unknown` also carries the HTTP `status` of the response, when there was one.
 
 <Callout type="info">
-  With the toolkit function, a network failure is not a `PromoCodeError`: the rejected request propagates unchanged. Always check with `isPromoCodeError(error)` and fall back to a generic message, see [`activatePromoCode`](/hub/apps/toolkit/bonus/activatePromoCode). The SDK hook reports a network failure as `unknown` instead, see [`useActivatePromoCode`](/hub/apps/sdk/bonus/useActivatePromoCode).
+  With the toolkit function, only a network failure is not a `PromoCodeError`: the rejected request propagates unchanged. An unreadable successful response is reported as `unknown`. Always check with `isPromoCodeError(error)` and fall back to a generic message, see [`activatePromoCode`](/hub/apps/toolkit/bonus/activatePromoCode). The SDK hook reports a network failure as `unknown` instead, see [`useActivatePromoCode`](/hub/apps/sdk/bonus/useActivatePromoCode).
 </Callout>
 
 Keep the messages in a `Record<PromoCodeErrorCode, string>` map, so a reason added in a later toolkit version becomes a type error instead of a silently missing message:
