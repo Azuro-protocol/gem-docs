@@ -1,0 +1,170 @@
+import { Callout } from 'components'
+import { Tabs } from 'nextra/components'
+
+# Promo Codes
+
+A promo code is a short code that an operator attaches to a freebet offer and a pool. A bettor types the code into your app and instantly receives a freebet, with no manual distribution step.
+
+Operators create codes in the backoffice or through the partner API (see the [Promo codes](/hub/apps/guides/freebets/third-party#promo-codes) section of the Third-Party integration).
+
+## How a code turns into a freebet
+
+A promo code holds:
+
+- the **offer** whose settings the freebet gets (mechanic, odds limits, filters, validity period);
+- the **pool** the freebet is paid from, which also defines its network and currency;
+- the **amount** every activation gives, in base units of the pool's token (`"5000000"` is 5 USDT on a 6-decimal token);
+- the **activation limit**, the total number of freebets the code can issue;
+- the **expiry**, the instant from which the code can no longer be activated.
+
+When a bettor activates a code, an ordinary freebet is created from these parts: the offer's settings, the code's amount, the code's pool, and the code recorded as the freebet's campaign group. The campaign group is visible to partners through the `promoCode` field of the bonuses returned by the [Third-Party list](/hub/apps/guides/freebets/third-party#promo-codes); the bettor-facing freebet carries no campaign field. It then appears in [`useBonuses`](/hub/apps/sdk/bonus/useBonuses) / [`getBonuses`](/hub/apps/toolkit/bonus/getBonuses) and is used like any other freebet, see [Use Freebets](/hub/apps/guides/freebets/use-freebets).
+
+Codes are case-insensitive for bettors: a code is trimmed and upper-cased on every lookup. A code consists of `A-Z`, `0-9`, `-` and `_`, and is 1 to 32 characters long.
+
+## Activate a code
+
+Activation is a public request: it does not need a signature or a sign-in, only the code, the bettor's address and your affiliate address.
+
+<Tabs items={[ 'SDK', 'Toolkit', 'Manual' ]}>
+  <Tabs.Tab>
+    Use the [`useActivatePromoCode`](/hub/apps/sdk/bonus/useActivatePromoCode) hook. It activates the code for the connected wallet and refreshes that wallet's bonus queries itself.
+
+    ```tsx copy
+    'use client'
+
+    import { useState } from 'react'
+    import { useActivatePromoCode } from '@azuro-org/sdk'
+
+
+    const PromoCodeForm: React.FC = () => {
+      const [ code, setCode ] = useState('')
+
+      const { activate, isPending } = useActivatePromoCode({
+        affiliate: '0x...', // your affiliate address
+      })
+
+      return (
+        <form onSubmit={(event) => {
+          event.preventDefault()
+          activate({ code })
+        }}>
+          <input value={code} onChange={(event) => setCode(event.target.value)} />
+          <button type="submit" disabled={isPending}>Activate</button>
+        </form>
+      )
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    Use the [`activatePromoCode`](/hub/apps/toolkit/bonus/activatePromoCode) function. It returns the created freebet. Its `chainId` is the freebet's own chain, taken from the code's pool, and can differ from the `chainId` you passed. Refetch [`getBonuses`](/hub/apps/toolkit/bonus/getBonuses) yourself afterwards.
+
+    ```ts copy
+    import { activatePromoCode, isPromoCodeError } from '@azuro-org/toolkit'
+
+    try {
+      const freebet = await activatePromoCode({
+        chainId: 137,
+        code: 'SUMMER26',
+        account: '0x...', // user's address
+        affiliate: '0x...', // your affiliate address
+      })
+    }
+    catch (error) {
+      if (isPromoCodeError(error)) {
+        // branch on error.code
+      }
+    }
+    ```
+  </Tabs.Tab>
+  <Tabs.Tab>
+    Send the request to the Bonus Public API. Use `https://dev-api.onchainfeed.org` for test chains.
+
+    ```bash
+    curl -X 'POST' 'https://api.onchainfeed.org/api/v1/public/bonus/promo-code/activate' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "code": "SUMMER26",
+        "bettorAddress": "0x0000000000000000000000000000000000000001",
+        "affiliate": "0x0000000000000000000000000000000000000002"
+      }'
+    ```
+
+    The response is a single [`ClientBonus`](/hub/apps/guides/freebets/types#clientbonus) (not wrapped in `bonuses`), with `amount` in base units.
+
+    Errors come back as HTTP 409 with `{ code, message }` for business errors, or HTTP 400 with `{ message: string[] }` when the request fails validation.
+  </Tabs.Tab>
+</Tabs>
+
+## Rules
+
+### The affiliate must match the code's pool
+
+The `affiliate` you send must equal the address of the code's pool (compared case-insensitively). A code created on another pool fails with `bonus.promo_code_affiliate_mismatch` for every bettor of your frontend, so check the pool when you create codes.
+
+### Code expiry and freebet validity
+
+They are independent:
+
+- The code's expiry only ends activations. It is non-inclusive: the code stops working the instant it is reached.
+- The freebet's own expiry is the activation time plus the offer's validity period. A bettor who activates a code just before it expires still gets the full period.
+- Expiring or deactivating a code never touches freebets that were already issued. Deactivation is final: a deactivated code cannot be reactivated.
+
+### One activation per address per code
+
+An address can activate a given code once. A second attempt fails with `bonus.promo_code_already_activated`, even after the code has used up its activation limit.
+
+### No cooldown across codes
+
+Nothing limits how many different codes one address can activate. If your product needs such a limit, enforce it on your side.
+
+### Activation limit
+
+Once the number of issued freebets reaches the code's activation limit, further activations fail with `bonus.promo_code_limit_reached`.
+
+## Failure reasons
+
+Failed activations carry a reason in `code`. Branch on `code`, never on `message`.
+
+| Code | Meaning | Suggested message |
+|---|---|---|
+| `bonus.promo_code_not_found` | No such code, including any code with characters other than `A-Z`, `0-9`, `-`, `_` | The code doesn't exist |
+| `bonus.promo_code_deactivated` | The operator deactivated the code | The code is no longer active |
+| `bonus.promo_code_expired` | The code's expiry has been reached | The code has expired |
+| `bonus.promo_code_unavailable` | The code's product or operator is not active | The code is not available right now |
+| `bonus.promo_code_affiliate_mismatch` | The code's pool address is not the `affiliate` you sent | The code is not valid on this site |
+| `bonus.promo_code_already_activated` | This address already activated this code | The code was already used |
+| `bonus.promo_code_limit_reached` | The code has used up its activation limit | All activations of this code are used up |
+| `bonus.promo_code_busy` | Another activation of the same code is being processed | Try again in a moment |
+| `bonus.activate_promo_code_error` | The activation failed on the server for another reason | Something went wrong, try again later |
+| `unknown` | Anything else: input rejected by validation (an empty code, a code longer than 32 characters, a malformed address), a server error, a reason this toolkit version does not know, or a successful response whose body cannot be read | Generic error |
+
+The checks run in this order: deactivated, expired, unavailable, affiliate mismatch, already activated, limit reached. So an address that already activated a used-up code gets `bonus.promo_code_already_activated`, not `bonus.promo_code_limit_reached`.
+
+`bonus.promo_code_busy` is safe to retry. `unknown` also carries the HTTP `status` of the response, when there was one.
+
+<Callout type="info">
+  With the toolkit function, only a network failure is not a `PromoCodeError`: the rejected request propagates unchanged. An unreadable successful response is reported as `unknown`. Always check with `isPromoCodeError(error)` and fall back to a generic message, see [`activatePromoCode`](/hub/apps/toolkit/bonus/activatePromoCode). The SDK hook reports a network failure as `unknown` instead, see [`useActivatePromoCode`](/hub/apps/sdk/bonus/useActivatePromoCode).
+</Callout>
+
+Keep the messages in a `Record<PromoCodeErrorCode, string>` map, so a reason added in a later toolkit version becomes a type error instead of a silently missing message:
+
+```ts copy
+import { isPromoCodeError, type PromoCodeErrorCode } from '@azuro-org/toolkit'
+
+const messages: Record<PromoCodeErrorCode, string> = {
+  'bonus.promo_code_not_found': 'The code doesn\'t exist',
+  'bonus.promo_code_deactivated': 'The code is no longer active',
+  'bonus.promo_code_expired': 'The code has expired',
+  'bonus.promo_code_unavailable': 'The code is not available right now',
+  'bonus.promo_code_affiliate_mismatch': 'The code is not valid on this site',
+  'bonus.promo_code_already_activated': 'The code was already used',
+  'bonus.promo_code_limit_reached': 'All activations of this code are used up',
+  'bonus.promo_code_busy': 'Try again in a moment',
+  'bonus.activate_promo_code_error': 'Something went wrong, try again later',
+  'unknown': 'Something went wrong',
+}
+
+const getErrorMessage = (error: unknown) => {
+  return isPromoCodeError(error) ? messages[error.code] : 'Something went wrong'
+}
+```

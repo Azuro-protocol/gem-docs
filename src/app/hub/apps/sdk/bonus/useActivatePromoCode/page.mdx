@@ -1,0 +1,106 @@
+import { Callout } from 'components'
+
+# useActivatePromoCode
+
+Mutation hook that activates a promo code for the connected wallet and returns the freebet it grants.
+
+<Callout type="info">
+The activation endpoint is public, so no sign-in is needed and no SIWE token is read (unlike the favorites hooks).
+Without a connected wallet the hook throws `AuthError` with `code: 'NoWallet'` and sends nothing.
+</Callout>
+
+## Usage
+
+```tsx
+import { useState } from 'react'
+import { useActivatePromoCode } from '@azuro-org/sdk'
+import { isPromoCodeError, type PromoCodeErrorCode } from '@azuro-org/toolkit'
+
+const messages: Record<PromoCodeErrorCode, string> = {
+  'bonus.promo_code_not_found': 'The code doesn\'t exist',
+  'bonus.promo_code_deactivated': 'The code is no longer active',
+  'bonus.promo_code_expired': 'The code has expired',
+  'bonus.promo_code_unavailable': 'The code is not available right now',
+  'bonus.promo_code_affiliate_mismatch': 'The code is not valid on this site',
+  'bonus.promo_code_already_activated': 'The code was already used',
+  'bonus.promo_code_limit_reached': 'All activations of this code are used up',
+  'bonus.promo_code_busy': 'Try again in a moment',
+  'bonus.activate_promo_code_error': 'Something went wrong, try again later',
+  'unknown': 'Something went wrong',
+}
+
+const [ code, setCode ] = useState('')
+const { activate, isPending, error, reset } = useActivatePromoCode({ affiliate: '0x...' })
+
+const errorMessage = !error ? null : isPromoCodeError(error) ? messages[error.code] : 'Something went wrong'
+
+const onSubmit = (e: React.FormEvent) => {
+  e.preventDefault()
+  activate({ code })
+}
+
+const onChange = (value: string) => {
+  setCode(value)
+  reset()
+}
+```
+
+On success the hook refreshes the [`useBonuses`](/hub/apps/sdk/bonus/useBonuses) and
+[`useAvailableFreebets`](/hub/apps/sdk/bonus/useAvailableFreebets) queries of that wallet, on the freebet's own chain
+and for that affiliate. It invalidates `['bonuses', freebet.chainId, account, affiliate]` and
+`['available-freebets', freebet.chainId, account, affiliate]` (addresses lower-cased, as the query keys are).
+This runs in the mutation's own `onSuccess`, so the refresh still happens after the component that called `activate` has
+unmounted, for example a dropdown that closed.
+
+## Props
+
+```ts
+type UseActivatePromoCodeProps = {
+  affiliate: Address // your affiliate address
+  chainId?: ChainId // selects the API environment, defaults to the app's current chain
+  onSuccess?: (data: ActivatePromoCodeResult) => void
+  onError?: (err: PromoCodeError | AuthError) => void
+}
+```
+
+```ts
+type ChainId =
+  | 137     // Polygon
+  | 80002   // Polygon Amoy
+  | 8453    // Base
+  | 84532   // Base Sepolia
+  | 100     // Gnosis
+  | 88888   // Chiliz
+  | 88882   // Chiliz Spicy
+  | 97      // BSC Testnet
+  | 56      // BSC
+```
+
+## Return Value
+
+```ts
+{
+  activate: (vars: ActivatePromoCodeVariables) => void
+  activateAsync: (vars: ActivatePromoCodeVariables) => Promise<ActivatePromoCodeResult>
+  isPending: boolean
+  error: PromoCodeError | AuthError | null
+  reset: () => void
+}
+```
+
+```ts
+type ActivatePromoCodeVariables = {
+  code: string // trimmed and upper-cased before sending, up to 32 characters
+}
+```
+
+The result type `ActivatePromoCodeResult` is `Freebet`, as described on the
+[`activatePromoCode`](/hub/apps/toolkit/bonus/activatePromoCode) page, together with the `PromoCodeError` codes.
+`isPromoCodeError` and `PromoCodeErrorCode` come from `@azuro-org/toolkit`, the sdk does not re-export them.
+`AuthError` is exported from `@azuro-org/sdk`.
+
+Unlike the toolkit function, the hook reports every failure other than a missing wallet as a `PromoCodeError`: a
+network failure, which the toolkit function lets propagate unchanged, is wrapped as `code: 'unknown'` with the original
+error as its `cause`. A successful response that cannot be read already arrives from the toolkit as `unknown`.
+So `error` is always a `PromoCodeError`, an `AuthError` or `null`, and `isPromoCodeError(error)` tells the first two
+apart.

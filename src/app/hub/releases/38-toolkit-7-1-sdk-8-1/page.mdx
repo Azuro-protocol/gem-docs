@@ -1,0 +1,108 @@
+import { Callout } from 'components'
+
+# Toolkit v7.1 & SDK v8.1: Promo Codes
+
+Bettors can now redeem an operator's promo code from your app and instantly receive a freebet. Both packages add the
+API for it: a framework-agnostic `activatePromoCode` function in the toolkit and a `useActivatePromoCode` hook in the SDK.
+
+<Callout type="info">
+  **No migration is required.** Both releases are additive. `getBonuses`, `getAvailableFreebets`, `useBonuses` and
+  `useAvailableFreebets` return exactly what they did before, and a freebet issued by a promo code shows up in them like
+  any other freebet. SDK 8.1.0 depends on `@azuro-org/toolkit` `^7.1.0`.
+</Callout>
+
+## What's New
+
+**Toolkit v7.1.0**
+
+- [`activatePromoCode`](/hub/apps/toolkit/bonus/activatePromoCode) - activates a promo code for a bettor and returns the freebet it issued.
+- `PromoCodeError` - the error thrown for every failed activation except a network failure, with `code: PromoCodeErrorCode`, `status` (the HTTP status of the response, when there was one) and `cause`.
+- `isPromoCodeError` - a type guard for `PromoCodeError` that keeps working when two copies of the toolkit end up in one bundle.
+- New exported types: `ActivatePromoCodeParams`, `ActivatePromoCodeResult` and `PromoCodeErrorCode`.
+
+**SDK v8.1.0**
+
+- [`useActivatePromoCode`](/hub/apps/sdk/bonus/useActivatePromoCode) - a mutation hook that activates a code for the connected wallet. On success it refreshes that wallet's `useBonuses` and `useAvailableFreebets` data, on the freebet's own chain and for your affiliate, even if the component that called it has already unmounted.
+
+## Activate a promo code
+
+### `activatePromoCode` (toolkit)
+
+```ts
+import { activatePromoCode, isPromoCodeError } from '@azuro-org/toolkit'
+
+try {
+  const freebet = await activatePromoCode({
+    chainId: 137,
+    code: 'SUMMER26',
+    account: '0x...',
+    affiliate: '0x...',
+  })
+
+  console.log(freebet.amount, freebet.chainId)
+}
+catch (error) {
+  if (isPromoCodeError(error)) {
+    console.log(error.code, error.status)
+  }
+}
+```
+
+- The code is trimmed and upper-cased before it is sent, so bettors can type it in any case.
+- `chainId` only selects the API environment (development chains use the development API, all others the production one). The returned freebet's own `chainId` comes from the pool the code pays from and can differ from the one you passed in.
+- Failures are typed: branch on `error.code`, never on `error.message`. The `bonus.promo_code_busy` reason means another activation of the same code is being processed and is safe to retry.
+- A successful response whose body cannot be read is thrown as a `PromoCodeError` with `code: 'unknown'`. A network failure (a rejected `fetch`) is not a `PromoCodeError` and propagates unchanged, so always fall back to a generic message.
+
+See the [full documentation](/hub/apps/toolkit/bonus/activatePromoCode).
+
+### `useActivatePromoCode` (SDK)
+
+```tsx
+import { useActivatePromoCode } from '@azuro-org/sdk'
+import { isPromoCodeError } from '@azuro-org/toolkit'
+
+const { activate, isPending, error } = useActivatePromoCode({
+  affiliate: '0x...',
+  onSuccess: (freebet) => {
+    console.log('Freebet issued:', freebet.amount)
+  },
+  onError: (err) => {
+    console.log(isPromoCodeError(err) ? err.code : 'unknown')
+  },
+})
+
+activate({ code: 'SUMMER26' })
+```
+
+- The hook activates for the connected wallet (wagmi or the AA connector). Without a wallet it throws an `AuthError` with `code: 'NoWallet'` and sends no request.
+- Every other failure is a `PromoCodeError`. Unlike the toolkit function, the hook also wraps a network failure as `unknown`, with the original error as its `cause`.
+- No sign-in is needed: the activation endpoint is public, so no SIWE token is used.
+- `chainId` is optional and defaults to the app's current chain.
+- On success it refreshes the wallet's bonuses and available freebets, even after the calling component has unmounted (for example a dropdown that closed).
+- `isPromoCodeError` and the error codes come from `@azuro-org/toolkit`; the SDK does not re-export them.
+
+See the [full documentation](/hub/apps/sdk/bonus/useActivatePromoCode).
+
+## Failure reasons
+
+`PromoCodeError.code` is one of ten values:
+
+| Code | Meaning |
+|---|---|
+| `bonus.promo_code_not_found` | No such code, or a code that cannot exist (characters other than `A-Z`, `0-9`, `-`, `_`). |
+| `bonus.promo_code_deactivated` | The operator deactivated the code. |
+| `bonus.promo_code_expired` | The code's expiry time has been reached. |
+| `bonus.promo_code_unavailable` | The code's product or operator is not active. |
+| `bonus.promo_code_affiliate_mismatch` | The `affiliate` you sent is not the address of the code's pool. |
+| `bonus.promo_code_already_activated` | This address already activated this code. |
+| `bonus.promo_code_limit_reached` | The code has used up its activation limit. |
+| `bonus.promo_code_busy` | Another activation of the same code is being processed. Safe to retry. |
+| `bonus.activate_promo_code_error` | The activation failed on the server for another reason. |
+| `unknown` | Anything else: input rejected by validation, a server error, a reason this toolkit version does not know, or a successful response whose body cannot be read. |
+
+We recommend a `Record<PromoCodeErrorCode, string>` map of bettor-facing messages: TypeScript then flags a missing entry whenever a new reason is added.
+
+## Learn more
+
+- [Promo codes guide](/hub/apps/guides/freebets/promo-codes) - how codes work, end to end.
+- [Third-Party API: promo codes](/hub/apps/guides/freebets/third-party#promo-codes) - the partner endpoints for creating codes server to server.
