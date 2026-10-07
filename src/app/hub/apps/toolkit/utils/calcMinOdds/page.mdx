@@ -5,12 +5,10 @@ import { Callout } from 'components'
 Calculates the minimum odds value at which the bet can be placed. If the current odds value is lower than the specified value, the bet cannot be placed and will be rejected by the contract.
 
 <Callout type="warning">
-  **This is for placing a bet, not for pricing one that already exists.** For a combo's total odds —
-  to show what a settled bet is worth, or to rebuild its payout — use
-  [`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds). It applies the same per-leg fee arithmetic,
-  but it also accounts for **when the bet was placed**: the feed's fee has a start date, and combos
-  placed before it are priced as the plain product of their legs. `calcMinOdds` always assumes the fee,
-  which is correct for a bet you are about to place and wrong for an older one.
+  **This is for placing a bet, not for pricing one that already exists.** For a bet that already exists,
+  read the odds and payout the bets subgraph recorded (`settledOdds ?? odds`, `payout`).
+  [`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds) is only the deprecated client-side reproduction
+  of that pricing. `calcMinOdds` always assumes the fee, which is correct for a bet you are about to place.
 </Callout>
 
 <Callout type="warning">

@@ -2,10 +2,16 @@ import { Callout } from 'components'
 
 # calcComboOdds
 
-Calculates the total odds of a combo bet, priced the way the protocol prices it.
+<Callout type="warning">
+  **Deprecated since Toolkit v7.2.0** (still exported and working). The bets subgraph records every bet's
+  total odds, potential payout and payout already priced by the protocol's rule: read a bet's `odds` /
+  `settledOdds` and `potentialPayout` / `payout` (or `rawPotentialPayout` / `rawPayout`) instead of
+  re-pricing its legs on the client. `useBets` and `getBetsReport` no longer use `calcComboOdds`.
+  `MARGIN_APPLIED_AT` is deprecated with it.
+</Callout>
 
-Use this whenever you need a combo's odds for a bet that already exists — to show what it is worth, or
-to rebuild a payout. For the minimum odds to *place* a new bet with, use
+Calculates the total odds of a bet, reproducing on the client the way the protocol priced it when the bet
+was placed. For the minimum odds to *place* a new bet with, use
 [`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds), which applies slippage on top.
 
 #### Usage
@@ -25,7 +31,10 @@ const totalOdds = calcComboOdds({
 type CalcComboOddsParams = {
   /** the leg odds as the protocol recorded them; a voided leg must be left out by the caller */
   odds: number[]
-  /** unix seconds, when the bet was placed - it decides whether the leg odds carry the feed's fee */
+  /**
+   * unix seconds, when the bet was placed - it decides whether the leg odds carry the feed's fee and
+   * whether a single leg is priced as a combo of one
+   * */
   createdAt: number
 }
 ```
@@ -72,33 +81,39 @@ calcComboOdds({ odds: [ 2, 1.75 ], createdAt: MARGIN_APPLIED_AT })      // '3.55
 calcComboOdds({ odds: [ 2, 1.75 ], createdAt: MARGIN_APPLIED_AT - 1 })  // '3.50...' - plain product
 ```
 
-<Callout type="info">
-  **Singles need none of this.** One leg means the fee is applied once already, so a single's recorded
-  `settledOdds ?? odds` is correct as it stands, in either era.
-</Callout>
+## Singles from `SINGLE_MARGIN_REMOVED_AT`
 
-## Rebuilding a payout
+The rule depends on when the bet was placed:
 
-The subgraph records a combo's odds and payout as the plain product of its leg odds, and never reduces
-that figure when a leg is voided. So for a bet that has **not been redeemed yet**, neither
-`settledOdds`, `odds`, `potentialPayout` nor `payout` can be trusted for a combo — rebuild from the
-surviving legs instead:
+- before `MARGIN_APPLIED_AT` the legs carry no fee, so they are multiplied as they are;
+- from `MARGIN_APPLIED_AT` every bet goes through the combo rule, a single leg included: the fee is removed
+  from each leg, the result rounded up onto the two-decimal grid the protocol prices on, multiplied, and the
+  fee taken off once - which can move a single leg's odds off what the bettor was quoted;
+- from `SINGLE_MARGIN_REMOVED_AT` a single leg is its quoted odds again, while two or more legs keep the
+  combo rule.
+
+`SINGLE_MARGIN_REMOVED_AT` is a new export in Toolkit v7.2.0 (unix seconds). It is one constant for every
+chain, since the switch happened at one moment everywhere.
 
 ```ts
-import { calcComboOdds, isSelectionCanceled } from '@azuro-org/toolkit'
+import { calcComboOdds, SINGLE_MARGIN_REMOVED_AT } from '@azuro-org/toolkit'
 
-const survivingOdds = bet.selections
-  .filter((selection) => !isSelectionCanceled({
-    selectionResult: selection.result,
-    outcomeResult: selection.outcome.result,
-    conditionStatus: selection.outcome.condition.status,
-  }))
-  .map((selection) => +selection.odds)
-
-const totalOdds = calcComboOdds({ odds: survivingOdds, createdAt: +bet.createdAt })
-const payout = +bet.amount * +totalOdds
+calcComboOdds({ odds: [ 1.6789 ], createdAt: SINGLE_MARGIN_REMOVED_AT - 1 }) // '1.68...' - a single priced as a combo of one
+calcComboOdds({ odds: [ 1.6789 ], createdAt: SINGLE_MARGIN_REMOVED_AT })     // '1.6789...' - its quoted odds
+calcComboOdds({ odds: [ 2, 1.5 ], createdAt: SINGLE_MARGIN_REMOVED_AT })     // '3.05...' - two legs keep the fee rule
 ```
 
-Once a bet **is** redeemed, its recorded payout is the amount actually paid on chain — read that and
-rebuild nothing. [`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) and the SDK's
-[`useBets`](/hub/apps/sdk/data-hooks/useBets) already apply all of these rules for you.
+## Reading a bet's figures instead
+
+For a bet that already exists, read what the subgraph recorded:
+
+```ts
+const totalOdds = bet.settledOdds ?? bet.odds // the settled odds once settled, the placed odds before
+const possibleWin = bet.potentialPayout       // what the bet pays if it wins
+const payout = bet.payout                     // once settled: 0 if lost, the stake if canceled, the amount paid once redeemed
+```
+
+A voided leg is one whose `selection.result === SelectionResult.Canceled`. For a freebet, the pool's payout
+is not what the bettor receives: the freebet contract passes the bettor only a share of it, which
+`calcFreebetBettorShare` computes. [`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) and the SDK's
+[`useBets`](/hub/apps/sdk/data-hooks/useBets) already read these figures for you.

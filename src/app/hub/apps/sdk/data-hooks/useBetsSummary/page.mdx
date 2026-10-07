@@ -2,7 +2,16 @@ import { Callout } from 'components'
 
 # useBetsSummary
 
-The `useBetsSummary` is used to fetch bets summary information for user's address.
+The `useBetsSummary` hook is used to fetch bets summary information for user's address. It returns the wallet's
+betting totals on one chain, summed over every pool and affiliate row the subgraph keeps for it (or only the
+given `affiliates`).
+
+<Callout type="warning">
+  The query needs a bets subgraph that serves the freebet fields of `Bettor`. Polygon, Base, Polygon Amoy and
+  Base Sepolia serve them. On a chain whose bets subgraph does not serve them yet - at the time of this
+  release Gnosis, Chiliz, Chiliz Spicy and BSC - the query fails with a validation error and the hook returns
+  an error. `useBets` still works on those chains.
+</Callout>
 
 <Callout type="info">
 Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [TanStack Query docs](https://tanstack.com/query/latest/docs/framework/react/reference/useQuery) to understand what data the hook returns.
@@ -14,8 +23,10 @@ Hook represents a logic wrapper over TanStack Query's `useQuery` hook. Explore [
 import { useBetsSummary } from '@azuro-org/sdk'
 
 const { data, isFetching, error } = useBetsSummary({
-  account: '0xlknqk123...'
+  account: '0x...'
 })
+const { toPayout, inBets, totalPayout, totalProfit, betsCount, withdrawable, freebet } = data || {}
+const { betsCount: freebetsCount, toPayout: freebetToPayout } = freebet || {}
 ```
 
 ## Props
@@ -44,6 +55,7 @@ type BettorsQuery = {
   bettors: Array<{
       __typename?: 'Bettor'
       id: string
+      affiliate: string
       rawToPayout: string
       rawInBets: string
       rawTotalPayout: string
@@ -51,6 +63,16 @@ type BettorsQuery = {
       betsCount: number
       wonBetsCount: number
       lostBetsCount: number
+      canceledBetsCount: number
+      cashedOutBetsCount: number
+      freebetBetsCount: number
+      freebetWonBetsCount: number
+      freebetLostBetsCount: number
+      freebetCanceledBetsCount: number
+      rawFreebetTurnover: string
+      rawFreebetInBets: string
+      rawFreebetToPayout: string
+      rawFreebetTotalPayout: string
   }>
 }
 ```
@@ -58,17 +80,91 @@ type BettorsQuery = {
 ## Return Value
 
 ```ts
-UseQueryResult<{
+UseQueryResult<BetsSummary>
+```
+
+```ts
+import { type UseQueryResult } from '@tanstack/react-query'
+import { type BetsSummary } from '@azuro-org/sdk'
+
+/**
+ * A wallet's betting totals on one chain, as the bets subgraph keeps them. Amounts are formatted with
+ * the chain's bet token decimals.
+ *
+ * The top-level figures cover bets placed with the wallet's own funds; freebets are counted only in
+ * `freebet`, whose payouts are the bettor's share.
+ * */
+type BetsSummary = {
+  /** payouts and refunds of settled bets that are not yet redeemed */
   toPayout: string
+  /** stakes of bets that are not settled yet */
   inBets: string
   totalPayout: string
   totalProfit: string
   betsCount: number
   wonBetsCount: number
   lostBetsCount: number
-}>
+  canceledBetsCount: number
+  cashedOutBetsCount: number
+  /** what the wallet can redeem now: `toPayout` plus `freebet.toPayout` */
+  withdrawable: string
+  freebet: {
+    betsCount: number
+    wonBetsCount: number
+    lostBetsCount: number
+    canceledBetsCount: number
+    /** stakes of every freebet placed */
+    turnover: string
+    /** stakes of freebets that are not settled yet */
+    inBets: string
+    /** the bettor's share of settled freebets that are not yet redeemed */
+    toPayout: string
+    /** the bettor's share of what redeemed freebets paid out */
+    totalPayout: string
+  }
+}
 ```
 
-```ts
-import { type UseQueryResult } from '@tanstack/react-query'
-```
+New in SDK v8.2.0: `canceledBetsCount`, `cashedOutBetsCount`, `withdrawable` and `freebet`, and the behaviours
+described below. Existing fields keep their names.
+
+### Own funds and freebets
+
+The top-level figures (`betsCount`, `inBets`, `toPayout`, `totalPayout`, `totalProfit` and the won, lost and
+canceled counts) cover the wallet's own funds only. A freebet is counted only in `freebet`, and its payouts
+(`freebet.toPayout`, `freebet.totalPayout`) are the bettor's share, never the pool's whole payout.
+
+`betsCount` does not include freebets, so a check of whether the wallet has ever bet should test
+`betsCount + freebet.betsCount`. A wallet that only placed freebets has `betsCount` of `0`. `toPayout` includes the refunds of canceled bets.
+
+### `withdrawable`
+
+`withdrawable` is `toPayout` plus `freebet.toPayout`: what the wallet can redeem now. For example, 2.00 waiting
+from a won real-money bet plus a won returnable freebet of 1.00 at 1.50 gives `toPayout` 2.00,
+`freebet.toPayout` 0.50 and `withdrawable` 2.50.
+
+### Cash-outs
+
+A cash-out raises `cashedOutBetsCount` by one and lowers `inBets` by the stake. `betsCount` stays the same, a
+cashed-out bet is still a bet.
+
+### Staying current
+
+The hook has no polling interval, and its `staleTime` is 5 seconds with no refetch on window focus. It is kept
+current after the wallet's own actions:
+
+- **Redeem or cash-out** through the SDK (`useRedeemBet`, `useCashout`): every cached summary of the account is
+  patched at once, on the row of that bet's pool and affiliate only, by the amount the subgraph will record:
+  - a real-money redeem lowers `toPayout` by the bet's payout, or by its stake when it was canceled;
+  - a freebet redeem lowers `freebet.toPayout` by the bettor's share;
+  - a cash-out lowers `inBets` by the stake and raises `cashedOutBetsCount` by one.
+
+  No figure goes below zero. The summary is then re-read from the subgraph about 5 and 15 seconds later to
+  confirm. A summary with no row for the bet is re-read immediately instead.
+- **A new bet** through `useBet`: the summary is re-read about 0, 4, 10 and 25 seconds after the transaction
+  receipt, so the bet appears once the subgraph has recorded it, without a reload.
+
+### Formatting
+
+Amounts are summed in the token's base units and then formatted with the current chain's bet token decimals.
+The formatting follows a chain switch while the hook stays mounted.
