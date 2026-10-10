@@ -9,6 +9,7 @@ export default {
   'groupConditionsByMarket': 'groupConditionsByMarket',
   'getIsPendingResolution': 'getIsPendingResolution',
   'isOutcomeSettled': 'isOutcomeSettled',
+  'isExtendedConditionId': 'isExtendedConditionId',
   'getFreeBets': {
     'title': 'getFreeBets',
     'display': 'hidden',

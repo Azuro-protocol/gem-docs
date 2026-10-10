@@ -5,12 +5,13 @@ import { Callout } from 'components'
 Every figure that values a freebet now shows what the bettor receives: the bettor's share of the payout, by the freebet contract's rule. Bet figures are read as the bets subgraph records them, already priced by the protocol's rule, with no client-side re-pricing. `useBetsSummary` also gains freebet totals and a `withdrawable` figure.
 
 <Callout type="warning">
-  **No compile-time migration, but some figures change meaning.** Both releases are minors: nothing is removed and no type is narrowed. SDK 8.2.0 depends on `@azuro-org/toolkit` `^7.2.0`. Check the places where your app reads these figures:
+  **No compile-time migration, but some figures change meaning.** Both releases are minors: nothing is removed and no type is narrowed. SDK 8.2.0 depends on `@azuro-org/toolkit` `^7.2.0`. Check the places where your app reads these figures or recognises an extended condition:
 
   - **Freebet `payout` and `settledPayout` on `useBets`** are the bettor's share. Before SDK v8.2.0 they were the pool's whole payout. `possibleWin` follows the same rule: a freebet with no returnable flag is valued as returnable, and a canceled freebet reports 0. A returnable freebet of 1.00 won at 1.50 reads 0.50, where `payout` and `settledPayout` read 1.50 before. If your app subtracted a returnable freebet's stake from these figures itself, remove that step.
   - **The freebet line of the bets report** (`useBetsReport` / `getBetsReport`): `returns` is the sum of the bettor's shares and `profit` equals `returns`. Before, `returns` summed the pool's whole payout and `profit` was `returns - turnover`.
   - **`useBetsSummary` `betsCount`** counts bets placed with the wallet's own funds only. Freebets are counted in `freebet.betsCount`. A "has this wallet ever bet" check should test `betsCount + freebet.betsCount`.
   - **`totalOdds`** on `useBets` carries the precision the subgraph records it at, up to 12 decimals. Format it for display rather than printing the raw number.
+  - **Extended conditions may start with `6`.** The first digit of a condition id is its type, and ids starting with `5` or `6` are both the extended type, `5` on older conditions. If your app tests `conditionId[0] === '5'`, switch to [`isExtendedConditionId`](/hub/apps/toolkit/utils/isExtendedConditionId), or it will name a condition starting with `6` from `@azuro-org/dictionaries`, which does not have it.
   - **`useBetsSummary` needs a bets subgraph that serves the new `Bettor` fields.** They are served on Polygon, Base, Polygon Amoy and Base Sepolia. On Gnosis, Chiliz, Chiliz Spicy and BSC the query fails until the subgraph there is updated, so the hook returns an error. `useBets` keeps working on those chains and reads bet figures as recorded, with no client rebuild.
 </Callout>
 
@@ -25,6 +26,7 @@ Every figure that values a freebet now shows what the bettor receives: the betto
 - Deprecated, still exported and still working: `calcComboOdds` and `MARGIN_APPLIED_AT` (read a bet's `odds` / `settledOdds` and `potentialPayout` / `payout`, or `rawPotentialPayout` / `rawPayout`, instead of re-pricing its legs), and `isSelectionCanceled` (read `selection.result === SelectionResult.Canceled`).
 - Fragment additions, none removed: `BetFragment` gains `rawAmount`, `rawPotentialPayout`, `rawPayout` and `core.liquidityPool.tokenDecimals`; `BettorFragment` gains the affiliate, the counts and the freebet totals; `BetReportFragment` and the v3 bets of `GameBetsQuery` gain `isFreebetAmountReturnable`.
 - `SelectionResult` now includes `Canceled`.
+- [`isExtendedConditionId`](/hub/apps/toolkit/utils/isExtendedConditionId) - new. Tells whether a condition is extended from the first digit of its id: `5` or `6`. [`groupConditionsByMarket`](/hub/apps/toolkit/utils/groupConditionsByMarket) and [`getPredefinedCombo`](/hub/apps/toolkit/feed/getPredefinedCombo) use it, so a condition starting with either digit takes the extended path: named by its API titles, never by `@azuro-org/dictionaries`.
 
 **SDK v8.2.0**
 
@@ -33,6 +35,7 @@ Every figure that values a freebet now shows what the bettor receives: the betto
 - Redeem and cash-out patch the summary at once, on the bet's own pool and affiliate row, and re-read it about 5 s and 15 s later. A cash-out no longer lowers `betsCount`. A new bet re-reads the summary about 0, 4, 10 and 25 s after the receipt.
 - [`useBetsReport`](/hub/apps/sdk/data-hooks/useBetsReport) inherits the toolkit report change.
 - [`useBetsSummaryBySelection`](/hub/apps/sdk/data-hooks/useBetsSummaryBySelection) values a won freebet at the bettor's share and a lost freebet at 0.
+- [`useBets`](/hub/apps/sdk/data-hooks/useBets) names the legs of extended conditions, starting with `5` or `6`, from the titles recorded with the bet or, failing those, from the API, never from `@azuro-org/dictionaries`.
 
 ## A freebet pays the bettor a share of its payout
 
@@ -106,3 +109,4 @@ See the [full documentation](/hub/apps/sdk/data-hooks/useBetsSummary).
 - [`useBetsReport`](/hub/apps/sdk/data-hooks/useBetsReport)
 - [`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport)
 - [`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds)
+- [`isExtendedConditionId`](/hub/apps/toolkit/utils/isExtendedConditionId)

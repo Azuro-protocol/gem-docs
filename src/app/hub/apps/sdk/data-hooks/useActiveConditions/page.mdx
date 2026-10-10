@@ -83,7 +83,7 @@ const { data, isFetching, error } = useActiveConditions(props)
 <Callout type="info">
   **When to enable `extended`**
 
-  Optional, defaults to false. When true, the API additionally returns new-generation conditions and outcomes alongside the standard set. Detect a new condition by its first character: `conditionId[0] === '5'`.
+  Optional, defaults to false. When true, the API additionally returns extended conditions and outcomes alongside the standard set. Detect an extended condition with [`isExtendedConditionId`](/hub/apps/toolkit/utils/isExtendedConditionId): the first digit of a condition id is its type, and ids starting with `5` or `6` are extended (`5` on older conditions).
 
   **Titles are returned directly in the response.** Each condition exposes title (the market name), and each outcome exposes its own title — `ConditionDetailedData.title` and `OutcomeData.title`. The toolkit and SDK already handle grouping, sorting, and rendering of new markets out of the box.
 
@@ -189,7 +189,7 @@ type ConditionDetailedData = {
   /** win-only, condition-level list. NOT the per-outcome source of truth - read `OutcomeData.state` */
   wonOutcomeIds: string[]
   sort: `${number}`
-  /** Modern ("5...") conditions only: used for market grouping */
+  /** Extended conditions only: used for market grouping */
   marketId?: string | null
   marketVarietyId?: string | null
 }
@@ -199,7 +199,7 @@ type OutcomeData = {
   outcomeId: string
   odds: string
   sort: `${number}`
-  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  /** Extended conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
   point?: string | null
   hidden: boolean
   state: OutcomeState

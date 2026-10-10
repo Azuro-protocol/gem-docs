@@ -40,7 +40,7 @@ type GetConditionsStateResult = ConditionStateData[]
 ```ts
 type ConditionStateData = {
   conditionId: string
-  title: string // market title — useful for new conditions ("5...") whose IDs are not in the dictionaries package
+  title: string // market title — useful for extended conditions, whose IDs are not in the dictionaries package
   state: ConditionState
   sort: `${number}`
   category: ConditionCategory
