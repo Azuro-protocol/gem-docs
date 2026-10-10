@@ -51,7 +51,7 @@ const { data, isFetching, error } = useActiveConditions(props)
 {
   gameId: string | string[] // single game ID or array of game IDs
   includeHidden?: boolean // keep `hidden` conditions and outcomes in the result; default false
-  extended?: boolean // opt-in: include new conditions/markets not present in the dictionaries package
+  extended?: boolean // opt-in: include extended conditions/markets not present in the dictionaries package
   chainId?: ChainId
   query?: QueryParameter<UseConditionsQueryFnData> // useQuery params, without `select`
 }
@@ -85,10 +85,10 @@ const { data, isFetching, error } = useActiveConditions(props)
 
   Optional, defaults to false. When true, the API additionally returns extended conditions and outcomes alongside the standard set. Detect an extended condition with [`isExtendedConditionId`](/hub/apps/toolkit/utils/isExtendedConditionId): the first digit of a condition id is its type, and ids starting with `5` or `6` are extended (`5` on older conditions).
 
-  **Titles are returned directly in the response.** Each condition exposes title (the market name), and each outcome exposes its own title — `ConditionDetailedData.title` and `OutcomeData.title`. The toolkit and SDK already handle grouping, sorting, and rendering of new markets out of the box.
+  **Titles are returned directly in the response.** Each condition exposes title (the market name), and each outcome exposes its own title — `ConditionDetailedData.title` and `OutcomeData.title`. The toolkit and SDK already handle grouping, sorting, and rendering of extended markets out of the box.
 
-  - If your app reads market/outcome metadata only from these hooks’ / utility’s response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — new markets will appear automatically.
-  - If your app reads from `@azuro-org/dictionaries` directly, note that **new markets are not in the dictionaries package** — their titles live only on the API. Use the title fields returned here.
+  - If your app reads market/outcome metadata only from these hooks’ / utility’s response (no direct use of `@azuro-org/dictionaries`), **enabling the flag is safe** — extended markets will appear automatically.
+  - If your app reads from `@azuro-org/dictionaries` directly, note that **extended markets are not in the dictionaries package** — their titles live only on the API. Use the title fields returned here.
 
   If you only have a conditionId later (e.g. in a betslip, history, or activity feed) and need its market title, call [getConditionsState](https://gem.azuro.org/hub/apps/toolkit/feed/getConditionsState) — its ConditionStateData now exposes title for the condition and each outcome. The SDK’s [useConditionsState](https://gem.azuro.org/hub/apps/sdk/watch-hooks/useConditionsState) wraps that endpoint.
 

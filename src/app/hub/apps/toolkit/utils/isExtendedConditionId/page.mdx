@@ -37,17 +37,23 @@ isExtendedConditionId('')                                // false
 
 An extended condition is not in `@azuro-org/dictionaries`, so its names are the titles the API returns with it:
 `ConditionDetailedData.title` and `OutcomeData.title` from
-[`getConditionsByGameIds`](/hub/apps/toolkit/feed/getConditionsByGameIds), or the same fields from
-[`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) when you only have the condition id.
+[`getConditionsByGameIds`](/hub/apps/toolkit/feed/getConditionsByGameIds), or `ConditionStateData.title` and the
+`title` of each of its `outcomes` from [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) when you
+only have the condition id. A legacy condition can carry a title too; the dictionaries name it when it has none.
 
 ```ts
 import { isExtendedConditionId, type ConditionDetailedData } from '@azuro-org/toolkit'
 import { getMarketName } from '@azuro-org/dictionaries'
 
 const getConditionMarketName = (condition: ConditionDetailedData) => {
-  if (isExtendedConditionId(condition.conditionId)) {
-    // extended: the title comes with the condition
+  // a title from the API wins for any condition, as in groupConditionsByMarket
+  if (condition.title && condition.title !== 'null') {
     return condition.title
+  }
+
+  // extended: not in the dictionaries, so there is nothing to fall back to
+  if (isExtendedConditionId(condition.conditionId)) {
+    return 'Unknown'
   }
 
   // legacy: the dictionaries name the market by any of its outcomes
