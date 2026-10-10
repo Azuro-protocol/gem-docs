@@ -98,6 +98,8 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 
 import { type Address } from 'viem'
 ```
@@ -113,8 +115,9 @@ import { type Address } from 'viem'
 
 ```ts
 type GetBetsReportResult = BetsReportResult & {
-  /** `true` when `maxPages` was hit before the walk reached the end of the bettor's history - the
-   * figures below are then a lower bound, not an exact total, and the UI must surface that */
+  /** `true` when the walk stopped before the end of the bettor's history (it hit `maxPages`, or more
+   * than 5000 bets share one timestamp) - the figures below are then a lower bound, not an exact
+   * total, and the UI must surface that */
   isTruncated: boolean
 }
 
@@ -165,7 +168,7 @@ type BetsReportRow = {
 
 ##### ROI covers the bets that were at risk
 
-A bet counts as settled once it is `Won`, `Lost`, or cashed out - checked in that order, because a
+A bet counts as settled once it is cashed out, `Won` or `Lost` - checked in that order, because a
 cashed-out bet keeps a notional settlement payout that would otherwise double-count it as `Won` too.
 
 Two kinds of bet are left out of `turnover`, `returns` and `roi`:
@@ -178,7 +181,7 @@ Two kinds of bet are left out of `turnover`, `returns` and `roi`:
   that was cashed out before being voided is *not* one of these - the bettor took a price and the
   money moved, so it stays a settled bet paid at its cashout amount.
 
-`profit = returns - turnover`, and `roi = profit / turnover * 100`, rounded to 2 decimals.
+`profit = returns - turnover`, and `roi = profit / turnover * 100`, truncated toward zero to 2 decimals.
 
 ##### Returns are the recorded payout
 
@@ -233,7 +236,8 @@ type BetsReportEntry = {
   /** whether a freebet's stake goes back to the freebet fund when it wins - decides the bettor's share;
    * null or absent counts as returnable; ignored on a bet funded by the bettor */
   isFreebetAmountReturnable?: boolean | null
-  /** once redeemed, `rawPayout` holds the amount actually paid out on chain */
+  /** @deprecated ignored: `rawPayout` already holds the amount actually paid once the bet is redeemed,
+   * so the report reads it whether the bet is redeemed or not */
   isRedeemed: boolean
   /** @deprecated ignored: the report reads the payout recorded for the bet, which is already priced by the rules
    * in force when the bet was placed */
@@ -253,7 +257,8 @@ type BetsReportEntry = {
 `isFreebetAmountReturnable` is new and optional; an entry without it is valued as returnable.
 `getBetsReport` fills it from the subgraph. `createdAt` and each leg's `odds` used to be required for the
 combo rebuild; they are now optional, deprecated and ignored, so entries built by older code still
-type-check.
+type-check. `isRedeemed` stays required in the type but is deprecated and ignored too: a redeemed bet's
+`rawPayout` is already the amount actually paid.
 
 ##### Count semantics - do not double-count
 
@@ -268,6 +273,7 @@ what you need - in which case read `result.betsCount` directly.
 
 ##### `isTruncated`
 
-`true` when the walk hit `maxPages` before reaching the end of the bettor's history. When that happens,
+`true` when the walk stopped before reaching the end of the bettor's history: it hit `maxPages`, or, very
+rarely, more than 5000 bets share one creation timestamp, which the subgraph cannot page past. When that happens,
 every figure in the report is a lower bound rather than an exact total, and the UI must surface it -
 for example "based on the most recent 50,000 bets" - rather than presenting the numbers as final.

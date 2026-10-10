@@ -9,7 +9,7 @@ given `affiliates`).
 <Callout type="warning">
   The query needs a bets subgraph that serves the freebet fields of `Bettor`. Polygon, Base, Polygon Amoy and
   Base Sepolia serve them. On a chain whose bets subgraph does not serve them yet - at the time of this
-  release Gnosis, Chiliz, Chiliz Spicy and BSC - the query fails with a validation error and the hook returns
+  release Gnosis, Chiliz, Chiliz Spicy, BSC and BSC Testnet - the query fails with a validation error and the hook returns
   an error. `useBets` still works on those chains.
 </Callout>
 
@@ -49,6 +49,8 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 
 type BettorsQuery = {
   __typename?: 'Query'
@@ -160,11 +162,13 @@ current after the wallet's own actions:
   - a cash-out lowers `inBets` by the stake and raises `cashedOutBetsCount` by one.
 
   No figure goes below zero. The summary is then re-read from the subgraph about 5 and 15 seconds later to
-  confirm. A summary with no row for the bet is re-read immediately instead.
+  confirm. The patch takes the bet's figures from a cached `useBets` list: a summary with no row for the bet,
+  or every summary when the bet is in no cached list, is re-read immediately instead.
 - **A new bet** through `useBet`: the summary is re-read about 0, 4, 10 and 25 seconds after the transaction
   receipt, so the bet appears once the subgraph has recorded it, without a reload.
 
 ### Formatting
 
-Amounts are summed in the token's base units and then formatted with the current chain's bet token decimals.
-The formatting follows a chain switch while the hook stays mounted.
+Amounts are summed in the token's base units and then formatted with the bet token decimals of the hook's
+chain: `chainId` when given, otherwise the app's current chain, whose switch the formatting follows while the
+hook stays mounted.

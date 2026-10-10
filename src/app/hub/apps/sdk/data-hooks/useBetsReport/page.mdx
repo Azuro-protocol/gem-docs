@@ -85,6 +85,8 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 
 import { type Address } from 'viem'
 ```
@@ -163,8 +165,9 @@ A bet counts as settled once it is `Won`, `Lost`, or cashed out. Two kinds of be
   exactly how unlucky a bettor was with cancellations. A bet cashed out before being voided still
   counts as settled, paid at its cashout amount.
 
-Returns are the payout the subgraph recorded for each bet, priced over its surviving legs; once redeemed,
-it is the amount actually paid. Nothing is rebuilt from leg odds. A leg counts as voided when its selection
+A won or lost bet returns the payout the subgraph recorded for it, priced over its surviving legs; once
+redeemed, it is the amount actually paid. A cashed-out bet returns what the cash-out paid. Nothing is
+rebuilt from leg odds. A leg counts as voided when its selection
 result is `Canceled`. See [`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport).
 
 ### Freebet bets are excluded from ROI

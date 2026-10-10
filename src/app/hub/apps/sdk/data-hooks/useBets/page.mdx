@@ -88,6 +88,8 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 
 type QueryResult = {
   bets: Bet[],
@@ -123,6 +125,8 @@ UseInfiniteQueryResult<QueryResult>
 
 ```ts
 import { type UseInfiniteQueryResult } from '@tanstack/react-query'
+import { type Address, type Hex } from 'viem'
+import { type BetOrderState, type GraphBetStatus } from '@azuro-org/toolkit'
 
 type Selection = {
   conditionId: string
@@ -141,29 +145,36 @@ type BetOutcome = {
 } & Selection
 
 type Bet = {
-  affiliate: string // affiliate address
+  orderId: string // bettorAddressLowerCase_nonce
+  actor: Address // bettor address
+  affiliate: Address // affiliate address
   tokenId: string // id of the bet's NFT
-  freebetId?: string | null // id of the freebet's NFT
+  freebetId: string | null // id of the freebet, `null` for a bet funded by the bettor
   isFreebetAmountReturnable: boolean | null // decides a freebet's share of a win (see below); null counts as returnable
-  freebetContractAddress?: Address // freebet contract address
+  paymaster: Address | null // freebet contract address, `null` for a bet funded by the bettor
   totalOdds: number // total odds as the subgraph records them (up to 12 decimals) - settled odds leave a voided leg out, a canceled bet has 1
   coreAddress: Address // core contract address
   lpAddress: Address // lp contract address
   outcomes: BetOutcome[] // bet's outcomes list
-  txHash: string // bet's transaction hash
-  status: BetStatus // subgraph bet status
-  amount: string // bet's amount in USDT
+  txHash: Hex | null // bet's transaction hash
+  redeemedTxHash: Hex | null // redeem transaction hash
+  orderState: BetOrderState // order state, derived from the subgraph status
+  status: GraphBetStatus | null // subgraph bet status
+  rejectedErrorCode: string | null // contract error code of a rejected order
+  amount: string // bet's amount in the bet token
   possibleWin: number // potential payout as recorded - for a freebet, the bettor's share; a lost bet keeps the missed win
   payout: number | null // claimable amount - `null` unless the bet won or was canceled, is redeemable and not cashed out; for a freebet, the bettor's share; gates a redeem action
   settledPayout: number | null // payout as recorded once the bet is settled (0 if lost), the amount actually paid once redeemed; `null` before settlement; for a freebet, the bettor's share
-  cashout: string | null // cashout amount in USDT
-  createdAt: number // created date
+  createdAt: number // created date, unix seconds
+  resolvedAt: number | null // resolved date, unix seconds
+  redeemedAt?: number | null // redeemed date, unix seconds
+  cashout?: string // cashout amount in the bet token, set only on a cashed-out bet
   isWin: boolean // flag indicates the bet's win
   isLose: boolean // flag indicates the bet's lose
   isRedeemable: boolean // flag indicates the possibility of redeeming the bet
   isRedeemed: boolean // flag indicates whether the bet has been redeemed
   isCanceled: boolean // flag indicates whether the bet has been canceled
-  isLive: boolean // flag indicates whether the bet is live
+  isRejected: boolean // flag indicates whether the order was rejected
   isCashedOut: boolean // flag indicates whether the bet is cashed out
 }
 ```
@@ -215,6 +226,9 @@ type Bet = {
   A redeemed bet's `settledPayout` is the amount actually paid. For a
   cashed-out bet read `cashout` for what it paid: its `settledPayout` is the recorded payout, not the
   cash-out amount.
+
+  These figures and the freebet rule below describe bets from `useBets`. Bets from
+  [`useLegacyBets`](/hub/apps/sdk/data-hooks/useLegacyBets) keep the v2 figures.
 </Callout>
 
 <Callout type="warning">
@@ -246,4 +260,8 @@ type Bet = {
   Both are the payout the subgraph recorded: `0` for a lost bet, the stake for a canceled one, and once
   redeemed the amount actually paid. `payout` also needs the bet not to be cashed out. For a freebet both
   are the bettor's share, and a won freebet whose share is 0 has `payout` `0`, not `null`.
+
+  A redeem through [`useRedeemBet`](/hub/apps/sdk/write-hooks/useRedeemBet) sets the bet's `payout` to
+  `null` in the cached list as soon as the transaction is confirmed, along with `isRedeemed` and
+  `isRedeemable`, without waiting for the next read.
 </Callout>

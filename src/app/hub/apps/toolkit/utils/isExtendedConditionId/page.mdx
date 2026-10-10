@@ -62,4 +62,7 @@ const getConditionMarketName = (condition: ConditionDetailedData) => {
 ```
 
 [`groupConditionsByMarket`](/hub/apps/toolkit/utils/groupConditionsByMarket) and
-[`getPredefinedCombo`](/hub/apps/toolkit/feed/getPredefinedCombo) already apply this rule.
+[`getPredefinedCombo`](/hub/apps/toolkit/feed/getPredefinedCombo) classify conditions with this predicate and
+never read `@azuro-org/dictionaries` for an extended condition. When an extended condition has no title,
+`groupConditionsByMarket` names its market by the condition id and its selections by their outcome ids, and
+`getPredefinedCombo` names both `'Unknown'`.
