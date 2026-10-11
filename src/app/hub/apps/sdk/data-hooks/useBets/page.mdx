@@ -88,6 +88,8 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 
 type QueryResult = {
   bets: Bet[],
@@ -123,6 +125,8 @@ UseInfiniteQueryResult<QueryResult>
 
 ```ts
 import { type UseInfiniteQueryResult } from '@tanstack/react-query'
+import { type Address, type Hex } from 'viem'
+import { type BetOrderState, type GraphBetStatus } from '@azuro-org/toolkit'
 
 type Selection = {
   conditionId: string
@@ -141,28 +145,36 @@ type BetOutcome = {
 } & Selection
 
 type Bet = {
-  affiliate: string // affiliate address
+  orderId: string // bettorAddressLowerCase_nonce
+  actor: Address // bettor address
+  affiliate: Address // affiliate address
   tokenId: string // id of the bet's NFT
-  freebetId?: string | null // id of the freebet's NFT
-  freebetContractAddress?: Address // freebet contract address
-  totalOdds: number // total odds of the bet - voided legs are excluded from the product
+  freebetId: string | null // id of the freebet, `null` for a bet funded by the bettor
+  isFreebetAmountReturnable: boolean | null // decides a freebet's share of a win (see below); null counts as returnable
+  paymaster: Address | null // freebet contract address, `null` for a bet funded by the bettor
+  totalOdds: number // total odds as the subgraph records them (up to 12 decimals) - settled odds leave a voided leg out, a canceled bet has 1
   coreAddress: Address // core contract address
   lpAddress: Address // lp contract address
   outcomes: BetOutcome[] // bet's outcomes list
-  txHash: string // bet's transaction hash
-  status: BetStatus // subgraph bet status
-  amount: string // bet's amount in USDT
-  possibleWin: number // possible win amount in USDT - excludes voided legs
-  payout: number | null // claimable amount - `null` once the bet is redeemed or cashed out; gates a redeem action
-  settledPayout: number | null // what the bet actually returned - stays populated after redemption; use for historical/aggregate views
-  cashout: string | null // cashout amount in USDT
-  createdAt: number // created date
+  txHash: Hex | null // bet's transaction hash
+  redeemedTxHash: Hex | null // redeem transaction hash
+  orderState: BetOrderState // order state, derived from the subgraph status
+  status: GraphBetStatus | null // subgraph bet status
+  rejectedErrorCode: string | null // contract error code of a rejected order
+  amount: string // bet's amount in the bet token
+  possibleWin: number // potential payout as recorded - for a freebet, the bettor's share; a lost bet keeps the missed win
+  payout: number | null // claimable amount - `null` unless the bet won or was canceled, is redeemable and not cashed out; for a freebet, the bettor's share; gates a redeem action
+  settledPayout: number | null // payout as recorded once the bet is settled (0 if lost), the amount actually paid once redeemed; `null` before settlement; for a freebet, the bettor's share
+  createdAt: number // created date, unix seconds
+  resolvedAt: number | null // resolved date, unix seconds
+  redeemedAt?: number | null // redeemed date, unix seconds
+  cashout?: string // cashout amount in the bet token, set only on a cashed-out bet
   isWin: boolean // flag indicates the bet's win
   isLose: boolean // flag indicates the bet's lose
   isRedeemable: boolean // flag indicates the possibility of redeeming the bet
   isRedeemed: boolean // flag indicates whether the bet has been redeemed
   isCanceled: boolean // flag indicates whether the bet has been canceled
-  isLive: boolean // flag indicates whether the bet is live
+  isRejected: boolean // flag indicates whether the order was rejected
   isCashedOut: boolean // flag indicates whether the bet is cashed out
 }
 ```
@@ -191,29 +203,50 @@ type Bet = {
 
   Won, lost, voided and pending are mutually exclusive: a settled leg never reports `null`, and a pending
   leg reports `isWin: null` / `isLose: null` with `isCanceled: false`.
+
+  A leg is voided exactly when the subgraph records its selection result as `Canceled`, even when its
+  outcome settles won or lost (a leg rejected from a combo).
 </Callout>
 
 <Callout type="info">
-  **Voided legs are excluded from combo odds.** A refunded leg no longer multiplies into a combo's
-  `totalOdds`, so `totalOdds` and `possibleWin` for a combo containing a voided leg are lower — and correct
-  — than they were before. A combo whose every leg was voided has `totalOdds` of `1`: the stake is simply
-  returned.
+  **Figures are read as the bets subgraph records them.** `totalOdds`, `possibleWin`, `payout` and
+  `settledPayout` come straight from the subgraph, already priced by the protocol's rule; nothing is
+  re-priced on the client. `totalOdds` carries the subgraph's precision (up to 12 decimals), so format it
+  for display.
+
+  | State | `totalOdds` | `possibleWin` | `payout` | `settledPayout` |
+  |---|---|---|---|---|
+  | pending | the placed odds | the potential payout | `null` | `null` |
+  | won | the settled odds | the potential payout | the payout while redeemable | the payout |
+  | lost | the placed odds | the potential payout - the win the bettor missed | `null` | `0` |
+  | canceled | `1` | the stake (`0` for a freebet) | the stake (`0` for a freebet) while redeemable | the stake (`0` for a freebet) |
+  | cashed out | the settled odds, else the placed odds | the potential payout | `null` | the recorded payout once settled |
+
+  For a freebet, every money figure is the bettor's share (see below). Settled odds leave a voided leg out.
+  A redeemed bet's `settledPayout` is the amount actually paid. For a
+  cashed-out bet read `cashout` for what it paid: its `settledPayout` is the recorded payout, not the
+  cash-out amount.
+
+  These figures and the freebet rule below describe bets from `useBets`. Bets from
+  [`useLegacyBets`](/hub/apps/sdk/data-hooks/useLegacyBets) keep the v2 figures.
 </Callout>
 
 <Callout type="warning">
-  **Combo odds are re-priced, so their values change.** The feed applies its fee to every outcome's
-  odds, and a combo is priced by removing that fee per leg and applying it **once** to the product —
-  which is what [`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds) does. The subgraph records the
-  plain product instead, compounding the fee once per leg, so `totalOdds`, `possibleWin`, `payout` and
-  `settledPayout` for an unredeemed combo now report **higher** figures than before, by more the more
-  legs the bet has. They are the correct ones.
+  **A freebet's money figures are the bettor's share.** The liquidity pool pays a freebet's whole payout to
+  the freebet contract, which splits it between the bettor and the freebet fund. `possibleWin`, `payout`
+  and `settledPayout` of a freebet are what the bettor receives:
 
-  This applies to **every** unredeemed combo, not only one with a voided leg.
+  - payout no greater than the stake (a lost freebet, a canceled one): `0`;
+  - the freebet's amount is returnable: payout minus the stake;
+  - `isFreebetAmountReturnable` is `false`: the whole payout.
 
-  Two shapes are deliberately left as they were: a combo placed before the fee existed (its leg odds are
-  raw, so the plain product is already right), and a bet that has been redeemed (its recorded payout is
-  the amount actually paid on chain). A cashed-out bet is never re-priced either — it was paid at the
-  price the bettor took, so read `cashout` for what it returned.
+  A freebet with no flag (`null`) counts as returnable. For example, a returnable freebet of 1.00 won at
+  1.50 has `possibleWin`, `payout` and `settledPayout` of 0.50; a non-returnable one has 1.50; a canceled
+  freebet has 0. This is the same rule the toolkit exports as `calcFreebetBettorShare`. The gross payout
+  of the pool is not on `Bet`. Real-money bets are unchanged.
+
+  Changed in SDK v8.2.0: a freebet's `payout` and `settledPayout` used to be the pool's whole payout
+  (the type is unchanged).
 </Callout>
 
 <Callout type="info">
@@ -224,9 +257,11 @@ type Bet = {
   redemption. Use `settledPayout` for historical and aggregate views; use `payout` only to gate a redeem
   action.
 
-  Both are read from the protocol's recorded payout, with one exception: a **winning combo that has not
-  been redeemed yet**. Its recorded payout compounds the feed's fee once per leg, and still credits any
-  voided leg as if it had won; both figures are rebuilt from the surviving legs instead, at the same
-  `totalOdds` this hook already reports. Once redeemed, the recorded payout is the amount actually paid
-  and is used as is.
+  Both are the payout the subgraph recorded: `0` for a lost bet, the stake for a canceled one, and once
+  redeemed the amount actually paid. `payout` also needs the bet not to be cashed out. For a freebet both
+  are the bettor's share, and a won freebet whose share is 0 has `payout` `0`, not `null`.
+
+  A redeem through [`useRedeemBet`](/hub/apps/sdk/write-hooks/useRedeemBet) sets the bet's `payout` to
+  `null` in the cached list as soon as the transaction is confirmed, along with `isRedeemed` and
+  `isRedeemable`, without waiting for the next read.
 </Callout>

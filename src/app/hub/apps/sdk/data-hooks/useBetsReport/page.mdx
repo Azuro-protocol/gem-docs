@@ -85,6 +85,8 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 
 import { type Address } from 'viem'
 ```
@@ -142,9 +144,9 @@ type BetsReportRow = {
   freebet: {
     count: number
     canceledCount: number
-    turnover: string
-    returns: string
-    profit: string
+    turnover: string // stakes of freebet-funded bets
+    returns: string // the bettor's share of their payouts
+    profit: string // equals `returns`
     atStake: string
     refunded: string
   }
@@ -163,16 +165,31 @@ A bet counts as settled once it is `Won`, `Lost`, or cashed out. Two kinds of be
   exactly how unlucky a bettor was with cancellations. A bet cashed out before being voided still
   counts as settled, paid at its cashout amount.
 
-Returns are read from the protocol's recorded payout, with one exception: a winning combo's recorded
-payout still credits a voided leg until the bet is redeemed, so its returns are rebuilt from the
-surviving legs. Once redeemed, the recorded payout is the amount actually paid and is used as is. See
-[`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport) for how the rebuilt figure is priced.
+A won or lost bet returns the payout the subgraph recorded for it, priced over its surviving legs; once
+redeemed, it is the amount actually paid. A cashed-out bet returns what the cash-out paid. Nothing is
+rebuilt from leg odds. A leg counts as voided when its selection
+result is `Canceled`. See [`getBetsReport`](/hub/apps/toolkit/bet/getBetsReport).
 
 ### Freebet bets are excluded from ROI
 
 A freebet-funded bet didn't cost the bettor their own money, so folding it into `turnover` would distort
 ROI. Every freebet-funded bet is instead counted in the row's `freebet` bucket and never touches
 `turnover`, `returns`, `profit`, `roi`, or `atStake` at the row level.
+
+The `freebet` line reads as follows:
+
+- `turnover` is the sum of the freebets' stakes;
+- `returns` is the sum of the bettor's shares of their payouts, by the same rule as `calcFreebetBettorShare`
+  in the toolkit: nothing when the payout does not exceed the stake, payout minus stake for a returnable
+  freebet (no flag counts as returnable), the whole payout when the flag is `false`;
+- `profit` equals `returns`, because the bettor staked none of their own money;
+- a canceled freebet adds its stake to `freebet.refunded` only.
+
+For example, if the only freebet is a returnable 1.00 won at 1.50, then `turnover` is 1.00, `returns` is 0.50
+and `profit` is 0.50; for a non-returnable one `returns` is 1.50.
+
+Changed in SDK v8.2.0 / Toolkit v7.2.0: `freebet.returns` used to sum the pool's whole payout and
+`freebet.profit` was `returns - turnover`.
 
 ### Count semantics - do not double-count
 

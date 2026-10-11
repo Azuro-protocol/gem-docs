@@ -52,7 +52,7 @@ type OutcomeData = {
   outcomeId: string
   odds: string
   sort: `${number}`
-  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  /** Extended conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
   point?: string | null
   hidden: boolean
   state: OutcomeState
@@ -70,9 +70,10 @@ type OutcomeData = {
 
 <Callout type="info">
   **Titles are resolved for you.** When the API omits a title, the toolkit fills it from
-  `@azuro-org/dictionaries` for legacy conditions, and falls back to `'Unknown'` for new-generation
-  (`conditionId[0] === '5'`) conditions whose metadata lives only on the API. `totalOdds` is computed
-  with [`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds) over the combo's outcome odds.
+  `@azuro-org/dictionaries` for legacy conditions, and falls back to `'Unknown'` for extended conditions
+  (ids starting with `5` or `6`, see [`isExtendedConditionId`](/hub/apps/toolkit/utils/isExtendedConditionId)),
+  whose metadata lives only on the API. `totalOdds` is computed with
+  [`calcMinOdds`](/hub/apps/toolkit/utils/calcMinOdds) over the combo's outcome odds.
 </Callout>
 
 <Callout type="warning">

@@ -38,6 +38,8 @@ type ChainId =
   | 80002   // Polygon Amoy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 ```
 
 ## Return Value
@@ -74,7 +76,7 @@ type OutcomeData = {
   outcomeId: string
   odds: string
   sort: `${number}`
-  /** Modern ("5...") conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
+  /** Extended conditions only: numeric handicap/line value, e.g. "-2.5" / "+2.5" */
   point?: string | null
   hidden: boolean
   state: OutcomeState

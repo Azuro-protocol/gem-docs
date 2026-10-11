@@ -98,6 +98,8 @@ type ChainId =
   | 88882   // Chiliz Spicy
   | 8453    // Base
   | 84532   // Base Sepolia
+  | 97      // BSC Testnet
+  | 56      // BSC
 
 import { type Address } from 'viem'
 ```
@@ -113,8 +115,9 @@ import { type Address } from 'viem'
 
 ```ts
 type GetBetsReportResult = BetsReportResult & {
-  /** `true` when `maxPages` was hit before the walk reached the end of the bettor's history - the
-   * figures below are then a lower bound, not an exact total, and the UI must surface that */
+  /** `true` when the walk stopped before the end of the bettor's history (it hit `maxPages`, or more
+   * than 5000 bets share one timestamp) - the figures below are then a lower bound, not an exact
+   * total, and the UI must surface that */
   isTruncated: boolean
 }
 
@@ -151,8 +154,11 @@ type BetsReportRow = {
   freebet: {
     count: number
     canceledCount: number
+    /** stakes of freebet-funded bets */
     turnover: string
+    /** the bettor's share of their payouts */
     returns: string
+    /** equals `returns` - the bettor staked none of their own money */
     profit: string
     atStake: string
     refunded: string
@@ -162,7 +168,7 @@ type BetsReportRow = {
 
 ##### ROI covers the bets that were at risk
 
-A bet counts as settled once it is `Won`, `Lost`, or cashed out - checked in that order, because a
+A bet counts as settled once it is cashed out, `Won` or `Lost` - checked in that order, because a
 cashed-out bet keeps a notional settlement payout that would otherwise double-count it as `Won` too.
 
 Two kinds of bet are left out of `turnover`, `returns` and `roi`:
@@ -175,40 +181,84 @@ Two kinds of bet are left out of `turnover`, `returns` and `roi`:
   that was cashed out before being voided is *not* one of these - the bettor took a price and the
   money moved, so it stays a settled bet paid at its cashout amount.
 
-`profit = returns - turnover`, and `roi = profit / turnover * 100`, rounded to 2 decimals.
+`profit = returns - turnover`, and `roi = profit / turnover * 100`, truncated toward zero to 2 decimals.
 
-##### Returns are read, not reconstructed - except for unredeemed combos
+##### Returns are the recorded payout
 
-Returns come from the protocol's own recorded payout, and they are never reconstructed from odds: a
-bet's payout is not `amount * settledOdds`. Never derive one from `settledOdds`, `odds` or
-`potentialPayout` — all three are the plain product of the leg odds, and none of them is reduced when a
-leg is voided.
+A won or lost bet returns the payout the subgraph recorded for it (0 for a lost bet), priced over its
+surviving legs; once the bet is redeemed, that is the amount actually paid out on chain. A cashed-out bet returns what the
+cash-out paid. Nothing is rebuilt from leg odds, whatever the bet's creation time or legs.
 
-**A winning combo that has not been redeemed yet** is the exception, because its recorded payout is
-wrong for two independent reasons:
-
-- the feed applies its fee to every outcome's odds, and a combo's recorded payout is the plain product
-  of those legs — so it **compounds the fee once per leg** instead of applying it once to the product.
-  It understates by more the more legs the bet has;
-- a voided leg is never removed from that figure, so it keeps crediting the leg as if it had won.
-
-Those returns are rebuilt from the surviving legs with
-[`calcComboOdds`](/hub/apps/toolkit/utils/calcComboOdds), which prices a combo the way the protocol
-does. Redeemed bets always read the recorded payout, which by then is the amount actually paid out.
-
-**Bets placed before the feed's fee existed are left alone.** For those the leg odds are raw, so the
-plain product *is* the right price and the recorded payout is already correct — re-pricing them would
-overstate returns. This is why `BetsReportEntry` carries a required `createdAt`: `getBetsReport` fills
-it from the bet, and `calcComboOdds` uses it to pick the right rule. If you call `calcBetsReport`
-directly, you must supply it — there is no safe default.
+A leg is voided exactly when its selection result is `Canceled`, which is what `getBetsReport` reads.
 
 ##### Freebet bets are excluded from ROI
 
 A freebet-funded bet didn't cost the bettor their own money, so folding it into `turnover` alongside
 own-funds bets would distort ROI. Every freebet-funded bet is instead counted in the row's `freebet`
 bucket and never touches `turnover`, `returns`, `profit`, `roi`, or `atStake` at the row level.
-`freebet.profit` is `returns - turnover` mechanically, but since the stake wasn't the bettor's own
-money, `freebet.returns` is the number that represents their actual gain.
+For the `freebet` line:
+
+- `turnover` is the sum of the freebets' stakes;
+- `returns` is the sum of the bettor's shares of their payouts. The liquidity pool pays a freebet's whole
+  payout to the freebet contract, which passes the bettor only a share: nothing when the payout does not
+  exceed the stake, the payout minus the stake when the freebet's amount is returnable, the whole payout
+  otherwise. `calcFreebetBettorShare` applies this rule, and a freebet with no flag counts as returnable;
+- `profit` equals `returns`, because the bettor staked none of their own money, so whatever they receive
+  is their gain.
+
+Canceled freebets add their stake to `freebet.refunded` only. For example, a returnable freebet of 1.00
+won at 1.50 gives `turnover` 1.00, `returns` 0.50 and `profit` 0.50; if its amount is not returnable,
+`returns` is 1.50.
+
+<Callout type="info">
+  **Changed in Toolkit v7.2.0:** `freebet.returns` used to sum the pool's whole payout and
+  `freebet.profit` was `returns - turnover`.
+</Callout>
+
+##### Building entries for `calcBetsReport` yourself
+
+`getBetsReport` builds its entries from the subgraph. If you call `calcBetsReport` directly, an entry
+has this shape:
+
+```ts
+type BetsReportSelection = {
+  /** @deprecated ignored: the report reads the payout recorded for the bet and never prices it from the odds of its legs */
+  odds?: string
+  isCanceled: boolean
+}
+
+type BetsReportEntry = {
+  id: string
+  status: GraphBetStatus
+  result: BetResult | null
+  isCashedOut: boolean
+  isFreebet: boolean
+  /** whether a freebet's stake goes back to the freebet fund when it wins - decides the bettor's share;
+   * null or absent counts as returnable; ignored on a bet funded by the bettor */
+  isFreebetAmountReturnable?: boolean | null
+  /** @deprecated ignored: `rawPayout` already holds the amount actually paid once the bet is redeemed,
+   * so the report reads it whether the bet is redeemed or not */
+  isRedeemed: boolean
+  /** @deprecated ignored: the report reads the payout recorded for the bet, which is already priced by the rules
+   * in force when the bet was placed */
+  createdAt?: number
+  /** integer string, token base units */
+  rawAmount: string
+  /** integer string, token base units: the payout recorded for the bet; a freebet's goes to the freebet contract,
+   * which passes the bettor only a share of it */
+  rawPayout: string | null
+  rawCashoutPayout: string | null
+  /** every leg of the bet - a single is a bet with exactly one of them */
+  selections: BetsReportSelection[]
+  token: { address: Address, decimals: number, symbol: string | null }
+}
+```
+
+`isFreebetAmountReturnable` is new and optional; an entry without it is valued as returnable.
+`getBetsReport` fills it from the subgraph. `createdAt` and each leg's `odds` used to be required for the
+combo rebuild; they are now optional, deprecated and ignored, so entries built by older code still
+type-check. `isRedeemed` stays required in the type but is deprecated and ignored too: a redeemed bet's
+`rawPayout` is already the amount actually paid.
 
 ##### Count semantics - do not double-count
 
@@ -223,6 +273,7 @@ what you need - in which case read `result.betsCount` directly.
 
 ##### `isTruncated`
 
-`true` when the walk hit `maxPages` before reaching the end of the bettor's history. When that happens,
+`true` when the walk stopped before reaching the end of the bettor's history: it hit `maxPages`, or, very
+rarely, more than 5000 bets share one creation timestamp, which the subgraph cannot page past. When that happens,
 every figure in the report is a lower bound rather than an exact total, and the UI must surface it -
 for example "based on the most recent 50,000 bets" - rather than presenting the numbers as final.

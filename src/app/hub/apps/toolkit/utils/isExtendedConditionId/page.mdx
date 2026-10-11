@@ -1,0 +1,68 @@
+import { Callout } from 'components'
+
+# isExtendedConditionId
+
+Tells whether a condition is extended: its market and selection titles come with the condition from the API, not
+from the `@azuro-org/dictionaries` package.
+
+#### Usage
+
+```ts
+import { isExtendedConditionId } from '@azuro-org/toolkit'
+
+isExtendedConditionId('6001000000000000000000000000001') // true
+isExtendedConditionId('5001000000000000000000000000001') // true  - extended, an older condition
+isExtendedConditionId('1001000000000000000000000000001') // false - legacy
+isExtendedConditionId('')                                // false
+```
+
+#### Props
+
+```ts
+(conditionId: string) => boolean
+```
+
+#### Return Value
+
+`boolean`
+
+<Callout type="info">
+  **The first digit of a condition id is its type.** Ids starting with `5` or `6` are both the extended type, `5`
+  on older conditions. Every other id is a legacy condition, named from `@azuro-org/dictionaries`. Use this
+  predicate rather than comparing the first character yourself, so your app classifies a condition exactly as the
+  toolkit does.
+</Callout>
+
+#### Naming a condition
+
+An extended condition is not in `@azuro-org/dictionaries`, so its names are the titles the API returns with it:
+`ConditionDetailedData.title` and `OutcomeData.title` from
+[`getConditionsByGameIds`](/hub/apps/toolkit/feed/getConditionsByGameIds), or `ConditionStateData.title` and the
+`title` of each of its `outcomes` from [`getConditionsState`](/hub/apps/toolkit/feed/getConditionsState) when you
+only have the condition id. A legacy condition can carry a title too; the dictionaries name it when it has none.
+
+```ts
+import { isExtendedConditionId, type ConditionDetailedData } from '@azuro-org/toolkit'
+import { getMarketName } from '@azuro-org/dictionaries'
+
+const getConditionMarketName = (condition: ConditionDetailedData) => {
+  // a title from the API wins for any condition, as in groupConditionsByMarket
+  if (condition.title && condition.title !== 'null') {
+    return condition.title
+  }
+
+  // extended: not in the dictionaries, so there is nothing to fall back to
+  if (isExtendedConditionId(condition.conditionId)) {
+    return 'Unknown'
+  }
+
+  // legacy: the dictionaries name the market by any of its outcomes
+  return getMarketName({ outcomeId: condition.outcomes[0]!.outcomeId })
+}
+```
+
+[`groupConditionsByMarket`](/hub/apps/toolkit/utils/groupConditionsByMarket) and
+[`getPredefinedCombo`](/hub/apps/toolkit/feed/getPredefinedCombo) classify conditions with this predicate and
+never read `@azuro-org/dictionaries` for an extended condition. When an extended condition has no title,
+`groupConditionsByMarket` names its market by the condition id and its selections by their outcome ids, and
+`getPredefinedCombo` names both `'Unknown'`.
