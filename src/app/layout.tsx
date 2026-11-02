@@ -83,7 +83,7 @@ export default async function RootLayout({ children }) {
     <Head />
     <body>
     <Layout
-      // banner={<Banner storageKey="Nextra 2">Nextra 2 Alpha</Banner>}
+      banner={<Banner storageKey="azuro-operational-pause" dismissible={false}>Azuro is currently in an operational pause. Follow @azuroprotocol for official updates.</Banner>}
       navbar={navbar}
       footer={<Footer />}
       lastUpdated={<NoLastUpdated />}
